@@ -7,6 +7,7 @@ import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { adicionarInscricaoBatismo } from "@/lib/notifications/batismo-notificacao";
 
 interface BatismoData {
   nome: string;
@@ -62,8 +63,6 @@ export default function BatismoScreen() {
       return;
     }
 
-
-
     if (!motivacao.trim() || motivacao.length < 20) {
       Alert.alert("Atenção", "Por favor, descreva sua motivação (mínimo 20 caracteres).");
       return;
@@ -80,11 +79,18 @@ export default function BatismoScreen() {
         createdAt: new Date().toISOString(),
       };
 
-      // Salvar inscrição localmente
+      // Salvar inscrição localmente e notificar admin
       const inscricoes = await AsyncStorage.getItem("@batismo_inscricoes");
       const lista = inscricoes ? JSON.parse(inscricoes) : [];
       lista.push(batismoData);
       await AsyncStorage.setItem("@batismo_inscricoes", JSON.stringify(lista));
+
+      // Notificar admin sobre nova inscrição
+      await adicionarInscricaoBatismo({
+        nome: nome.trim(),
+        dataNascimento: dataNascimento.trim(),
+        celula: "Não informada",
+      });
 
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -92,7 +98,7 @@ export default function BatismoScreen() {
 
       Alert.alert(
         "Inscrição Enviada!",
-        `Obrigado ${nome}! Sua inscrição para batismo foi registrada. Em breve entraremos em contato para confirmar a data.`,
+        `Obrigado ${nome}! Sua inscrição para batismo foi registrada. A liderança foi notificada e em breve entraremos em contato.`,
         [{ text: "OK", onPress: () => router.back() }]
       );
 
@@ -188,8 +194,6 @@ export default function BatismoScreen() {
               editable={!loading}
             />
           </View>
-
-
 
           {/* Motivação */}
           <View className="gap-2">

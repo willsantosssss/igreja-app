@@ -3,18 +3,27 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import {
+  obterInscricoes,
+  obterInscricoesPendentes,
+  aprovarInscricao,
+  rejeitarInscricao,
+  deletarInscricao,
+  contarInscricoesPendentes,
+} from "@/lib/notifications/batismo-notificacao";
+import { useCallback } from "react";
 
 interface BatismoData {
+  id: string;
   nome: string;
   dataNascimento: string;
-  telefone: string;
-  motivacao: string;
-  createdAt: string;
-  id?: string;
-  status?: "pendente" | "aprovado" | "rejeitado";
+  celula: string;
+  status: "pendente" | "aprovado" | "rejeitado";
+  dataCriacao: string;
+  dataProcessamento?: string;
 }
 
 export default function AdminBatismoScreen() {
@@ -22,18 +31,22 @@ export default function AdminBatismoScreen() {
   const [inscricoes, setInscricoes] = useState<BatismoData[]>([]);
   const [filtro, setFiltro] = useState<"todas" | "pendente" | "aprovado" | "rejeitado">("todas");
   const [loading, setLoading] = useState(true);
+  const [contadorPendentes, setContadorPendentes] = useState(0);
 
-  useEffect(() => {
-    carregarInscricoes();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      carregarInscricoes();
+    }, [])
+  );
 
   const carregarInscricoes = async () => {
     try {
-      const dados = await AsyncStorage.getItem("@batismo_inscricoes");
-      if (dados) {
-        const lista = JSON.parse(dados);
-        setInscricoes(lista);
-      }
+      const dados = await obterInscricoes();
+      setInscricoes(dados);
+
+      const pendentes = await contarInscricoesPendentes();
+      setContadorPendentes(pendentes);
+
       setLoading(false);
     } catch (error) {
       console.error("Erro ao carregar inscrições:", error);
@@ -41,30 +54,49 @@ export default function AdminBatismoScreen() {
     }
   };
 
-  const atualizarStatus = async (index: number, novoStatus: "pendente" | "aprovado" | "rejeitado") => {
+  const handleAprovar = async (inscricaoId: string, nome: string) => {
     try {
-      const novaLista = [...inscricoes];
-      novaLista[index].status = novoStatus;
-      setInscricoes(novaLista);
-      await AsyncStorage.setItem("@batismo_inscricoes", JSON.stringify(novaLista));
-      
+      await aprovarInscricao(inscricaoId);
+
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
 
-      const statusTexto = {
-        pendente: "Pendente",
-        aprovado: "Aprovado",
-        rejeitado: "Rejeitado",
-      };
-
-      Alert.alert("Sucesso", `Inscrição marcada como ${statusTexto[novoStatus]}`);
+      Alert.alert("Sucesso", `${nome} foi aprovado para batismo!`);
+      carregarInscricoes();
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível atualizar o status");
+      Alert.alert("Erro", "Não foi possível aprovar a inscrição");
     }
   };
 
-  const deletarInscricao = (index: number) => {
+  const handleRejeitar = async (inscricaoId: string, nome: string) => {
+    Alert.prompt(
+      "Rejeitar Inscrição",
+      "Digite o motivo da rejeição (opcional):",
+      [
+        { text: "Cancelar", onPress: () => {} },
+        {
+          text: "Rejeitar",
+          onPress: async (motivo: string | undefined) => {
+            try {
+              await rejeitarInscricao(inscricaoId, motivo);
+
+              if (Platform.OS !== "web") {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }
+
+              Alert.alert("Sucesso", `${nome} foi rejeitado.`);
+              carregarInscricoes();
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível rejeitar a inscrição");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeletar = async (inscricaoId: string) => {
     Alert.alert(
       "Confirmar exclusão",
       "Tem certeza que deseja deletar esta inscrição?",
@@ -74,14 +106,14 @@ export default function AdminBatismoScreen() {
           text: "Deletar",
           onPress: async () => {
             try {
-              const novaLista = inscricoes.filter((_, i) => i !== index);
-              setInscricoes(novaLista);
-              await AsyncStorage.setItem("@batismo_inscricoes", JSON.stringify(novaLista));
-              
+              await deletarInscricao(inscricaoId);
+
               if (Platform.OS !== "web") {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               }
+
               Alert.alert("Sucesso", "Inscrição deletada");
+              carregarInscricoes();
             } catch (error) {
               Alert.alert("Erro", "Não foi possível deletar a inscrição");
             }
@@ -94,10 +126,10 @@ export default function AdminBatismoScreen() {
 
   const inscricesFiltradas = inscricoes.filter((insc) => {
     if (filtro === "todas") return true;
-    return (insc.status || "pendente") === filtro;
+    return insc.status === filtro;
   });
 
-  const getCorStatus = (status?: string) => {
+  const getCorStatus = (status: string) => {
     switch (status) {
       case "aprovado":
         return colors.success;
@@ -108,7 +140,7 @@ export default function AdminBatismoScreen() {
     }
   };
 
-  const getTextoStatus = (status?: string) => {
+  const getTextoStatus = (status: string) => {
     switch (status) {
       case "aprovado":
         return "Aprovado";
@@ -116,6 +148,15 @@ export default function AdminBatismoScreen() {
         return "Rejeitado";
       default:
         return "Pendente";
+    }
+  };
+
+  const formatarData = (dataString: string) => {
+    try {
+      const data = new Date(dataString);
+      return data.toLocaleDateString("pt-BR");
+    } catch {
+      return dataString;
     }
   };
 
@@ -128,10 +169,54 @@ export default function AdminBatismoScreen() {
             <Text className="text-primary font-semibold">← Voltar</Text>
           </TouchableOpacity>
           <Text className="text-3xl font-bold text-foreground">Inscrições de Batismo</Text>
-          <Text className="text-sm text-muted">
-            Total: {inscricoes.length} | Pendentes: {inscricoes.filter(i => (i.status || "pendente") === "pendente").length}
-          </Text>
         </View>
+
+        {/* Estatísticas */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row justify-between items-center">
+            <View>
+              <Text className="text-sm text-muted">Total de Inscrições</Text>
+              <Text className="text-3xl font-bold text-foreground">{inscricoes.length}</Text>
+            </View>
+            <View
+              className="px-4 py-3 rounded-full"
+              style={{ backgroundColor: colors.warning + "20" }}
+            >
+              <Text className="text-2xl font-bold text-warning">{contadorPendentes}</Text>
+              <Text className="text-xs text-warning font-semibold">Pendentes</Text>
+            </View>
+          </View>
+
+          <View className="flex-row gap-2 pt-2 border-t border-border">
+            <View className="flex-1 items-center">
+              <Text className="text-lg font-bold text-success">
+                {inscricoes.filter((i) => i.status === "aprovado").length}
+              </Text>
+              <Text className="text-xs text-muted">Aprovados</Text>
+            </View>
+            <View className="flex-1 items-center">
+              <Text className="text-lg font-bold text-error">
+                {inscricoes.filter((i) => i.status === "rejeitado").length}
+              </Text>
+              <Text className="text-xs text-muted">Rejeitados</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Alerta de Pendentes */}
+        {contadorPendentes > 0 && (
+          <View className="bg-warning/10 rounded-2xl p-4 gap-2 border border-warning/20">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-2xl">🔔</Text>
+              <View className="flex-1">
+                <Text className="text-sm font-bold text-warning">
+                  {contadorPendentes} inscrição{contadorPendentes > 1 ? "ões" : ""} pendente{contadorPendentes > 1 ? "s" : ""}
+                </Text>
+                <Text className="text-xs text-muted">Aguardando sua aprovação</Text>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Filtros */}
         <View className="gap-2">
@@ -151,7 +236,13 @@ export default function AdminBatismoScreen() {
                   className="text-sm font-semibold"
                   style={{ color: filtro === f ? "#FFFFFF" : colors.foreground }}
                 >
-                  {f === "todas" ? "Todas" : f === "pendente" ? "Pendentes" : f === "aprovado" ? "Aprovados" : "Rejeitados"}
+                  {f === "todas"
+                    ? "Todas"
+                    : f === "pendente"
+                      ? "Pendentes"
+                      : f === "aprovado"
+                        ? "Aprovados"
+                        : "Rejeitados"}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -169,84 +260,81 @@ export default function AdminBatismoScreen() {
           </View>
         ) : (
           <View className="gap-3">
-            {inscricesFiltradas.map((insc, index) => {
-              const indiceOriginal = inscricoes.findIndex(
-                (i) => i.createdAt === insc.createdAt && i.nome === insc.nome
-              );
-              const dataNasc = new Date(insc.dataNascimento);
-              const dataFormatada = `${dataNasc.getDate().toString().padStart(2, "0")}/${(dataNasc.getMonth() + 1)
-                .toString()
-                .padStart(2, "0")}/${dataNasc.getFullYear()}`;
-
-              return (
-                <View
-                  key={index}
-                  className="bg-surface rounded-2xl p-4 gap-3 border-2"
-                  style={{ borderColor: getCorStatus(insc.status) }}
-                >
-                  {/* Header do Card */}
-                  <View className="flex-row items-center justify-between gap-2">
-                    <View className="flex-1">
-                      <Text className="text-lg font-bold text-foreground">{insc.nome}</Text>
-                      <Text className="text-xs text-muted">
-                        {new Date(insc.createdAt).toLocaleDateString("pt-BR")}
-                      </Text>
-                    </View>
-                    <View
-                      className="px-3 py-1 rounded-full"
-                      style={{ backgroundColor: getCorStatus(insc.status) + "20" }}
+            {inscricesFiltradas.map((insc) => (
+              <View
+                key={insc.id}
+                className="bg-surface rounded-2xl p-4 gap-3 border-2"
+                style={{ borderColor: getCorStatus(insc.status) }}
+              >
+                {/* Header do Card */}
+                <View className="flex-row items-center justify-between gap-2">
+                  <View className="flex-1">
+                    <Text className="text-lg font-bold text-foreground">{insc.nome}</Text>
+                    <Text className="text-xs text-muted">{formatarData(insc.dataCriacao)}</Text>
+                  </View>
+                  <View
+                    className="px-3 py-1 rounded-full"
+                    style={{ backgroundColor: getCorStatus(insc.status) + "20" }}
+                  >
+                    <Text
+                      className="text-xs font-bold"
+                      style={{ color: getCorStatus(insc.status) }}
                     >
-                      <Text
-                        className="text-xs font-bold"
-                        style={{ color: getCorStatus(insc.status) }}
-                      >
-                        {getTextoStatus(insc.status)}
-                      </Text>
-                    </View>
+                      {getTextoStatus(insc.status)}
+                    </Text>
                   </View>
+                </View>
 
-                  {/* Informações */}
-                  <View className="gap-2 border-t border-border pt-3">
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-muted">Data de Nascimento:</Text>
-                      <Text className="text-sm font-semibold text-foreground">{dataFormatada}</Text>
-                    </View>
-                    <View className="flex-row justify-between">
-                      <Text className="text-sm text-muted">Telefone:</Text>
-                      <Text className="text-sm font-semibold text-foreground">{insc.telefone}</Text>
-                    </View>
+                {/* Informações */}
+                <View className="gap-2 border-t border-border pt-3">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-muted">Data de Nascimento:</Text>
+                    <Text className="text-sm font-semibold text-foreground">
+                      {insc.dataNascimento}
+                    </Text>
                   </View>
-
-                  {/* Motivação */}
-                  <View className="gap-1 bg-primary/10 rounded-lg p-3">
-                    <Text className="text-xs font-semibold text-primary">Motivação:</Text>
-                    <Text className="text-sm text-foreground leading-relaxed">{insc.motivacao}</Text>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm text-muted">Célula:</Text>
+                    <Text className="text-sm font-semibold text-foreground">{insc.celula}</Text>
                   </View>
+                </View>
 
-                  {/* Botões de Ação */}
+                {/* Botões de Ação */}
+                {insc.status === "pendente" && (
                   <View className="flex-row gap-2 pt-2">
                     <TouchableOpacity
                       className="flex-1 rounded-lg py-2 items-center bg-success/20 border border-success"
-                      onPress={() => atualizarStatus(indiceOriginal, "aprovado")}
+                      onPress={() => handleAprovar(insc.id, insc.nome)}
                     >
                       <Text className="text-xs font-bold text-success">✓ Aprovar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       className="flex-1 rounded-lg py-2 items-center bg-error/20 border border-error"
-                      onPress={() => atualizarStatus(indiceOriginal, "rejeitado")}
+                      onPress={() => handleRejeitar(insc.id, insc.nome)}
                     >
                       <Text className="text-xs font-bold text-error">✗ Rejeitar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       className="flex-1 rounded-lg py-2 items-center bg-warning/20 border border-warning"
-                      onPress={() => deletarInscricao(indiceOriginal)}
+                      onPress={() => handleDeletar(insc.id)}
                     >
                       <Text className="text-xs font-bold text-warning">🗑 Deletar</Text>
                     </TouchableOpacity>
                   </View>
-                </View>
-              );
-            })}
+                )}
+
+                {insc.status !== "pendente" && (
+                  <View className="flex-row gap-2 pt-2">
+                    <TouchableOpacity
+                      className="flex-1 rounded-lg py-2 items-center bg-warning/20 border border-warning"
+                      onPress={() => handleDeletar(insc.id)}
+                    >
+                      <Text className="text-xs font-bold text-warning">🗑 Deletar</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
           </View>
         )}
       </ScrollView>

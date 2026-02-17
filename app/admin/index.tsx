@@ -3,9 +3,11 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { obterInscricoes, contarInscricoesPendentes } from "@/lib/notifications/batismo-notificacao";
+import { useCallback } from "react";
 
 interface BatismoData {
   nome: string;
@@ -31,18 +33,24 @@ export default function AdminScreen() {
   const [batismos, setBatismos] = useState<BatismoData[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [aniversariantesMes, setAniversariantesMes] = useState<Usuario[]>([]);
+  const [batismosPendentes, setBatismosPendentes] = useState(0);
 
-  useEffect(() => {
-    carregarDados();
-  }, [isAutenticado]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isAutenticado) {
+        carregarDados();
+      }
+    }, [isAutenticado])
+  );
 
   const carregarDados = async () => {
     try {
-      // Carregar inscrições de batismo
-      const dadosBatismo = await AsyncStorage.getItem("@batismo_inscricoes");
-      if (dadosBatismo) {
-        setBatismos(JSON.parse(dadosBatismo));
-      }
+      // Carregar inscrições de batismo usando serviço
+      const inscricoes = await obterInscricoes();
+      setBatismos(inscricoes as any);
+
+      const pendentes = await contarInscricoesPendentes();
+      setBatismosPendentes(pendentes);
 
       // Carregar usuários
       const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
@@ -94,7 +102,6 @@ export default function AdminScreen() {
     ]);
   };
 
-  const batismosPendentes = batismos.filter((b) => (b.status || "pendente") === "pendente").length;
   const batismosAprovados = batismos.filter((b) => b.status === "aprovado").length;
 
   if (!isAutenticado) {
@@ -180,7 +187,7 @@ export default function AdminScreen() {
             </View>
             <View className="flex-1 bg-warning/10 rounded-2xl p-4 gap-2 border border-warning/20 items-center">
               <Text className="text-2xl font-bold text-warning">{batismosPendentes}</Text>
-              <Text className="text-xs text-muted text-center">Batismos Pendentes</Text>
+              <Text className="text-xs text-muted text-center">Pendentes 🔔</Text>
             </View>
             <View className="flex-1 bg-success/10 rounded-2xl p-4 gap-2 border border-success/20 items-center">
               <Text className="text-2xl font-bold text-success">{batismosAprovados}</Text>
