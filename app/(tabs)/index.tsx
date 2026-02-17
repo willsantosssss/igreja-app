@@ -25,8 +25,8 @@ export default function HomeScreen() {
         {/* Header com saudação */}
         <View className="gap-2">
           <Text className="text-4xl font-bold text-foreground">Bem-vindo!</Text>
-          <Text className="text-base text-muted">
-            Igreja Connect - Conectando você à comunidade
+          <Text className="text-base text-muted leading-relaxed">
+            Uma igreja em células, que vive o amor de Cristo e cumpre a grande comissão com paixão e persistência.
           </Text>
         </View>
 
