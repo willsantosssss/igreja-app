@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { ScrollView, Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { LineChart, type LineChartDataset } from '@/components/line-chart';
 import { getRelatorios, getLideres, type RelatorioCelula, type LiderCelula } from '@/lib/data/lideres';
 
 type FiltroTipo = 'todos' | string;
@@ -15,6 +16,9 @@ export default function AdminRelatoriosScreen() {
   const [lideres, setLideres] = useState<LiderCelula[]>([]);
   const [filtroCelula, setFiltroCelula] = useState<FiltroTipo>('todos');
   const [carregando, setCarregando] = useState(true);
+  const [abaAtiva, setAbaAtiva] = useState<'lista' | 'graficos'>('lista');
+  const { width: screenWidth } = useWindowDimensions();
+  const chartWidth = Math.min(screenWidth - 40, 400);
 
   useFocusEffect(
     useCallback(() => {
@@ -57,6 +61,91 @@ export default function AdminRelatoriosScreen() {
 
   // Nomes únicos de células
   const celulasUnicas = [...new Set(relatorios.map(r => r.celulaNome))].sort();
+
+  // Cores para cada célula nos gráficos
+  const coresCelulas = useMemo(() => {
+    const paleta = ['#06B6D4', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#F97316', '#14B8A6'];
+    const mapa: Record<string, string> = {};
+    celulasUnicas.forEach((cel, i) => {
+      mapa[cel] = paleta[i % paleta.length];
+    });
+    return mapa;
+  }, [celulasUnicas.join(',')]);
+
+  // Função para parsear data DD/MM/YYYY
+  const parseData = (d: string) => {
+    const parts = d.split('/');
+    if (parts.length === 3) {
+      return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])).getTime();
+    }
+    return 0;
+  };
+
+  // Preparar dados para gráficos
+  const dadosGraficos = useMemo(() => {
+    if (relatoriosFiltrados.length === 0) return null;
+
+    // Obter todas as datas únicas e ordená-las cronologicamente
+    const datasUnicas = [...new Set(relatoriosFiltrados.map(r => r.data))]
+      .sort((a, b) => parseData(a) - parseData(b));
+
+    // Limitar a últimas 10 datas para legibilidade
+    const datasExibidas = datasUnicas.slice(-10);
+    const labelsFormatadas = datasExibidas.map(d => {
+      const parts = d.split('/');
+      return `${parts[0]}/${parts[1]}`;
+    });
+
+    if (filtroCelula !== 'todos') {
+      // Uma célula selecionada: mostrar presença e visitantes como duas linhas
+      const presencaData = datasExibidas.map(data => {
+        const rels = relatoriosFiltrados.filter(r => r.data === data);
+        return rels.reduce((acc, r) => acc + r.totalPessoas, 0);
+      });
+      const visitantesData = datasExibidas.map(data => {
+        const rels = relatoriosFiltrados.filter(r => r.data === data);
+        return rels.reduce((acc, r) => acc + r.visitantes, 0);
+      });
+
+      return {
+        labels: labelsFormatadas,
+        presencaDatasets: [
+          { label: 'Presença Total', data: presencaData, color: colors.primary },
+          { label: 'Visitantes', data: visitantesData, color: colors.success },
+        ] as LineChartDataset[],
+        visitantesDatasets: null,
+      };
+    } else {
+      // Todas as células: uma linha por célula
+      const presencaDatasets: LineChartDataset[] = celulasUnicas
+        .filter(cel => relatorios.some(r => r.celulaNome === cel))
+        .map(cel => ({
+          label: cel,
+          data: datasExibidas.map(data => {
+            const rels = relatorios.filter(r => r.celulaNome === cel && r.data === data);
+            return rels.reduce((acc, r) => acc + r.totalPessoas, 0);
+          }),
+          color: coresCelulas[cel] || '#06B6D4',
+        }));
+
+      const visitantesDatasets: LineChartDataset[] = celulasUnicas
+        .filter(cel => relatorios.some(r => r.celulaNome === cel))
+        .map(cel => ({
+          label: cel,
+          data: datasExibidas.map(data => {
+            const rels = relatorios.filter(r => r.celulaNome === cel && r.data === data);
+            return rels.reduce((acc, r) => acc + r.visitantes, 0);
+          }),
+          color: coresCelulas[cel] || '#06B6D4',
+        }));
+
+      return {
+        labels: labelsFormatadas,
+        presencaDatasets,
+        visitantesDatasets,
+      };
+    }
+  }, [relatoriosFiltrados, filtroCelula, celulasUnicas.join(',')]);
 
   // Totais gerais
   const totalPessoas = relatoriosFiltrados.reduce((acc, r) => acc + r.totalPessoas, 0);
@@ -148,6 +237,42 @@ export default function AdminRelatoriosScreen() {
           })}
         </ScrollView>
 
+        {/* Abas: Lista / Gráficos */}
+        {relatoriosFiltrados.length > 0 && (
+          <View className="flex-row rounded-xl overflow-hidden" style={{ borderWidth: 1, borderColor: colors.border }}>
+            <TouchableOpacity
+              onPress={() => setAbaAtiva('lista')}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: 'center',
+                backgroundColor: abaAtiva === 'lista' ? colors.primary : colors.surface,
+              }}
+            >
+              <Text style={{
+                color: abaAtiva === 'lista' ? '#fff' : colors.foreground,
+                fontWeight: '700',
+                fontSize: 13,
+              }}>Relatórios</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setAbaAtiva('graficos')}
+              style={{
+                flex: 1,
+                paddingVertical: 10,
+                alignItems: 'center',
+                backgroundColor: abaAtiva === 'graficos' ? colors.primary : colors.surface,
+              }}
+            >
+              <Text style={{
+                color: abaAtiva === 'graficos' ? '#fff' : colors.foreground,
+                fontWeight: '700',
+                fontSize: 13,
+              }}>Gráficos</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Resumo Geral */}
         {relatoriosFiltrados.length > 0 && (
           <View className="flex-row gap-2">
@@ -193,8 +318,62 @@ export default function AdminRelatoriosScreen() {
           </View>
         )}
 
+        {/* === ABA GRÁFICOS === */}
+        {abaAtiva === 'graficos' && dadosGraficos && (
+          <View className="gap-4">
+            {/* Gráfico de Presença */}
+            <View
+              className="bg-surface rounded-2xl p-4 border border-border"
+            >
+              <LineChart
+                title={filtroCelula !== 'todos' ? `Evolução — ${filtroCelula}` : 'Presença por Célula'}
+                labels={dadosGraficos.labels}
+                datasets={dadosGraficos.presencaDatasets}
+                width={chartWidth}
+                height={240}
+                gridColor={colors.border}
+                labelColor={colors.muted}
+                showArea={filtroCelula !== 'todos'}
+                showDots={dadosGraficos.labels.length <= 8}
+              />
+            </View>
+
+            {/* Gráfico de Visitantes (apenas quando "Todas" está selecionado) */}
+            {dadosGraficos.visitantesDatasets && (
+              <View
+                className="bg-surface rounded-2xl p-4 border border-border"
+              >
+                <LineChart
+                  title="Visitantes por Célula"
+                  labels={dadosGraficos.labels}
+                  datasets={dadosGraficos.visitantesDatasets}
+                  width={chartWidth}
+                  height={240}
+                  gridColor={colors.border}
+                  labelColor={colors.muted}
+                  showArea={false}
+                  showDots={dadosGraficos.labels.length <= 8}
+                />
+              </View>
+            )}
+
+            {/* Dica */}
+            <View
+              className="rounded-xl p-3"
+              style={{ backgroundColor: colors.primary + '08', borderWidth: 1, borderColor: colors.primary + '15' }}
+            >
+              <Text style={{ color: colors.muted, fontSize: 11, textAlign: 'center' }}>
+                {filtroCelula !== 'todos'
+                  ? 'Mostrando presença total e visitantes da célula selecionada'
+                  : 'Selecione uma célula no filtro acima para ver detalhes individuais'}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* === ABA LISTA === */}
         {/* Lista agrupada por data */}
-        {relatoriosFiltrados.length === 0 ? (
+        {abaAtiva === 'lista' && relatoriosFiltrados.length === 0 ? (
           <View className="bg-surface rounded-xl p-6 border border-border items-center">
             <IconSymbol name="doc.text.fill" size={40} color={colors.muted} />
             <Text className="text-muted text-center mt-3">
@@ -203,7 +382,7 @@ export default function AdminRelatoriosScreen() {
                 : 'Nenhum relatório encontrado para esta célula.'}
             </Text>
           </View>
-        ) : (
+        ) : abaAtiva === 'lista' ? (
           datasOrdenadas.map((data) => {
             const grupo = agrupadosPorData[data];
             const totalDia = grupo.reduce((acc, r) => acc + r.totalPessoas, 0);
@@ -313,10 +492,10 @@ export default function AdminRelatoriosScreen() {
               </View>
             );
           })
-        )}
+        ) : null}
 
         {/* Tabela resumo por célula */}
-        {relatorios.length > 0 && filtroCelula === 'todos' && (
+        {abaAtiva === 'lista' && relatorios.length > 0 && filtroCelula === 'todos' && (
           <View className="bg-surface rounded-2xl p-4 border border-border gap-3">
             <Text className="text-base font-bold text-foreground">Resumo por Célula</Text>
             {celulasUnicas.map((cel) => {

@@ -160,3 +160,8 @@
 - [x] Organizar relatórios separados por data
 - [x] Adicionar link na tela principal do admin
 - [x] Registrar rota no root layout
+## Gráficos de Evolução nos Relatórios
+- [x] Criar componente de gráfico de linha compatível com React Native
+- [x] Gráfico de evolução de presença por célula
+- [x] Gráfico de evolução de visitantes por célula
+- [x] Integrar gráficos na tela de relatórios do admin
