@@ -1,6 +1,6 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao } from "../drizzle/schema";
+import { InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional, InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -252,4 +252,64 @@ export async function incrementarContadorOracao(id: number) {
   await updatePedidoOracao(id, {
     contadorOrando: (pedido.contadorOrando || 0) + 1,
   });
+}
+
+// ============ ANOTAÇÕES DE DEVOCIONAL ============
+
+export async function getAnotacoesDevocionalByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(anotacoesDevocional)
+    .where(eq(anotacoesDevocional.userId, userId))
+    .orderBy(desc(anotacoesDevocional.updatedAt));
+}
+
+export async function getAnotacaoDevocionalByCapitulo(userId: number, livro: string, capitulo: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(anotacoesDevocional)
+    .where(
+      and(
+        eq(anotacoesDevocional.userId, userId),
+        eq(anotacoesDevocional.livro, livro),
+        eq(anotacoesDevocional.capitulo, capitulo)
+      )
+    );
+}
+
+export async function createAnotacaoDevocional(data: InsertAnotacaoDevocional) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(anotacoesDevocional).values(data);
+  return (result as any).insertId;
+}
+
+export async function updateAnotacaoDevocional(id: number, data: Partial<InsertAnotacaoDevocional>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(anotacoesDevocional).set(data).where(eq(anotacoesDevocional.id, id));
+}
+
+export async function deleteAnotacaoDevocional(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.id, id));
+}
+
+export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro: string, capitulo: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .delete(anotacoesDevocional)
+    .where(
+      and(
+        eq(anotacoesDevocional.userId, userId),
+        eq(anotacoesDevocional.livro, livro),
+        eq(anotacoesDevocional.capitulo, capitulo)
+      )
+    );
 }

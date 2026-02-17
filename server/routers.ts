@@ -138,6 +138,63 @@ export const appRouter = router({
       .input(z.number())
       .mutation(({ input }) => db.deletePedidoOracao(input)),
   }),
+
+  // Anotações de Devocional
+  anotacoesDevocional: router({
+    listByUser: protectedProcedure
+      .query(({ ctx }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.getAnotacoesDevocionalByUserId(ctx.user.id);
+      }),
+    getByCapitulo: protectedProcedure
+      .input(z.object({
+        livro: z.string().min(1),
+        capitulo: z.number().min(1),
+      }))
+      .query(({ ctx, input }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.getAnotacaoDevocionalByCapitulo(ctx.user.id, input.livro, input.capitulo);
+      }),
+    create: protectedProcedure
+      .input(z.object({
+        livro: z.string().min(1),
+        capitulo: z.number().min(1),
+        texto: z.string().min(1),
+      }))
+      .mutation(({ ctx, input }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.createAnotacaoDevocional({
+          userId: ctx.user.id,
+          livro: input.livro,
+          capitulo: input.capitulo,
+          texto: input.texto,
+        });
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        texto: z.string().min(1),
+      }))
+      .mutation(({ ctx, input }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.updateAnotacaoDevocional(input.id, { texto: input.texto });
+      }),
+    delete: protectedProcedure
+      .input(z.number())
+      .mutation(({ ctx, input }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.deleteAnotacaoDevocional(input);
+      }),
+    deleteByCapitulo: protectedProcedure
+      .input(z.object({
+        livro: z.string().min(1),
+        capitulo: z.number().min(1),
+      }))
+      .mutation(({ ctx, input }) => {
+        if (!ctx.user?.id) throw new Error("User not authenticated");
+        return db.deleteAnotacoesDevocionalByCapitulo(ctx.user.id, input.livro, input.capitulo);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

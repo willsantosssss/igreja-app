@@ -87,3 +87,17 @@ export const pedidosOracao = mysqlTable("pedidosOracao", {
 
 export type PedidoOracao = typeof pedidosOracao.$inferSelect;
 export type InsertPedidoOracao = typeof pedidosOracao.$inferInsert;
+
+// Anotações de Devocional table
+export const anotacoesDevocional = mysqlTable("anotacoesDevocional", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  livro: varchar("livro", { length: 100 }).notNull(),
+  capitulo: int("capitulo").notNull(),
+  texto: text("texto").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AnotacaoDevocional = typeof anotacoesDevocional.$inferSelect;
+export type InsertAnotacaoDevocional = typeof anotacoesDevocional.$inferInsert;

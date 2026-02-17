@@ -7,7 +7,7 @@ import {
   sequenciaNovoTestamento 
 } from "@/lib/data/sequencia-nt";
 import { obterCapituloOffline } from "@/lib/data/biblia-completa-naa";
-import { AnotacoesDevocional } from "@/components/anotacoes-devocional";
+import { AnotacoesDevocionalBackend } from "@/components/anotacoes-devocional-backend";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
@@ -302,11 +302,14 @@ export default function DevocionalScreen() {
               {mostrarAnotacoes ? "\u25bc Ocultar Anotações" : "\u25b6 Minhas Anotações"}
             </Text>
           </TouchableOpacity>
-
-          {mostrarAnotacoes && (
-            <AnotacoesDevocional livro={capitulo.livro} capitulo={capitulo.capitulo} />
-          )}
         </View>
+
+      {mostrarAnotacoes && (
+        <AnotacoesDevocionalBackend
+          livro={capitulo.livro}
+          capitulo={capitulo.capitulo}
+        />
+      )}
 
         {/* Botões de Ação */}
         <View className="gap-2">
