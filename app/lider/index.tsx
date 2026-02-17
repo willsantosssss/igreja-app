@@ -12,6 +12,14 @@ import {
   getEstatisticasCelula,
   type LiderCelula,
 } from '@/lib/data/lideres';
+import {
+  agendarLembreteSemanal,
+  cancelarLembrete,
+  verificarLembreteAgendado,
+  obterConfigLembrete,
+  DIAS_SEMANA,
+  formatarHorario,
+} from '@/lib/services/lembrete-lider';
 
 export default function LiderScreen() {
   const colors = useColors();
@@ -28,6 +36,7 @@ export default function LiderScreen() {
     mediaPresenca: 0,
     mediaVisitantes: 0,
   });
+  const [lembreteAtivo, setLembreteAtivo] = useState(false);
 
   useEffect(() => {
     verificarSessao();
@@ -46,6 +55,8 @@ export default function LiderScreen() {
     if (sessao) {
       setLider(sessao);
       await carregarEstatisticas(sessao.celula);
+      const status = await verificarLembreteAgendado();
+      setLembreteAtivo(status);
     }
     setCarregando(false);
   };
@@ -69,7 +80,13 @@ export default function LiderScreen() {
         setLider(resultado);
         await carregarEstatisticas(resultado.celula);
         setSenhaInput('');
+        // Agendar lembrete automaticamente no primeiro login
         if (Platform.OS !== 'web') {
+          const config = await obterConfigLembrete();
+          if (config.ativo) {
+            await agendarLembreteSemanal(resultado.nome, resultado.celula, config);
+            setLembreteAtivo(true);
+          }
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
       } else {
@@ -92,9 +109,11 @@ export default function LiderScreen() {
       {
         text: 'Sair',
         onPress: async () => {
+          await cancelarLembrete();
           await encerrarSessaoLider();
           setLider(null);
           setSenhaInput('');
+          setLembreteAtivo(false);
         },
       },
     ]);
@@ -368,6 +387,33 @@ export default function LiderScreen() {
             </View>
           </View>
         )}
+
+        {/* Lembrete Semanal */}
+        <TouchableOpacity
+          onPress={() => router.push('/lider/lembrete' as any)}
+          className="bg-surface rounded-2xl p-4 flex-row items-center gap-3 border border-border"
+        >
+          <View
+            style={{
+              backgroundColor: lembreteAtivo ? colors.success + '20' : colors.muted + '15',
+              width: 44, height: 44, borderRadius: 22,
+              alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <IconSymbol
+              name={lembreteAtivo ? 'bell.fill' : 'bell.slash.fill'}
+              size={22}
+              color={lembreteAtivo ? colors.success : colors.muted}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-bold text-foreground">Lembrete Semanal</Text>
+            <Text className="text-xs text-muted">
+              {lembreteAtivo ? 'Ativo — toque para configurar' : 'Desativado — toque para ativar'}
+            </Text>
+          </View>
+          <IconSymbol name="chevron.right" size={18} color={colors.muted} />
+        </TouchableOpacity>
 
         {/* Card motivacional */}
         <View

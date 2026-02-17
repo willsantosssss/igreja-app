@@ -32,6 +32,8 @@ const MAPPING = {
   "person.2.fill": "groups",
   "doc.text.fill": "description",
   "lock.fill": "lock",
+  "bell.fill": "notifications",
+  "bell.slash.fill": "notifications-off",
 } as IconMapping;
 
 /**

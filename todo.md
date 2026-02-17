@@ -165,3 +165,10 @@
 - [x] Gráfico de evolução de presença por célula
 - [x] Gráfico de evolução de visitantes por célula
 - [x] Integrar gráficos na tela de relatórios do admin
+## Lembrete Semanal para Líderes
+- [x] Ler documentação de notificações locais do Expo
+- [x] Criar serviço de agendamento de lembrete semanal
+- [x] Agendar notificação semanal quando líder faz login
+- [x] Cancelar notificação quando líder faz logout
+- [x] Configuração para ativar/desativar lembrete no dashboard do líder
+- [x] Testes unitários para lógica de agendamento
