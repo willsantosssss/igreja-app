@@ -1,16 +1,14 @@
-import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, Alert, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useCapituloBiblia } from "@/hooks/use-biblia";
 import { useState, useEffect } from "react";
 import { 
   getCapituloByIndex,
   sequenciaNovoTestamento 
 } from "@/lib/data/sequencia-nt";
+import { obterCapituloOffline } from "@/lib/data/biblia-completa-naa";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 
 export default function DevocionalScreen() {
@@ -27,22 +25,41 @@ export default function DevocionalScreen() {
   const [readChapters, setReadChapters] = useState<Set<string>>(new Set());
   const [fontSize, setFontSize] = useState(16);
   const [versao, setVersao] = useState<"NAA" | "NVI">("NAA");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const capitulo = getCapituloByIndex(currentIndex);
   const isToday = currentIndex === indiceHoje;
   const chapterKey = `${capitulo.livro}-${capitulo.capitulo}`;
   const isRead = readChapters.has(chapterKey);
 
-  // Usar hook para carregar capítulo da Bible API
-  const { texto: capituloData, isLoading, error } = useCapituloBiblia(
-    capitulo.livro,
-    capitulo.capitulo,
-    versao
-  );
+  // Carregar capítulo offline
+  const [textoCapitulo, setTextoCapitulo] = useState<string | null>(null);
 
   useEffect(() => {
     loadReadChapters();
-  }, []);
+    carregarCapitulo();
+  }, [currentIndex, versao]);
+
+  const carregarCapitulo = () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Tentar carregar do banco de dados offline
+      const texto = obterCapituloOffline(capitulo.livro, capitulo.capitulo);
+      
+      if (texto) {
+        setTextoCapitulo(texto);
+      } else {
+        setError(`Capítulo ${capitulo.livro} ${capitulo.capitulo} não disponível offline`);
+      }
+    } catch (err) {
+      setError(`Erro ao carregar capítulo: ${err instanceof Error ? err.message : 'Desconhecido'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadReadChapters = async () => {
     try {
@@ -101,13 +118,13 @@ export default function DevocionalScreen() {
   };
 
   const compartilharVersiculo = async () => {
-    if (!capituloData?.texto) {
+    if (!textoCapitulo) {
       Alert.alert("Erro", "Capítulo não carregado");
       return;
     }
 
     try {
-      const mensagem = `${capituloData.referencia} (${versao})\n\n${capituloData.texto.substring(0, 200)}...\n\nLeia o devocional completo no app 2iEQ!`;
+      const mensagem = `${capitulo.livro} ${capitulo.capitulo} (${versao})\n\n${textoCapitulo.substring(0, 200)}...\n\nLeia o devocional completo no app 2iEQ!`;
       
       if (Platform.OS === "web") {
         // Web: copiar para clipboard
@@ -127,7 +144,6 @@ export default function DevocionalScreen() {
   };
 
   const progressPercent = Math.round(((currentIndex + 1) / sequenciaNovoTestamento.length) * 100);
-  const textoExibir = capituloData?.texto || "[Carregando...]";
 
   return (
     <ScreenContainer>
@@ -223,7 +239,7 @@ export default function DevocionalScreen() {
             Versão: {versao === "NAA" ? "Nova Almeida Atualizada" : "Nova Versão Internacional"}
           </Text>
           <Text className="text-xs text-muted">
-            {isLoading ? "Carregando..." : "Leitura offline disponível"}
+            {isLoading ? "Carregando..." : "✓ Leitura 100% offline"}
           </Text>
         </View>
 
@@ -244,7 +260,7 @@ export default function DevocionalScreen() {
           ) : error ? (
             <View className="items-center justify-center py-8">
               <Text className="text-error text-sm">{error}</Text>
-              <Text className="text-muted text-xs mt-2">Verifique sua conexão com internet</Text>
+              <Text className="text-muted text-xs mt-2">Banco de dados offline em construção</Text>
             </View>
           ) : (
             <>
@@ -252,14 +268,14 @@ export default function DevocionalScreen() {
                 className="text-foreground leading-relaxed"
                 style={{ fontSize }}
               >
-                {textoExibir}
+                {textoCapitulo}
               </Text>
               <View className="pt-4 border-t border-border gap-2">
                 <Text className="text-xs text-muted">
                   Fonte: Bíblia {versao}
                 </Text>
                 <Text className="text-xs text-muted">
-                  Carregado via Bible API • Com cache offline
+                  ✓ Disponível offline
                 </Text>
               </View>
             </>
@@ -282,7 +298,7 @@ export default function DevocionalScreen() {
             className="rounded-full py-3 items-center border-2"
             style={{ borderColor: colors.primary }}
             onPress={compartilharVersiculo}
-            disabled={isLoading}
+            disabled={isLoading || !textoCapitulo}
           >
             <Text className="font-semibold text-base" style={{ color: colors.primary }}>
               📄 Compartilhar Versículo
