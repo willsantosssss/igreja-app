@@ -7,6 +7,7 @@ import {
   sequenciaNovoTestamento 
 } from "@/lib/data/sequencia-nt";
 import { obterCapituloOffline } from "@/lib/data/biblia-completa-naa";
+import { AnotacoesDevocional } from "@/components/anotacoes-devocional";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
@@ -27,6 +28,7 @@ export default function DevocionalScreen() {
   const [versao, setVersao] = useState<"NAA" | "NVI">("NAA");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mostrarAnotacoes, setMostrarAnotacoes] = useState(false);
 
   const capitulo = getCapituloByIndex(currentIndex);
   const isToday = currentIndex === indiceHoje;
@@ -279,6 +281,30 @@ export default function DevocionalScreen() {
                 </Text>
               </View>
             </>
+          )}
+        </View>
+
+        {/* Seção de Anotações */}
+        <View className="gap-4">
+          <TouchableOpacity
+            onPress={() => setMostrarAnotacoes(!mostrarAnotacoes)}
+            className="rounded-lg py-3 px-4 items-center"
+            style={{
+              backgroundColor: mostrarAnotacoes ? colors.primary : colors.primary + "20",
+              borderWidth: 1,
+              borderColor: colors.primary,
+            }}
+          >
+            <Text
+              className="font-semibold"
+              style={{ color: mostrarAnotacoes ? colors.background : colors.primary }}
+            >
+              {mostrarAnotacoes ? "\u25bc Ocultar Anotações" : "\u25b6 Minhas Anotações"}
+            </Text>
+          </TouchableOpacity>
+
+          {mostrarAnotacoes && (
+            <AnotacoesDevocional livro={capitulo.livro} capitulo={capitulo.capitulo} />
           )}
         </View>
 

@@ -116,6 +116,13 @@
 - [x] Armazenar preferências localmente
 - [x] Testar notificações em iOS e Android
 
+## Anotações de Devocional
+- [x] Criar hook para gerenciar anotações
+- [x] Implementar armazenamento local de anotações
+- [x] Adicionar interface de anotações na página de devocional
+- [x] Permitir edição e exclusão de anotações
+- [x] Compartilhamento de anotações
+
 ## Funcionalidades Adicionais
 - [ ] Sistema de notificações push para aniversariantes
 - [ ] Compartilhamento em redes sociais
