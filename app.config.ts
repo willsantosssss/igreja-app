@@ -28,12 +28,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "App Igreja Connect",
-  appSlug: "igreja-app",
+  appName: "Igreja Connect",
+  appSlug: "{{project_name}}",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "",
-  scheme: schemeFromBundleId,
+  logoUrl: "https://private-us-east-1.manuscdn.com/sessionFile/CKHKIbM8MSpS1DBp03fHBy/sandbox/tZPowl17ZLWMxa2i7JLu0Q-img-1_1771349246000_na1fn_aWdyZWphLWFwcC1sb2dv.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvQ0tIS0liTThNU3BTMURCcDAzZkhCeS9zYW5kYm94L3RaUG93bDE3WkxXTXhhMmk3Skx1MFEtaW1nLTFfMTc3MTM0OTI0NjAwMF9uYTFmbl9hV2R5WldwaExXRndjQzFzYjJkdi5wbmc~eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=l9GGMVAZ6RxqT9yS5JhAiPyk0Ncm0CAvFNw5yVvRyN4Zyv6eEx5T~1Iiu8GNIZrgN3p2umi04jxTmqZ9O1W~QwGiQNAVNKgzJ1GeBV5QLV2nFoIzqZ1anxXMIF5xI0cbIKhAVJRXp0joSC1UARSqAXYNMsTaQ~NK5FvESC0ETkaRdbH-6InGamZmoYSzNtLKc67HDFeI28xjl0irj8hJuzaPTBXtqa1jIJtgl-NI-Q093u9bCAnDaaycTQkyJNxpl77-~2abs-9UvTeEYBzqH6yp2Qo6o9E6yIaYKkRVGxmbkbEJ5NzbKxONWEcspAvSsDpnvj76zOy383fI6i9EWw__", scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
 };

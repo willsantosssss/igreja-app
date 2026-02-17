@@ -1,0 +1,243 @@
+import { ScrollView, Text, View, TouchableOpacity, Alert, Linking } from "react-native";
+import { ScreenContainer } from "@/components/screen-container";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useColors } from "@/hooks/use-colors";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { Platform } from "react-native";
+
+export default function MaisScreen() {
+  const colors = useColors();
+
+  const handleContribuir = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push("/contribuicoes");
+  };
+
+  const handleNoticias = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push("/noticias" as any);
+  };
+
+  const handleConfiguracoes = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      "Configurações",
+      "Preferências e ajustes do aplicativo",
+      [{ text: "OK" }]
+    );
+  };
+
+  const handleSobre = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      "Sobre o App",
+      "Igreja Connect v1.0\n\nAplicativo desenvolvido para conectar você à comunidade da igreja.\n\n© 2026 Igreja Connect",
+      [{ text: "OK" }]
+    );
+  };
+
+  const handleContato = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      "Contato da Igreja",
+      "Entre em contato conosco:",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { 
+          text: "WhatsApp", 
+          onPress: () => Linking.openURL("https://wa.me/5511999999999")
+        },
+        { 
+          text: "Email", 
+          onPress: () => Linking.openURL("mailto:contato@igrejaconnect.com")
+        },
+      ]
+    );
+  };
+
+  const handleFeedback = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      "Enviar Feedback",
+      "Sua opinião é muito importante para nós! Em breve você poderá enviar sugestões e relatar problemas.",
+      [{ text: "OK" }]
+    );
+  };
+
+  return (
+    <ScreenContainer>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
+        <View className="gap-2">
+          <Text className="text-3xl font-bold text-foreground">Mais</Text>
+          <Text className="text-base text-muted">
+            Recursos adicionais e configurações
+          </Text>
+        </View>
+
+        {/* Seção Principal */}
+        <View className="gap-3">
+          <Text className="text-sm font-semibold text-muted uppercase">Principal</Text>
+          
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleContribuir}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.secondary}20` }}
+            >
+              <IconSymbol name="heart.fill" size={24} color={colors.secondary} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Contribuições</Text>
+              <Text className="text-sm text-muted">Dízimos, ofertas e doações</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleNoticias}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <IconSymbol name="newspaper.fill" size={24} color={colors.primary} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Notícias e Avisos</Text>
+              <Text className="text-sm text-muted">Fique por dentro das novidades</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Seção Configurações */}
+        <View className="gap-3">
+          <Text className="text-sm font-semibold text-muted uppercase">Configurações</Text>
+          
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleConfiguracoes}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <IconSymbol name="gear" size={24} color={colors.primary} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Preferências</Text>
+              <Text className="text-sm text-muted">Notificações e tema</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Seção Suporte */}
+        <View className="gap-3">
+          <Text className="text-sm font-semibold text-muted uppercase">Suporte</Text>
+          
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleContato}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <Text className="text-2xl">📞</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Contato da Igreja</Text>
+              <Text className="text-sm text-muted">Fale conosco</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleFeedback}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <Text className="text-2xl">💬</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Enviar Feedback</Text>
+              <Text className="text-sm text-muted">Sugestões e problemas</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleSobre}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <Text className="text-2xl">ℹ️</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Sobre o App</Text>
+              <Text className="text-sm text-muted">Versão e informações</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Card de Comunidade */}
+        <View className="bg-primary rounded-2xl p-6 gap-3 mt-4">
+          <Text className="text-xl font-bold text-white">
+            Faça Parte da Comunidade
+          </Text>
+          <Text className="text-sm text-white opacity-90">
+            Conecte-se com outros membros, participe de células e eventos, e cresça espiritualmente junto conosco.
+          </Text>
+          <View className="flex-row gap-2 mt-2">
+            <View className="flex-1 items-center">
+              <Text className="text-2xl font-bold text-white">500+</Text>
+              <Text className="text-xs text-white opacity-75">Membros</Text>
+            </View>
+            <View className="flex-1 items-center">
+              <Text className="text-2xl font-bold text-white">12</Text>
+              <Text className="text-xs text-white opacity-75">Células</Text>
+            </View>
+            <View className="flex-1 items-center">
+              <Text className="text-2xl font-bold text-white">30+</Text>
+              <Text className="text-xs text-white opacity-75">Eventos/Mês</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Rodapé */}
+        <View className="items-center py-4">
+          <Text className="text-xs text-muted text-center">
+            Igreja Connect © 2026
+          </Text>
+          <Text className="text-xs text-muted text-center mt-1">
+            Conectando você à comunidade
+          </Text>
+        </View>
+      </ScrollView>
+    </ScreenContainer>
+  );
+}
