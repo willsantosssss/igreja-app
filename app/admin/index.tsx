@@ -319,6 +319,13 @@ export default function AdminScreen() {
           >
             <Text className="text-white font-bold">👥 Gerenciar Líderes de Células</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: colors.warning }}
+            onPress={() => router.push("/admin/relatorios" as any)}
+          >
+            <Text className="text-white font-bold">📋 Relatórios de Células</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

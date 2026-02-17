@@ -155,3 +155,8 @@
 - [x] Histórico de relatórios preenchidos
 - [x] Gerenciamento de senhas de líderes no painel admin
 - [x] Adicionar acesso à Área do Líder na tela Mais
+## Relatórios no Painel Admin
+- [x] Criar tela de visualização de relatórios de todas as células no admin
+- [x] Organizar relatórios separados por data
+- [x] Adicionar link na tela principal do admin
+- [x] Registrar rota no root layout
