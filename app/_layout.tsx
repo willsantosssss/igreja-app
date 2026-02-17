@@ -19,6 +19,7 @@ import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -39,6 +40,7 @@ export default function RootLayout() {
   useEffect(() => {
     initManusRuntime();
     checkLoginStatus();
+    inicializarNotificacoes();
   }, []);
 
   const checkLoginStatus = async () => {
@@ -110,6 +112,10 @@ export default function RootLayout() {
                 <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
                 <Stack.Screen name="batismo" options={{ presentation: "modal" }} />
                 <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
+                <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
+                <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
+                <Stack.Screen name="admin/batismo" options={{ presentation: "modal" }} />
+                <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
               </>
             )}
           </Stack>

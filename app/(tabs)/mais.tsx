@@ -197,6 +197,23 @@ export default function MaisScreen() {
 
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={() => router.push("/notificacoes-preferencias" as any)}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <Text className="text-2xl">🔔</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Notificações</Text>
+              <Text className="text-sm text-muted">Devocional e lembretes</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
             onPress={handleConfiguracoes}
           >
             <View 
@@ -207,7 +224,7 @@ export default function MaisScreen() {
             </View>
             <View className="flex-1">
               <Text className="text-base font-bold text-foreground">Preferências</Text>
-              <Text className="text-sm text-muted">Notificações e tema</Text>
+              <Text className="text-sm text-muted">Tema e configurações</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>

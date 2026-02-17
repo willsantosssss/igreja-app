@@ -108,6 +108,14 @@
 - [x] Progresso de leitura
 - [x] Compartilhamento de versículos
 
+## Notificações Diárias
+- [x] Implementar sistema de notificações push com expo-notifications
+- [x] Agendar notificação diária para devocional
+- [x] Criar página de preferências de notificação
+- [x] Permitir configuração de horário da notificação
+- [x] Armazenar preferências localmente
+- [x] Testar notificações em iOS e Android
+
 ## Funcionalidades Adicionais
 - [ ] Sistema de notificações push para aniversariantes
 - [ ] Compartilhamento em redes sociais
