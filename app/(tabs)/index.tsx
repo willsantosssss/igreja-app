@@ -94,7 +94,25 @@ export default function HomeScreen() {
           <View className="flex-row gap-3">
             <TouchableOpacity 
               className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/mais")}
+              onPress={() => router.push("/batismo")}
+            >
+              <Text className="text-2xl">💧</Text>
+              <Text className="text-sm font-semibold text-foreground text-center">Batismo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/aniversariantes")}
+            >
+              <Text className="text-2xl">🎂</Text>
+              <Text className="text-sm font-semibold text-foreground text-center">Aniversários</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity 
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/contribuicoes")}
             >
               <IconSymbol name="heart.fill" size={32} color={colors.secondary} />
               <Text className="text-sm font-semibold text-foreground text-center">Contribuir</Text>
@@ -102,7 +120,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity 
               className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/mais")}
+              onPress={() => router.push("/noticias")}
             >
               <IconSymbol name="newspaper.fill" size={32} color={colors.primary} />
               <Text className="text-sm font-semibold text-foreground text-center">Notícias</Text>
