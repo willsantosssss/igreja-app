@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCapituloByIndex, sequenciaNovoTestamento } from '@/lib/data/sequencia-nt';
+import { buscarTextoLocal } from '../data/textos-nt-fallback';
 
 /**
  * Serviço de Cache Progressivo para Devocional
@@ -43,7 +44,7 @@ export function getCapituloDoDia(): { livro: string; numero: number } {
 
 /**
  * Buscar capítulo com cache progressivo
- * Tenta: Cache → API → Fallback
+ * Tenta: Cache → API → Texto Local → Fallback
  */
 export async function buscarCapituloComCache(
   livro: string,
@@ -73,7 +74,7 @@ export async function buscarCapituloComCache(
       return capitulo;
     }
 
-    // 3. Se falhar, tentar fallback (capítulo anterior em cache ou texto genérico)
+    // 3. Se falhar, tentar fallback (texto local)
     console.warn(`[Cache Progressivo] Falha ao buscar ${livro} ${numero}, tentando fallback...`);
     return await buscarFallback(livro, numero, versao);
   } catch (error) {
@@ -135,7 +136,7 @@ async function buscarDaAPI(
 }
 
 /**
- * Fallback: Retornar capítulo com texto genérico
+ * Fallback: Retornar capítulo com texto local ou mensagem
  */
 async function buscarFallback(
   livro: string,
@@ -143,7 +144,7 @@ async function buscarFallback(
   versao: 'NAA' | 'NVI'
 ): Promise<CapituloDevocional | null> {
   try {
-    // Tentar buscar do cache mesmo que antigo
+    // 1. Tentar buscar do cache mesmo que antigo
     const allKeys = await AsyncStorage.getAllKeys();
     const livroKeys = allKeys.filter((k) => k.includes(livro) && k.startsWith(CACHE_KEY_PREFIX));
 
@@ -156,7 +157,21 @@ async function buscarFallback(
       }
     }
 
-    // Retornar capítulo com mensagem
+    // 2. Tentar buscar texto local pré-carregado
+    const textoLocal = buscarTextoLocal(livro, numero);
+    if (textoLocal) {
+      console.log(`[Cache Progressivo] Usando texto local para ${livro} ${numero}`);
+      return {
+        livro,
+        numero,
+        versos: textoLocal.versos,
+        versao,
+        dataCarregamento: new Date().toISOString(),
+      };
+    }
+
+    // 3. Retornar capítulo com mensagem de indisponibilidade
+    console.warn(`[Cache Progressivo] Capítulo ${livro} ${numero} não encontrado em nenhuma fonte`);
     return {
       livro,
       numero,
