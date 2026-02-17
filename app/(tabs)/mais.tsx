@@ -13,7 +13,14 @@ export default function MaisScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    router.push("/contribuicoes");
+    router.push("/contribuicoes" as any);
+  };
+
+  const handleBatismo = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push("/batismo" as any);
   };
 
   const handleNoticias = () => {
@@ -21,6 +28,13 @@ export default function MaisScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     router.push("/noticias" as any);
+  };
+
+  const handleAniversariantes = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push("/aniversariantes" as any);
   };
 
   const handleConfiguracoes = () => {
@@ -93,6 +107,23 @@ export default function MaisScreen() {
           
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleBatismo}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.success}20` }}
+            >
+              <Text className="text-2xl">💧</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Batismo</Text>
+              <Text className="text-sm text-muted">Inscrição para batismo em águas</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
             onPress={handleContribuir}
           >
             <View 
@@ -121,6 +152,23 @@ export default function MaisScreen() {
             <View className="flex-1">
               <Text className="text-base font-bold text-foreground">Notícias e Avisos</Text>
               <Text className="text-sm text-muted">Fique por dentro das novidades</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={handleAniversariantes}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.secondary}20` }}
+            >
+              <Text className="text-2xl">\ud83c\udf82</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Aniversariantes</Text>
+              <Text className="text-sm text-muted">Celebre com a comunidade</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>

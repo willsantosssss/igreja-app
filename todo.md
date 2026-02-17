@@ -1,10 +1,12 @@
-# TODO - App Igreja Connect
+# TODO - App 2ª Igreja Quadrangular de Rondonópolis
 
 ## Configuração Inicial
 - [x] Gerar logo personalizado do aplicativo
 - [x] Atualizar configurações de branding (app.config.ts)
 - [x] Configurar paleta de cores personalizada (theme.config.js)
 - [x] Adicionar mapeamentos de ícones necessários (icon-symbol.tsx)
+- [x] Substituir logo pela 2iEQ Rondonópolis
+- [x] Renomear app para "2ª Igreja Quadrangular de Rondonópolis"
 
 ## Navegação e Estrutura
 - [x] Configurar Tab Bar com 6 abas (Home, Agenda, Células, Devocional, Oração, Mais)
@@ -79,10 +81,39 @@
 - [x] Contato da igreja
 - [x] Envio de feedback
 
+## Autenticação e Login
+- [x] Página de login com Nome, Data de Nascimento e Célula
+- [x] Armazenamento seguro de dados do usuário
+- [x] Verificação de login no root layout
+- [x] Banco de dados local de usuários
+
+## Batismo
+- [x] Página de inscrição de batismo
+- [x] Formulário com dados pessoais
+- [x] Data pretendida para batismo
+- [x] Motivação do candidato
+- [x] Armazenamento de inscrições
+
+## Aniversariantes
+- [x] Página de aniversariantes do mês
+- [x] Contagem de membros por célula
+- [x] Filtro por data de nascimento
+- [x] Opção de enviar mensagem
+
+## Devocional Offline
+- [x] Textos bíbicos completos do Novo Testamento (NAA/NVI)
+- [x] Leitura 100% offline
+- [x] Seletor de versão (NAA/NVI)
+- [x] Ajuste de tamanho de fonte
+- [x] Progresso de leitura
+- [x] Compartilhamento de versículos
+
 ## Funcionalidades Adicionais
-- [ ] Sistema de notificações push
+- [ ] Sistema de notificações push para aniversariantes
 - [ ] Compartilhamento em redes sociais
-- [ ] Modo offline para devocional
+- [ ] Integração com backend para sincronização de dados
+- [ ] Relatório de membros por célula para liderança
+- [ ] Notificação de novos pedidos de batismo
 - [ ] Cache de dados
 
 ## Testes e Refinamentos
