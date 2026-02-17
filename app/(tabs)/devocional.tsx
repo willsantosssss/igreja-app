@@ -246,6 +246,13 @@ export default function DevocionalScreen() {
           </Text>
         </View>
 
+        {/* Subtítulo de Instrução */}
+        <View className="bg-surface rounded-xl p-4 border border-border">
+          <Text className="text-sm text-muted leading-relaxed">
+            Separe um tempo de qualidade, fazendo a leitura junto com sua apostila para melhor aproveitamento. Não se esqueça de orar e adorar enquanto demonstra sua devoção ao Senhor.
+          </Text>
+        </View>
+
         {/* Texto do Capítulo */}
         <View className="bg-surface rounded-2xl p-6 gap-4 border border-border">
           <Text
