@@ -67,19 +67,20 @@ export default function DevocionalScreen() {
   const capituloHoje = getCapituloParaHoje();
   const totalCapitulos = getTotalCapitulos();
   
-  const [currentIndex, setCurrentIndex] = useState(
-    sequenciaNovoTestamento.findIndex(
-      c => c.livro === capituloHoje.livro && c.capitulo === capituloHoje.capitulo
-    )
-  );
+  // Calcular indice correto para hoje (dias desde 1 de janeiro)
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const primeiroDeJaneiro = new Date(anoAtual, 0, 1);
+  const umDia = 24 * 60 * 60 * 1000;
+  const indiceHoje = Math.floor((hoje.getTime() - primeiroDeJaneiro.getTime()) / umDia);
+  
+  const [currentIndex, setCurrentIndex] = useState(Math.min(indiceHoje, sequenciaNovoTestamento.length - 1));
   const [readChapters, setReadChapters] = useState<Set<string>>(new Set());
   const [fontSize, setFontSize] = useState(16);
   const [versao, setVersao] = useState<"NAA" | "NVI">("NAA");
 
   const capitulo = getCapituloByIndex(currentIndex);
-  const isToday = currentIndex === sequenciaNovoTestamento.findIndex(
-    c => c.livro === capituloHoje.livro && c.capitulo === capituloHoje.capitulo
-  );
+  const isToday = currentIndex === indiceHoje;
   const chapterKey = `${capitulo.livro}-${capitulo.capitulo}`;
   const isRead = readChapters.has(chapterKey);
 

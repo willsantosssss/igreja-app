@@ -12,8 +12,6 @@ interface BatismoData {
   nome: string;
   dataNascimento: string;
   telefone: string;
-  email: string;
-  dataPretendida: string;
   motivacao: string;
   createdAt: string;
 }
@@ -23,8 +21,6 @@ export default function BatismoScreen() {
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [email, setEmail] = useState("");
-  const [dataPretendida, setDataPretendida] = useState("");
   const [motivacao, setMotivacao] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -66,15 +62,7 @@ export default function BatismoScreen() {
       return;
     }
 
-    if (!email.trim() || !email.includes("@")) {
-      Alert.alert("Atenção", "Por favor, preencha um email válido.");
-      return;
-    }
 
-    if (!dataPretendida.trim() || dataPretendida.length < 10) {
-      Alert.alert("Atenção", "Por favor, preencha a data pretendida para o batismo.");
-      return;
-    }
 
     if (!motivacao.trim() || motivacao.length < 20) {
       Alert.alert("Atenção", "Por favor, descreva sua motivação (mínimo 20 caracteres).");
@@ -88,8 +76,6 @@ export default function BatismoScreen() {
         nome: nome.trim(),
         dataNascimento: dataNascimento.trim(),
         telefone: telefone.trim(),
-        email: email.trim(),
-        dataPretendida: dataPretendida.trim(),
         motivacao: motivacao.trim(),
         createdAt: new Date().toISOString(),
       };
@@ -114,8 +100,6 @@ export default function BatismoScreen() {
       setNome("");
       setDataNascimento("");
       setTelefone("");
-      setEmail("");
-      setDataPretendida("");
       setMotivacao("");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível enviar sua inscrição. Tente novamente.");
@@ -205,39 +189,7 @@ export default function BatismoScreen() {
             />
           </View>
 
-          {/* Email */}
-          <View className="gap-2">
-            <Text className="text-sm font-semibold text-foreground">Email *</Text>
-            <TextInput
-              className="bg-surface rounded-xl px-4 py-3 text-foreground border"
-              style={{ borderColor: colors.border }}
-              placeholder="seu.email@exemplo.com"
-              placeholderTextColor={colors.muted}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              editable={!loading}
-            />
-          </View>
 
-          {/* Data Pretendida */}
-          <View className="gap-2">
-            <Text className="text-sm font-semibold text-foreground">Data Pretendida para Batismo *</Text>
-            <TextInput
-              className="bg-surface rounded-xl px-4 py-3 text-foreground border"
-              style={{ borderColor: colors.border }}
-              placeholder="DD/MM/YYYY"
-              placeholderTextColor={colors.muted}
-              value={dataPretendida}
-              onChangeText={(text) => setDataPretendida(formatDate(text))}
-              keyboardType="numeric"
-              maxLength={10}
-              editable={!loading}
-            />
-            <Text className="text-xs text-muted">
-              Sugestão: próximo domingo ou data especial
-            </Text>
-          </View>
 
           {/* Motivação */}
           <View className="gap-2">
