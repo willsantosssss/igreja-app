@@ -172,3 +172,12 @@
 - [x] Cancelar notificação quando líder faz logout
 - [x] Configuração para ativar/desativar lembrete no dashboard do líder
 - [x] Testes unitários para lógica de agendamento
+## Gerenciamento de Eventos no Admin
+- [x] Refatorar camada de dados de eventos para AsyncStorage dinâmico
+- [x] Criar tela de gerenciamento de eventos no admin (CRUD completo)
+- [x] Formulário para criar novo evento (nome, data, horário, local, descrição)
+- [x] Editar evento existente
+- [x] Remover evento
+- [x] Integrar com tela de agenda e inscrições existentes
+- [x] Adicionar link no painel admin
+- [x] Registrar rota no root layout

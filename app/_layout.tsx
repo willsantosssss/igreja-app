@@ -118,6 +118,7 @@ export default function RootLayout() {
                 <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
+                <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
                 <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
                 <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
                 <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />

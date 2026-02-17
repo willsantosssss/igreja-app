@@ -3,14 +3,38 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalSearchParams, router } from "expo-router";
-import { mockEvents, categoryLabels, categoryColors } from "@/lib/data/events";
+import { getEventoById, categoryLabels, categoryColors, type Event } from "@/lib/data/events";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { useState, useEffect } from "react";
 
 export default function EventDetailScreen() {
   const colors = useColors();
   const { id } = useLocalSearchParams();
-  const event = mockEvents.find(e => e.id === id);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    carregarEvento();
+  }, [id]);
+
+  const carregarEvento = async () => {
+    if (typeof id === 'string') {
+      const ev = await getEventoById(id);
+      setEvent(ev);
+    }
+    setCarregando(false);
+  };
+
+  if (carregando) {
+    return (
+      <ScreenContainer className="p-6">
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-muted text-base">Carregando...</Text>
+        </View>
+      </ScreenContainer>
+    );
+  }
 
   if (!event) {
     return (

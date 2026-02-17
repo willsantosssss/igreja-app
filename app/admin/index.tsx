@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { obterInscricoes, contarInscricoesPendentes } from "@/lib/notifications/batismo-notificacao";
 import { useCallback } from "react";
+import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
 
 interface BatismoData {
   nome: string;
@@ -34,6 +35,7 @@ export default function AdminScreen() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [aniversariantesMes, setAniversariantesMes] = useState<Usuario[]>([]);
   const [batismosPendentes, setBatismosPendentes] = useState(0);
+  const [totalEventos, setTotalEventos] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -51,6 +53,10 @@ export default function AdminScreen() {
 
       const pendentes = await contarInscricoesPendentes();
       setBatismosPendentes(pendentes);
+
+      // Carregar eventos
+      const eventosLista = await getEventos();
+      setTotalEventos(eventosLista.length);
 
       // Carregar usuários
       const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
@@ -269,6 +275,22 @@ export default function AdminScreen() {
           )}
         </View>
 
+        {/* Eventos */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-base font-bold text-foreground">📅 Eventos</Text>
+              <Text className="text-xs text-muted">{totalEventos} eventos cadastrados</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
+              onPress={() => router.push("/admin/eventos" as any)}
+            >
+              <Text className="text-xs font-bold text-primary">Gerenciar →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Membros por Célula */}
         <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
           <Text className="text-base font-bold text-foreground">🏘️ Distribuição por Célula</Text>
@@ -325,6 +347,13 @@ export default function AdminScreen() {
             onPress={() => router.push("/admin/relatorios" as any)}
           >
             <Text className="text-white font-bold">📋 Relatórios de Células</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center border"
+            style={{ backgroundColor: '#6B46C1', borderColor: '#6B46C1' }}
+            onPress={() => router.push("/admin/eventos" as any)}
+          >
+            <Text className="text-white font-bold">📅 Gerenciar Eventos</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

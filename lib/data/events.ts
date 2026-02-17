@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export type EventCategory = "culto" | "reuniao" | "evento-especial" | "retiro" | "conferencia";
 
 export interface Event {
@@ -11,7 +13,8 @@ export interface Event {
   imageUrl?: string;
 }
 
-export const mockEvents: Event[] = [
+// Eventos iniciais (seed) — usados apenas na primeira vez
+const EVENTOS_INICIAIS: Event[] = [
   {
     id: "1",
     title: "Culto de Celebração",
@@ -68,6 +71,71 @@ export const mockEvents: Event[] = [
   },
 ];
 
+const EVENTOS_KEY = '@eventos_igreja';
+const EVENTOS_INICIALIZADOS_KEY = '@eventos_inicializados';
+
+// ==================== LEITURA ====================
+
+export async function getEventos(): Promise<Event[]> {
+  try {
+    // Verificar se já foi inicializado
+    const inicializado = await AsyncStorage.getItem(EVENTOS_INICIALIZADOS_KEY);
+    if (!inicializado) {
+      // Primeira vez: salvar eventos iniciais
+      await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(EVENTOS_INICIAIS));
+      await AsyncStorage.setItem(EVENTOS_INICIALIZADOS_KEY, 'true');
+      return EVENTOS_INICIAIS;
+    }
+
+    const data = await AsyncStorage.getItem(EVENTOS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return EVENTOS_INICIAIS;
+  }
+}
+
+export async function getEventoById(id: string): Promise<Event | null> {
+  const eventos = await getEventos();
+  return eventos.find(e => e.id === id) || null;
+}
+
+// ==================== CRIAÇÃO ====================
+
+export async function criarEvento(evento: Omit<Event, 'id'>): Promise<Event> {
+  const eventos = await getEventos();
+  const novoEvento: Event = {
+    ...evento,
+    id: Date.now().toString(),
+  };
+  eventos.push(novoEvento);
+  await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
+  return novoEvento;
+}
+
+// ==================== EDIÇÃO ====================
+
+export async function editarEvento(id: string, dados: Partial<Omit<Event, 'id'>>): Promise<Event | null> {
+  const eventos = await getEventos();
+  const index = eventos.findIndex(e => e.id === id);
+  if (index < 0) return null;
+
+  eventos[index] = { ...eventos[index], ...dados };
+  await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
+  return eventos[index];
+}
+
+// ==================== REMOÇÃO ====================
+
+export async function removerEvento(id: string): Promise<boolean> {
+  const eventos = await getEventos();
+  const filtrados = eventos.filter(e => e.id !== id);
+  if (filtrados.length === eventos.length) return false;
+  await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(filtrados));
+  return true;
+}
+
+// ==================== CONSTANTES ====================
+
 export const categoryLabels: Record<EventCategory, string> = {
   culto: "Culto",
   reuniao: "Reunião",
@@ -83,3 +151,6 @@ export const categoryColors: Record<EventCategory, string> = {
   retiro: "#8B5CF6",
   conferencia: "#EF4444",
 };
+
+// Compatibilidade: exportar mockEvents como alias para uso síncrono de fallback
+export const mockEvents: Event[] = EVENTOS_INICIAIS;

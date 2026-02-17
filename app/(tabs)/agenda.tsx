@@ -2,23 +2,41 @@ import { ScrollView, Text, View, TouchableOpacity, RefreshControl } from "react-
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
-import { mockEvents, categoryLabels, categoryColors, type EventCategory } from "@/lib/data/events";
+import { useState, useEffect, useCallback } from "react";
+import { getEventos, categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
 import { router } from "expo-router";
+import { useFocusEffect } from "expo-router";
 
 export default function AgendaScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
+  const [eventos, setEventos] = useState<Event[]>([]);
 
-  const onRefresh = () => {
+  const carregarEventos = async () => {
+    const lista = await getEventos();
+    setEventos(lista);
+  };
+
+  useEffect(() => {
+    carregarEventos();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarEventos();
+    }, [])
+  );
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    await carregarEventos();
+    setRefreshing(false);
   };
 
   const filteredEvents = selectedCategory === "all" 
-    ? mockEvents 
-    : mockEvents.filter(e => e.category === selectedCategory);
+    ? eventos 
+    : eventos.filter(e => e.category === selectedCategory);
 
   const sortedEvents = [...filteredEvents].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
