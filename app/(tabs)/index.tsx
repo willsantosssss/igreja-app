@@ -1,16 +1,23 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, RefreshControl, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "expo-router";
+import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
 
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
+  const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
+
+  useEffect(() => {
+    carregarCapituloDoDia();
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
+    carregarCapituloDoDia();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -36,10 +43,18 @@ export default function HomeScreen() {
             <IconSymbol name="book.fill" size={24} color="#FFFFFF" />
             <Text className="text-lg font-semibold text-white">Devocional do Dia</Text>
           </View>
-          <Text className="text-sm text-white opacity-90">
-            "No princípio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus."
-          </Text>
-          <Text className="text-xs text-white opacity-75">João 1:1</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : capitulo ? (
+            <>
+              <Text className="text-sm text-white opacity-90" numberOfLines={2}>
+                "{capitulo.versos[0]?.texto}"
+              </Text>
+              <Text className="text-xs text-white opacity-75">{capitulo.livro} {capitulo.numero}:{capitulo.versos[0]?.numero}</Text>
+            </>
+          ) : (
+            <Text className="text-sm text-white opacity-90">Carregando devocional...</Text>
+          )}
           <TouchableOpacity 
             className="bg-white rounded-full px-4 py-2 self-start mt-2"
             onPress={() => router.push("/devocional")}
