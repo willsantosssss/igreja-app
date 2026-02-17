@@ -1,21 +1,29 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalSearchParams, router } from "expo-router";
 import { getEventoById, categoryLabels, categoryColors, type Event } from "@/lib/data/events";
+import { eventoPermiteInscricao, criarInscricao, verificarInscricao } from "@/lib/data/inscricoes-eventos";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EventDetailScreen() {
   const colors = useColors();
   const { id } = useLocalSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [jaInscrito, setJaInscrito] = useState(false);
+  const [nome, setNome] = useState("");
+  const [celula, setCelula] = useState("");
+  const [telefone, setTelefone] = useState("");
 
   useEffect(() => {
     carregarEvento();
+    carregarDadosUsuario();
   }, [id]);
 
   const carregarEvento = async () => {
@@ -24,6 +32,26 @@ export default function EventDetailScreen() {
       setEvent(ev);
     }
     setCarregando(false);
+  };
+
+  const carregarDadosUsuario = async () => {
+    try {
+      const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
+      if (dadosUsuarios) {
+        const lista = JSON.parse(dadosUsuarios);
+        if (lista.length > 0) {
+          const ultimo = lista[lista.length - 1];
+          setNome(ultimo.nome || "");
+          setCelula(ultimo.celula || "");
+          setTelefone(ultimo.telefone || "");
+          // Verificar se já está inscrito
+          if (typeof id === 'string' && ultimo.nome) {
+            const inscrito = await verificarInscricao(id, ultimo.nome);
+            setJaInscrito(inscrito);
+          }
+        }
+      }
+    } catch {}
   };
 
   if (carregando) {
@@ -53,6 +81,8 @@ export default function EventDetailScreen() {
     );
   }
 
+  const permiteInscricao = eventoPermiteInscricao(event.category);
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -60,15 +90,40 @@ export default function EventDetailScreen() {
     return `${days[date.getDay()]}, ${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
   };
 
-  const handleSubscribe = () => {
-    if (Platform.OS !== "web") {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  const handleSubscribe = async () => {
+    if (!nome.trim()) {
+      Alert.alert("Atenção", "Informe seu nome completo.");
+      return;
     }
-    Alert.alert(
-      "Inscrição Confirmada!",
-      `Você foi inscrito no evento "${event.title}". Em breve você receberá mais informações.`,
-      [{ text: "OK" }]
-    );
+    if (!celula.trim()) {
+      Alert.alert("Atenção", "Informe sua célula.");
+      return;
+    }
+
+    try {
+      await criarInscricao({
+        eventoId: event.id,
+        eventoTitulo: event.title,
+        eventoData: event.date,
+        nomeCompleto: nome.trim(),
+        celula: celula.trim(),
+        telefone: telefone.trim(),
+      });
+
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+
+      setJaInscrito(true);
+      setMostrarFormulario(false);
+      Alert.alert(
+        "Inscrição Confirmada!",
+        `Você foi inscrito no evento "${event.title}". Em breve você receberá mais informações.`,
+        [{ text: "OK" }]
+      );
+    } catch {
+      Alert.alert("Erro", "Não foi possível realizar a inscrição. Tente novamente.");
+    }
   };
 
   const handleShare = () => {
@@ -84,7 +139,7 @@ export default function EventDetailScreen() {
 
   return (
     <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: permiteInscricao ? 100 : 40 }}>
         {/* Header com botão voltar */}
         <View className="p-5 flex-row items-center gap-3">
           <TouchableOpacity
@@ -113,16 +168,23 @@ export default function EventDetailScreen() {
         {/* Conteúdo */}
         <View className="p-5 gap-6">
           {/* Categoria */}
-          <View 
-            className="px-3 py-1.5 rounded-full self-start"
-            style={{ backgroundColor: `${categoryColors[event.category]}20` }}
-          >
-            <Text 
-              className="text-sm font-semibold"
-              style={{ color: categoryColors[event.category] }}
+          <View className="flex-row items-center gap-2">
+            <View 
+              className="px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: `${categoryColors[event.category]}20` }}
             >
-              {categoryLabels[event.category]}
-            </Text>
+              <Text 
+                className="text-sm font-semibold"
+                style={{ color: categoryColors[event.category] }}
+              >
+                {categoryLabels[event.category]}
+              </Text>
+            </View>
+            {permiteInscricao && (
+              <View className="px-3 py-1.5 rounded-full bg-primary/10">
+                <Text className="text-xs font-semibold text-primary">Inscrição Aberta</Text>
+              </View>
+            )}
           </View>
 
           {/* Título */}
@@ -170,22 +232,93 @@ export default function EventDetailScreen() {
               {event.description}
             </Text>
           </View>
+
+          {/* Formulário de inscrição (apenas eventos especiais) */}
+          {permiteInscricao && mostrarFormulario && !jaInscrito && (
+            <View className="bg-surface rounded-2xl p-5 gap-4 border border-border">
+              <Text className="text-lg font-bold text-foreground">Formulário de Inscrição</Text>
+
+              <View className="gap-2">
+                <Text className="text-sm font-semibold text-foreground">Nome Completo</Text>
+                <TextInput
+                  className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                  style={{ borderColor: colors.border }}
+                  placeholder="Seu nome completo"
+                  placeholderTextColor={colors.muted}
+                  value={nome}
+                  onChangeText={setNome}
+                />
+              </View>
+
+              <View className="gap-2">
+                <Text className="text-sm font-semibold text-foreground">Célula</Text>
+                <TextInput
+                  className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                  style={{ borderColor: colors.border }}
+                  placeholder="Nome da sua célula"
+                  placeholderTextColor={colors.muted}
+                  value={celula}
+                  onChangeText={setCelula}
+                />
+              </View>
+
+              <View className="gap-2">
+                <Text className="text-sm font-semibold text-foreground">Telefone (opcional)</Text>
+                <TextInput
+                  className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                  style={{ borderColor: colors.border }}
+                  placeholder="(00) 00000-0000"
+                  placeholderTextColor={colors.muted}
+                  value={telefone}
+                  onChangeText={setTelefone}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <TouchableOpacity
+                className="rounded-full py-4 items-center"
+                style={{ backgroundColor: colors.primary }}
+                onPress={handleSubscribe}
+              >
+                <Text className="text-white font-bold text-base">Confirmar Inscrição</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Mensagem se não permite inscrição */}
+          {!permiteInscricao && (
+            <View className="bg-surface rounded-2xl p-4 gap-2 border border-border">
+              <Text className="text-sm text-muted text-center">
+                Este é um evento regular da igreja. Não é necessário inscrição prévia. Venha e participe!
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
-      {/* Botão fixo de inscrição */}
-      <View 
-        className="absolute bottom-0 left-0 right-0 p-5 border-t"
-        style={{ backgroundColor: colors.background, borderTopColor: colors.border }}
-      >
-        <TouchableOpacity
-          className="rounded-full py-4 items-center"
-          style={{ backgroundColor: colors.primary }}
-          onPress={handleSubscribe}
+      {/* Botão fixo de inscrição (apenas eventos especiais) */}
+      {permiteInscricao && (
+        <View 
+          className="absolute bottom-0 left-0 right-0 p-5 border-t"
+          style={{ backgroundColor: colors.background, borderTopColor: colors.border }}
         >
-          <Text className="text-white font-bold text-base">Inscrever-se no Evento</Text>
-        </TouchableOpacity>
-      </View>
+          {jaInscrito ? (
+            <View className="rounded-full py-4 items-center" style={{ backgroundColor: colors.success }}>
+              <Text className="text-white font-bold text-base">✓ Inscrito neste Evento</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              className="rounded-full py-4 items-center"
+              style={{ backgroundColor: colors.primary }}
+              onPress={() => setMostrarFormulario(!mostrarFormulario)}
+            >
+              <Text className="text-white font-bold text-base">
+                {mostrarFormulario ? "Fechar Formulário" : "Inscrever-se no Evento"}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </ScreenContainer>
   );
 }

@@ -181,3 +181,29 @@
 - [x] Integrar com tela de agenda e inscrições existentes
 - [x] Adicionar link no painel admin
 - [x] Registrar rota no root layout
+## Inscrição em Eventos Especiais
+- [x] Limitar botão de inscrição apenas a eventos com categoria "evento-especial", "retiro" e "conferencia"
+- [x] Salvar inscrições em AsyncStorage com dados do membro e evento
+- [x] Relatório de inscritos por evento especial no painel admin (com filtro por célula)
+- [x] Relatório de inscritos no painel do líder (apenas membros da célula)
+
+## Gráficos de Relatórios por Data
+- [x] Organizar gráficos de relatórios de células por data (eixo X = datas)
+
+## Correções no Devocional
+- [x] Corrigir visualização do texto do dia para aparecer completamente
+- [x] Corrigir anotações que não estão funcionando
+- [x] Adicionar opção de compartilhar anotações do devocional
+
+## Gerenciar Pedidos de Oração no Admin
+- [x] Criar tela de gerenciamento de pedidos de oração no admin
+- [x] Visualizar todos os pedidos, aprovar/remover
+
+## Gerenciar Células no Admin
+- [x] Criar tela de gerenciamento de células no admin (CRUD)
+- [x] Campos: nome, horário, líder, endereço
+- [x] Integrar com dados existentes de células
+
+## Gerenciar Contribuição no Admin
+- [x] Criar tela de gerenciamento de dados de contribuição no admin
+- [x] Editar chave PIX, dados bancários e informações de oferta

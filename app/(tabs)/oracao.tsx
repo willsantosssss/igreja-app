@@ -2,8 +2,8 @@ import { ScrollView, Text, View, TouchableOpacity, RefreshControl, TextInput, Al
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
-import { mockPrayerRequests, categoryLabels, categoryEmojis, type PrayerCategory } from "@/lib/data/oracao";
+import { useState, useEffect } from "react";
+import { getPedidosOracao, criarPedido, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
@@ -14,20 +14,31 @@ export default function OracaoScreen() {
   const [selectedCategory, setSelectedCategory] = useState<PrayerCategory | "all">("all");
   const [prayingFor, setPrayingFor] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
+  const [pedidos, setPedidos] = useState<PrayerRequest[]>([]);
+
+  useEffect(() => {
+    carregarPedidos();
+  }, []);
+
+  const carregarPedidos = async () => {
+    const dados = await getPedidosOracao();
+    setPedidos(dados);
+  };
   
   // Form state
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newCategory, setNewCategory] = useState<PrayerCategory>("espiritual");
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    await carregarPedidos();
+    setRefreshing(false);
   };
 
   const filteredRequests = selectedCategory === "all" 
-    ? mockPrayerRequests 
-    : mockPrayerRequests.filter(r => r.category === selectedCategory);
+    ? pedidos 
+    : pedidos.filter(r => r.category === selectedCategory);
 
   const sortedRequests = [...filteredRequests].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -60,7 +71,7 @@ export default function OracaoScreen() {
     }
   };
 
-  const handleAddPrayer = () => {
+  const handleAddPrayer = async () => {
     if (!newTitle.trim() || !newDescription.trim()) {
       Alert.alert("Atenção", "Por favor, preencha o título e a descrição do pedido.");
       return;
@@ -69,6 +80,16 @@ export default function OracaoScreen() {
     if (Platform.OS !== "web") {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+
+    await criarPedido({
+      title: newTitle.trim(),
+      description: newDescription.trim(),
+      category: newCategory,
+      author: 'Membro',
+      date: new Date().toISOString().split('T')[0],
+    });
+
+    await carregarPedidos();
 
     Alert.alert(
       "Pedido Enviado!",

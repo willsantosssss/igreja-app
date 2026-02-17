@@ -2,18 +2,29 @@ import { ScrollView, Text, View, TouchableOpacity, RefreshControl, Linking, Aler
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
-import { mockCelulas } from "@/lib/data/celulas";
+import { useState, useEffect } from "react";
+import { getCelulas, type Celula } from "@/lib/data/celulas";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
 export default function CelulasScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
+  const [celulas, setCelulas] = useState<Celula[]>([]);
 
-  const onRefresh = () => {
+  useEffect(() => {
+    carregarCelulas();
+  }, []);
+
+  const carregarCelulas = async () => {
+    const dados = await getCelulas();
+    setCelulas(dados);
+  };
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    await carregarCelulas();
+    setRefreshing(false);
   };
 
   const handleCall = (phone: string, leaderName: string) => {
@@ -82,7 +93,7 @@ export default function CelulasScreen() {
         <View className="gap-4">
           <Text className="text-xl font-bold text-foreground">Todas as Células</Text>
           
-          {mockCelulas.map((celula) => (
+          {celulas.map((celula) => (
             <View
               key={celula.id}
               className="bg-surface rounded-2xl p-5 gap-4 border border-border"

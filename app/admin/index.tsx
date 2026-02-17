@@ -9,6 +9,7 @@ import { Platform } from "react-native";
 import { obterInscricoes, contarInscricoesPendentes } from "@/lib/notifications/batismo-notificacao";
 import { useCallback } from "react";
 import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
+import { getInscricoesEventos } from "@/lib/data/inscricoes-eventos";
 
 interface BatismoData {
   nome: string;
@@ -36,6 +37,7 @@ export default function AdminScreen() {
   const [aniversariantesMes, setAniversariantesMes] = useState<Usuario[]>([]);
   const [batismosPendentes, setBatismosPendentes] = useState(0);
   const [totalEventos, setTotalEventos] = useState(0);
+  const [totalInscricoes, setTotalInscricoes] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -57,6 +59,10 @@ export default function AdminScreen() {
       // Carregar eventos
       const eventosLista = await getEventos();
       setTotalEventos(eventosLista.length);
+
+      // Carregar inscrições em eventos
+      const inscricoesEvt = await getInscricoesEventos();
+      setTotalInscricoes(inscricoesEvt.length);
 
       // Carregar usuários
       const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
@@ -291,6 +297,22 @@ export default function AdminScreen() {
           </View>
         </View>
 
+        {/* Inscritos em Eventos */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-base font-bold text-foreground">📋 Inscritos em Eventos</Text>
+              <Text className="text-xs text-muted">{totalInscricoes} inscrições em eventos especiais</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
+              onPress={() => router.push("/admin/inscricoes-eventos" as any)}
+            >
+              <Text className="text-xs font-bold text-primary">Ver Relatório →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Membros por Célula */}
         <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
           <Text className="text-base font-bold text-foreground">🏘️ Distribuição por Célula</Text>
@@ -354,6 +376,34 @@ export default function AdminScreen() {
             onPress={() => router.push("/admin/eventos" as any)}
           >
             <Text className="text-white font-bold">📅 Gerenciar Eventos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#EC4899' }}
+            onPress={() => router.push("/admin/inscricoes-eventos" as any)}
+          >
+            <Text className="text-white font-bold">📋 Inscritos em Eventos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#8B5CF6' }}
+            onPress={() => router.push("/admin/oracao" as any)}
+          >
+            <Text className="text-white font-bold">🙏 Gerenciar Pedidos de Oração</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#14B8A6' }}
+            onPress={() => router.push("/admin/celulas" as any)}
+          >
+            <Text className="text-white font-bold">🏘️ Gerenciar Células</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#F97316' }}
+            onPress={() => router.push("/admin/contribuicao" as any)}
+          >
+            <Text className="text-white font-bold">💰 Gerenciar Contribuição</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

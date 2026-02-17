@@ -89,8 +89,8 @@ export default function AdminRelatoriosScreen() {
     const datasUnicas = [...new Set(relatoriosFiltrados.map(r => r.data))]
       .sort((a, b) => parseData(a) - parseData(b));
 
-    // Limitar a últimas 10 datas para legibilidade
-    const datasExibidas = datasUnicas.slice(-10);
+    // Limitar a últimas 12 datas para legibilidade
+    const datasExibidas = datasUnicas.slice(-12);
     const labelsFormatadas = datasExibidas.map(d => {
       const parts = d.split('/');
       return `${parts[0]}/${parts[1]}`;

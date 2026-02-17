@@ -8,12 +8,14 @@ import {
   obterSessaoLider, getMembrosDaCelula, getAniversariantesDaCelula,
   type MembroCelula,
 } from '@/lib/data/lideres';
+import { getInscricoesPorCelula, type InscricaoEvento } from '@/lib/data/inscricoes-eventos';
 
 export default function MembrosScreen() {
   const colors = useColors();
   const router = useRouter();
   const [membros, setMembros] = useState<MembroCelula[]>([]);
-  const [filtro, setFiltro] = useState<'todos' | 'aniversariantes' | 'batismo'>('todos');
+  const [filtro, setFiltro] = useState<'todos' | 'aniversariantes' | 'batismo' | 'eventos'>('todos');
+  const [inscricoesEventos, setInscricoesEventos] = useState<InscricaoEvento[]>([]);
   const [celulaNome, setCelulaNome] = useState('');
   const [carregando, setCarregando] = useState(true);
 
@@ -30,6 +32,8 @@ export default function MembrosScreen() {
     setCelulaNome(sessao.celula);
     const dados = await getMembrosDaCelula(sessao.celula);
     setMembros(dados);
+    const insc = await getInscricoesPorCelula(sessao.celula);
+    setInscricoesEventos(insc);
     setCarregando(false);
   };
 
@@ -39,6 +43,9 @@ export default function MembrosScreen() {
         return getAniversariantesDaCelula(membros);
       case 'batismo':
         return membros.filter(m => m.inscritoBatismo);
+      case 'eventos':
+        const nomesInscritos = new Set(inscricoesEventos.map(i => i.nomeCompleto.toLowerCase()));
+        return membros.filter(m => nomesInscritos.has(m.nome.toLowerCase()));
       default:
         return membros;
     }
@@ -93,6 +100,7 @@ export default function MembrosScreen() {
             { key: 'todos' as const, label: `Todos (${membros.length})` },
             { key: 'aniversariantes' as const, label: `Anivers. ${meses[new Date().getMonth() + 1]}` },
             { key: 'batismo' as const, label: 'Inscritos Batismo' },
+            { key: 'eventos' as const, label: `Inscritos Eventos (${inscricoesEventos.length})` },
           ].map((f) => (
             <TouchableOpacity
               key={f.key}
