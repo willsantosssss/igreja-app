@@ -34,8 +34,7 @@ export default function DevocionalScreen() {
   const isRead = readChapters.has(chapterKey);
 
   // Usar hook da Bíblia Digital API
-  const { 
-    capitulo: textoCapitulo, 
+  const { capitulo: textoCapitulo, 
     loading, 
     error,
     carregarCapitulo,
@@ -43,11 +42,13 @@ export default function DevocionalScreen() {
     sincronizando,
     progresso,
     estatisticas,
-  } = useABibliaDigital({ versao, autoSincronizar: true });
+  } = useABibliaDigital({ versao, autoSincronizar: false });
 
   useEffect(() => {
     loadReadChapters();
+    // Carregar capítulo do cache ou mostrar mensagem
     carregarCapitulo(capitulo.livro, capitulo.capitulo);
+    // Atualizar estatísticas de cache
   }, [currentIndex, versao, capitulo.livro, capitulo.capitulo, carregarCapitulo]);
 
   const loadReadChapters = async () => {
@@ -233,14 +234,14 @@ export default function DevocionalScreen() {
               <View className="flex-row items-center gap-2">
                 <ActivityIndicator size="small" color={colors.primary} />
                 <Text className="text-primary font-semibold flex-1">
-                  Sincronizando... {progresso.atual}/{progresso.total}
+                  Sincronizando... {progresso.sincronizados}/{progresso.total}
                 </Text>
               </View>
               <View className="bg-border h-2 rounded-full overflow-hidden">
                 <View
                   className="bg-primary h-full"
                   style={{
-                    width: `${progresso.total > 0 ? (progresso.atual / progresso.total) * 100 : 0}%`,
+                    width: `${progresso.total > 0 ? (progresso.processados / progresso.total) * 100 : 0}%`,
                   }}
                 />
               </View>
@@ -252,16 +253,22 @@ export default function DevocionalScreen() {
             <Text className="text-xs text-muted mb-2">
               Cache: {estatisticas.sincronizados}/{estatisticas.total} capítulos ({versao})
             </Text>
-            {!sincronizando && estatisticas.sincronizados < estatisticas.total && (
-              <TouchableOpacity
-                className="bg-primary py-2 rounded-lg items-center"
-                onPress={handleSincronizar}
-              >
-                <Text className="text-background font-semibold">
-                  Sincronizar Novo Testamento
-                </Text>
-              </TouchableOpacity>
-            )}
+          <TouchableOpacity
+            className={`py-2 rounded-lg items-center ${
+              sincronizando ? 'opacity-50' : ''
+            }`}
+            style={{
+              backgroundColor: sincronizando ? colors.muted : colors.primary,
+            }}
+            onPress={handleSincronizar}
+            disabled={sincronizando}
+          >
+            <Text className="text-background font-semibold">
+              {sincronizando
+                ? `Sincronizando... ${progresso.sincronizados}/${progresso.total}`
+                : `Sincronizar (${estatisticas.sincronizados}/${estatisticas.total})`}
+            </Text>
+          </TouchableOpacity>
           </View>
 
           {/* Botão de Anotações */}

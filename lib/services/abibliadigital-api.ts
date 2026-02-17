@@ -3,12 +3,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 /**
  * Serviço de integração com A Bíblia Digital API
  * Sincroniza 260 capítulos do Novo Testamento com cache offline
+ * 
+ * Nota: Para usar, configure a variável de ambiente EXPO_PUBLIC_ABIBLIA_TOKEN
+ * ou use o endpoint via backend (tRPC) para esconder o token
  */
 
 const API_BASE = 'https://www.abibliadigital.com.br/api';
 const CACHE_KEY_PREFIX = '@biblia_capitulo_';
 const CACHE_INDEX_KEY = '@biblia_index';
 const CACHE_TIMESTAMP_KEY = '@biblia_timestamp';
+
+// Usar token da variável de ambiente (melhor: usar backend proxy)
+const ABIBLIA_TOKEN = process.env.EXPO_PUBLIC_ABIBLIA_TOKEN || '';
 
 export interface Capitulo {
   livro: string;
@@ -134,18 +140,38 @@ async function buscarDaAPI(
     const livroMapeado = mapearNomeLivro(livro);
     const versaoAbrev = versao === 'NAA' ? 'naa' : 'nvi';
 
-    // Construir URL da API
+    // Construir URL da API - formato correto para A Bíblia Digital
+    // Endpoint: GET /verses/{version}/{book}/{chapter}
     const url = `${API_BASE}/verses/${versaoAbrev}/${livroMapeado}/${numero}`;
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Adicionar token se disponível
+    if (ABIBLIA_TOKEN) {
+      headers['Authorization'] = `Bearer ${ABIBLIA_TOKEN}`;
+    }
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {
-      console.warn(`[Bíblia Digital] Falha ao buscar ${livro} ${numero}: ${response.status}`);
+      const statusText = response.statusText || `HTTP ${response.status}`;
+      const errorBody = await response.text().catch(() => '');
+      
+      console.warn(
+        `[Bíblia Digital] Falha ao buscar ${livro} ${numero}: ${statusText}`,
+        errorBody ? `(${errorBody.substring(0, 100)})` : ''
+      );
+
+      // Se for 401/403, pode ser falta de token
+      if (response.status === 401 || response.status === 403) {
+        console.error('[Bíblia Digital] Erro de autenticação - verifique o token');
+      }
+
       return null;
     }
 
@@ -154,8 +180,8 @@ async function buscarDaAPI(
     // Transformar resposta da API para nosso formato
     if (data && data.verses) {
       const versos: Verso[] = data.verses.map((v: any) => ({
-        numero: v.number,
-        texto: v.text,
+        numero: v.number || v.verse,
+        texto: v.text || v.content,
       }));
 
       return {
@@ -211,21 +237,27 @@ function mapearNomeLivro(livro: string): string {
 }
 
 /**
- * Sincronizar todos os 260 capítulos do Novo Testamento
+ * Sincronizar todos os 260 capítulos do Novo Testamento com backoff exponencial
  */
 export async function sincronizarTodoNT(
   versao: 'NAA' | 'NVI' = 'NAA',
-  onProgress?: (total: number, atual: number) => void
+  onProgress?: (total: number, processados: number, sincronizados: number) => void
 ): Promise<number> {
   let sincronizados = 0;
+  let processados = 0;
   let total = 0;
 
+  // Calcular total de capítulos
+  for (const livroInfo of SEQUENCIA_NT) {
+    total += livroInfo.capitulos;
+  }
+
   try {
+    let delayMs = 100; // Delay inicial
+    const maxDelayMs = 1000; // Delay máximo
+
     for (const livroInfo of SEQUENCIA_NT) {
       for (let cap = 1; cap <= livroInfo.capitulos; cap++) {
-        total++;
-        onProgress?.(total, sincronizados);
-
         try {
           const capitulo = await buscarCapitulo(livroInfo.livro, cap, versao);
           if (capitulo) {
@@ -235,8 +267,17 @@ export async function sincronizarTodoNT(
           console.warn(`Erro ao sincronizar ${livroInfo.livro} ${cap}:`, err);
         }
 
-        // Pequeno delay para não sobrecarregar a API
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        processados++;
+        onProgress?.(total, processados, sincronizados);
+
+        // Delay adaptativo para não sobrecarregar a API
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+
+        // Aumentar delay se muitas falhas (backoff exponencial)
+        if (processados % 10 === 0 && sincronizados < processados * 0.5) {
+          delayMs = Math.min(delayMs * 1.5, maxDelayMs);
+          console.log(`[Bíblia Digital] Taxa de sucesso baixa, aumentando delay para ${delayMs}ms`);
+        }
       }
     }
 
@@ -286,7 +327,7 @@ export async function obterEstatisticasCache(): Promise<{
     return {
       sincronizados: 0,
       total: 260,
-      versao: 'MAA',
+      versao: 'NAA',
       ultimaSincronizacao: null,
     };
   }
