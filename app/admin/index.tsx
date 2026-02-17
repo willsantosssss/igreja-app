@@ -312,6 +312,13 @@ export default function AdminScreen() {
           >
             <Text className="text-white font-bold">🎂 Ver Aniversariantes</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: colors.success }}
+            onPress={() => router.push("/admin/lideres" as any)}
+          >
+            <Text className="text-white font-bold">👥 Gerenciar Líderes de Células</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

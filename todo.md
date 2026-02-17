@@ -143,3 +143,15 @@
 - [ ] Gráficos interativos
 - [ ] Elementos de visualização
 - [ ] Apresentação dos recursos do app
+## Aba Líderes de Células
+- [x] Criar estrutura de dados para líderes (senhas, células)
+- [x] Implementar tela de login do líder com senha específica
+- [x] Dashboard do líder com visão geral da célula
+- [x] Visualização de membros cadastrados na célula
+- [x] Exibir aniversários dos membros da célula
+- [x] Exibir inscrições de eventos dos membros
+- [x] Exibir inscrições de batismo dos membros
+- [x] Formulário de relatório de célula (data, total pessoas, visitantes)
+- [x] Histórico de relatórios preenchidos
+- [x] Gerenciamento de senhas de líderes no painel admin
+- [x] Adicionar acesso à Área do Líder na tela Mais

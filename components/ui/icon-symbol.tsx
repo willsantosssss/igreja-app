@@ -29,6 +29,9 @@ const MAPPING = {
   "gear": "settings",
   "plus.circle.fill": "add-circle",
   "checkmark.circle.fill": "check-circle",
+  "person.2.fill": "groups",
+  "doc.text.fill": "description",
+  "lock.fill": "lock",
 } as IconMapping;
 
 /**

@@ -180,6 +180,23 @@ export default function MaisScreen() {
           
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={() => router.push("/lider" as any)}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.success}20` }}
+            >
+              <IconSymbol name="person.2.fill" size={24} color={colors.success} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Área do Líder</Text>
+              <Text className="text-sm text-muted">Painel para líderes de células</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
             onPress={() => router.push("/admin" as any)}
           >
             <View 
