@@ -287,3 +287,9 @@
 - [x] Atualizar camadas de dados para sincronização híbrida (AsyncStorage + Servidor)
 - [x] Implementar estratégia offline-first com fallback
 - [x] Testar sincronização entre múltiplos dispositivos
+
+## Corrigir Sincronização de Pedidos de Oração
+- [x] Atualizar camada de dados para sincronizar criação de pedidos com servidor
+- [x] Garantir que pedidos criados por qualquer usuário apareçam para todos
+- [x] Sincronizar contador "Estou Orando" em tempo real
+- [x] Testar criação e visualização entre múltiplos dispositivos
