@@ -1,4 +1,4 @@
-# Design do Aplicativo Igreja Connect
+# Design do Aplicativo 2IEQ Connect
 
 ## Orientação e Uso
 - **Orientação**: Mobile portrait (9:16)

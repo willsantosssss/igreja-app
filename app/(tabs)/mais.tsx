@@ -47,7 +47,7 @@ export default function MaisScreen() {
     }
     Alert.alert(
       "Sobre o App",
-      "Igreja Connect v1.0\n\nAplicativo desenvolvido para conectar você à comunidade da igreja.\n\n© 2026 Igreja Connect",
+      "2IEQ Connect v1.0\n\nAplicativo desenvolvido para conectar você à comunidade da igreja.\n\n© 2026 2IEQ Connect",
       [{ text: "OK" }]
     );
   };
@@ -282,7 +282,7 @@ export default function MaisScreen() {
         {/* Rodapé */}
         <View className="items-center py-4">
           <Text className="text-xs text-muted text-center">
-            Igreja Connect © 2026
+            2IEQ Connect © 2026
           </Text>
           <Text className="text-xs text-muted text-center mt-1">
             Conectando você à comunidade

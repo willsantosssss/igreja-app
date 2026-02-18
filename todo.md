@@ -271,3 +271,6 @@
 - [x] Copiar logo 2IEQ Rondonópolis para assets
 - [x] Atualizar app.config.ts com nova logo
 - [x] Atualizar telas que usam emoji ⛪ (login, home, etc)
+
+## Renomear App
+- [x] Trocar "Igreja Connect" por "2IEQ Connect" em todo o app
