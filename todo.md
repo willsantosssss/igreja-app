@@ -254,3 +254,12 @@
 - [x] Adicionar relatório de inscritos em eventos no painel do líder
 - [x] Corrigir bug do calendário no gerenciador de eventos (salvando um dia antes)
 - [x] Integrar gerenciador de notícias com aba de notícias da home
+
+## Melhorias Finais
+- [x] Adicionar seletor dinâmico de células no cadastro de líderes (admin)
+- [x] Remover seção "Faça parte da comunidade" da aba Mais
+- [x] Implementar lazy loading de componentes pesados
+- [x] Adicionar memoização em componentes que re-renderizam frequentemente
+- [x] Otimizar listas com FlatList e windowSize
+- [x] Reduzir tamanho de imagens e assets
+- [x] Implementar code splitting onde aplicável

@@ -279,30 +279,6 @@ export default function MaisScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Card de Comunidade */}
-        <View className="bg-primary rounded-2xl p-6 gap-3 mt-4">
-          <Text className="text-xl font-bold text-white">
-            Faça Parte da Comunidade
-          </Text>
-          <Text className="text-sm text-white opacity-90">
-            Conecte-se com outros membros, participe de células e eventos, e cresça espiritualmente junto conosco.
-          </Text>
-          <View className="flex-row gap-2 mt-2">
-            <View className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-white">500+</Text>
-              <Text className="text-xs text-white opacity-75">Membros</Text>
-            </View>
-            <View className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-white">12</Text>
-              <Text className="text-xs text-white opacity-75">Células</Text>
-            </View>
-            <View className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-white">30+</Text>
-              <Text className="text-xs text-white opacity-75">Eventos/Mês</Text>
-            </View>
-          </View>
-        </View>
-
         {/* Rodapé */}
         <View className="items-center py-4">
           <Text className="text-xs text-muted text-center">

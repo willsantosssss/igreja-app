@@ -12,6 +12,7 @@ import {
   getRelatorios,
   type LiderCelula, type RelatorioCelula,
 } from '@/lib/data/lideres';
+import { getCelulas, type Celula } from '@/lib/data/celulas';
 
 export default function AdminLideresScreen() {
   const colors = useColors();
@@ -24,10 +25,7 @@ export default function AdminLideresScreen() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [editandoSenha, setEditandoSenha] = useState<string | null>(null);
   const [senhaEditada, setSenhaEditada] = useState('');
-
-  const celulas = [
-    'Vida Nova', 'Esperança', 'Fé e Graça', 'Amor Perfeito', 'Renovo', 'Outra',
-  ];
+  const [celulas, setCelulas] = useState<Celula[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -40,6 +38,8 @@ export default function AdminLideresScreen() {
     setLideres(lids);
     const rels = await getRelatorios();
     setRelatorios(rels);
+    const cels = await getCelulas();
+    setCelulas(cels);
   };
 
   const handleAdicionarLider = async () => {
@@ -188,24 +188,24 @@ export default function AdminLideresScreen() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {celulas.map((cel) => (
                   <TouchableOpacity
-                    key={cel}
-                    onPress={() => setNovaCelula(cel)}
+                    key={cel.id}
+                    onPress={() => setNovaCelula(cel.name)}
                     style={{
-                      backgroundColor: novaCelula === cel ? colors.primary : colors.background,
+                      backgroundColor: novaCelula === cel.name ? colors.primary : colors.background,
                       paddingHorizontal: 14,
                       paddingVertical: 10,
                       borderRadius: 20,
                       marginRight: 8,
                       borderWidth: 1,
-                      borderColor: novaCelula === cel ? colors.primary : colors.border,
+                      borderColor: novaCelula === cel.name ? colors.primary : colors.border,
                     }}
                   >
                     <Text style={{
-                      color: novaCelula === cel ? '#fff' : colors.foreground,
+                      color: novaCelula === cel.name ? '#fff' : colors.foreground,
                       fontWeight: '600',
                       fontSize: 13,
                     }}>
-                      {cel}
+                      {cel.name}
                     </Text>
                   </TouchableOpacity>
                 ))}
