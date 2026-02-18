@@ -231,3 +231,20 @@
 - [x] Criar tela de gerenciamento de aniversariantes no admin (CRUD)
 - [x] Adicionar/editar/remover datas de aniversário dos membros
 - [x] Integrar com dados de membros existentes
+
+## QR Code nas Contribuições
+- [x] Adicionar QR code na tela de contribuições
+- [x] Exibir QR code para PIX/doações
+
+## Próximo Evento Sincronizado
+- [x] Sincronizar próximo evento da home com dados da agenda
+- [x] Atualizar automaticamente quando novo evento for criado
+
+## Editor de Aviso Importante
+- [x] Criar tela de edição do aviso importante no admin
+- [x] Salvar e sincronizar em tempo real
+
+## Gerenciador de Notícias
+- [x] Criar tela de CRUD de notícias no admin
+- [x] Exibir notícias na home ou em aba específica
+- [x] Ordenar por data (mais recentes primeiro)

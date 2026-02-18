@@ -221,6 +221,38 @@ export default function AdminScreen() {
           )}
         </View>
 
+        {/* Aviso Importante */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-base font-bold text-foreground">📢 Aviso Importante</Text>
+              <Text className="text-xs text-muted">Editar mensagem da home</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
+              onPress={() => router.push("/admin/aviso-importante" as any)}
+            >
+              <Text className="text-xs font-bold text-primary">Editar →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Notícias */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-base font-bold text-foreground">📰 Notícias</Text>
+              <Text className="text-xs text-muted">Gerenciar notícias da igreja</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
+              onPress={() => router.push("/admin/noticias" as any)}
+            >
+              <Text className="text-xs font-bold text-primary">Gerenciar →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Aniversariantes */}
         <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
           <View className="flex-row items-center justify-between">

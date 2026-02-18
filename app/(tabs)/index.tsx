@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
+import { getAvisoImportante, type AvisoImportante } from "@/lib/data/aviso-importante";
 
 interface Usuario {
   nome: string;
@@ -13,15 +15,36 @@ interface Usuario {
   celula: string;
 }
 
+interface ProximoEvento {
+  nome: string;
+  data: string;
+  hora: string;
+  local: string;
+}
+
+interface AvisoState {
+  titulo: string;
+  mensagem: string;
+  ativo: boolean;
+}
+
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
   const [aniversariantesHoje, setAniversariantesHoje] = useState<Usuario[]>([]);
+  const [proximoEvento, setProximoEvento] = useState<ProximoEvento | null>(null);
+  const [aviso, setAviso] = useState<AvisoState>({
+    titulo: "Aviso Importante",
+    mensagem: "Inscrições abertas para o retiro espiritual de março! Vagas limitadas.",
+    ativo: true,
+  });
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   useEffect(() => {
     carregarCapituloDoDia();
     carregarAniversariantes();
+    carregarProximoEvento();
+    carregarAviso();
   }, []);
 
   const carregarAniversariantes = async () => {
@@ -44,10 +67,58 @@ export default function HomeScreen() {
     }
   };
 
+  const carregarProximoEvento = async () => {
+    try {
+      const eventos = await getEventos();
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      // Filtrar eventos futuros
+      const eventosFuturos = eventos
+        .filter(e => {
+          const dataEvento = new Date(e.date);
+          dataEvento.setHours(0, 0, 0, 0);
+          return dataEvento >= hoje;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      if (eventosFuturos.length > 0) {
+        const evento = eventosFuturos[0];
+        const data = new Date(evento.date);
+        const diasSemana = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+        const diaSemana = diasSemana[data.getDay()];
+        
+        setProximoEvento({
+          nome: evento.title,
+          data: `${diaSemana}, ${data.getDate()}/${data.getMonth() + 1}`,
+          hora: evento.time,
+          local: evento.location
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao carregar próximo evento:", err);
+    }
+  };
+
+  const carregarAviso = async () => {
+    try {
+      const avisoAtual = await getAvisoImportante();
+      setAviso({
+        titulo: avisoAtual.titulo,
+        mensagem: avisoAtual.mensagem,
+        ativo: avisoAtual.ativo,
+      });
+    } catch (err) {
+      console.error("Erro ao carregar aviso:", err);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
     carregarCapituloDoDia();
     carregarAniversariantes();
+    carregarProximoEvento();
+    carregarAviso();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -100,11 +171,18 @@ export default function HomeScreen() {
             <IconSymbol name="calendar" size={24} color={colors.primary} />
             <Text className="text-lg font-semibold text-foreground">Próximo Evento</Text>
           </View>
-          <View className="gap-1">
-            <Text className="text-base font-semibold text-foreground">Culto de Celebração</Text>
-            <Text className="text-sm text-muted">Domingo, 19:00</Text>
-            <Text className="text-sm text-muted">📍 Templo Central</Text>
-          </View>
+          {proximoEvento ? (
+            <View className="gap-1">
+              <Text className="text-base font-semibold text-foreground">{proximoEvento.nome}</Text>
+              <Text className="text-sm text-muted">{proximoEvento.data}, {proximoEvento.hora}</Text>
+              <Text className="text-sm text-muted">📍 {proximoEvento.local}</Text>
+            </View>
+          ) : (
+            <View className="gap-1">
+              <Text className="text-base font-semibold text-foreground">Nenhum evento próximo</Text>
+              <Text className="text-sm text-muted">Confira a agenda para mais detalhes</Text>
+            </View>
+          )}
           <TouchableOpacity 
             className="border-2 rounded-full px-4 py-2 self-start mt-2"
             style={{ borderColor: colors.primary }}
@@ -156,15 +234,17 @@ export default function HomeScreen() {
         </View>
 
         {/* Avisos Importantes */}
-        <View className="bg-warning/10 rounded-2xl p-5 gap-2 border border-warning/20">
-          <View className="flex-row items-center gap-2">
-            <Text className="text-2xl">📢</Text>
-            <Text className="text-base font-semibold text-foreground">Aviso Importante</Text>
+        {aviso.ativo && (
+          <View className="bg-warning/10 rounded-2xl p-5 gap-2 border border-warning/20">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-2xl">📢</Text>
+              <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
+            </View>
+            <Text className="text-sm text-foreground">
+              {aviso.mensagem}
+            </Text>
           </View>
-          <Text className="text-sm text-foreground">
-            Inscrições abertas para o retiro espiritual de março! Vagas limitadas.
-          </Text>
-        </View>
+        )}
 
         {/* Aniversariantes do Dia */}
         <View className="bg-surface rounded-2xl p-5 gap-3 border border-border">

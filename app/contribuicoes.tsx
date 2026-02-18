@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, Image } from "react-native";
 import { useState, useCallback } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
@@ -91,13 +91,11 @@ export default function ContribuicoesScreen() {
           <Text className="text-xl font-bold text-foreground">PIX</Text>
           <View className="bg-surface rounded-2xl p-5 gap-4 border border-border">
             <View className="items-center gap-3">
-              <View
-                className="rounded-2xl items-center justify-center border-2"
-                style={{ width: 200, height: 200, backgroundColor: colors.background, borderColor: colors.border }}
-              >
-                <Text className="text-6xl">📱</Text>
-                <Text className="text-sm text-muted mt-2">QR Code PIX</Text>
-              </View>
+              <Image
+              source={require("@/assets/images/qr-code-pix.jpg")}
+              style={{ width: 200, height: 200 }}
+              className="rounded-2xl"
+            />
               <Text className="text-sm text-muted text-center">
                 Escaneie o código acima ou use a chave PIX
               </Text>
