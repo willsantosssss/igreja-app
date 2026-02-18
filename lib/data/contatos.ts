@@ -1,4 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { syncService } from '@/lib/services/sync-service';
+
+const API_URL = __DEV__ ? 'http://127.0.0.1:3000/trpc' : 'https://api.example.com/trpc';
 
 export interface ContatosIgreja {
   telefone: string;
@@ -38,6 +42,23 @@ export async function getContatos(): Promise<ContatosIgreja> {
 export async function atualizarContatos(dados: Partial<ContatosIgreja>): Promise<ContatosIgreja> {
   const atual = await getContatos();
   const atualizado = { ...atual, ...dados };
+  
+  // Salvar localmente
   await AsyncStorage.setItem(CONTATOS_KEY, JSON.stringify(atualizado));
+  
+  // Sincronizar com servidor
+  try {
+    await axios.post(`${API_URL}/contatos.update`, {
+      telefone: atualizado.telefone,
+      whatsapp: atualizado.whatsapp,
+      email: atualizado.email,
+    });
+    
+    // Forçar sincronização imediata para outros dispositivos
+    await syncService.forceSync();
+  } catch (error) {
+    console.error('[Contatos] Erro ao sincronizar com servidor:', error);
+  }
+  
   return atualizado;
 }

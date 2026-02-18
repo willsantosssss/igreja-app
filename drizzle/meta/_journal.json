@@ -22,6 +22,13 @@
       "when": 1771358949461,
       "tag": "0002_charming_crusher_hogan",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1771440209342,
+      "tag": "0003_sticky_freak",
+      "breakpoints": true
     }
   ]
 }

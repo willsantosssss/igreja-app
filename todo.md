@@ -280,3 +280,10 @@
 - [x] Campos: telefone, WhatsApp, email
 - [x] Integrar com tela Mais (seção Suporte) com sincronização em tempo real (useFocusEffect)
 - [x] Salvar contatos no AsyncStorage
+
+## Sincronização em Tempo Real Entre Dispositivos
+- [x] Criar endpoints REST no backend para todos os dados (eventos, células, notícias, etc)
+- [x] Implementar serviço de sincronização com polling (30s)
+- [x] Atualizar camadas de dados para sincronização híbrida (AsyncStorage + Servidor)
+- [x] Implementar estratégia offline-first com fallback
+- [x] Testar sincronização entre múltiplos dispositivos
