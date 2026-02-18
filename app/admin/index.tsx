@@ -387,13 +387,6 @@ export default function AdminScreen() {
           >
             <Text className="text-white font-bold">💰 Gerenciar Contribuição</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            className="rounded-full py-3 items-center"
-            style={{ backgroundColor: '#3B82F6' }}
-            onPress={() => router.push("/admin/contatos" as any)}
-          >
-            <Text className="text-white font-bold">📞 Gerenciar Contatos da Igreja</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

@@ -20,7 +20,6 @@ import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
-import { syncService } from "@/lib/services/sync-service";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -42,14 +41,6 @@ export default function RootLayout() {
     initManusRuntime();
     checkLoginStatus();
     inicializarNotificacoes();
-    
-    // Iniciar serviço de sincronização em tempo real
-    syncService.start();
-    
-    // Parar serviço ao desmontar
-    return () => {
-      syncService.stop();
-    };
   }, []);
 
   const checkLoginStatus = async () => {

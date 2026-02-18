@@ -1,16 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { syncService } from '@/lib/services/sync-service';
-
-// API_URL configurada dinamicamente
-let API_URL: string;
-try {
-  const { getApiBaseUrl } = require('@/constants/oauth');
-  API_URL = `${getApiBaseUrl()}/api/trpc`;
-} catch {
-  // Fallback para testes
-  API_URL = 'http://127.0.0.1:3000/api/trpc';
-}
 
 export interface Celula {
   id: string;
@@ -35,58 +23,67 @@ export interface Celula {
   };
 }
 
-// Tipo do banco de dados
-interface CelulaDB {
-  id: number;
-  nome: string;
-  lider: string;
-  telefone: string;
-  endereco: string;
-  latitude: string;
-  longitude: string;
-  diaReuniao: string;
-  horario: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Dados iniciais (seed)
+const CELULAS_INICIAIS: Celula[] = [
+  {
+    id: "1",
+    name: "Célula Vida Nova",
+    leader: { name: "João Silva", phone: "+55 66 98765-4321" },
+    schedule: { day: "Terça-feira", time: "19:30" },
+    address: { street: "Rua das Flores, 123", neighborhood: "Centro", city: "Rondonópolis - MT" },
+    description: "Célula focada em jovens e adultos, com estudos bíblicos profundos e momentos de comunhão.",
+  },
+  {
+    id: "2",
+    name: "Célula Esperança",
+    leader: { name: "Maria Santos", phone: "+55 66 99876-5432" },
+    schedule: { day: "Quinta-feira", time: "20:00" },
+    address: { street: "Av. Brasil, 456", neighborhood: "Vila Aurora", city: "Rondonópolis - MT" },
+    description: "Célula acolhedora para famílias, com atividades para crianças e adultos.",
+  },
+  {
+    id: "3",
+    name: "Célula Fé e Graça",
+    leader: { name: "Pedro Oliveira", phone: "+55 66 97654-3210" },
+    schedule: { day: "Sexta-feira", time: "19:00" },
+    address: { street: "Rua da Paz, 789", neighborhood: "Jardim Tropical", city: "Rondonópolis - MT" },
+    description: "Célula voltada para jovens profissionais, com foco em crescimento espiritual.",
+  },
+  {
+    id: "4",
+    name: "Célula Amor Perfeito",
+    leader: { name: "Ana Costa", phone: "+55 66 96543-2109" },
+    schedule: { day: "Quarta-feira", time: "20:30" },
+    address: { street: "Rua do Amor, 321", neighborhood: "Vila Operária", city: "Rondonópolis - MT" },
+    description: "Célula para casais, com estudos sobre relacionamentos à luz da Bíblia.",
+  },
+  {
+    id: "5",
+    name: "Célula Renovo",
+    leader: { name: "Carlos Mendes", phone: "+55 66 95432-1098" },
+    schedule: { day: "Sábado", time: "18:00" },
+    address: { street: "Rua Nova Vida, 654", neighborhood: "Parque Sagrada Família", city: "Rondonópolis - MT" },
+    description: "Célula com foco em restauração e cura interior, aberta a todos que buscam renovação espiritual.",
+  },
+];
 
-const CELULAS_KEY = '@celulas';
-
-// ==================== ADAPTADORES ====================
-
-function dbToFrontend(celula: CelulaDB): Celula {
-  return {
-    id: celula.id.toString(),
-    name: celula.nome,
-    leader: {
-      name: celula.lider,
-      phone: celula.telefone,
-    },
-    schedule: {
-      day: celula.diaReuniao,
-      time: celula.horario,
-    },
-    address: {
-      street: celula.endereco,
-      neighborhood: '',
-      city: 'Rondonópolis - MT',
-    },
-    description: '',
-    coordinates: {
-      latitude: parseFloat(celula.latitude) || 0,
-      longitude: parseFloat(celula.longitude) || 0,
-    },
-  };
-}
+const CELULAS_KEY = '@celulas_igreja';
+const CELULAS_INIT_KEY = '@celulas_init';
 
 // ==================== LEITURA ====================
 
 export async function getCelulas(): Promise<Celula[]> {
   try {
+    const init = await AsyncStorage.getItem(CELULAS_INIT_KEY);
+    if (!init) {
+      await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(CELULAS_INICIAIS));
+      await AsyncStorage.setItem(CELULAS_INIT_KEY, 'true');
+      return CELULAS_INICIAIS;
+    }
     const data = await AsyncStorage.getItem(CELULAS_KEY);
     return data ? JSON.parse(data) : [];
   } catch {
-    return [];
+    return CELULAS_INICIAIS;
   }
 }
 
@@ -98,50 +95,11 @@ export async function getCelulaById(id: string): Promise<Celula | null> {
 // ==================== CRIAÇÃO ====================
 
 export async function criarCelula(dados: Omit<Celula, 'id'>): Promise<Celula> {
-  // Sincronizar com servidor PRIMEIRO
-  try {
-    const response = await axios.post(`${API_URL}/celulas.create`, {
-      nome: dados.name,
-      lider: dados.leader.name,
-      telefone: dados.leader.phone,
-      endereco: dados.address.street,
-      latitude: dados.coordinates?.latitude.toString() || '0',
-      longitude: dados.coordinates?.longitude.toString() || '0',
-      diaReuniao: dados.schedule.day,
-      horario: dados.schedule.time,
-    });
-    
-    const insertId = response.data.result.data;
-    
-    const nova: Celula = {
-      ...dados,
-      id: insertId.toString(),
-    };
-    
-    // Salvar localmente
-    const todas = await getCelulas();
-    todas.push(nova);
-    await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
-    
-    // Forçar sincronização
-    await syncService.forceSync();
-    
-    return nova;
-  } catch (error) {
-    console.error('[Células] Erro ao criar no servidor:', error);
-    
-    // Fallback: salvar apenas localmente
-    const nova: Celula = {
-      ...dados,
-      id: `local_${Date.now()}`,
-    };
-    
-    const todas = await getCelulas();
-    todas.push(nova);
-    await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
-    
-    return nova;
-  }
+  const todas = await getCelulas();
+  const nova: Celula = { ...dados, id: Date.now().toString() };
+  todas.push(nova);
+  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
+  return nova;
 }
 
 // ==================== EDIÇÃO ====================
@@ -161,29 +119,6 @@ export async function editarCelula(id: string, dados: Partial<Omit<Celula, 'id'>
     address: { ...atual.address, ...(dados.address || {}) },
   };
   await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
-  
-  // Sincronizar com servidor
-  try {
-    const celula = todas[index];
-    await axios.post(`${API_URL}/celulas.update`, {
-      id: parseInt(id),
-      data: {
-        nome: celula.name,
-        lider: celula.leader.name,
-        telefone: celula.leader.phone,
-        endereco: celula.address.street,
-        latitude: celula.coordinates?.latitude.toString() || '0',
-        longitude: celula.coordinates?.longitude.toString() || '0',
-        diaReuniao: celula.schedule.day,
-        horario: celula.schedule.time,
-      },
-    });
-    
-    await syncService.forceSync();
-  } catch (error) {
-    console.error('[Células] Erro ao editar no servidor:', error);
-  }
-  
   return todas[index];
 }
 
@@ -194,24 +129,8 @@ export async function removerCelula(id: string): Promise<boolean> {
   const filtradas = todas.filter(c => c.id !== id);
   if (filtradas.length === todas.length) return false;
   await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(filtradas));
-  
-  // Sincronizar com servidor
-  try {
-    await axios.post(`${API_URL}/celulas.delete`, parseInt(id));
-    await syncService.forceSync();
-  } catch (error) {
-    console.error('[Células] Erro ao remover no servidor:', error);
-  }
-  
   return true;
 }
 
-// ==================== SINCRONIZAÇÃO ====================
-
-export async function syncCelulasFromServer(celulasDB: CelulaDB[]): Promise<void> {
-  const celulas = celulasDB.map(dbToFrontend);
-  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(celulas));
-}
-
 // Compatibilidade
-export const mockCelulas: Celula[] = [];
+export const mockCelulas: Celula[] = CELULAS_INICIAIS;

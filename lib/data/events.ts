@@ -1,16 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { syncService } from '@/lib/services/sync-service';
-
-// API_URL configurada dinamicamente
-let API_URL: string;
-try {
-  const { getApiBaseUrl } = require('@/constants/oauth');
-  API_URL = `${getApiBaseUrl()}/api/trpc`;
-} catch {
-  // Fallback para testes
-  API_URL = 'http://127.0.0.1:3000/api/trpc';
-}
 
 export type EventCategory = "culto" | "reuniao" | "evento-especial" | "retiro" | "conferencia";
 
@@ -25,44 +13,84 @@ export interface Event {
   imageUrl?: string;
 }
 
-// Tipo do banco de dados
-interface EventoDB {
-  id: number;
-  titulo: string;
-  descricao: string;
-  data: string;
-  horario: string;
-  local: string;
-  tipo: string;
-  requireInscricao: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Eventos iniciais (seed) — usados apenas na primeira vez
+const EVENTOS_INICIAIS: Event[] = [
+  {
+    id: "1",
+    title: "Culto de Celebração",
+    description: "Culto de adoração e louvor com mensagem edificante. Venha celebrar conosco!",
+    date: "2026-02-21",
+    time: "19:00",
+    location: "Templo Central",
+    category: "culto",
+  },
+  {
+    id: "2",
+    title: "Reunião de Oração",
+    description: "Momento de intercessão e busca pela presença de Deus. Todos são bem-vindos.",
+    date: "2026-02-19",
+    time: "20:00",
+    location: "Sala de Oração",
+    category: "reuniao",
+  },
+  {
+    id: "3",
+    title: "Retiro Espiritual",
+    description: "Três dias de renovação espiritual, adoração e comunhão. Inscrições abertas!",
+    date: "2026-03-15",
+    time: "08:00",
+    location: "Sítio Águas Vivas",
+    category: "retiro",
+  },
+  {
+    id: "4",
+    title: "Conferência de Jovens",
+    description: "Encontro especial para jovens com palestras, louvor e atividades.",
+    date: "2026-03-22",
+    time: "18:00",
+    location: "Auditório Principal",
+    category: "conferencia",
+  },
+  {
+    id: "5",
+    title: "Culto de Domingo",
+    description: "Culto dominical com escola bíblica e pregação da palavra.",
+    date: "2026-02-23",
+    time: "09:00",
+    location: "Templo Central",
+    category: "culto",
+  },
+  {
+    id: "6",
+    title: "Jantar Comunitário",
+    description: "Momento de confraternização e comunhão entre os membros da igreja.",
+    date: "2026-02-28",
+    time: "19:30",
+    location: "Salão Social",
+    category: "evento-especial",
+  },
+];
 
-const EVENTOS_KEY = '@eventos';
-
-// ==================== ADAPTADORES ====================
-
-function dbToFrontend(evento: EventoDB): Event {
-  return {
-    id: evento.id.toString(),
-    title: evento.titulo,
-    description: evento.descricao,
-    date: evento.data,
-    time: evento.horario,
-    location: evento.local,
-    category: (evento.tipo as EventCategory) || 'evento-especial',
-  };
-}
+const EVENTOS_KEY = '@eventos_igreja';
+const EVENTOS_INICIALIZADOS_KEY = '@eventos_inicializados';
 
 // ==================== LEITURA ====================
 
 export async function getEventos(): Promise<Event[]> {
   try {
+    // Verificar se já foi inicializado
+    const inicializado = await AsyncStorage.getItem(EVENTOS_INICIALIZADOS_KEY);
+    if (!inicializado) {
+      // Primeira vez: salvar eventos iniciais
+      await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(EVENTOS_INICIAIS));
+      await AsyncStorage.setItem(EVENTOS_INICIALIZADOS_KEY, 'true');
+      return EVENTOS_INICIAIS;
+    }
+
     const data = await AsyncStorage.getItem(EVENTOS_KEY);
     return data ? JSON.parse(data) : [];
   } catch {
-    return [];
+    return EVENTOS_INICIAIS;
   }
 }
 
@@ -74,49 +102,14 @@ export async function getEventoById(id: string): Promise<Event | null> {
 // ==================== CRIAÇÃO ====================
 
 export async function criarEvento(evento: Omit<Event, 'id'>): Promise<Event> {
-  // Sincronizar com servidor PRIMEIRO
-  try {
-    const response = await axios.post(`${API_URL}/eventos.create`, {
-      titulo: evento.title,
-      descricao: evento.description,
-      data: evento.date,
-      horario: evento.time,
-      local: evento.location,
-      tipo: evento.category,
-      requireInscricao: 0,
-    });
-    
-    const insertId = response.data.result.data;
-    
-    const novoEvento: Event = {
-      ...evento,
-      id: insertId.toString(),
-    };
-    
-    // Salvar localmente
-    const eventos = await getEventos();
-    eventos.push(novoEvento);
-    await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
-    
-    // Forçar sincronização
-    await syncService.forceSync();
-    
-    return novoEvento;
-  } catch (error) {
-    console.error('[Eventos] Erro ao criar no servidor:', error);
-    
-    // Fallback: salvar apenas localmente
-    const novoEvento: Event = {
-      ...evento,
-      id: `local_${Date.now()}`,
-    };
-    
-    const eventos = await getEventos();
-    eventos.push(novoEvento);
-    await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
-    
-    return novoEvento;
-  }
+  const eventos = await getEventos();
+  const novoEvento: Event = {
+    ...evento,
+    id: Date.now().toString(),
+  };
+  eventos.push(novoEvento);
+  await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
+  return novoEvento;
 }
 
 // ==================== EDIÇÃO ====================
@@ -128,27 +121,6 @@ export async function editarEvento(id: string, dados: Partial<Omit<Event, 'id'>>
 
   eventos[index] = { ...eventos[index], ...dados };
   await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
-  
-  // Sincronizar com servidor
-  try {
-    const evento = eventos[index];
-    await axios.post(`${API_URL}/eventos.update`, {
-      id: parseInt(id),
-      data: {
-        titulo: evento.title,
-        descricao: evento.description,
-        data: evento.date,
-        horario: evento.time,
-        local: evento.location,
-        tipo: evento.category,
-      },
-    });
-    
-    await syncService.forceSync();
-  } catch (error) {
-    console.error('[Eventos] Erro ao editar no servidor:', error);
-  }
-  
   return eventos[index];
 }
 
@@ -159,23 +131,7 @@ export async function removerEvento(id: string): Promise<boolean> {
   const filtrados = eventos.filter(e => e.id !== id);
   if (filtrados.length === eventos.length) return false;
   await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(filtrados));
-  
-  // Sincronizar com servidor
-  try {
-    await axios.post(`${API_URL}/eventos.delete`, parseInt(id));
-    await syncService.forceSync();
-  } catch (error) {
-    console.error('[Eventos] Erro ao remover no servidor:', error);
-  }
-  
   return true;
-}
-
-// ==================== SINCRONIZAÇÃO ====================
-
-export async function syncEventosFromServer(eventosDB: EventoDB[]): Promise<void> {
-  const eventos = eventosDB.map(dbToFrontend);
-  await AsyncStorage.setItem(EVENTOS_KEY, JSON.stringify(eventos));
 }
 
 // ==================== CONSTANTES ====================
@@ -196,5 +152,5 @@ export const categoryColors: Record<EventCategory, string> = {
   conferencia: "#EF4444",
 };
 
-// Compatibilidade
-export const mockEvents: Event[] = [];
+// Compatibilidade: exportar mockEvents como alias para uso síncrono de fallback
+export const mockEvents: Event[] = EVENTOS_INICIAIS;

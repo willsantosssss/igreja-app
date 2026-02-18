@@ -16,22 +16,6 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 
-// Mock axios
-vi.mock('axios', () => ({
-  default: {
-    post: vi.fn(() => Promise.resolve({ data: { result: { data: Date.now() } } })),
-  },
-}));
-
-// Mock syncService
-vi.mock('@/lib/services/sync-service', () => ({
-  syncService: {
-    start: vi.fn(),
-    stop: vi.fn(),
-    forceSync: vi.fn(() => Promise.resolve()),
-  },
-}));
-
 import {
   getEventos, criarEvento, editarEvento, removerEvento,
   getEventoById, categoryLabels, categoryColors,
@@ -43,9 +27,15 @@ describe('CRUD de Eventos', () => {
     Object.keys(store).forEach(key => delete store[key]);
   });
 
-  it('deve retornar lista vazia na primeira chamada (sem seed)', async () => {
+  it('deve retornar eventos iniciais na primeira chamada', async () => {
     const eventos = await getEventos();
-    expect(eventos.length).toBe(0);
+    expect(eventos.length).toBeGreaterThan(0);
+    expect(eventos[0]).toHaveProperty('id');
+    expect(eventos[0]).toHaveProperty('title');
+    expect(eventos[0]).toHaveProperty('date');
+    expect(eventos[0]).toHaveProperty('time');
+    expect(eventos[0]).toHaveProperty('location');
+    expect(eventos[0]).toHaveProperty('category');
   });
 
   it('deve criar um novo evento', async () => {
@@ -124,18 +114,12 @@ describe('CRUD de Eventos', () => {
   });
 
   it('deve buscar evento por ID', async () => {
-    const novo = await criarEvento({
-      title: 'Evento Busca',
-      description: 'Teste',
-      date: '2026-08-01',
-      time: '14:00',
-      location: 'Local',
-      category: 'culto',
-    });
+    const eventos = await getEventos();
+    const primeiro = eventos[0];
 
-    const encontrado = await getEventoById(novo.id);
+    const encontrado = await getEventoById(primeiro.id);
     expect(encontrado).not.toBeNull();
-    expect(encontrado!.title).toBe('Evento Busca');
+    expect(encontrado!.title).toBe(primeiro.title);
   });
 
   it('deve retornar null para ID inexistente', async () => {
@@ -161,6 +145,7 @@ describe('CRUD de Eventos', () => {
   });
 
   it('deve manter dados ao criar múltiplos eventos', async () => {
+    await getEventos();
     const contInicial = (await getEventos()).length;
 
     await criarEvento({

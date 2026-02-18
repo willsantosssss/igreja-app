@@ -1,13 +1,12 @@
-import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert, RefreshControl, FlatList } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, RefreshControl, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState, useCallback } from "react";
-import { getPedidosOracao, criarPedido, incrementarContador, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
+import { useState, useEffect } from "react";
+import { getPedidosOracao, criarPedido, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { useFocusEffect } from "expo-router";
 
 export default function OracaoScreen() {
   const colors = useColors();
@@ -17,11 +16,9 @@ export default function OracaoScreen() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [pedidos, setPedidos] = useState<PrayerRequest[]>([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarPedidos();
-    }, [])
-  );
+  useEffect(() => {
+    carregarPedidos();
+  }, []);
 
   const carregarPedidos = async () => {
     const dados = await getPedidosOracao();
@@ -60,9 +57,6 @@ export default function OracaoScreen() {
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
-      
-      // Incrementar contador no servidor
-      await incrementarContador(id);
     }
     
     setPrayingFor(newPrayingFor);
@@ -75,9 +69,6 @@ export default function OracaoScreen() {
     } catch (error) {
       console.error("Erro ao salvar orações:", error);
     }
-    
-    // Recarregar pedidos para atualizar contador
-    await carregarPedidos();
   };
 
   const handleAddPrayer = async () => {
