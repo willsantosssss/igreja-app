@@ -263,3 +263,6 @@
 - [x] Otimizar listas com FlatList e windowSize
 - [x] Reduzir tamanho de imagens e assets
 - [x] Implementar code splitting onde aplicável
+
+## Sincronizar Login com Células Dinâmicas
+- [x] Atualizar tela de login para buscar células do AsyncStorage em vez de hardcoded

@@ -1,11 +1,12 @@
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { getCelulas } from "@/lib/data/celulas";
 
 interface UserData {
   name: string;
@@ -21,15 +22,22 @@ export default function LoginScreen() {
   const [birthDate, setBirthDate] = useState("");
   const [celula, setCelula] = useState("");
   const [loading, setLoading] = useState(false);
+  const [celulas, setCelulas] = useState<string[]>([]);
 
-  const celulas = [
-    "Vida Nova",
-    "Esperança",
-    "Fé e Graça",
-    "Amor Perfeito",
-    "Renovo",
-    "Outra",
-  ];
+  useEffect(() => {
+    const carregarCelulas = async () => {
+      try {
+        const celulasList = await getCelulas();
+        const nomes = celulasList.map(c => c.name);
+        setCelulas(nomes);
+      } catch (error) {
+        console.error("Erro ao carregar células:", error);
+        // Fallback para células padrão se houver erro
+        setCelulas(["Vida Nova", "Esperança", "Fé e Graça", "Amor Perfeito", "Renovo", "Outra"]);
+      }
+    };
+    carregarCelulas();
+  }, []);
 
   const handleLogin = async () => {
     if (!name.trim()) {
@@ -39,6 +47,11 @@ export default function LoginScreen() {
 
     if (!birthDate.trim()) {
       Alert.alert("Atenção", "Por favor, preencha sua data de nascimento.");
+      return;
+    }
+
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(birthDate)) {
+      Alert.alert("Atenção", "Data de nascimento inválida. Use o formato DD/MM/YYYY.");
       return;
     }
 
@@ -145,37 +158,46 @@ export default function LoginScreen() {
             <Text className="text-xs text-muted">
               Usaremos essa data para lembrar seu aniversário
             </Text>
+            {birthDate && !/^\d{2}\/\d{2}\/\d{4}$/.test(birthDate) && (
+              <Text className="text-xs text-error">
+                Data inválida. Use o formato DD/MM/YYYY
+              </Text>
+            )}
           </View>
 
           {/* Célula */}
           <View className="gap-2">
             <Text className="text-sm font-semibold text-foreground">Célula</Text>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              className="gap-2"
-            >
-              {celulas.map((cel) => (
-                <TouchableOpacity
-                  key={cel}
-                  className="px-4 py-3 rounded-full mr-2"
-                  style={{
-                    backgroundColor: celula === cel ? colors.primary : colors.surface,
-                    borderWidth: 1,
-                    borderColor: celula === cel ? colors.primary : colors.border,
-                  }}
-                  onPress={() => setCelula(cel)}
-                  disabled={loading}
-                >
-                  <Text
-                    className="font-semibold text-sm whitespace-nowrap"
-                    style={{ color: celula === cel ? "#FFFFFF" : colors.foreground }}
+            {celulas.length > 0 ? (
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                className="gap-2"
+              >
+                {celulas.map((cel) => (
+                  <TouchableOpacity
+                    key={cel}
+                    className="px-4 py-3 rounded-full mr-2"
+                    style={{
+                      backgroundColor: celula === cel ? colors.primary : colors.surface,
+                      borderWidth: 1,
+                      borderColor: celula === cel ? colors.primary : colors.border,
+                    }}
+                    onPress={() => setCelula(cel)}
+                    disabled={loading}
                   >
-                    {cel}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+                    <Text
+                      className="font-semibold text-sm whitespace-nowrap"
+                      style={{ color: celula === cel ? "#FFFFFF" : colors.foreground }}
+                    >
+                      {cel}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text className="text-xs text-muted">Carregando células...</Text>
+            )}
             {celula && (
               <Text className="text-xs text-success">
                 ✓ Célula selecionada: {celula}
