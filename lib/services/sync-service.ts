@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Constants from 'expo-constants';
+import { getApiBaseUrl } from '@/constants/oauth';
 
 /**
  * Serviço de sincronização em tempo real entre dispositivos
@@ -10,10 +10,14 @@ import Constants from 'expo-constants';
 const SYNC_INTERVAL = 30000; // 30 segundos
 const LAST_SYNC_KEY = '@last_sync_timestamp';
 
-// URL da API (ajustar conforme ambiente)
-const API_URL = __DEV__ 
-  ? 'http://127.0.0.1:3000/api/trpc'
-  : `https://${Constants.expoConfig?.extra?.apiUrl || 'api.example.com'}/trpc`;
+// URL da API - usa a mesma lógica do tRPC client
+const API_URL = `${getApiBaseUrl()}/api/trpc`;
+
+// Configurar axios para React Native
+axios.defaults.timeout = 10000; // 10 segundos
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+console.log('[Sync] API_URL configurada:', API_URL);
 
 type SyncListener = () => void;
 

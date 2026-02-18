@@ -313,3 +313,10 @@
 - [x] Identificar formato correto de requisições GET no tRPC
 - [x] Atualizar sync-service com formato correto
 - [x] Verificar sincronização sem erros
+
+## Resolver Erros Persistentes do Sync Service
+- [x] Investigar logs em tempo real do servidor e app
+- [x] Verificar se API_URL está correta no ambiente de desenvolvimento
+- [x] Testar requisições axios diretamente
+- [x] Corrigir configuração de CORS se necessário
+- [x] Validar sincronização sem erros
