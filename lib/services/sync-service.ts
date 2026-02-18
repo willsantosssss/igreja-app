@@ -106,10 +106,17 @@ class SyncService {
 
   private async syncContatos() {
     try {
-      const response = await axios.get(`${API_URL}/contatos.get`);
+      const response = await axios.get(`${API_URL}/contatos.get`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
-      if (data) {
-        await AsyncStorage.setItem('@contatos_igreja', JSON.stringify(data));
+      if (data && data.length > 0) {
+        const contato = data[0];
+        await AsyncStorage.setItem('@contatos_igreja', JSON.stringify({
+          telefone: contato.telefone,
+          whatsapp: contato.whatsapp,
+          email: contato.email,
+        }));
       }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar contatos:', error);
@@ -118,9 +125,15 @@ class SyncService {
 
   private async syncEventos() {
     try {
-      const response = await axios.get(`${API_URL}/eventos.list`);
+      const response = await axios.get(`${API_URL}/eventos.list`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
-      await AsyncStorage.setItem('@eventos', JSON.stringify(data));
+      if (data) {
+        // Importar função de adaptação
+        const { syncEventosFromServer } = await import('@/lib/data/events');
+        await syncEventosFromServer(data);
+      }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar eventos:', error);
     }
@@ -128,9 +141,14 @@ class SyncService {
 
   private async syncNoticias() {
     try {
-      const response = await axios.get(`${API_URL}/noticias.list`);
+      const response = await axios.get(`${API_URL}/noticias.list`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
-      await AsyncStorage.setItem('@noticias', JSON.stringify(data));
+      if (data) {
+        const { syncNoticiasFromServer } = await import('@/lib/data/noticias');
+        await syncNoticiasFromServer(data);
+      }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar notícias:', error);
     }
@@ -138,10 +156,13 @@ class SyncService {
 
   private async syncAviso() {
     try {
-      const response = await axios.get(`${API_URL}/aviso.get`);
+      const response = await axios.get(`${API_URL}/aviso.get`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
       if (data) {
-        await AsyncStorage.setItem('@aviso_importante', JSON.stringify(data));
+        const { syncAvisoFromServer } = await import('@/lib/data/aviso-importante');
+        await syncAvisoFromServer(data);
       }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar aviso:', error);
@@ -150,9 +171,14 @@ class SyncService {
 
   private async syncCelulas() {
     try {
-      const response = await axios.get(`${API_URL}/celulas.list`);
+      const response = await axios.get(`${API_URL}/celulas.list`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
-      await AsyncStorage.setItem('@celulas', JSON.stringify(data));
+      if (data) {
+        const { syncCelulasFromServer } = await import('@/lib/data/celulas');
+        await syncCelulasFromServer(data);
+      }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar células:', error);
     }
@@ -160,9 +186,14 @@ class SyncService {
 
   private async syncPedidosOracao() {
     try {
-      const response = await axios.get(`${API_URL}/oracao.list`);
+      const response = await axios.get(`${API_URL}/oracao.list`, {
+        params: { input: {} },
+      });
       const data = response.data.result.data;
-      await AsyncStorage.setItem('@pedidos_oracao', JSON.stringify(data));
+      if (data) {
+        const { syncPedidosFromServer } = await import('@/lib/data/oracao');
+        await syncPedidosFromServer(data);
+      }
     } catch (error) {
       console.error('[Sync] Erro ao sincronizar pedidos de oração:', error);
     }

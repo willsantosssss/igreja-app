@@ -301,3 +301,9 @@
 - [x] Atualizar camada de dados de aviso importante para sincronizar com servidor
 - [x] Testar criação/edição/remoção em todas as telas de admin
 - [x] Verificar sincronização em tempo real entre múltiplos dispositivos
+
+## Corrigir Erros de Sincronização
+- [x] Investigar erros de sincronização nos logs do servidor
+- [x] Corrigir endpoints de criação/edição/remoção no backend
+- [x] Testar sincronização de eventos, células, notícias e aviso
+- [x] Verificar se alterações do admin aparecem para todos os usuários
