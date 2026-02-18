@@ -209,14 +209,25 @@
 - [x] Editar chave PIX, dados bancários e informações de oferta
 
 ## Remover Batismo e Reorganizar Home
-- [ ] Remover tela de batismo (app/batismo.tsx)
-- [ ] Remover tela admin/batismo
-- [ ] Remover rota de batismo do root layout
-- [ ] Remover referências de batismo do admin/index.tsx
-- [ ] Remover referências de batismo da tela Mais
-- [ ] Reorganizar acesso rápido na home com apenas 4 itens (sem batismo e sem aniversários)
-- [ ] Adicionar lista de aniversariantes do dia abaixo de "aviso importante" na home
+- [x] Remover tela de batismo (app/batismo.tsx)
+- [x] Remover tela admin/batismo
+- [x] Remover rota de batismo do root layout
+- [x] Remover referências de batismo do admin/index.tsx
+- [x] Remover referências de batismo da tela Mais
+- [x] Reorganizar acesso rápido na home com apenas 4 itens (sem batismo e sem aniversários)
+- [x] Adicionar lista de aniversariantes do dia abaixo de "aviso importante" na home
 
 ## Corrigir Texto Bíblico do Devocional
-- [ ] Investigar por que apenas 2 versículos são exibidos
-- [ ] Corrigir para exibir o capítulo inteiro
+- [x] Investigar por que apenas 2 versículos são exibidos
+- [x] Corrigir para exibir o capítulo inteiro
+
+## Sincronização em Tempo Real
+- [x] Implementar sistema de sincronização de alterações do admin para todos os celulares
+- [x] Listeners no AsyncStorage para detectar mudanças
+- [x] Atualizar UI em tempo real quando dados forem alterados
+
+## Gerenciamento de Aniversariantes
+- [x] Remover filtro de membros por célula da aba aniversariantes
+- [x] Criar tela de gerenciamento de aniversariantes no admin (CRUD)
+- [x] Adicionar/editar/remover datas de aniversário dos membros
+- [x] Integrar com dados de membros existentes

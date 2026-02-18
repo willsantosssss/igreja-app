@@ -173,28 +173,7 @@ export default function AniversariantesScreen() {
           )}
         </View>
 
-        {/* Membros por Célula */}
-        <View className="gap-3">
-          <Text className="text-xl font-bold text-foreground">Membros por Célula</Text>
-          
-          {Object.entries(celulasData).map(([celula, count]) => (
-            <View
-              key={celula}
-              className="bg-surface rounded-2xl p-4 flex-row items-center justify-between border border-border"
-            >
-              <View className="flex-1 gap-1">
-                <Text className="text-base font-bold text-foreground">{celula}</Text>
-                <Text className="text-sm text-muted">{count} membros</Text>
-              </View>
-              <View 
-                className="px-4 py-2 rounded-full"
-                style={{ backgroundColor: colors.primary }}
-              >
-                <Text className="text-white font-bold text-lg">{count}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+
 
         {/* Info */}
         <View className="bg-primary/10 rounded-2xl p-5 gap-2 border border-primary/20">

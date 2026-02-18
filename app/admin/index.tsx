@@ -221,6 +221,22 @@ export default function AdminScreen() {
           )}
         </View>
 
+        {/* Aniversariantes */}
+        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-base font-bold text-foreground">🎂 Aniversariantes</Text>
+              <Text className="text-xs text-muted">Gerenciar datas de nascimento</Text>
+            </View>
+            <TouchableOpacity
+              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
+              onPress={() => router.push("/admin/aniversariantes-gerenciar" as any)}
+            >
+              <Text className="text-xs font-bold text-primary">Gerenciar →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Eventos */}
         <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
           <View className="flex-row items-center justify-between">
