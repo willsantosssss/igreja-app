@@ -274,3 +274,10 @@
 
 ## Renomear App
 - [x] Trocar "Igreja Connect" por "2IEQ Connect" em todo o app
+
+## Sincronização Entre Dispositivos - Decisão Técnica
+- [x] Tentativa de implementar sincronização automática com axios + polling
+- [x] Rollback devido a complexidade e erros persistentes
+- [ ] **DECISÃO:** App funciona apenas com dados locais (AsyncStorage)
+- [ ] Para sincronização futura: usar apenas tRPC client nas telas (sem camada intermediária)
+- [ ] Alternativa recomendada: cada dispositivo mantém seus próprios dados localmente
