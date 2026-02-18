@@ -8,6 +8,8 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { getCelulas } from "@/lib/data/celulas";
 
+const logoImage = require("../assets/images/logo-2ieq.png");
+
 interface UserData {
   name: string;
   birthDate: string;
@@ -105,7 +107,7 @@ export default function LoginScreen() {
         {/* Logo */}
         <View className="items-center gap-3">
           <Image
-            source={require("@/assets/images/logo-2ieq.png")}
+            source={logoImage}
             style={{ width: 120, height: 120 }}
             resizeMode="contain"
           />
