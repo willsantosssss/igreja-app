@@ -320,3 +320,9 @@
 - [x] Testar requisições axios diretamente
 - [x] Corrigir configuração de CORS se necessário
 - [x] Validar sincronização sem erros
+
+## Corrigir Salvamento e Sincronização de Alterações do Admin
+- [x] Verificar se funções de criação/edição estão enviando dados ao servidor
+- [x] Verificar se polling está buscando dados atualizados
+- [x] Testar fluxo completo: admin salva → servidor recebe → outros dispositivos recebem
+- [x] Adicionar logs para debug do fluxo de sincronização

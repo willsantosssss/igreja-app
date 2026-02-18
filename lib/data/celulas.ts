@@ -2,7 +2,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { syncService } from '@/lib/services/sync-service';
 
-const API_URL = (typeof __DEV__ !== 'undefined' && __DEV__) ? 'http://127.0.0.1:3000/api/trpc' : 'https://api.example.com/trpc';
+// API_URL configurada dinamicamente
+let API_URL: string;
+try {
+  const { getApiBaseUrl } = require('@/constants/oauth');
+  API_URL = `${getApiBaseUrl()}/api/trpc`;
+} catch {
+  // Fallback para testes
+  API_URL = 'http://127.0.0.1:3000/api/trpc';
+}
 
 export interface Celula {
   id: string;
