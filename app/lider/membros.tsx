@@ -14,7 +14,7 @@ export default function MembrosScreen() {
   const colors = useColors();
   const router = useRouter();
   const [membros, setMembros] = useState<MembroCelula[]>([]);
-  const [filtro, setFiltro] = useState<'todos' | 'aniversariantes' | 'batismo' | 'eventos'>('todos');
+  const [filtro, setFiltro] = useState<'todos' | 'aniversariantes' | 'eventos'>('todos');
   const [inscricoesEventos, setInscricoesEventos] = useState<InscricaoEvento[]>([]);
   const [celulaNome, setCelulaNome] = useState('');
   const [carregando, setCarregando] = useState(true);
@@ -41,8 +41,7 @@ export default function MembrosScreen() {
     switch (filtro) {
       case 'aniversariantes':
         return getAniversariantesDaCelula(membros);
-      case 'batismo':
-        return membros.filter(m => m.inscritoBatismo);
+
       case 'eventos':
         const nomesInscritos = new Set(inscricoesEventos.map(i => i.nomeCompleto.toLowerCase()));
         return membros.filter(m => nomesInscritos.has(m.nome.toLowerCase()));
@@ -99,7 +98,7 @@ export default function MembrosScreen() {
           {[
             { key: 'todos' as const, label: `Todos (${membros.length})` },
             { key: 'aniversariantes' as const, label: `Anivers. ${meses[new Date().getMonth() + 1]}` },
-            { key: 'batismo' as const, label: 'Inscritos Batismo' },
+            
             { key: 'eventos' as const, label: `Inscritos Eventos (${inscricoesEventos.length})` },
           ].map((f) => (
             <TouchableOpacity
@@ -135,7 +134,7 @@ export default function MembrosScreen() {
                 ? 'Nenhum membro cadastrado nesta célula'
                 : filtro === 'aniversariantes'
                 ? 'Nenhum aniversariante neste mês'
-                : 'Nenhum membro inscrito para batismo'}
+                : 'Nenhum membro inscrito em eventos'}
             </Text>
           </View>
         ) : (
@@ -167,7 +166,7 @@ export default function MembrosScreen() {
 
               {/* Badges */}
               <View className="flex-row flex-wrap gap-2 mt-1">
-                {membro.inscritoBatismo && (
+                {false && (
                   <View
                     style={{
                       backgroundColor: colors.primary + '15',

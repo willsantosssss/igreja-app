@@ -31,7 +31,7 @@ export default function LiderScreen() {
   const [stats, setStats] = useState({
     totalMembros: 0,
     aniversariantesMes: 0,
-    inscritosBatismo: 0,
+    inscritosEventos: 0,
     totalRelatorios: 0,
     mediaPresenca: 0,
     mediaVisitantes: 0,
@@ -284,9 +284,9 @@ export default function LiderScreen() {
             }}
           >
             <Text style={{ color: colors.success, fontSize: 28, fontWeight: '800' }}>
-              {stats.inscritosBatismo}
+              {stats.inscritosEventos}
             </Text>
-            <Text className="text-xs text-muted text-center">Batismo</Text>
+            <Text className="text-xs text-muted text-center">Eventos</Text>
           </View>
         </View>
 

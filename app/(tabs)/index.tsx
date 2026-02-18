@@ -5,19 +5,49 @@ import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface Usuario {
+  nome: string;
+  dataNascimento: string;
+  celula: string;
+}
 
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
+  const [aniversariantesHoje, setAniversariantesHoje] = useState<Usuario[]>([]);
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   useEffect(() => {
     carregarCapituloDoDia();
+    carregarAniversariantes();
   }, []);
+
+  const carregarAniversariantes = async () => {
+    try {
+      const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
+      if (dadosUsuarios) {
+        const lista: Usuario[] = JSON.parse(dadosUsuarios);
+        const hoje = new Date();
+        const diaHoje = hoje.getDate();
+        const mesHoje = hoje.getMonth() + 1;
+
+        const aniversariantes = lista.filter((user) => {
+          const dataNasc = new Date(user.dataNascimento);
+          return dataNasc.getDate() === diaHoje && dataNasc.getMonth() + 1 === mesHoje;
+        });
+        setAniversariantesHoje(aniversariantes);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar aniversariantes:", err);
+    }
+  };
 
   const onRefresh = () => {
     setRefreshing(true);
     carregarCapituloDoDia();
+    carregarAniversariantes();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -84,7 +114,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Grid de Acesso Rápido */}
+        {/* Grid de Acesso Rápido — 4 itens */}
         <View className="gap-3">
           <Text className="text-xl font-bold text-foreground">Acesso Rápido</Text>
           
@@ -109,25 +139,7 @@ export default function HomeScreen() {
           <View className="flex-row gap-3">
             <TouchableOpacity 
               className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/batismo")}
-            >
-              <Text className="text-2xl">💧</Text>
-              <Text className="text-sm font-semibold text-foreground text-center">Batismo</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/aniversariantes")}
-            >
-              <Text className="text-2xl">🎂</Text>
-              <Text className="text-sm font-semibold text-foreground text-center">Aniversários</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View className="flex-row gap-3">
-            <TouchableOpacity 
-              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/contribuicoes")}
+              onPress={() => router.push("/contribuicoes" as any)}
             >
               <IconSymbol name="heart.fill" size={32} color={colors.secondary} />
               <Text className="text-sm font-semibold text-foreground text-center">Contribuir</Text>
@@ -135,7 +147,7 @@ export default function HomeScreen() {
 
             <TouchableOpacity 
               className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
-              onPress={() => router.push("/noticias")}
+              onPress={() => router.push("/noticias" as any)}
             >
               <IconSymbol name="newspaper.fill" size={32} color={colors.primary} />
               <Text className="text-sm font-semibold text-foreground text-center">Notícias</Text>
@@ -152,6 +164,40 @@ export default function HomeScreen() {
           <Text className="text-sm text-foreground">
             Inscrições abertas para o retiro espiritual de março! Vagas limitadas.
           </Text>
+        </View>
+
+        {/* Aniversariantes do Dia */}
+        <View className="bg-surface rounded-2xl p-5 gap-3 border border-border">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-2xl">🎂</Text>
+            <Text className="text-base font-bold text-foreground">Aniversariantes do Dia</Text>
+          </View>
+
+          {aniversariantesHoje.length > 0 ? (
+            <View className="gap-2">
+              {aniversariantesHoje.map((user, index) => (
+                <View
+                  key={index}
+                  className="flex-row items-center gap-3 bg-background rounded-xl p-3 border border-border"
+                >
+                  <View
+                    className="w-10 h-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: colors.primary + '15' }}
+                  >
+                    <Text className="text-lg">🎉</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-foreground">{user.nome}</Text>
+                    <Text className="text-xs text-muted">{user.celula}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text className="text-sm text-muted">
+              Nenhum aniversariante hoje. Confira os próximos na aba Mais.
+            </Text>
+          )}
         </View>
       </ScrollView>
     </ScreenContainer>

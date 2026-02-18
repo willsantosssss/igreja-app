@@ -110,11 +110,9 @@ export default function RootLayout() {
                 <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
                 <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
                 <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
-                <Stack.Screen name="batismo" options={{ presentation: "modal" }} />
                 <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
                 <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/batismo" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
                 <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />

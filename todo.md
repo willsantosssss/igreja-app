@@ -207,3 +207,16 @@
 ## Gerenciar Contribuição no Admin
 - [x] Criar tela de gerenciamento de dados de contribuição no admin
 - [x] Editar chave PIX, dados bancários e informações de oferta
+
+## Remover Batismo e Reorganizar Home
+- [ ] Remover tela de batismo (app/batismo.tsx)
+- [ ] Remover tela admin/batismo
+- [ ] Remover rota de batismo do root layout
+- [ ] Remover referências de batismo do admin/index.tsx
+- [ ] Remover referências de batismo da tela Mais
+- [ ] Reorganizar acesso rápido na home com apenas 4 itens (sem batismo e sem aniversários)
+- [ ] Adicionar lista de aniversariantes do dia abaixo de "aviso importante" na home
+
+## Corrigir Texto Bíblico do Devocional
+- [ ] Investigar por que apenas 2 versículos são exibidos
+- [ ] Corrigir para exibir o capítulo inteiro

@@ -16,13 +16,6 @@ export default function MaisScreen() {
     router.push("/contribuicoes" as any);
   };
 
-  const handleBatismo = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    router.push("/batismo" as any);
-  };
-
   const handleNoticias = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -105,23 +98,6 @@ export default function MaisScreen() {
         <View className="gap-3">
           <Text className="text-sm font-semibold text-muted uppercase">Principal</Text>
           
-          <TouchableOpacity
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-            onPress={handleBatismo}
-          >
-            <View 
-              className="w-12 h-12 items-center justify-center rounded-full"
-              style={{ backgroundColor: `${colors.success}20` }}
-            >
-              <Text className="text-2xl">💧</Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Batismo</Text>
-              <Text className="text-sm text-muted">Inscrição para batismo em águas</Text>
-            </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-          </TouchableOpacity>
-
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
             onPress={handleContribuir}

@@ -6,19 +6,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { obterInscricoes, contarInscricoesPendentes } from "@/lib/notifications/batismo-notificacao";
 import { useCallback } from "react";
 import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
 import { getInscricoesEventos } from "@/lib/data/inscricoes-eventos";
-
-interface BatismoData {
-  nome: string;
-  dataNascimento: string;
-  telefone: string;
-  motivacao: string;
-  createdAt: string;
-  status?: "pendente" | "aprovado" | "rejeitado";
-}
 
 interface Usuario {
   nome: string;
@@ -32,10 +22,8 @@ export default function AdminScreen() {
   const [senhaAdmin, setSenhaAdmin] = useState("");
   const [isAutenticado, setIsAutenticado] = useState(false);
   const [senhaInput, setSenhaInput] = useState("");
-  const [batismos, setBatismos] = useState<BatismoData[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [aniversariantesMes, setAniversariantesMes] = useState<Usuario[]>([]);
-  const [batismosPendentes, setBatismosPendentes] = useState(0);
   const [totalEventos, setTotalEventos] = useState(0);
   const [totalInscricoes, setTotalInscricoes] = useState(0);
 
@@ -49,13 +37,6 @@ export default function AdminScreen() {
 
   const carregarDados = async () => {
     try {
-      // Carregar inscrições de batismo usando serviço
-      const inscricoes = await obterInscricoes();
-      setBatismos(inscricoes as any);
-
-      const pendentes = await contarInscricoesPendentes();
-      setBatismosPendentes(pendentes);
-
       // Carregar eventos
       const eventosLista = await getEventos();
       setTotalEventos(eventosLista.length);
@@ -114,8 +95,6 @@ export default function AdminScreen() {
     ]);
   };
 
-  const batismosAprovados = batismos.filter((b) => b.status === "aprovado").length;
-
   if (!isAutenticado) {
     return (
       <ScreenContainer>
@@ -163,7 +142,7 @@ export default function AdminScreen() {
           <View className="bg-primary/10 rounded-2xl p-4 gap-2 border border-primary/20">
             <Text className="text-sm font-semibold text-foreground">ℹ️ Sobre este Painel</Text>
             <Text className="text-xs text-muted leading-relaxed">
-              Este painel permite que administradores gerenciem inscrições de batismo e visualizem
+              Este painel permite que administradores gerenciem eventos, células e visualizem
               aniversariantes da comunidade. Acesso restrito apenas para liderança.
             </Text>
           </View>
@@ -198,12 +177,12 @@ export default function AdminScreen() {
               <Text className="text-xs text-muted text-center">Membros Cadastrados</Text>
             </View>
             <View className="flex-1 bg-warning/10 rounded-2xl p-4 gap-2 border border-warning/20 items-center">
-              <Text className="text-2xl font-bold text-warning">{batismosPendentes}</Text>
-              <Text className="text-xs text-muted text-center">Pendentes 🔔</Text>
+              <Text className="text-2xl font-bold text-warning">{totalEventos}</Text>
+              <Text className="text-xs text-muted text-center">Eventos</Text>
             </View>
             <View className="flex-1 bg-success/10 rounded-2xl p-4 gap-2 border border-success/20 items-center">
-              <Text className="text-2xl font-bold text-success">{batismosAprovados}</Text>
-              <Text className="text-xs text-muted text-center">Batismos Aprovados</Text>
+              <Text className="text-2xl font-bold text-success">{totalInscricoes}</Text>
+              <Text className="text-xs text-muted text-center">Inscrições</Text>
             </View>
           </View>
         </View>
@@ -239,45 +218,6 @@ export default function AdminScreen() {
             </View>
           ) : (
             <Text className="text-sm text-muted pt-2">Nenhum aniversariante este mês</Text>
-          )}
-        </View>
-
-        {/* Inscrições de Batismo */}
-        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-base font-bold text-foreground">💧 Inscrições de Batismo</Text>
-              <Text className="text-xs text-muted">{batismos.length} inscrições</Text>
-            </View>
-            <TouchableOpacity
-              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
-              onPress={() => router.push("/admin/batismo")}
-            >
-              <Text className="text-xs font-bold text-primary">Gerenciar →</Text>
-            </TouchableOpacity>
-          </View>
-
-          {batismos.length > 0 ? (
-            <View className="gap-2 pt-2 border-t border-border">
-              <View className="flex-row justify-between">
-                <View className="items-center">
-                  <Text className="text-lg font-bold text-warning">{batismosPendentes}</Text>
-                  <Text className="text-xs text-muted">Pendentes</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-lg font-bold text-success">{batismosAprovados}</Text>
-                  <Text className="text-xs text-muted">Aprovados</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-lg font-bold text-error">
-                    {batismos.filter((b) => b.status === "rejeitado").length}
-                  </Text>
-                  <Text className="text-xs text-muted">Rejeitados</Text>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <Text className="text-sm text-muted pt-2">Nenhuma inscrição de batismo</Text>
           )}
         </View>
 
@@ -344,12 +284,6 @@ export default function AdminScreen() {
         {/* Botões de Ação Rápida */}
         <View className="gap-2">
           <Text className="text-sm font-semibold text-foreground">⚡ Ações Rápidas</Text>
-          <TouchableOpacity
-            className="bg-primary rounded-full py-3 items-center"
-            onPress={() => router.push("/admin/batismo")}
-          >
-            <Text className="text-white font-bold">💧 Gerenciar Batismos</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             className="bg-secondary rounded-full py-3 items-center"
             onPress={() => router.push("/admin/aniversariantes")}

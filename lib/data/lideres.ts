@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getInscricoesPorCelula } from './inscricoes-eventos';
 
 // Tipos
 export interface LiderCelula {
@@ -193,7 +194,7 @@ export function getAniversariantesDaCelula(membros: MembroCelula[], mes?: number
 export async function getEstatisticasCelula(celulaNome: string): Promise<{
   totalMembros: number;
   aniversariantesMes: number;
-  inscritosBatismo: number;
+  inscritosEventos: number;
   totalRelatorios: number;
   mediaPresenca: number;
   mediaVisitantes: number;
@@ -202,7 +203,8 @@ export async function getEstatisticasCelula(celulaNome: string): Promise<{
   const aniversariantes = getAniversariantesDaCelula(membros);
   const relatorios = await getRelatorios(celulaNome);
   
-  const inscritosBatismo = membros.filter(m => m.inscritoBatismo).length;
+  const inscricoes = await getInscricoesPorCelula(celulaNome);
+  const inscritosEventos = inscricoes.length;
   
   const mediaPresenca = relatorios.length > 0
     ? Math.round(relatorios.reduce((acc, r) => acc + r.totalPessoas, 0) / relatorios.length)
@@ -215,7 +217,7 @@ export async function getEstatisticasCelula(celulaNome: string): Promise<{
   return {
     totalMembros: membros.length,
     aniversariantesMes: aniversariantes.length,
-    inscritosBatismo,
+    inscritosEventos,
     totalRelatorios: relatorios.length,
     mediaPresenca,
     mediaVisitantes,
