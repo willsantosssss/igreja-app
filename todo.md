@@ -248,3 +248,9 @@
 - [x] Criar tela de CRUD de notícias no admin
 - [x] Exibir notícias na home ou em aba específica
 - [x] Ordenar por data (mais recentes primeiro)
+
+## Correções e Melhorias Adicionais
+- [x] Adicionar seletor de células no formulário de inscrição em eventos especiais
+- [x] Adicionar relatório de inscritos em eventos no painel do líder
+- [x] Corrigir bug do calendário no gerenciador de eventos (salvando um dia antes)
+- [x] Integrar gerenciador de notícias com aba de notícias da home

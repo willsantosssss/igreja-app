@@ -352,9 +352,31 @@ export default function LiderScreen() {
               <IconSymbol name="calendar" size={24} color={colors.warning} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Histórico de Relatórios</Text>
+              <Text className="text-base font-bold text-foreground">Historico de Relatorios</Text>
               <Text className="text-sm text-muted">
-                {stats.totalRelatorios} relatórios enviados
+                {stats.totalRelatorios} relatorios enviados
+              </Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push('/lider/inscritos-eventos' as any)}
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+          >
+            <View
+              style={{
+                backgroundColor: colors.primary + '20',
+                width: 48, height: 48, borderRadius: 24,
+                alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <Text className="text-2xl">📋</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Inscritos em Eventos</Text>
+              <Text className="text-sm text-muted">
+                {stats.inscritosEventos} membros inscritos
               </Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />

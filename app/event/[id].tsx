@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, RefreshControl, ActivityIndicator, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -9,6 +9,7 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getCelulas, type Celula } from "@/lib/data/celulas";
 
 export default function EventDetailScreen() {
   const colors = useColors();
@@ -20,11 +21,23 @@ export default function EventDetailScreen() {
   const [nome, setNome] = useState("");
   const [celula, setCelula] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [celulas, setCelulas] = useState<Celula[]>([]);
+  const [mostrarSeletorCelulas, setMostrarSeletorCelulas] = useState(false);
 
   useEffect(() => {
     carregarEvento();
     carregarDadosUsuario();
+    carregarCelulas();
   }, [id]);
+
+  const carregarCelulas = async () => {
+    try {
+      const lista = await getCelulas();
+      setCelulas(lista);
+    } catch (err) {
+      console.error("Erro ao carregar células:", err);
+    }
+  };
 
   const carregarEvento = async () => {
     if (typeof id === 'string') {
@@ -252,14 +265,36 @@ export default function EventDetailScreen() {
 
               <View className="gap-2">
                 <Text className="text-sm font-semibold text-foreground">Célula</Text>
-                <TextInput
-                  className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                <TouchableOpacity
+                  className="bg-background rounded-xl px-4 py-3 border flex-row items-center justify-between"
                   style={{ borderColor: colors.border }}
-                  placeholder="Nome da sua célula"
-                  placeholderTextColor={colors.muted}
-                  value={celula}
-                  onChangeText={setCelula}
-                />
+                  onPress={() => setMostrarSeletorCelulas(!mostrarSeletorCelulas)}
+                >
+                  <Text className={celula ? "text-foreground" : "text-muted"}>
+                    {celula || "Selecione sua célula"}
+                  </Text>
+                  <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
+                </TouchableOpacity>
+                {mostrarSeletorCelulas && (
+                  <View className="bg-surface rounded-xl border border-border mt-2 max-h-48">
+                    <ScrollView>
+                      {celulas.map((cel) => (
+                        <TouchableOpacity
+                          key={cel.name}
+                          className="px-4 py-3 border-b border-border"
+                          style={{ borderBottomColor: colors.border }}
+                          onPress={() => {
+                            setCelula(cel.name);
+                            setMostrarSeletorCelulas(false);
+                          }}
+                        >
+                          <Text className="text-foreground">{cel.name}</Text>
+                          <Text className="text-xs text-muted">{cel.leader.name} - {cel.schedule.day} {cel.schedule.time}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
               </View>
 
               <View className="gap-2">

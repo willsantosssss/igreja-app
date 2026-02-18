@@ -109,11 +109,14 @@ export default function AdminEventosScreen() {
 
     setSalvando(true);
     try {
+      // Adicionar hora à data para evitar problema de timezone
+      const dataComHora = form.date.trim() + 'T00:00:00';
+      
       if (editandoId) {
         await editarEvento(editandoId, {
           title: form.title.trim(),
           description: form.description.trim(),
-          date: form.date.trim(),
+          date: dataComHora,
           time: form.time.trim(),
           location: form.location.trim(),
           category: form.category,
@@ -126,7 +129,7 @@ export default function AdminEventosScreen() {
         await criarEvento({
           title: form.title.trim(),
           description: form.description.trim(),
-          date: form.date.trim(),
+          date: dataComHora,
           time: form.time.trim(),
           location: form.location.trim(),
           category: form.category,

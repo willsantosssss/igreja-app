@@ -3,7 +3,9 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "expo-router";
+import { getNoticias, type Noticia } from "@/lib/data/noticias";
 
 interface News {
   id: string;
@@ -14,48 +16,7 @@ interface News {
   imageEmoji: string;
 }
 
-const mockNews: News[] = [
-  {
-    id: "1",
-    title: "Inscrições Abertas para Retiro Espiritual",
-    summary: "Prepare-se para três dias de renovação espiritual em março. Vagas limitadas!",
-    category: "aviso",
-    date: "2026-02-17",
-    imageEmoji: "⛺",
-  },
-  {
-    id: "2",
-    title: "Testemunho: Cura Milagrosa",
-    summary: "Irmã Maria compartilha seu testemunho de cura após meses de tratamento. Glória a Deus!",
-    category: "testemunho",
-    date: "2026-02-16",
-    imageEmoji: "🙌",
-  },
-  {
-    id: "3",
-    title: "Nova Célula no Bairro Jardim das Flores",
-    summary: "Estamos expandindo! Nova célula iniciará suas atividades a partir de março.",
-    category: "noticia",
-    date: "2026-02-15",
-    imageEmoji: "🏘️",
-  },
-  {
-    id: "4",
-    title: "Campanha de Doação de Alimentos",
-    summary: "Ajude famílias necessitadas. Traga alimentos não perecíveis até o final do mês.",
-    category: "aviso",
-    date: "2026-02-14",
-    imageEmoji: "🍞",
-  },
-  {
-    id: "5",
-    title: "Conferência de Jovens foi um Sucesso",
-    summary: "Mais de 200 jovens participaram do evento. Veja as fotos e depoimentos.",
-    category: "noticia",
-    date: "2026-02-13",
-    imageEmoji: "🎉",
-  },
-];
+const mockNews: News[] = [];
 
 const categoryLabels = {
   aviso: "Aviso",
@@ -69,12 +30,47 @@ const categoryColors = {
   testemunho: "#10B981",
 };
 
+const ActivityIndicator = require('react-native').ActivityIndicator;
+
 export default function NoticiasScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
+  const [noticias, setNoticias] = useState<News[]>([]);
+  const [carregando, setCarregando] = useState(true);
+
+  const carregarNoticias = async () => {
+    try {
+      const lista = await getNoticias();
+      const noticiasFormatadas: News[] = lista.map((n: Noticia) => ({
+        id: n.id,
+        title: n.titulo,
+        summary: n.conteudo,
+        category: n.destaque ? 'aviso' : 'noticia' as "aviso" | "noticia" | "testemunho",
+        date: n.data,
+        imageEmoji: "📰",
+      }));
+      setNoticias(noticiasFormatadas);
+    } catch (err) {
+      console.error('Erro ao carregar notícias:', err);
+      setNoticias(mockNews);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarNoticias();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarNoticias();
+    }, [])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
+    carregarNoticias();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -89,10 +85,22 @@ export default function NoticiasScreen() {
     return date.toLocaleDateString("pt-BR");
   };
 
+  if (carregando) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <ActivityIndicator size="large" color={colors.primary} />
+      </ScreenContainer>
+    );
+  }
+
+  const noticiasOrdenadas = (noticias.length > 0 ? noticias : mockNews).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
   return (
     <ScreenContainer>
       <ScrollView 
-        contentContainerStyle={{ padding: 20, gap: 20 }}
+        contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 100 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
@@ -113,9 +121,9 @@ export default function NoticiasScreen() {
           </View>
         </View>
 
-        {/* Lista de notícias */}
-        <View className="gap-4">
-          {mockNews.map((news) => (
+                {/* News List */}
+        <View className="gap-3">
+          {noticiasOrdenadas.map((news) => (
             <TouchableOpacity
               key={news.id}
               className="bg-surface rounded-2xl overflow-hidden border border-border"
