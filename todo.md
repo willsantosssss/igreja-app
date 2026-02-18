@@ -274,3 +274,14 @@
 
 ## Renomear App
 - [x] Trocar "Igreja Connect" por "2IEQ Connect" em todo o app
+
+## Mapa Dinâmico de Células
+- [x] Implementar geocodificação de endereços das células
+- [x] Atualizar mapa automaticamente quando células forem criadas/editadas
+- [x] Testar sincronização em tempo real do mapa
+
+## Gerenciador de Contatos da Igreja
+- [x] Criar tela de gerenciamento de contatos no admin
+- [x] Campos: telefone, WhatsApp, email
+- [x] Integrar com tela Mais (seção Suporte)
+- [x] Salvar contatos no AsyncStorage

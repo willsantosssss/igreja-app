@@ -132,5 +132,20 @@ export async function removerCelula(id: string): Promise<boolean> {
   return true;
 }
 
+// ==================== COORDENADAS ====================
+
+export async function updateCelulaCoordinates(
+  id: string,
+  coordinates: { latitude: number; longitude: number }
+): Promise<boolean> {
+  const todas = await getCelulas();
+  const index = todas.findIndex(c => c.id === id);
+  if (index < 0) return false;
+
+  todas[index].coordinates = coordinates;
+  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
+  return true;
+}
+
 // Compatibilidade
 export const mockCelulas: Celula[] = CELULAS_INICIAIS;
