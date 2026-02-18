@@ -1,31 +1,16 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl, Linking, Alert, Dimensions } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, RefreshControl, Linking, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState, useEffect, useRef } from "react";
-import { getCelulas, type Celula, updateCelulaCoordinates } from "@/lib/data/celulas";
-import { geocodeAddress, calculateCenter, calculateDelta, type Coordinates } from "@/lib/services/geocoding";
+import { useState, useEffect } from "react";
+import { getCelulas, type Celula } from "@/lib/data/celulas";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-
-// Import condicional para evitar erro na web
-let MapView: any = null;
-let Marker: any = null;
-let PROVIDER_DEFAULT: any = null;
-
-if (Platform.OS !== "web") {
-  const maps = require("react-native-maps");
-  MapView = maps.default;
-  Marker = maps.Marker;
-  PROVIDER_DEFAULT = maps.PROVIDER_DEFAULT;
-}
 
 export default function CelulasScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
   const [celulas, setCelulas] = useState<Celula[]>([]);
-  const [loadingMap, setLoadingMap] = useState(true);
-  const mapRef = useRef<any>(null);
 
   useEffect(() => {
     carregarCelulas();
@@ -34,34 +19,6 @@ export default function CelulasScreen() {
   const carregarCelulas = async () => {
     const dados = await getCelulas();
     setCelulas(dados);
-    
-    // Geocodificar células que não têm coordenadas
-    await geocodificarCelulas(dados);
-  };
-
-  const geocodificarCelulas = async (celulas: Celula[]) => {
-    setLoadingMap(true);
-    let updated = false;
-
-    for (const celula of celulas) {
-      if (!celula.coordinates) {
-        const fullAddress = `${celula.address.street}, ${celula.address.neighborhood}, ${celula.address.city}`;
-        const coords = await geocodeAddress(fullAddress);
-        
-        if (coords) {
-          await updateCelulaCoordinates(celula.id, coords);
-          celula.coordinates = coords;
-          updated = true;
-        }
-      }
-    }
-
-    if (updated) {
-      const dadosAtualizados = await getCelulas();
-      setCelulas(dadosAtualizados);
-    }
-
-    setLoadingMap(false);
   };
 
   const onRefresh = async () => {
@@ -107,37 +64,6 @@ export default function CelulasScreen() {
     Linking.openURL(url);
   };
 
-  const handleMarkerPress = (celula: Celula) => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    Alert.alert(
-      celula.name,
-      `Líder: ${celula.leader.name}\n${celula.schedule.day} às ${celula.schedule.time}`,
-      [
-        { text: "Fechar", style: "cancel" },
-        { text: "Ver Detalhes", onPress: () => {
-          // Scroll para o card da célula
-          // (implementação simplificada - pode ser melhorada com ScrollView ref)
-        }},
-      ]
-    );
-  };
-
-  // Calcular região do mapa
-  const celulasComCoords = celulas.filter(c => c.coordinates) as (Celula & { coordinates: Coordinates })[];
-  const mapRegion = celulasComCoords.length > 0
-    ? {
-        ...calculateCenter(celulasComCoords.map(c => c.coordinates)),
-        ...calculateDelta(celulasComCoords.map(c => c.coordinates)),
-      }
-    : {
-        latitude: -16.4709, // Rondonópolis, MT
-        longitude: -54.6354,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      };
-
   return (
     <ScreenContainer>
       <ScrollView 
@@ -153,50 +79,14 @@ export default function CelulasScreen() {
           </Text>
         </View>
 
-        {/* Mapa dinâmico */}
+        {/* Mapa placeholder */}
         <View 
-          className="rounded-2xl overflow-hidden border"
-          style={{ height: 250, borderColor: colors.border }}
+          className="rounded-2xl items-center justify-center border"
+          style={{ height: 200, backgroundColor: colors.surface, borderColor: colors.border }}
         >
-          {Platform.OS === "web" ? (
-            <View 
-              className="flex-1 items-center justify-center"
-              style={{ backgroundColor: colors.surface }}
-            >
-              <IconSymbol name="map.fill" size={48} color={colors.muted} />
-              <Text className="text-sm text-muted mt-2">Mapa disponível no app mobile</Text>
-            </View>
-          ) : (
-            <MapView
-              ref={mapRef}
-              style={{ flex: 1 }}
-              provider={PROVIDER_DEFAULT}
-              initialRegion={mapRegion}
-              showsUserLocation
-              showsMyLocationButton
-            >
-              {celulasComCoords.map((celula) => (
-                <Marker
-                  key={celula.id}
-                  coordinate={celula.coordinates}
-                  title={celula.name}
-                  description={`${celula.leader.name} - ${celula.schedule.day} às ${celula.schedule.time}`}
-                  onPress={() => handleMarkerPress(celula)}
-                />
-              ))}
-            </MapView>
-          )}
-          
-          {loadingMap && Platform.OS !== "web" && (
-            <View 
-              className="absolute inset-0 items-center justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}
-            >
-              <View className="bg-white rounded-2xl p-4">
-                <Text className="text-sm font-semibold">Carregando mapa...</Text>
-              </View>
-            </View>
-          )}
+          <IconSymbol name="map.fill" size={48} color={colors.muted} />
+          <Text className="text-sm text-muted mt-2">Mapa das Células</Text>
+          <Text className="text-xs text-muted">(Visualização disponível em breve)</Text>
         </View>
 
         {/* Lista de células */}
