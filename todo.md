@@ -293,3 +293,11 @@
 - [x] Garantir que pedidos criados por qualquer usuário apareçam para todos
 - [x] Sincronizar contador "Estou Orando" em tempo real
 - [x] Testar criação e visualização entre múltiplos dispositivos
+
+## Sincronização Completa de Alterações do Admin
+- [x] Atualizar camada de dados de eventos para sincronizar com servidor
+- [x] Atualizar camada de dados de células para sincronizar com servidor
+- [x] Atualizar camada de dados de notícias para sincronizar com servidor
+- [x] Atualizar camada de dados de aviso importante para sincronizar com servidor
+- [x] Testar criação/edição/remoção em todas as telas de admin
+- [x] Verificar sincronização em tempo real entre múltiplos dispositivos
