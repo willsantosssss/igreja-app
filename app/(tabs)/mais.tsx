@@ -2,12 +2,30 @@ import { ScrollView, Text, View, TouchableOpacity, Alert, Linking } from "react-
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { useState, useCallback } from "react";
+import { getContatos, type ContatosIgreja } from "@/lib/data/contatos";
 
 export default function MaisScreen() {
   const colors = useColors();
+  const [contatos, setContatos] = useState<ContatosIgreja>({
+    telefone: '',
+    whatsapp: '',
+    email: '',
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarContatos();
+    }, [])
+  );
+
+  const carregarContatos = async () => {
+    const dados = await getContatos();
+    setContatos(dados);
+  };
 
   const handleContribuir = () => {
     if (Platform.OS !== "web") {
@@ -62,12 +80,19 @@ export default function MaisScreen() {
       [
         { text: "Cancelar", style: "cancel" },
         { 
+          text: "Telefone", 
+          onPress: () => Linking.openURL(`tel:${contatos.telefone}`)
+        },
+        { 
           text: "WhatsApp", 
-          onPress: () => Linking.openURL("https://wa.me/5511999999999")
+          onPress: () => {
+            const cleanPhone = contatos.whatsapp.replace(/\D/g, "");
+            Linking.openURL(`https://wa.me/${cleanPhone}`);
+          }
         },
         { 
           text: "Email", 
-          onPress: () => Linking.openURL("mailto:contato@igrejaconnect.com")
+          onPress: () => Linking.openURL(`mailto:${contatos.email}`)
         },
       ]
     );

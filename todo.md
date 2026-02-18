@@ -274,3 +274,9 @@
 
 ## Renomear App
 - [x] Trocar "Igreja Connect" por "2IEQ Connect" em todo o app
+
+## Gerenciador de Contatos da Igreja
+- [x] Criar tela de gerenciamento de contatos no admin
+- [x] Campos: telefone, WhatsApp, email
+- [x] Integrar com tela Mais (seção Suporte) com sincronização em tempo real (useFocusEffect)
+- [x] Salvar contatos no AsyncStorage
