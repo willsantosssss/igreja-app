@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert, Image } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
@@ -103,14 +103,12 @@ export default function LoginScreen() {
     <ScreenContainer className="bg-gradient-to-b from-primary/10 to-background">
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20, flexGrow: 1, justifyContent: "center" }}>
         {/* Logo */}
-        <View className="items-center gap-2">
-          <Text className="text-5xl">⛪</Text>
-          <Text className="text-2xl font-bold text-foreground text-center">
-            2ª Igreja Quadrangular
-          </Text>
-          <Text className="text-base text-muted text-center">
-            de Rondonópolis
-          </Text>
+        <View className="items-center gap-3">
+          <Image
+            source={require("@/assets/images/logo-2ieq.png")}
+            style={{ width: 120, height: 120 }}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Welcome Message */}

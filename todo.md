@@ -266,3 +266,8 @@
 
 ## Sincronizar Login com Células Dinâmicas
 - [x] Atualizar tela de login para buscar células do AsyncStorage em vez de hardcoded
+
+## Substituir Logo do App
+- [x] Copiar logo 2IEQ Rondonópolis para assets
+- [x] Atualizar app.config.ts com nova logo
+- [x] Atualizar telas que usam emoji ⛪ (login, home, etc)
