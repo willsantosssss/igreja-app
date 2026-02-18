@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { syncService } from '@/lib/services/sync-service';
 
-const API_URL = (typeof __DEV__ !== 'undefined' && __DEV__) ? 'http://127.0.0.1:3000/trpc' : 'https://api.example.com/trpc';
+const API_URL = (typeof __DEV__ !== 'undefined' && __DEV__) ? 'http://127.0.0.1:3000/api/trpc' : 'https://api.example.com/trpc';
 
 export interface Celula {
   id: string;

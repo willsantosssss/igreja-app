@@ -307,3 +307,9 @@
 - [x] Corrigir endpoints de criação/edição/remoção no backend
 - [x] Testar sincronização de eventos, células, notícias e aviso
 - [x] Verificar se alterações do admin aparecem para todos os usuários
+
+## Corrigir Definitivamente Erros de Sincronização
+- [x] Testar requisições tRPC manualmente com curl
+- [x] Identificar formato correto de requisições GET no tRPC
+- [x] Atualizar sync-service com formato correto
+- [x] Verificar sincronização sem erros

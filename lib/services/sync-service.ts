@@ -12,7 +12,7 @@ const LAST_SYNC_KEY = '@last_sync_timestamp';
 
 // URL da API (ajustar conforme ambiente)
 const API_URL = __DEV__ 
-  ? 'http://127.0.0.1:3000/trpc'
+  ? 'http://127.0.0.1:3000/api/trpc'
   : `https://${Constants.expoConfig?.extra?.apiUrl || 'api.example.com'}/trpc`;
 
 type SyncListener = () => void;
@@ -109,7 +109,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/contatos.get`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data && data.length > 0) {
         const contato = data[0];
         await AsyncStorage.setItem('@contatos_igreja', JSON.stringify({
@@ -128,7 +128,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/eventos.list`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data) {
         // Importar função de adaptação
         const { syncEventosFromServer } = await import('@/lib/data/events');
@@ -144,7 +144,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/noticias.list`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data) {
         const { syncNoticiasFromServer } = await import('@/lib/data/noticias');
         await syncNoticiasFromServer(data);
@@ -159,7 +159,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/aviso.get`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data) {
         const { syncAvisoFromServer } = await import('@/lib/data/aviso-importante');
         await syncAvisoFromServer(data);
@@ -174,7 +174,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/celulas.list`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data) {
         const { syncCelulasFromServer } = await import('@/lib/data/celulas');
         await syncCelulasFromServer(data);
@@ -189,7 +189,7 @@ class SyncService {
       const response = await axios.get(`${API_URL}/oracao.list`, {
         params: { input: {} },
       });
-      const data = response.data.result.data;
+      const data = response.data.result.data.json;
       if (data) {
         const { syncPedidosFromServer } = await import('@/lib/data/oracao');
         await syncPedidosFromServer(data);
