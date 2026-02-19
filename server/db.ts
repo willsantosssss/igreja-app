@@ -76,9 +76,25 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    const result = await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
+
+    // Criar registro em usuariosCadastrados se for primeiro login
+    const userRecord = await getUserByOpenId(user.openId);
+    if (userRecord) {
+      const existingCadastro = await getUsuarioCadastradoByUserId(userRecord.id);
+      if (!existingCadastro && user.name) {
+        // Criar registro básico que admin pode completar depois
+        await db.insert(usuariosCadastrados).values({
+          userId: userRecord.id,
+          nome: user.name,
+          dataNascimento: '2000-01-01', // Data padrão - admin pode atualizar
+          celula: '', // Admin pode atribuir célula depois
+        });
+        console.log(`[Database] Created usuariosCadastrado for user ${userRecord.id}`);
+      }
+    }
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;

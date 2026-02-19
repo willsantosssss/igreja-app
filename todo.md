@@ -425,3 +425,10 @@
 - [x] Verificar se está buscando do banco ou AsyncStorage
 - [x] Corrigir mapeamento de campos se necessário (endpoint errado)
 - [x] Testar exibição do aviso
+
+## Verificar Salvamento Automático de Usuários
+- [x] Verificar fluxo de autenticação atual
+- [x] Verificar se usuários são salvos na tabela users
+- [x] Verificar se usuários são salvos na tabela usuariosCadastrados
+- [x] Implementar salvamento automático se necessário
+- [x] Testar login e verificar tabelas
