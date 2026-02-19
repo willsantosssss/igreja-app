@@ -1,0 +1,73 @@
+{
+  "query": "SELECT * FROM usuariosCadastrados LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT * FROM usuariosCadastrados LIMIT 10;",
+  "rows": [
+    {
+      "id": "2",
+      "userId": "2",
+      "nome": "Maria Santos Teste",
+      "dataNascimento": "1998-02-19",
+      "celula": "Célula Vencendo em Cristo",
+      "createdAt": "2026-02-19 16:01:44",
+      "updatedAt": "2026-02-19 16:01:44"
+    },
+    {
+      "id": "30017",
+      "userId": "30598",
+      "nome": "Igreja",
+      "dataNascimento": "1993-03-22",
+      "celula": "Pr. Will e Pra. Fernanda",
+      "createdAt": "2026-02-19 20:12:47",
+      "updatedAt": "2026-02-19 20:12:47"
+    },
+    {
+      "id": "30032",
+      "userId": "31244",
+      "nome": "Guilherme Caio Silva Costa ",
+      "dataNascimento": "2002-01-20",
+      "celula": "Pr. Will e Pra. Fernanda",
+      "createdAt": "2026-02-19 21:16:16",
+      "updatedAt": "2026-02-19 21:16:16"
+    },
+    {
+      "id": "30038",
+      "userId": "31469",
+      "nome": "Will Santos",
+      "dataNascimento": "2000-01-01",
+      "celula": "",
+      "createdAt": "2026-02-19 21:33:47",
+      "updatedAt": "2026-02-19 21:33:47"
+    },
+    {
+      "id": "30039",
+      "userId": "31524",
+      "nome": "Líder Teste 1",
+      "dataNascimento": "2000-01-01",
+      "celula": "",
+      "createdAt": "2026-02-19 21:42:26",
+      "updatedAt": "2026-02-19 21:42:26"
+    },
+    {
+      "id": "30040",
+      "userId": "31585",
+      "nome": "Membro 1",
+      "dataNascimento": "2000-01-01",
+      "celula": "",
+      "createdAt": "2026-02-19 21:51:04",
+      "updatedAt": "2026-02-19 21:51:04"
+    },
+    {
+      "id": "30041",
+      "userId": "31586",
+      "nome": "Membro 2",
+      "dataNascimento": "2000-01-01",
+      "celula": "",
+      "createdAt": "2026-02-19 21:51:04",
+      "updatedAt": "2026-02-19 21:51:04"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\tnome\tdataNascimento\tcelula\tcreatedAt\tupdatedAt\n2\t2\tMaria Santos Teste\t1998-02-19\tCélula Vencendo em Cristo\t2026-02-19 16:01:44\t2026-02-19 16:01:44\n30017\t30598\tIgreja\t1993-03-22\tPr. Will e Pra. Fernanda\t2026-02-19 20:12:47\t2026-02-19 20:12:47\n30032\t31244\tGuilherme Caio Silva Costa \t2002-01-20\tPr. Will e Pra. Fernanda\t2026-02-19 21:16:16\t2026-02-19 21:16:16\n30038\t31469\tWill Santos\t2000-01-01\t\t2026-02-19 21:33:47\t2026-02-19 21:33:47\n30039\t31524\tLíder Teste 1\t2000-01-01\t\t2026-02-19 21:42:26\t2026-02-19 21:42:26\n30040\t31585\tMembro 1\t2000-01-01\t\t2026-02-19 21:51:04\t2026-02-19 21:51:04\n30041\t31586\tMembro 2\t2000-01-01\t\t2026-02-19 21:51:04\t2026-02-19 21:51:04\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
