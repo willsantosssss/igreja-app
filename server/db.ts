@@ -523,8 +523,10 @@ export async function getRelatoriosByCelula(celula: string) {
 export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'createdAt' | 'updatedAt'>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(relatorios).values(data);
-  return (result as any).insertId;
+  await db.insert(relatorios).values(data);
+  // Buscar o último relatório inserido
+  const result = await db.select().from(relatorios).orderBy(desc(relatorios.id)).limit(1);
+  return result[0]?.id || 0;
 }
 
 export async function updateRelatorio(id: number, data: Partial<InsertRelatorio>) {
