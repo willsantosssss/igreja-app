@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
+import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
 
 export default function AgendaScreen() {
   const colors = useColors();
@@ -13,10 +14,12 @@ export default function AgendaScreen() {
   const [eventos, setEventos] = useState<Event[]>([]);
 
   // @ts-expect-error - Endpoint eventos existe mas tipos não foram regenerados ainda
-  const { data: eventosData, isLoading, refetch } = trpc.eventos.list.useQuery(undefined, {
+  const { data: eventosData, isLoading, refetch, dataUpdatedAt } = trpc.eventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000, // Atualizar a cada 30 segundos
   });
+
+  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
 
   useEffect(() => {
     if (eventosData) {
@@ -63,9 +66,14 @@ export default function AgendaScreen() {
       >
         <View className="gap-2">
           <Text className="text-3xl font-bold text-foreground">Agenda</Text>
-          <Text className="text-base text-muted">
-            Eventos e programações da igreja
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-base text-muted">
+              Eventos e programações da igreja
+            </Text>
+            <Text className="text-xs text-muted">
+              🔄 {ultimaAtualizacao}
+            </Text>
+          </View>
         </View>
 
         {/* Filtros por categoria */}

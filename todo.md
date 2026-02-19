@@ -345,3 +345,11 @@
 - [x] Migrar tela admin de aviso importante para usar tRPC mutations
 - [x] Migrar tela home para buscar aviso via tRPC queries
 - [x] Testar sincronização de aviso entre dispositivos
+
+## Indicadores de Última Sincronização
+- [x] Criar hook useTempoRelativo para formatar timestamps
+- [x] Adicionar indicador na tela de agenda (eventos)
+- [x] Adicionar indicador na tela de células
+- [x] Adicionar indicador na tela de notícias
+- [x] Adicionar indicador na tela de pedidos de oração
+- [x] Adicionar indicador na tela home (aviso importante)

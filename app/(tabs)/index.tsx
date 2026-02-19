@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
 import { type AvisoImportante } from "@/lib/data/aviso-importante";
 import { trpc } from "@/lib/trpc";
+import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
 
 interface Usuario {
   nome: string;
@@ -41,10 +42,12 @@ export default function HomeScreen() {
   });
 
   // @ts-expect-error - Endpoint avisos existe
-  const { data: avisoData } = trpc.avisos.get.useQuery(undefined, {
+  const { data: avisoData, dataUpdatedAt } = trpc.avisos.get.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
+
+  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   useEffect(() => {
@@ -238,9 +241,14 @@ export default function HomeScreen() {
         {/* Avisos Importantes */}
         {aviso.ativo && (
           <View className="bg-warning/10 rounded-2xl p-5 gap-2 border border-warning/20">
-            <View className="flex-row items-center gap-2">
-              <Text className="text-2xl">📢</Text>
-              <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <Text className="text-2xl">📢</Text>
+                <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
+              </View>
+              <Text className="text-xs text-muted">
+                🔄 {ultimaAtualizacao}
+              </Text>
             </View>
             <Text className="text-sm text-foreground">
               {aviso.mensagem}
