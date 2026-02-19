@@ -21,7 +21,10 @@ const parseDateString = (dateStr: string) => {
 export default function AniversariantesScreen() {
   const colors = useColors();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-  const { data: aniversariantes = [], isLoading } = trpc.usuarios.getAniversariantes.useQuery(currentMonth);
+  const { data: aniversariantes = [], isLoading, refetch } = trpc.usuarios.getAniversariantes.useQuery(currentMonth, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Atualizar a cada 30 segundos
+  });
 
   const stats = useMemo(() => {
     const aniversariantesDoMes = aniversariantes.sort((a, b) => {

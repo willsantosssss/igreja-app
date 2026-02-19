@@ -25,7 +25,10 @@ export default function PerfilScreen() {
   });
 
   // Buscar células do banco
-  const { data: celulas } = trpc.celulas.list.useQuery();
+  const { data: celulas } = trpc.celulas.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Atualizar a cada 30 segundos
+  });
 
   const updateMutation = trpc.usuarios.updateMeuPerfil.useMutation({
     onSuccess: () => {

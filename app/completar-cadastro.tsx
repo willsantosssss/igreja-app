@@ -23,7 +23,10 @@ export default function CompletarCadastroScreen() {
   const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { data: celulas = [] } = trpc.celulas.list.useQuery();
+  const { data: celulas = [] } = trpc.celulas.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Atualizar a cada 30 segundos
+  });
 
   useEffect(() => {
     // Se usuário já tem cadastro, redirecionar para home
