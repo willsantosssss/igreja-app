@@ -482,3 +482,11 @@
 - [x] Implementar busca de células da tabela celulas via tRPC
 - [x] Adicionar dropdown/picker com células do banco
 - [x] Testar seleção durante cadastro
+
+## Onboarding Visual com Tour Guiado
+- [x] Criar componente de onboarding com slides
+- [x] Adicionar slides explicando cada funcionalidade principal
+- [x] Implementar navegação entre slides (próximo/anterior/pular)
+- [x] Salvar flag de onboarding concluído no AsyncStorage
+- [x] Integrar onboarding na home após primeiro login
+- [x] Testar fluxo completo
