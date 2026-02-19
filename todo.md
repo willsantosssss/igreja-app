@@ -504,3 +504,7 @@
 - [x] Remover estado showOnboarding
 - [x] Remover useEffect de verificação de onboarding
 - [x] Deletar arquivo components/onboarding.tsx
+
+## Trocar Cor Ciano por Verde Menta
+- [x] Atualizar cor primary no theme.config.js de ciano para verde menta
+- [x] Verificar se cor aparece corretamente em light e dark mode
