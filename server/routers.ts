@@ -298,6 +298,67 @@ export const appRouter = router({
       }))
       .mutation(({ input }) => db.updateContatosIgreja(input)),
   }),
+
+  // Líderes
+  lideres: router({
+    list: publicProcedure.query(() => db.getLideres()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
+    getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
+    create: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        nome: z.string().min(1),
+        celula: z.string().min(1),
+        telefone: z.string().min(1),
+        email: z.string().email().optional(),
+        ativo: z.number().default(1),
+      }))
+      .mutation(({ input }) => db.createLider(input)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          nome: z.string().optional(),
+          celula: z.string().optional(),
+          telefone: z.string().optional(),
+          email: z.string().optional(),
+          ativo: z.number().optional(),
+        }),
+      }))
+      .mutation(({ input }) => db.updateLider(input.id, input.data)),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
+  }),
+
+  // Relatórios
+  relatorios: router({
+    list: publicProcedure.query(() => db.getRelatorios()),
+    getByLiderId: publicProcedure.input(z.number()).query(({ input }) => db.getRelatoriosByLiderId(input)),
+    getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getRelatoriosByCelula(input)),
+    create: publicProcedure
+      .input(z.object({
+        liderId: z.number(),
+        celula: z.string().min(1),
+        tipo: z.string().min(1),
+        periodo: z.string().min(1),
+        presentes: z.number(),
+        novosVisitantes: z.number().default(0),
+        conversoes: z.number().default(0),
+        observacoes: z.string().optional(),
+      }))
+      .mutation(({ input }) => db.createRelatorio(input)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          presentes: z.number().optional(),
+          novosVisitantes: z.number().optional(),
+          conversoes: z.number().optional(),
+          observacoes: z.string().optional(),
+        }),
+      }))
+      .mutation(({ input }) => db.updateRelatorio(input.id, input.data)),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteRelatorio(input)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

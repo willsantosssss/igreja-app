@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
-  eventos, noticias, avisoImportante, contatosIgreja,
+  eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -450,4 +450,84 @@ export async function updateContatosIgreja(data: Omit<InsertContatoIgreja, 'id' 
   } else {
     await db.insert(contatosIgreja).values(data);
   }
+}
+
+// ==================== LÍDERES ====================
+
+export async function getLideres() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(lideres).where(eq(lideres.ativo, 1));
+}
+
+export async function getLiderById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(lideres).where(eq(lideres.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function getLiderByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(lideres).where(eq(lideres.userId, userId)).limit(1);
+  return result[0] || null;
+}
+
+export async function createLider(data: Omit<InsertLider, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(lideres).values(data);
+  return (result as any).insertId;
+}
+
+export async function updateLider(id: number, data: Partial<InsertLider>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(lideres).set(data).where(eq(lideres.id, id));
+}
+
+export async function deleteLider(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(lideres).set({ ativo: 0 }).where(eq(lideres.id, id));
+}
+
+// ==================== RELATÓRIOS ====================
+
+export async function getRelatorios() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(relatorios);
+}
+
+export async function getRelatoriosByLiderId(liderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
+}
+
+export async function getRelatoriosByCelula(celula: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(relatorios).where(eq(relatorios.celula, celula));
+}
+
+export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(relatorios).values(data);
+  return (result as any).insertId;
+}
+
+export async function updateRelatorio(id: number, data: Partial<InsertRelatorio>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(relatorios).set(data).where(eq(relatorios.id, id));
+}
+
+export async function deleteRelatorio(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(relatorios).where(eq(relatorios.id, id));
 }

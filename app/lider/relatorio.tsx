@@ -6,22 +6,26 @@ import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import {
-  obterSessaoLider, adicionarRelatorio,
-  type LiderCelula,
-} from '@/lib/data/lideres';
+import { useAuth } from '@/hooks/use-auth';
+import { trpc } from '@/lib/trpc';
 
 export default function RelatorioScreen() {
   const colors = useColors();
   const router = useRouter();
-  const [lider, setLider] = useState<LiderCelula | null>(null);
+  const { user } = useAuth();
   const [data, setData] = useState('');
   const [totalPessoas, setTotalPessoas] = useState('');
   const [visitantes, setVisitantes] = useState('');
-  const [enviando, setEnviando] = useState(false);
+  const [conversoes, setConversoes] = useState('0');
+  const [observacoes, setObservacoes] = useState('');
+
+  const { data: lider, isLoading } = trpc.lideres.getByUserId.useQuery(user?.id || 0, {
+    enabled: !!user?.id,
+  });
+
+  const createRelatorioMutation = trpc.relatorios.create.useMutation();
 
   useEffect(() => {
-    carregarLider();
     // Definir data de hoje como padrão
     const hoje = new Date();
     const dia = String(hoje.getDate()).padStart(2, '0');
@@ -29,15 +33,6 @@ export default function RelatorioScreen() {
     const ano = hoje.getFullYear();
     setData(`${dia}/${mes}/${ano}`);
   }, []);
-
-  const carregarLider = async () => {
-    const sessao = await obterSessaoLider();
-    if (!sessao) {
-      router.back();
-      return;
-    }
-    setLider(sessao);
-  };
 
   const validarFormulario = (): boolean => {
     if (!data.trim()) {
@@ -62,15 +57,16 @@ export default function RelatorioScreen() {
   const handleEnviar = async () => {
     if (!lider || !validarFormulario()) return;
 
-    setEnviando(true);
     try {
-      await adicionarRelatorio({
-        celulaId: lider.id,
-        celulaNome: lider.celula,
-        liderNome: lider.nome,
-        data: data.trim(),
-        totalPessoas: Number(totalPessoas),
-        visitantes: Number(visitantes),
+      await createRelatorioMutation.mutateAsync({
+        liderId: lider.id,
+        celula: lider.celula,
+        tipo: 'semanal',
+        periodo: data.trim(),
+        presentes: Number(totalPessoas),
+        novosVisitantes: Number(visitantes),
+        conversoes: Number(conversoes) || 0,
+        observacoes: observacoes.trim() || undefined,
       });
 
       Alert.alert(
@@ -80,16 +76,32 @@ export default function RelatorioScreen() {
       );
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível enviar o relatório. Tente novamente.');
-    } finally {
-      setEnviando(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <ScreenContainer className="p-6">
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-muted text-base">Carregando...</Text>
+        </View>
+      </ScreenContainer>
+    );
+  }
 
   if (!lider) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base">Carregando...</Text>
+          <Text className="text-muted text-base text-center">
+            Você não está cadastrado como líder de célula.
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="mt-4 bg-primary px-6 py-3 rounded-full"
+          >
+            <Text className="text-background font-semibold">Voltar</Text>
+          </TouchableOpacity>
         </View>
       </ScreenContainer>
     );
@@ -161,7 +173,7 @@ export default function RelatorioScreen() {
           </View>
 
           {/* Visitantes */}
-          <View className="mb-6">
+          <View className="mb-5">
             <Text className="text-foreground font-semibold mb-2">Visitantes *</Text>
             <Text className="text-muted text-xs mb-2">
               Quantas pessoas visitaram pela primeira vez
@@ -185,6 +197,55 @@ export default function RelatorioScreen() {
             />
           </View>
 
+          {/* Conversões */}
+          <View className="mb-5">
+            <Text className="text-foreground font-semibold mb-2">Conversões</Text>
+            <Text className="text-muted text-xs mb-2">
+              Quantas pessoas aceitaram Jesus
+            </Text>
+            <TextInput
+              value={conversoes}
+              onChangeText={setConversoes}
+              placeholder="Ex: 1"
+              placeholderTextColor={colors.muted}
+              keyboardType="numeric"
+              returnKeyType="done"
+              style={{
+                backgroundColor: colors.background,
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: 12,
+                padding: 14,
+                fontSize: 16,
+                color: colors.foreground,
+              }}
+            />
+          </View>
+
+          {/* Observações */}
+          <View className="mb-6">
+            <Text className="text-foreground font-semibold mb-2">Observações</Text>
+            <TextInput
+              value={observacoes}
+              onChangeText={setObservacoes}
+              placeholder="Testemunhos, necessidades, pedidos especiais..."
+              placeholderTextColor={colors.muted}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              style={{
+                backgroundColor: colors.background,
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: 12,
+                padding: 14,
+                fontSize: 16,
+                color: colors.foreground,
+                minHeight: 100,
+              }}
+            />
+          </View>
+
           {/* Resumo */}
           {totalPessoas && visitantes && !isNaN(Number(totalPessoas)) && !isNaN(Number(visitantes)) && (
             <View
@@ -202,6 +263,7 @@ export default function RelatorioScreen() {
               </Text>
               <Text className="text-muted text-sm">
                 Total: {totalPessoas} pessoas ({Number(totalPessoas) - Number(visitantes)} membros + {visitantes} visitantes)
+                {Number(conversoes) > 0 && ` • ${conversoes} conversão${Number(conversoes) > 1 ? 'ões' : ''}`}
               </Text>
             </View>
           )}
@@ -209,17 +271,17 @@ export default function RelatorioScreen() {
           {/* Botão Enviar */}
           <TouchableOpacity
             onPress={handleEnviar}
-            disabled={enviando}
+            disabled={createRelatorioMutation.isPending}
             style={{
-              backgroundColor: enviando ? colors.muted : colors.success,
+              backgroundColor: createRelatorioMutation.isPending ? colors.muted : colors.success,
               borderRadius: 12,
               padding: 16,
               alignItems: 'center',
-              opacity: enviando ? 0.7 : 1,
+              opacity: createRelatorioMutation.isPending ? 0.7 : 1,
             }}
           >
             <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>
-              {enviando ? 'Enviando...' : 'Enviar Relatório'}
+              {createRelatorioMutation.isPending ? 'Enviando...' : 'Enviar Relatório'}
             </Text>
           </TouchableOpacity>
         </View>

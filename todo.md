@@ -450,3 +450,10 @@
 - [x] Adicionar filtros por célula
 - [x] Mostrar estatísticas (total, por célula)
 - [ ] Adicionar link no menu admin
+
+## Relatórios de Células no Banco de Dados
+- [x] Verificar tela de líderes onde relatórios são preenchidos
+- [x] Verificar se relatórios estão sendo salvos no banco
+- [x] Criar endpoints tRPC se necessário
+- [x] Implementar salvamento no banco
+- [x] Testar preenchimento e salvamento
