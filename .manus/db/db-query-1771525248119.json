@@ -1,0 +1,46 @@
+{
+  "query": "SELECT id, email, name, loginMethod FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, email, name, loginMethod FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "joao.teste@example.com",
+      "name": "João Silva Teste",
+      "loginMethod": "manual"
+    },
+    {
+      "id": "2",
+      "email": "maria.teste@example.com",
+      "name": "Maria Santos Teste",
+      "loginMethod": "manual"
+    },
+    {
+      "id": "30001",
+      "email": "willsantos.adv@gmail.com",
+      "name": "Will Santos",
+      "loginMethod": "google"
+    },
+    {
+      "id": "30142",
+      "email": "willsantos.adv7@gmail.com",
+      "name": "Will Santos",
+      "loginMethod": "email"
+    },
+    {
+      "id": "30150",
+      "email": "teste@example.com",
+      "name": "Teste User",
+      "loginMethod": "email"
+    },
+    {
+      "id": "30151",
+      "email": "joaosilva.teste@gmail.com",
+      "name": "João Silva Teste",
+      "loginMethod": "email"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tloginMethod\n1\tjoao.teste@example.com\tJoão Silva Teste\tmanual\n2\tmaria.teste@example.com\tMaria Santos Teste\tmanual\n30001\twillsantos.adv@gmail.com\tWill Santos\tgoogle\n30142\twillsantos.adv7@gmail.com\tWill Santos\temail\n30150\tteste@example.com\tTeste User\temail\n30151\tjoaosilva.teste@gmail.com\tJoão Silva Teste\temail\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

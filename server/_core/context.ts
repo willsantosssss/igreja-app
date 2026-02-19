@@ -6,6 +6,7 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  sdk: typeof sdk;
 };
 
 export async function createContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
@@ -22,5 +23,6 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
     req: opts.req,
     res: opts.res,
     user,
+    sdk,
   };
 }

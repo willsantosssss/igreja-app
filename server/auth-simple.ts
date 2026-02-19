@@ -26,7 +26,7 @@ export async function signupUser(email: string, password: string, name: string) 
       openId: null,
       lastSignedIn: new Date(),
     });
-    return { success: true, userId: (result as any).insertId };
+    return { success: true, userId: (result as any).insertId, email, name };
   } catch (error: any) {
     console.error("[Auth] Signup error:", error);
     throw new Error(error.message || "Failed to create user");

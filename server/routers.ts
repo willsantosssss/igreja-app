@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
@@ -18,10 +19,54 @@ export const appRouter = router({
     }),
     signup: publicProcedure
       .input(z.object({ email: z.string().email(), password: z.string().min(6), name: z.string().min(1) }))
-      .mutation(async ({ input }) => signupUser(input.email, input.password, input.name)),
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const result = await signupUser(input.email, input.password, input.name);
+          
+          // Create session token using SDK
+          const openId = `email_${result.userId}`; // Use email-based openId for manual login
+          const sessionToken = await ctx.sdk.createSessionToken(openId, { name: result.name || result.email || "" });
+          
+          // Set session cookie
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, sessionToken, {
+            ...cookieOptions,
+            maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+          });
+          
+          return { success: true, userId: result.userId, email: result.email, name: result.name };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message || "Signup failed",
+          });
+        }
+      }),
     login: publicProcedure
       .input(z.object({ email: z.string().email(), password: z.string() }))
-      .mutation(async ({ input }) => loginUser(input.email, input.password)),
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const result = await loginUser(input.email, input.password);
+          
+          // Create session token using SDK
+          const openId = `email_${result.userId}`; // Use email-based openId for manual login
+          const sessionToken = await ctx.sdk.createSessionToken(openId, { name: result.name || result.email || "" });
+          
+          // Set session cookie
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, sessionToken, {
+            ...cookieOptions,
+            maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+          });
+          
+          return { success: true, userId: result.userId, email: result.email, name: result.name };
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: error.message || "Invalid credentials",
+          });
+        }
+      }),
   }),
 
   // Celulas
