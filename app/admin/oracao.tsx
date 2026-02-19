@@ -1,36 +1,64 @@
-import { useState, useCallback } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useState, useCallback, useEffect } from 'react';
+import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput, Platform } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import {
-  getPedidosOracao, removerPedido, marcarRespondido, editarPedido,
-  categoryLabels, categoryEmojis,
-  type PrayerRequest, type PrayerCategory,
-} from '@/lib/data/oracao';
+import { categoryLabels, categoryEmojis, type PrayerCategory } from '@/lib/data/oracao';
+import { trpc } from '@/lib/trpc';
+import * as Haptics from 'expo-haptics';
+
+interface PedidoOracao {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  category: PrayerCategory;
+  date: string;
+  prayingCount: number;
+  isAnswered: boolean;
+  testimony?: string;
+}
 
 export default function AdminOracaoScreen() {
   const colors = useColors();
   const router = useRouter();
-  const [pedidos, setPedidos] = useState<PrayerRequest[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoOracao[]>([]);
   const [filtro, setFiltro] = useState<'todos' | 'ativos' | 'respondidos'>('todos');
-  const [carregando, setCarregando] = useState(true);
   const [testimonyInput, setTestimonyInput] = useState<Record<string, string>>({});
   const [showTestimony, setShowTestimony] = useState<string | null>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [])
-  );
+  const { data: pedidosData, isLoading: carregando, refetch } = trpc.oracao.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
 
-  const carregarDados = async () => {
-    setCarregando(true);
-    const dados = await getPedidosOracao();
-    setPedidos(dados);
-    setCarregando(false);
-  };
+  const deletarMutation = trpc.oracao.delete.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const atualizarMutation = trpc.oracao.update.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  useEffect(() => {
+    if (pedidosData) {
+      setPedidos(pedidosData.map((p: any) => ({
+        id: p.id.toString(),
+        title: p.nome,
+        description: p.descricao,
+        author: p.categoria,
+        category: 'espiritual' as PrayerCategory,
+        date: new Date(p.criadoEm).toLocaleDateString('pt-BR'),
+        prayingCount: p.orandoPor || 0,
+        isAnswered: p.respondido === 1,
+        testimony: p.testemunho || undefined,
+      })));
+    }
+  }, [pedidosData]);
 
   const pedidosFiltrados = pedidos.filter(p => {
     if (filtro === 'ativos') return !p.isAnswered;
@@ -48,8 +76,15 @@ export default function AdminOracaoScreen() {
           text: "Remover",
           style: "destructive",
           onPress: async () => {
-            await removerPedido(id);
-            await carregarDados();
+            try {
+              await deletarMutation.mutateAsync(parseInt(id));
+              if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }
+              Alert.alert("Sucesso", "Pedido removido e sincronizado!");
+            } catch {
+              Alert.alert("Erro", "Não foi possível remover o pedido");
+            }
           },
         },
       ]
@@ -57,12 +92,24 @@ export default function AdminOracaoScreen() {
   };
 
   const handleMarcarRespondido = async (id: string) => {
-    const testimony = testimonyInput[id]?.trim() || undefined;
-    await marcarRespondido(id, testimony);
-    setShowTestimony(null);
-    setTestimonyInput(prev => ({ ...prev, [id]: '' }));
-    await carregarDados();
-    Alert.alert("Sucesso", "Pedido marcado como respondido!");
+    const testimony = testimonyInput[id]?.trim() || '';
+    try {
+      await atualizarMutation.mutateAsync({
+        id: parseInt(id),
+        data: {
+          respondido: 1,
+          testemunho: testimony,
+        } as any,
+      });
+      setShowTestimony(null);
+      setTestimonyInput(prev => ({ ...prev, [id]: '' }));
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      Alert.alert("Sucesso", "Pedido marcado como respondido e sincronizado!");
+    } catch {
+      Alert.alert("Erro", "Não foi possível marcar como respondido");
+    }
   };
 
   const ativos = pedidos.filter(p => !p.isAnswered).length;

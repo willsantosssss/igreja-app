@@ -131,6 +131,8 @@ export const appRouter = router({
           nome: z.string().optional(),
           descricao: z.string().optional(),
           categoria: z.string().optional(),
+          respondido: z.number().optional(),
+          testemunho: z.string().optional(),
         }),
       }))
       .mutation(({ input }) => db.updatePedidoOracao(input.id, input.data)),

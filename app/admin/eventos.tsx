@@ -142,12 +142,14 @@ export default function AdminEventosScreen() {
       if (editandoId) {
         await atualizarMutation.mutateAsync({
           id: parseInt(editandoId),
-          titulo: form.title.trim(),
-          descricao: form.description.trim(),
-          data: dataComHora,
-          horario: form.time.trim(),
-          local: form.location.trim(),
-          tipo: form.category,
+          data: {
+            titulo: form.title.trim(),
+            descricao: form.description.trim(),
+            data: dataComHora,
+            horario: form.time.trim(),
+            local: form.location.trim(),
+            tipo: form.category,
+          },
         });
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

@@ -353,3 +353,12 @@
 - [x] Adicionar indicador na tela de notícias
 - [x] Adicionar indicador na tela de pedidos de oração
 - [x] Adicionar indicador na tela home (aviso importante)
+
+## Corrigir Salvamento no Dashboard Admin
+- [x] Investigar por que alterações em eventos não salvam
+- [x] Investigar por que alterações em células não salvam
+- [x] Investigar por que alterações em pedidos de oração não salvam
+- [x] Verificar se mutations tRPC estão sendo chamadas corretamente
+- [x] Verificar se há erros de console no navegador
+- [x] Corrigir problemas encontrados
+- [x] Testar criação, edição e remoção em todas as telas admin
