@@ -389,3 +389,17 @@
 - [x] Corrigir discrepâncias encontradas
 - [x] Executar migrações necessárias
 - [x] Validar que todos os dados aparecem corretamente no app
+
+## Criar Guia PDF de Edição do Banco de Dados
+- [x] Escrever guia completo em Markdown
+- [x] Incluir todas as 15 tabelas do banco
+- [x] Documentar cada campo com descrição e formato
+- [x] Adicionar exemplos práticos
+- [x] Converter para PDF
+
+## Corrigir Exibição de "Próximo Evento" na Home
+- [x] Investigar lógica de busca do próximo evento na home
+- [x] Verificar se está ordenando eventos por data corretamente
+- [x] Corrigir para mostrar sempre o evento mais próximo
+- [x] Testar sincronização entre home e agenda
+- [x] Validar que alterações na agenda refletem na home

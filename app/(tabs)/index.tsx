@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
+
 import { type AvisoImportante } from "@/lib/data/aviso-importante";
 import { trpc } from "@/lib/trpc";
 import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
@@ -53,7 +53,6 @@ export default function HomeScreen() {
   useEffect(() => {
     carregarCapituloDoDia();
     carregarAniversariantes();
-    carregarProximoEvento();
   }, []);
 
   const carregarAniversariantes = async () => {
@@ -76,38 +75,43 @@ export default function HomeScreen() {
     }
   };
 
-  const carregarProximoEvento = async () => {
-    try {
-      const eventos = await getEventos();
+  // @ts-expect-error - Endpoint eventos existe
+  const { data: eventosData } = trpc.eventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
+  useEffect(() => {
+    if (eventosData && eventosData.length > 0) {
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
 
-      // Filtrar eventos futuros
-      const eventosFuturos = eventos
-        .filter(e => {
-          const dataEvento = new Date(e.date);
+      // Filtrar eventos futuros e ordenar por data
+      const eventosFuturos = eventosData
+        .filter((e: any) => {
+          const dataEvento = new Date(e.data);
           dataEvento.setHours(0, 0, 0, 0);
           return dataEvento >= hoje;
         })
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        .sort((a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime());
 
       if (eventosFuturos.length > 0) {
         const evento = eventosFuturos[0];
-        const data = new Date(evento.date);
-        const diasSemana = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+        const data = new Date(evento.data);
+        const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const diaSemana = diasSemana[data.getDay()];
         
         setProximoEvento({
-          nome: evento.title,
+          nome: evento.titulo,
           data: `${diaSemana}, ${data.getDate()}/${data.getMonth() + 1}`,
-          hora: evento.time,
-          local: evento.location
+          hora: evento.horario,
+          local: evento.local
         });
+      } else {
+        setProximoEvento(null);
       }
-    } catch (err) {
-      console.error("Erro ao carregar próximo evento:", err);
     }
-  };
+  }, [eventosData]);
 
   useEffect(() => {
     if (avisoData) {
@@ -123,7 +127,6 @@ export default function HomeScreen() {
     setRefreshing(true);
     carregarCapituloDoDia();
     carregarAniversariantes();
-    carregarProximoEvento();
     setTimeout(() => setRefreshing(false), 1000);
   };
 
