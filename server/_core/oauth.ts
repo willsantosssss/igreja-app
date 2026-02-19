@@ -140,14 +140,9 @@ export function registerOAuthRoutes(app: Express) {
   // Get current authenticated user - works with both cookie (web) and Bearer token (mobile)
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     try {
-      console.log("[Auth] /api/auth/me called");
-      const authHeader = req.headers.authorization;
-      console.log("[Auth] Auth header present:", authHeader ? "yes" : "no");
       const user = await sdk.authenticateRequest(req);
-      console.log("[Auth] /api/auth/me success");
       res.json({ user: buildUserResponse(user) });
     } catch (error) {
-      console.error("[Auth] /api/auth/me failed:", error);
       res.status(401).json({ error: "Not authenticated", user: null });
     }
   });
@@ -157,13 +152,10 @@ export function registerOAuthRoutes(app: Express) {
   // to get a proper Set-Cookie response from the backend (3000-xxx domain)
   app.post("/api/auth/session", async (req: Request, res: Response) => {
     try {
-      console.log("[Auth] /api/auth/session called");
       const authHeader = req.headers.authorization || req.headers.Authorization;
-      console.log("[Auth] Authorization header:", authHeader ? "present" : "missing");
       
       // Authenticate using Bearer token from Authorization header
       const user = await sdk.authenticateRequest(req);
-      console.log("[Auth] User authenticated:", user?.openId);
 
       // Get the token from the Authorization header to set as cookie
       if (typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
@@ -174,9 +166,7 @@ export function registerOAuthRoutes(app: Express) {
 
       // Set cookie for this domain (3000-xxx)
       const cookieOptions = getSessionCookieOptions(req);
-      console.log("[Auth] Setting cookie with options:", { domain: cookieOptions.domain, sameSite: cookieOptions.sameSite });
       res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-      console.log("[Auth] Cookie set successfully");
 
       res.json({ success: true, user: buildUserResponse(user) });
     } catch (error) {

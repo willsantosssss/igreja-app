@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import "@/lib/_core/nativewind-pressable";
 import { ThemeProvider } from "@/lib/theme-provider";
 import {
@@ -28,7 +28,7 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
   const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
 
@@ -36,6 +36,7 @@ export default function RootLayout() {
   const [frame, setFrame] = useState<Rect>(initialFrame);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [needsCadastro, setNeedsCadastro] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize Manus runtime for cookie injection from parent container
   useEffect(() => {
@@ -46,14 +47,19 @@ export default function RootLayout() {
 
   const checkLoginStatus = async () => {
     try {
+      console.log("[Layout] Checking login status...");
       const loggedIn = await AsyncStorage.getItem("@is_logged_in");
       const cadastroCompleto = await AsyncStorage.getItem("@cadastro_completo");
+      console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
       setIsLoggedIn(loggedIn === "true");
       setNeedsCadastro(loggedIn === "true" && cadastroCompleto !== "true");
     } catch (error) {
       console.error("Error checking login status:", error);
       setIsLoggedIn(false);
       setNeedsCadastro(false);
+    } finally {
+      setIsLoading(false);
+      console.log("[Layout] Login status check completed");
     }
   };
 
@@ -67,6 +73,72 @@ export default function RootLayout() {
     const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
     return () => unsubscribe();
   }, [handleSafeAreaUpdate]);
+
+  // Show loading screen while checking login status
+  if (isLoading) {
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+      </Stack>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {!isLoggedIn ? (
+        <Stack.Screen name="login" />
+      ) : needsCadastro ? (
+        <Stack.Screen name="completar-cadastro" />
+      ) : (
+        <>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="oauth/callback" />
+          <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
+          <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
+          <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
+          <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
+          <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/inscricoes-eventos" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/oracao" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/celulas" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/contribuicao" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/aniversariantes-gerenciar" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/aviso-importante" options={{ presentation: "modal" }} />
+          <Stack.Screen name="admin/noticias" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/historico" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
+          <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
+        </>
+      )}
+      <StatusBar style="auto" />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
+  const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
+
+  // Ensure minimum 8px padding for top and bottom on mobile
+  const providerInitialMetrics = useMemo(() => {
+    const metrics = initialWindowMetrics ?? { insets: initialInsets, frame: initialFrame };
+    return {
+      ...metrics,
+      insets: {
+        ...metrics.insets,
+        top: Math.max(metrics.insets.top, 16),
+        bottom: Math.max(metrics.insets.bottom, 12),
+      },
+    };
+  }, [initialInsets, initialFrame]);
 
   // Create clients once and reuse them
   const [queryClient] = useState(
@@ -84,62 +156,11 @@ export default function RootLayout() {
   );
   const [trpcClient] = useState(() => createTRPCClient());
 
-  // Ensure minimum 8px padding for top and bottom on mobile
-  const providerInitialMetrics = useMemo(() => {
-    const metrics = initialWindowMetrics ?? { insets: initialInsets, frame: initialFrame };
-    return {
-      ...metrics,
-      insets: {
-        ...metrics.insets,
-        top: Math.max(metrics.insets.top, 16),
-        bottom: Math.max(metrics.insets.bottom, 12),
-      },
-    };
-  }, [initialInsets, initialFrame]);
-
   const content = (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          {/* Default to hiding native headers so raw route segments don't appear (e.g. "(tabs)", "products/[id]"). */}
-          {/* If a screen needs the native header, explicitly enable it and set a human title via Stack.Screen options. */}
-          {/* in order for ios apps tab switching to work properly, use presentation: "fullScreenModal" for login page, whenever you decide to use presentation: "modal*/}
-          <Stack screenOptions={{ headerShown: false }}>
-            {!isLoggedIn ? (
-              <Stack.Screen name="login" />
-            ) : needsCadastro ? (
-              <Stack.Screen name="completar-cadastro" />
-            ) : (
-              <>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="oauth/callback" />
-                <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
-                <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
-                <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
-                <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
-                <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/inscricoes-eventos" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/oracao" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/celulas" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/contribuicao" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/aniversariantes-gerenciar" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/aviso-importante" options={{ presentation: "modal" }} />
-                <Stack.Screen name="admin/noticias" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/historico" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
-                <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
-              </>
-            )}
-          </Stack>
-          <StatusBar style="auto" />
+          <RootLayoutContent />
         </QueryClientProvider>
       </trpc.Provider>
     </GestureHandlerRootView>
@@ -151,8 +172,8 @@ export default function RootLayout() {
     return (
       <ThemeProvider>
         <SafeAreaProvider initialMetrics={providerInitialMetrics}>
-          <SafeAreaFrameContext.Provider value={frame}>
-            <SafeAreaInsetsContext.Provider value={insets}>
+          <SafeAreaFrameContext.Provider value={initialFrame}>
+            <SafeAreaInsetsContext.Provider value={initialInsets}>
               {content}
             </SafeAreaInsetsContext.Provider>
           </SafeAreaFrameContext.Provider>
