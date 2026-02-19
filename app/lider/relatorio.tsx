@@ -1,38 +1,50 @@
 import { useState, useEffect } from 'react';
 import {
-  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform,
+  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import { useAuth } from '@/hooks/use-auth';
 import { trpc } from '@/lib/trpc';
+import { obterSessaoLider } from '@/lib/data/lideres';
+import * as Haptics from 'expo-haptics';
 
 export default function RelatorioScreen() {
   const colors = useColors();
   const router = useRouter();
-  const { user } = useAuth();
   const [data, setData] = useState('');
   const [totalPessoas, setTotalPessoas] = useState('');
   const [visitantes, setVisitantes] = useState('');
   const [conversoes, setConversoes] = useState('0');
   const [observacoes, setObservacoes] = useState('');
-
-  const { data: lider, isLoading } = trpc.lideres.getByUserId.useQuery(user?.id || 0, {
-    enabled: !!user?.id,
-  });
+  const [liderSessao, setLiderSessao] = useState<any>(null);
+  const [carregando, setCarregando] = useState(true);
 
   const createRelatorioMutation = trpc.relatorios.create.useMutation();
 
   useEffect(() => {
+    carregarSessao();
+  }, []);
+
+  const carregarSessao = async () => {
+    const sessao = await obterSessaoLider();
+    if (!sessao) {
+      Alert.alert('Erro', 'Sessão de líder não encontrada. Faça login novamente.');
+      router.back();
+      return;
+    }
+    setLiderSessao(sessao);
+    
     // Definir data de hoje como padrão
     const hoje = new Date();
     const dia = String(hoje.getDate()).padStart(2, '0');
     const mes = String(hoje.getMonth() + 1).padStart(2, '0');
     const ano = hoje.getFullYear();
     setData(`${dia}/${mes}/${ano}`);
-  }, []);
+    
+    setCarregando(false);
+  };
 
   const validarFormulario = (): boolean => {
     if (!data.trim()) {
@@ -55,12 +67,12 @@ export default function RelatorioScreen() {
   };
 
   const handleEnviar = async () => {
-    if (!lider || !validarFormulario()) return;
+    if (!liderSessao || !validarFormulario()) return;
 
     try {
       await createRelatorioMutation.mutateAsync({
-        liderId: lider.id,
-        celula: lider.celula,
+        liderId: liderSessao.id || 0,
+        celula: liderSessao.celula,
         tipo: 'semanal',
         periodo: data.trim(),
         presentes: Number(totalPessoas),
@@ -69,36 +81,45 @@ export default function RelatorioScreen() {
         observacoes: observacoes.trim() || undefined,
       });
 
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+
       Alert.alert(
         'Relatório Enviado!',
-        `Relatório da célula "${lider.celula}" registrado com sucesso.\n\nData: ${data}\nTotal: ${totalPessoas} pessoas\nVisitantes: ${visitantes}`,
+        `Relatório da célula "${liderSessao.celula}" registrado com sucesso.\n\nData: ${data}\nTotal: ${totalPessoas} pessoas\nVisitantes: ${visitantes}`,
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
       Alert.alert('Erro', 'Não foi possível enviar o relatório. Tente novamente.');
     }
   };
 
-  if (isLoading) {
+  if (carregando) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base">Carregando...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="text-muted text-base mt-4">Carregando sessão...</Text>
         </View>
       </ScreenContainer>
     );
   }
 
-  if (!lider) {
+  if (!liderSessao) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base text-center">
+          <IconSymbol name="exclamationmark.circle.fill" size={48} color={colors.error} />
+          <Text className="text-muted text-base text-center mt-4">
             Você não está cadastrado como líder de célula.
           </Text>
           <TouchableOpacity
             onPress={() => router.back()}
-            className="mt-4 bg-primary px-6 py-3 rounded-full"
+            className="mt-6 bg-primary px-6 py-3 rounded-full"
           >
             <Text className="text-background font-semibold">Voltar</Text>
           </TouchableOpacity>
@@ -116,11 +137,11 @@ export default function RelatorioScreen() {
             onPress={() => router.back()}
             style={{ marginRight: 12, padding: 4 }}
           >
-            <IconSymbol name="chevron.right" size={24} color={colors.foreground} />
+            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
           </TouchableOpacity>
           <View className="flex-1">
             <Text className="text-2xl font-bold text-foreground">Novo Relatório</Text>
-            <Text className="text-muted text-sm">Célula: {lider.celula}</Text>
+            <Text className="text-muted text-sm">Célula: {liderSessao.celula}</Text>
           </View>
         </View>
 

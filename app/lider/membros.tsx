@@ -1,27 +1,29 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import {
-  obterSessaoLider, getMembrosDaCelula, getAniversariantesDaCelula,
-  type MembroCelula,
-} from '@/lib/data/lideres';
-import { getInscricoesPorCelula, type InscricaoEvento } from '@/lib/data/inscricoes-eventos';
+import { trpc } from '@/lib/trpc';
+import { obterSessaoLider, getAniversariantesDaCelula, type MembroCelula } from '@/lib/data/lideres';
 
 export default function MembrosScreen() {
   const colors = useColors();
   const router = useRouter();
   const [membros, setMembros] = useState<MembroCelula[]>([]);
   const [filtro, setFiltro] = useState<'todos' | 'aniversariantes' | 'eventos'>('todos');
-  const [inscricoesEventos, setInscricoesEventos] = useState<InscricaoEvento[]>([]);
   const [celulaNome, setCelulaNome] = useState('');
   const [carregando, setCarregando] = useState(true);
 
+  // Buscar dados do banco de dados
+  const { data: membrosDB = [], isLoading: carregandoMembros } = trpc.usuarios.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
   useEffect(() => {
     carregarMembros();
-  }, []);
+  }, [membrosDB]);
 
   const carregarMembros = async () => {
     const sessao = await obterSessaoLider();
@@ -30,10 +32,20 @@ export default function MembrosScreen() {
       return;
     }
     setCelulaNome(sessao.celula);
-    const dados = await getMembrosDaCelula(sessao.celula);
-    setMembros(dados);
-    const insc = await getInscricoesPorCelula(sessao.celula);
-    setInscricoesEventos(insc);
+    
+    // Filtrar membros da célula do banco de dados
+    const membrosDaCelula = membrosDB.filter((m: any) => m.celula === sessao.celula);
+    
+    // Converter para formato MembroCelula
+    const membrosFormatados = membrosDaCelula.map((m: any) => ({
+      nome: m.nome || '',
+      dataNascimento: m.dataNascimento || '',
+      celula: m.celula || '',
+      inscritoBatismo: false,
+      inscritoEventos: [],
+    }));
+    
+    setMembros(membrosFormatados);
     setCarregando(false);
   };
 
@@ -64,11 +76,12 @@ export default function MembrosScreen() {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ];
 
-  if (carregando) {
+  if (carregando || carregandoMembros) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base">Carregando membros...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="text-muted text-base mt-4">Carregando membros da célula...</Text>
         </View>
       </ScreenContainer>
     );
@@ -98,8 +111,7 @@ export default function MembrosScreen() {
           {[
             { key: 'todos' as const, label: `Todos (${membros.length})` },
             { key: 'aniversariantes' as const, label: `Anivers. ${meses[new Date().getMonth() + 1]}` },
-            
-            { key: 'eventos' as const, label: `Inscritos Eventos (${inscricoesEventos.length})` },
+            { key: 'eventos' as const, label: `Inscritos Eventos (0)` },
           ].map((f) => (
             <TouchableOpacity
               key={f.key}
