@@ -107,14 +107,18 @@ export default function MaisScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              // Limpar dados de autenticação
-              await AsyncStorage.removeItem("@is_logged_in");
-              await AsyncStorage.removeItem("@cadastro_completo");
-              await AsyncStorage.removeItem("@user_email");
-              await AsyncStorage.removeItem("@user_name");
+              // Limpar TODOS os dados de autenticação
+              const keys = await AsyncStorage.getAllKeys();
+              const authKeys = keys.filter(key => 
+                key.startsWith('@') && 
+                (key.includes('logged') || key.includes('cadastro') || key.includes('user') || key.includes('auth'))
+              );
+              await AsyncStorage.multiRemove(authKeys);
+              
               // Redirecionar para login
               router.replace("/login" as any);
             } catch (error) {
+              console.error("Erro ao fazer logout:", error);
               Alert.alert("Erro", "Erro ao fazer logout. Tente novamente.");
             }
           },
