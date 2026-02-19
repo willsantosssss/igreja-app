@@ -554,3 +554,10 @@
 - [x] Adicionar botão de logout na seção Suporte
 - [x] Implementar função de logout que limpa dados locais
 - [x] Redirecionar para tela de login após logout
+
+## Implementar Login Manual com Email/Senha e Banco
+- [x] Adicionar campos email e passwordHash à tabela users
+- [x] Criar endpoints tRPC para signup e login
+- [x] Reescrever tela de login com formulário manual
+- [x] Integrar autenticação no fluxo do app
+- [x] Testar fluxo completo

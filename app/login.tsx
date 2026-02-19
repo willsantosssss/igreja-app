@@ -1,104 +1,150 @@
-import { ScreenContainer } from "@/components/screen-container";
-import { useColors } from "@/hooks/use-colors";
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, Platform } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import * as Haptics from "expo-haptics";
-import { startOAuthLogin } from "@/constants/oauth";
-
-const logoImage = require("../assets/images/logo-2ieq.png");
+import { ScreenContainer } from "@/components/screen-container";
+import { trpc } from "@/lib/trpc";
 
 export default function LoginScreen() {
-  const colors = useColors();
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
+  const signupMutation = trpc.auth.signup.useMutation();
+  const loginMutation = trpc.auth.login.useMutation();
+
+  const handleSignup = async () => {
+    if (!email || !password || !name) {
+      Alert.alert("Erro", "Preencha todos os campos");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Erro", "Senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
     setLoading(true);
     try {
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-      
-      // Inicia o fluxo de login com Google OAuth
-      await startOAuthLogin();
-    } catch (error) {
-      console.error("Login error:", error);
-      Alert.alert("Erro", "Não foi possível iniciar o login. Tente novamente.");
+      await signupMutation.mutateAsync({ email, password, name });
+      await AsyncStorage.setItem("@is_logged_in", "true");
+      await AsyncStorage.setItem("@cadastro_completo", "false");
+      await AsyncStorage.setItem("@user_email", email);
+      router.replace("/completar-cadastro");
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Erro ao criar conta");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha email e senha");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await loginMutation.mutateAsync({ email, password });
+      await AsyncStorage.setItem("@is_logged_in", "true");
+      await AsyncStorage.setItem("@cadastro_completo", "true");
+      await AsyncStorage.setItem("@user_email", email);
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Email ou senha incorretos");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScreenContainer className="bg-gradient-to-b from-primary/10 to-background">
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 20, flexGrow: 1, justifyContent: "center" }}>
-        {/* Logo */}
-        <View className="items-center gap-3">
-          <Image
-            source={logoImage}
-            style={{ width: 120, height: 120 }}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Welcome Message */}
-        <View className="gap-2">
-          <Text className="text-3xl font-bold text-foreground">
-            Bem-vindo!
-          </Text>
-          <Text className="text-base text-muted">
-            Faça login com sua conta Google para acessar a comunidade
-          </Text>
-        </View>
-
-        {/* Info Box */}
-        <View className="bg-primary/10 rounded-2xl p-5 gap-3 border border-primary/20">
-          <Text className="text-sm font-semibold text-foreground">
-            Por que fazer login?
-          </Text>
-          <Text className="text-sm text-muted leading-relaxed">
-            Ao fazer login, você poderá:
-          </Text>
-          <View className="gap-2">
-            <Text className="text-sm text-muted">
-              • Receber lembretes de aniversários da comunidade
+    <ScreenContainer className="bg-background">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="p-6">
+        <View className="gap-8">
+          {/* Header */}
+          <View className="items-center gap-2">
+            <Text className="text-4xl font-bold text-foreground">
+              {isSignup ? "Criar Conta" : "Bem-vindo"}
             </Text>
-            <Text className="text-sm text-muted">
-              • Participar de pedidos de oração
-            </Text>
-            <Text className="text-sm text-muted">
-              • Acessar eventos e inscrições
-            </Text>
-            <Text className="text-sm text-muted">
-              • Fazer parte da célula
+            <Text className="text-base text-muted text-center">
+              {isSignup ? "Cadastre-se para acessar o app" : "Faça login para continuar"}
             </Text>
           </View>
-        </View>
 
-        {/* Google Login Button */}
-        <TouchableOpacity
-          className="bg-primary rounded-xl p-4 items-center gap-3 active:opacity-80"
-          onPress={handleGoogleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <>
+          {/* Form */}
+          <View className="gap-4">
+            {isSignup && (
+              <View>
+                <Text className="text-sm font-semibold text-foreground mb-2">Nome</Text>
+                <TextInput
+                  className="border border-border rounded-lg p-3 text-foreground bg-surface"
+                  placeholder="Seu nome"
+                  placeholderTextColor="#999"
+                  value={name}
+                  onChangeText={setName}
+                  editable={!loading}
+                />
+              </View>
+            )}
+
+            <View>
+              <Text className="text-sm font-semibold text-foreground mb-2">Email</Text>
+              <TextInput
+                className="border border-border rounded-lg p-3 text-foreground bg-surface"
+                placeholder="seu@email.com"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                editable={!loading}
+              />
+            </View>
+
+            <View>
+              <Text className="text-sm font-semibold text-foreground mb-2">Senha</Text>
+              <TextInput
+                className="border border-border rounded-lg p-3 text-foreground bg-surface"
+                placeholder="Sua senha"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                editable={!loading}
+              />
+            </View>
+          </View>
+
+          {/* Button */}
+          <TouchableOpacity
+            className="bg-primary rounded-lg p-4 items-center"
+            onPress={isSignup ? handleSignup : handleLogin}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
               <Text className="text-white font-semibold text-base">
-                Login com Google
+                {isSignup ? "Criar Conta" : "Entrar"}
               </Text>
-            </>
-          )}
-        </TouchableOpacity>
+            )}
+          </TouchableOpacity>
 
-        {/* Info Text */}
-        <View className="gap-2">
-          <Text className="text-xs text-muted text-center">
-            Seus dados são armazenados com segurança no seu dispositivo
-          </Text>
-          <Text className="text-xs text-muted text-center">
-            2ª Igreja Quadrangular de Rondonópolis © 2026
-          </Text>
+          {/* Toggle */}
+          <View className="flex-row justify-center gap-2">
+            <Text className="text-muted">
+              {isSignup ? "Já tem conta?" : "Não tem conta?"}
+            </Text>
+            <TouchableOpacity onPress={() => setIsSignup(!isSignup)} disabled={loading}>
+              <Text className="text-primary font-semibold">
+                {isSignup ? "Faça login" : "Cadastre-se"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </ScreenContainer>

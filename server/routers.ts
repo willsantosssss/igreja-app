@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
+import { signupUser, loginUser } from "./auth-simple";
 
 const COOKIE_NAME = "session";
 
@@ -13,10 +14,14 @@ export const appRouter = router({
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
+    signup: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string().min(6), name: z.string().min(1) }))
+      .mutation(async ({ input }) => signupUser(input.email, input.password, input.name)),
+    login: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string() }))
+      .mutation(async ({ input }) => loginUser(input.email, input.password)),
   }),
 
   // Celulas
