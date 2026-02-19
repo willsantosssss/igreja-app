@@ -1,15 +1,15 @@
 import { useState, useCallback, useMemo } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { trpc } from '@/lib/trpc';
 import {
   getInscricoesEventos,
   removerInscricao,
   type InscricaoEvento,
 } from '@/lib/data/inscricoes-eventos';
-import { getEventos, type Event } from '@/lib/data/events';
 import { CATEGORIAS_COM_INSCRICAO } from '@/lib/data/inscricoes-eventos';
 
 export default function AdminInscricoesEventosScreen() {
@@ -24,14 +24,32 @@ export default function AdminInscricoesEventosScreen() {
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-    }, [])
+    }, [eventosDB])
   );
+
+  // Buscar eventos especiais do banco de dados
+  const { data: eventosDB = [], isLoading: carregandoEventos } = trpc.eventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
 
   const carregarDados = async () => {
     setCarregando(true);
-    const [insc, evts] = await Promise.all([getInscricoesEventos(), getEventos()]);
+    const insc = await getInscricoesEventos();
     setInscricoes(insc);
-    setEventosEspeciais(evts.filter(e => CATEGORIAS_COM_INSCRICAO.includes(e.category)));
+    // Filtrar eventos especiais do banco de dados
+    if (eventosDB && eventosDB.length > 0) {
+      const eventosEspeciais = eventosDB.filter((e: any) => e.tipo === 'evento-especial' || e.tipo === 'retiro' || e.tipo === 'conferencia');
+      setEventosEspeciais(eventosEspeciais.map((e: any) => ({
+        id: e.id?.toString() || '',
+        title: e.titulo || '',
+        description: e.descricao || '',
+        date: e.data || '',
+        time: e.horario || '',
+        location: e.local || '',
+        category: e.tipo || 'evento-especial',
+      })));
+    }
     setCarregando(false);
   };
 
@@ -82,11 +100,12 @@ export default function AdminInscricoesEventosScreen() {
     );
   };
 
-  if (carregando) {
+  if (carregando || carregandoEventos) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base">Carregando inscrições...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="text-muted text-base mt-4">Carregando inscrições...</Text>
         </View>
       </ScreenContainer>
     );

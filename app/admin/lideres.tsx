@@ -7,12 +7,12 @@ import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import * as Haptics from 'expo-haptics';
+import { trpc } from '@/lib/trpc';
 import {
   getLideres, adicionarLider, removerLider, atualizarSenhaLider,
   getRelatorios,
   type LiderCelula, type RelatorioCelula,
 } from '@/lib/data/lideres';
-import { getCelulas, type Celula } from '@/lib/data/celulas';
 
 export default function AdminLideresScreen() {
   const colors = useColors();
@@ -33,13 +33,29 @@ export default function AdminLideresScreen() {
     }, [])
   );
 
+  // Buscar células do banco de dados
+  const { data: celulasDB = [] } = trpc.celulas.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
   const carregarDados = async () => {
     const lids = await getLideres();
     setLideres(lids);
     const rels = await getRelatorios();
     setRelatorios(rels);
-    const cels = await getCelulas();
-    setCelulas(cels);
+    // Usar células do banco de dados em vez do AsyncStorage
+    if (celulasDB && celulasDB.length > 0) {
+      const celulasFormatadas = celulasDB.map((c: any) => ({
+        id: c.id?.toString() || '',
+        name: c.nome || '',
+        leader: { name: '', phone: '' },
+        schedule: { day: '', time: '' },
+        address: { street: '', neighborhood: '', city: '' },
+        description: '',
+      }));
+      setCelulas(celulasFormatadas);
+    }
   };
 
   const handleAdicionarLider = async () => {
@@ -49,6 +65,12 @@ export default function AdminLideresScreen() {
     }
     if (!novaCelula.trim()) {
       Alert.alert('Atenção', 'Selecione a célula do líder.');
+      return;
+    }
+    // Validar se a célula existe no banco de dados
+    const celulaExiste = celulasDB.some((c: any) => c.nome === novaCelula);
+    if (!celulaExiste) {
+      Alert.alert('Atenção', 'A célula selecionada não existe no banco de dados.');
       return;
     }
     if (!novaSenha.trim() || novaSenha.trim().length < 4) {

@@ -301,34 +301,6 @@ export default function AdminScreen() {
           </View>
         </View>
 
-        {/* Membros por Célula */}
-        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
-          <Text className="text-base font-bold text-foreground">🏘️ Distribuição por Célula</Text>
-
-          {usuarios.length > 0 ? (
-            <View className="gap-2 pt-2 border-t border-border">
-              {Object.entries(
-                usuarios.reduce((acc: Record<string, number>, user: Usuario) => {
-                  acc[user.celula] = (acc[user.celula] || 0) + 1;
-                  return acc;
-                }, {})
-              )
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5)
-                .map(([celula, count]) => (
-                  <View key={celula} className="flex-row items-center justify-between">
-                    <Text className="text-sm text-foreground">{celula}</Text>
-                    <View className="bg-primary/20 px-3 py-1 rounded-full">
-                      <Text className="text-xs font-bold text-primary">{count} membros</Text>
-                    </View>
-                  </View>
-                ))}
-            </View>
-          ) : (
-            <Text className="text-sm text-muted pt-2">Nenhum membro cadastrado</Text>
-          )}
-        </View>
-
         {/* Botões de Ação Rápida */}
         <View className="gap-2">
           <Text className="text-sm font-semibold text-foreground">⚡ Ações Rápidas</Text>
