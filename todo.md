@@ -527,3 +527,8 @@
 - [x] Migrar tela de contribuições para usar tRPC
 - [x] Criar tela admin para editar dados de contribuição
 - [x] Testar sincronização automática
+
+## Sincronizar Contatos e Aniversariantes com PostgreSQL
+- [x] Migrar tela de contatos para usar tRPC (contatosIgreja)
+- [x] Migrar tela de aniversariantes para usar tRPC
+- [x] Testar sincronização de dados

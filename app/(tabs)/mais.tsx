@@ -1,10 +1,10 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, Linking } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, Linking, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
+import { trpc } from "@/lib/trpc";
 
 export default function MaisScreen() {
   const colors = useColors();
@@ -52,10 +52,18 @@ export default function MaisScreen() {
     );
   };
 
+  const { data: contatosIgreja, isLoading: contatosLoading } = trpc.contatosIgreja.get.useQuery();
+
   const handleContato = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    
+    if (!contatosIgreja) {
+      Alert.alert("Carregando", "Carregando dados de contato...");
+      return;
+    }
+
     Alert.alert(
       "Contato da Igreja",
       "Entre em contato conosco:",
@@ -63,11 +71,11 @@ export default function MaisScreen() {
         { text: "Cancelar", style: "cancel" },
         { 
           text: "WhatsApp", 
-          onPress: () => Linking.openURL("https://wa.me/5511999999999")
+          onPress: () => Linking.openURL(`https://wa.me/${contatosIgreja.whatsapp.replace(/\D/g, '')}`)
         },
         { 
           text: "Email", 
-          onPress: () => Linking.openURL("mailto:contato@igrejaconnect.com")
+          onPress: () => Linking.openURL(`mailto:${contatosIgreja.email}`)
         },
       ]
     );

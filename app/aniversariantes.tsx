@@ -1,69 +1,31 @@
-import { ScrollView, Text, View, TouchableOpacity } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-interface UserData {
-  name: string;
-  birthDate: string;
-  celula: string;
-}
+import { useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 
 export default function AniversariantesScreen() {
   const colors = useColors();
-  const [aniversariantes, setAniversariantes] = useState<UserData[]>([]);
-  const [totalMembers, setTotalMembers] = useState(0);
-  const [celulasData, setCelulasData] = useState<Record<string, number>>({});
+  const { data: aniversariantes = [], isLoading } = trpc.usuarios.getAniversariantes.useQuery(new Date().getMonth() + 1);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const stats = useMemo(() => {
+    const currentMonth = new Date().getMonth() + 1;
+    
+    const aniversariantesDoMes = aniversariantes.filter((user) => {
+      const [day, month] = user.dataNascimento.split("/").map(Number);
+      return month === currentMonth;
+    }).sort((a, b) => {
+      const dayA = parseInt(a.dataNascimento.split("/")[0]);
+      const dayB = parseInt(b.dataNascimento.split("/")[0]);
+      return dayA - dayB;
+    });
 
-  const loadData = async () => {
-    try {
-      // Carregar dados de usuários (simulado - em produção viria do backend)
-      const userData = await AsyncStorage.getItem("@user_data");
-      
-      // Aqui você carregaria todos os usuários do banco de dados
-      // Por enquanto, vamos simular com dados mockados
-      const mockUsers: UserData[] = [
-        { name: "João Silva", birthDate: "15/02/1990", celula: "Vida Nova" },
-        { name: "Maria Santos", birthDate: "08/02/1985", celula: "Esperança" },
-        { name: "Pedro Oliveira", birthDate: "22/02/1992", celula: "Fé e Graça" },
-        { name: "Ana Costa", birthDate: "28/02/1988", celula: "Amor Perfeito" },
-        { name: "Carlos Mendes", birthDate: "14/02/1995", celula: "Renovo" },
-        { name: "Beatriz Lima", birthDate: "10/02/1991", celula: "Vida Nova" },
-      ];
-
-      // Filtrar aniversariantes de fevereiro (mês atual)
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-      
-      const aniversariantesDoMes = mockUsers.filter((user) => {
-        const [day, month] = user.birthDate.split("/").map(Number);
-        return month === currentMonth;
-      }).sort((a, b) => {
-        const dayA = parseInt(a.birthDate.split("/")[0]);
-        const dayB = parseInt(b.birthDate.split("/")[0]);
-        return dayA - dayB;
-      });
-
-      setAniversariantes(aniversariantesDoMes);
-      setTotalMembers(mockUsers.length);
-
-      // Contar membros por célula
-      const celulasCount: Record<string, number> = {};
-      mockUsers.forEach((user) => {
-        celulasCount[user.celula] = (celulasCount[user.celula] || 0) + 1;
-      });
-      setCelulasData(celulasCount);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
+    return {
+      aniversariantes: aniversariantesDoMes,
+      total: aniversariantes.length,
+    };
+  }, [aniversariantes]);
 
   const getAge = (birthDate: string) => {
     const [day, month, year] = birthDate.split("/").map(Number);
@@ -87,6 +49,15 @@ export default function AniversariantesScreen() {
     return days[date.getDay()];
   };
 
+  if (isLoading) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text className="text-muted mt-4">Carregando aniversariantes...</Text>
+      </ScreenContainer>
+    );
+  }
+
   return (
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
@@ -109,21 +80,23 @@ export default function AniversariantesScreen() {
         {/* Stats */}
         <View className="grid grid-cols-2 gap-3">
           <View className="bg-primary/10 rounded-2xl p-5 gap-2 border border-primary/20">
-            <Text className="text-3xl font-bold text-primary">{aniversariantes.length}</Text>
+            <Text className="text-3xl font-bold text-primary">{stats.aniversariantes.length}</Text>
             <Text className="text-sm text-muted">Aniversariantes este mês</Text>
           </View>
           <View className="bg-secondary/10 rounded-2xl p-5 gap-2 border border-secondary/20">
-            <Text className="text-3xl font-bold" style={{ color: colors.secondary }}>{totalMembers}</Text>
+            <Text className="text-3xl font-bold" style={{ color: colors.secondary }}>{stats.total}</Text>
             <Text className="text-sm text-muted">Total de membros</Text>
           </View>
         </View>
 
         {/* Aniversariantes */}
         <View className="gap-3">
-          <Text className="text-xl font-bold text-foreground">Fevereiro de 2026</Text>
+          <Text className="text-xl font-bold text-foreground">
+            {new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).charAt(0).toUpperCase() + new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).slice(1)}
+          </Text>
           
-          {aniversariantes.length > 0 ? (
-            aniversariantes.map((person, index) => (
+          {stats.aniversariantes.length > 0 ? (
+            stats.aniversariantes.map((person, index) => (
               <View
                 key={index}
                 className="bg-surface rounded-2xl p-5 gap-3 border border-border"
@@ -133,14 +106,14 @@ export default function AniversariantesScreen() {
                     <View className="flex-row items-center gap-2">
                       <Text className="text-2xl">🎂</Text>
                       <Text className="text-lg font-bold text-foreground flex-1">
-                        {person.name}
+                        {person.nome}
                       </Text>
                     </View>
                     <Text className="text-sm text-muted">
-                      {person.birthDate} • {getAge(person.birthDate)} anos
+                      {person.dataNascimento} • {getAge(person.dataNascimento)} anos
                     </Text>
                     <Text className="text-sm text-muted">
-                      {getDayOfWeek(person.birthDate)} de fevereiro
+                      {getDayOfWeek(person.dataNascimento)}
                     </Text>
                   </View>
                   <View 
@@ -172,8 +145,6 @@ export default function AniversariantesScreen() {
             </View>
           )}
         </View>
-
-
 
         {/* Info */}
         <View className="bg-primary/10 rounded-2xl p-5 gap-2 border border-primary/20">
