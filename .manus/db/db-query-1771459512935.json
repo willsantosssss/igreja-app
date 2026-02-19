@@ -1,0 +1,9 @@
+{
+  "query": "-- Criar mais um evento\nINSERT INTO eventos (titulo, descricao, data, horario, local, tipo, requireInscricao)\nVALUES ('Reunião de Jovens', 'Encontro especial para jovens com louvor e palavra', '2026-02-25T00:00:00', '20:00', 'Salão de Eventos', 'evento-especial', 1);\n\n-- Criar mais uma célula\nINSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario)\nVALUES ('Célula Esperança', 'Ana Paula Costa', '(66) 98888-7777', 'Av. Brasil, 456 - Jardim América', '-16.4650', '-54.6300', 'Sexta-feira', '20:00');\n\n-- Criar mais um pedido de oração\nINSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando)\nVALUES ('João Pedro', 'Pedido de Emprego\\n\\nPeço oração para conseguir um novo emprego. Que Deus abra portas e me guie no caminho certo.', 'trabalho', 3);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute -- Criar mais um evento\nINSERT INTO eventos (titulo, descricao, data, horario, local, tipo, requireInscricao)\nVALUES ('Reunião de Jovens', 'Encontro especial para jovens com louvor e palavra', '2026-02-25T00:00:00', '20:00', 'Salão de Eventos', 'evento-especial', 1);\n\n-- Criar mais uma célula\nINSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario)\nVALUES ('Célula Esperança', 'Ana Paula Costa', '(66) 98888-7777', 'Av. Brasil, 456 - Jardim América', '-16.4650', '-54.6300', 'Sexta-feira', '20:00');\n\n-- Criar mais um pedido de oração\nINSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando)\nVALUES ('João Pedro', 'Pedido de Emprego\\n\\nPeço oração para conseguir um novo emprego. Que Deus abra portas e me guie no caminho certo.', 'trabalho', 3);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 565
+}

@@ -290,3 +290,9 @@
 - [ ] Modificar telas admin para usar tRPC mutations (próxima etapa)
 - [ ] Modificar telas de usuário para usar tRPC queries com refetch automático (próxima etapa)
 - [ ] Criar tela de teste de sincronização para demonstrar funcionamento
+
+## Teste de Sincronização
+- [x] Criar dados de teste no banco (evento, célula, pedido de oração)
+- [x] Criar tela de demonstração usando tRPC
+- [x] Verificar se dados aparecem automaticamente
+- [x] Documentar resultados
