@@ -465,3 +465,13 @@
 - [x] Mostrar estatísticas (média de presentes, total de conversões)
 - [x] Adicionar gráficos de crescimento
 - [x] Implementar visualização de evolução temporal
+
+## Células do Banco no Login
+- [x] Encontrar tela de login/cadastro onde células são selecionadas
+- [x] Atualizar para buscar células do banco via tRPC
+- [x] Testar seleção de células
+
+## Trocar Background para Preto
+- [x] Localizar configuração de cores do tema
+- [x] Trocar azul escuro por preto no dark mode
+- [x] Verificar contraste e legibilidade

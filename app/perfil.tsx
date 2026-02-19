@@ -1,5 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
@@ -15,11 +16,15 @@ export default function PerfilScreen() {
   const [dataNascimento, setDataNascimento] = useState("");
   const [celula, setCelula] = useState("");
   const [loading, setLoading] = useState(true);
+  const [mostrarCelulas, setMostrarCelulas] = useState(false);
 
   // Buscar dados do usuário
   const { data: userData, refetch } = trpc.usuarios.getMeuPerfil.useQuery(undefined, {
     enabled: !!user,
   });
+
+  // Buscar células do banco
+  const { data: celulas } = trpc.celulas.list.useQuery();
 
   const updateMutation = trpc.usuarios.updateMeuPerfil.useMutation({
     onSuccess: () => {
@@ -131,13 +136,44 @@ export default function PerfilScreen() {
           {/* Célula */}
           <View className="gap-2">
             <Text className="text-sm font-semibold text-foreground">Célula</Text>
-            <TextInput
-              value={celula}
-              onChangeText={setCelula}
-              placeholder="Nome da sua célula"
-              placeholderTextColor={colors.muted}
-              className="bg-surface border border-border rounded-xl px-4 py-3 text-foreground"
-            />
+            <TouchableOpacity
+              onPress={() => setMostrarCelulas(!mostrarCelulas)}
+              className="bg-surface border border-border rounded-xl px-4 py-3 flex-row justify-between items-center"
+            >
+              <Text className={celula ? "text-foreground" : "text-muted"}>
+                {celula || "Selecione sua célula"}
+              </Text>
+              <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+            </TouchableOpacity>
+            
+            {mostrarCelulas && celulas && (
+              <View className="bg-surface border border-border rounded-xl overflow-hidden">
+                <ScrollView style={{ maxHeight: 200 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setCelula("");
+                      setMostrarCelulas(false);
+                    }}
+                    className="px-4 py-3 border-b border-border"
+                  >
+                    <Text className="text-muted">Nenhuma</Text>
+                  </TouchableOpacity>
+                  {celulas.map((c) => (
+                    <TouchableOpacity
+                      key={c.id}
+                      onPress={() => {
+                        setCelula(c.nome);
+                        setMostrarCelulas(false);
+                      }}
+                      className="px-4 py-3 border-b border-border"
+                    >
+                      <Text className="text-foreground font-semibold">{c.nome}</Text>
+                      <Text className="text-xs text-muted">Líder: {c.lider}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
           </View>
 
           {/* Botão Salvar */}
