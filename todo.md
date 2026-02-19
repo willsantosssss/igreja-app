@@ -554,3 +554,9 @@
 - [x] Adicionar botão de logout na seção Suporte
 - [x] Implementar função de logout que limpa dados locais
 - [x] Redirecionar para tela de login após logout
+
+## Debug: Erro de Autorização no Google OAuth
+- [x] Verificar configuração de OAuth e callback URL
+- [x] Verificar se conta Google está registrada no sistema Manus
+- [x] Debugar erro de autorização no redirecionamento
+- [x] Corrigir fluxo de login com Google
