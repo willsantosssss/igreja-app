@@ -513,3 +513,8 @@
 - [x] Localizar tela de células
 - [x] Remover botão/link "Mapa das Células"
 - [x] Verificar se há tela de mapa para deletar
+
+## Adicionar Botão Meu Perfil na Aba Mais
+- [x] Adicionar botão "Meu Perfil" na seção Principal da aba Mais
+- [x] Configurar navegação para /perfil
+- [x] Adicionar ícone apropriado

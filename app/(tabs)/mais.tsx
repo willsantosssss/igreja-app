@@ -100,6 +100,28 @@ export default function MaisScreen() {
           
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={() => {
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              router.push("/perfil" as any);
+            }}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.primary}20` }}
+            >
+              <IconSymbol name="person.fill" size={24} color={colors.primary} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-foreground">Meu Perfil</Text>
+              <Text className="text-sm text-muted">Editar dados pessoais</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
             onPress={handleContribuir}
           >
             <View 
