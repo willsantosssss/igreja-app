@@ -325,3 +325,18 @@
 - [x] Substituir removerNoticia() por trpc.noticias.delete.useMutation()
 - [x] Substituir obterNoticias() por trpc.noticias.list.useQuery()
 - [x] Testar sincronização de notícias
+
+## Migrar Tela de Células do Usuário
+- [x] Substituir getCelulas() por trpc.celulas.list.useQuery()
+- [x] Adaptar formato de dados do banco para formato do app
+- [x] Testar visualização de células sincronizadas
+
+## Migrar Tela de Notícias do Usuário
+- [x] Substituir getNoticias() por trpc.noticias.list.useQuery()
+- [x] Adaptar formato de dados do banco para formato do app
+- [x] Testar visualização de notícias sincronizadas
+
+## Migrar Tela de Pedidos de Oração
+- [x] Substituir getPedidosOracao() por trpc.oracao.list.useQuery()
+- [x] Adaptar formato de dados do banco para formato do app
+- [x] Testar visualização de pedidos sincronizados

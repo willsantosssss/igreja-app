@@ -3,28 +3,35 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
-import { getCelulas, type Celula } from "@/lib/data/celulas";
+import { type Celula } from "@/lib/data/celulas";
+import { trpc } from "@/lib/trpc";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
 export default function CelulasScreen() {
   const colors = useColors();
-  const [refreshing, setRefreshing] = useState(false);
   const [celulas, setCelulas] = useState<Celula[]>([]);
 
-  useEffect(() => {
-    carregarCelulas();
-  }, []);
+  const { data: celulasData, isLoading, refetch } = trpc.celulas.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
 
-  const carregarCelulas = async () => {
-    const dados = await getCelulas();
-    setCelulas(dados);
-  };
+  useEffect(() => {
+    if (celulasData) {
+      setCelulas(celulasData.map((c: any) => ({
+        id: c.id.toString(),
+        name: c.nome,
+        leader: { name: c.lider, phone: c.telefone },
+        schedule: { day: c.diaReuniao, time: c.horario },
+        address: { street: c.endereco, neighborhood: '', city: '' },
+        description: '',
+      })));
+    }
+  }, [celulasData]);
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    await carregarCelulas();
-    setRefreshing(false);
+    await refetch();
   };
 
   const handleCall = (phone: string, leaderName: string) => {
@@ -69,7 +76,7 @@ export default function CelulasScreen() {
       <ScrollView 
         contentContainerStyle={{ padding: 20, gap: 20 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         <View className="gap-2">

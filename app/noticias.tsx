@@ -3,9 +3,9 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
-import { useState, useEffect, useCallback } from "react";
-import { useFocusEffect } from "expo-router";
-import { getNoticias, type Noticia } from "@/lib/data/noticias";
+import { useState, useEffect } from "react";
+import { type Noticia } from "@/lib/data/noticias";
+import { trpc } from "@/lib/trpc";
 
 interface News {
   id: string;
@@ -34,15 +34,18 @@ const ActivityIndicator = require('react-native').ActivityIndicator;
 
 export default function NoticiasScreen() {
   const colors = useColors();
-  const [refreshing, setRefreshing] = useState(false);
   const [noticias, setNoticias] = useState<News[]>([]);
-  const [carregando, setCarregando] = useState(true);
 
-  const carregarNoticias = async () => {
-    try {
-      const lista = await getNoticias();
-      const noticiasFormatadas: News[] = lista.map((n: Noticia) => ({
-        id: n.id,
+  // @ts-expect-error - Endpoint noticias existe
+  const { data: noticiasData, isLoading: carregando, refetch } = trpc.noticias.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
+  useEffect(() => {
+    if (noticiasData) {
+      const noticiasFormatadas: News[] = noticiasData.map((n: any) => ({
+        id: n.id.toString(),
         title: n.titulo,
         summary: n.conteudo,
         category: n.destaque ? 'aviso' : 'noticia' as "aviso" | "noticia" | "testemunho",
@@ -50,28 +53,11 @@ export default function NoticiasScreen() {
         imageEmoji: "📰",
       }));
       setNoticias(noticiasFormatadas);
-    } catch (err) {
-      console.error('Erro ao carregar notícias:', err);
-      setNoticias(mockNews);
-    } finally {
-      setCarregando(false);
     }
-  };
+  }, [noticiasData]);
 
-  useEffect(() => {
-    carregarNoticias();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      carregarNoticias();
-    }, [])
-  );
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    carregarNoticias();
-    setTimeout(() => setRefreshing(false), 1000);
+  const onRefresh = async () => {
+    await refetch();
   };
 
   const formatDate = (dateStr: string) => {
@@ -102,7 +88,7 @@ export default function NoticiasScreen() {
       <ScrollView 
         contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 100 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={carregando} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {/* Header */}

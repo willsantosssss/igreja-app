@@ -3,27 +3,39 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
-import { getPedidosOracao, criarPedido, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
+import { criarPedido, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
+import { trpc } from "@/lib/trpc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
 export default function OracaoScreen() {
   const colors = useColors();
-  const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<PrayerCategory | "all">("all");
   const [prayingFor, setPrayingFor] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
   const [pedidos, setPedidos] = useState<PrayerRequest[]>([]);
 
-  useEffect(() => {
-    carregarPedidos();
-  }, []);
+  const { data: pedidosData, isLoading, refetch } = trpc.oracao.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
 
-  const carregarPedidos = async () => {
-    const dados = await getPedidosOracao();
-    setPedidos(dados);
-  };
+  useEffect(() => {
+    if (pedidosData) {
+      setPedidos(pedidosData.map((p: any) => ({
+        id: p.id.toString(),
+        title: p.nome,
+        description: p.descricao,
+        author: p.categoria,
+        category: 'espiritual' as PrayerCategory,
+        date: p.criadoEm,
+        prayerCount: p.orandoPor || 0,
+        prayingCount: p.orandoPor || 0,
+        isAnswered: false,
+      })));
+    }
+  }, [pedidosData]);
   
   // Form state
   const [newTitle, setNewTitle] = useState("");
@@ -31,9 +43,7 @@ export default function OracaoScreen() {
   const [newCategory, setNewCategory] = useState<PrayerCategory>("espiritual");
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    await carregarPedidos();
-    setRefreshing(false);
+    await refetch();
   };
 
   const filteredRequests = selectedCategory === "all" 
@@ -89,7 +99,7 @@ export default function OracaoScreen() {
       date: new Date().toISOString().split('T')[0],
     });
 
-    await carregarPedidos();
+      await refetch();
 
     Alert.alert(
       "Pedido Enviado!",
@@ -204,7 +214,7 @@ export default function OracaoScreen() {
       <ScrollView 
         contentContainerStyle={{ padding: 20, gap: 20 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         <View className="flex-row items-center justify-between">
