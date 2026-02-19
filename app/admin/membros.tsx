@@ -1,9 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { Platform } from "react-native";
 
 export default function AdminMembrosScreen() {
   const colors = useColors();
@@ -12,6 +14,7 @@ export default function AdminMembrosScreen() {
   const { data: membros, isLoading, refetch } = trpc.usuarios.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
+  const deleteUserMutation = trpc.usuarios.deleteUser.useMutation();
 
   const membrosFiltrados = membros?.filter((membro) => {
     if (!filtroCelula) return true;
@@ -109,7 +112,7 @@ export default function AdminMembrosScreen() {
                 key={membro.id}
                 className="bg-surface rounded-2xl p-4 gap-2"
               >
-                <View className="flex-row justify-between items-start">
+                <View className="flex-row justify-between items-start gap-3">
                   <View className="flex-1 gap-1">
                     <Text className="text-base font-bold text-foreground">{membro.nome}</Text>
                     <Text className="text-sm text-muted">
@@ -119,8 +122,40 @@ export default function AdminMembrosScreen() {
                       <Text className="text-sm text-muted">Célula: {membro.celula}</Text>
                     )}
                   </View>
-                  <View className="bg-primary/10 px-3 py-1 rounded-full">
-                    <Text className="text-xs font-semibold text-primary">ID: {membro.userId}</Text>
+                  <View className="gap-2">
+                    <View className="bg-primary/10 px-3 py-1 rounded-full">
+                      <Text className="text-xs font-semibold text-primary">ID: {membro.userId}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (Platform.OS !== "web") {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        }
+                        Alert.alert(
+                          "Deletar Membro",
+                          `Tem certeza que deseja deletar completamente ${membro.nome}? Esta ação não pode ser desfeita.`,
+                          [
+                            { text: "Cancelar", onPress: () => {} },
+                            {
+                              text: "Deletar",
+                              onPress: async () => {
+                                try {
+                                  await deleteUserMutation.mutateAsync(membro.userId);
+                                  Alert.alert("Sucesso", "Membro deletado com sucesso!");
+                                  refetch();
+                                } catch (error: any) {
+                                  Alert.alert("Erro", error.message || "Erro ao deletar membro");
+                                }
+                              },
+                              style: "destructive",
+                            },
+                          ]
+                        );
+                      }}
+                      className="bg-error/20 px-3 py-1.5 rounded-full"
+                    >
+                      <Text className="text-xs font-semibold text-error">🗑️ Deletar</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               </View>

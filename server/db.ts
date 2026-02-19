@@ -4,6 +4,7 @@ import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
+  contribuicoes, inscricoesEventos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
   InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao
 } from "../drizzle/schema";
@@ -558,4 +559,58 @@ export async function updateDadosContribuicao(id: number, data: Partial<InsertDa
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(dadosContribuicao).set(data).where(eq(dadosContribuicao.id, id));
+}
+
+
+// ==================== USER DELETION ====================
+
+/**
+ * Deleta um usuário completamente do sistema, removendo todos os dados relacionados
+ * de todas as tabelas onde o userId é referenciado.
+ * 
+ * Ordem de deleção:
+ * 1. anotacoesDevocional
+ * 2. contribuicoes
+ * 3. inscricoesEventos
+ * 4. lideres
+ * 5. usuariosCadastrados
+ * 6. users
+ */
+export async function deleteUserCompletely(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  try {
+    console.log(`[Database] Starting complete deletion for user ${userId}`);
+
+    // 1. Delete anotações de devocional
+    await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.userId, userId));
+    console.log(`[Database] Deleted anotações de devocional for user ${userId}`);
+
+    // 2. Delete contribuições
+    await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
+    console.log(`[Database] Deleted contribuições for user ${userId}`);
+
+    // 3. Delete inscrições em eventos
+    await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
+    console.log(`[Database] Deleted inscrições em eventos for user ${userId}`);
+
+    // 4. Delete líderes
+    await db.delete(lideres).where(eq(lideres.userId, userId));
+    console.log(`[Database] Deleted líderes for user ${userId}`);
+
+    // 5. Delete usuários cadastrados
+    await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
+    console.log(`[Database] Deleted usuários cadastrados for user ${userId}`);
+
+    // 6. Delete user
+    await db.delete(users).where(eq(users.id, userId));
+    console.log(`[Database] Deleted user ${userId}`);
+
+    console.log(`[Database] Complete deletion for user ${userId} finished successfully`);
+    return { success: true, userId };
+  } catch (error) {
+    console.error(`[Database] Failed to delete user ${userId}:`, error);
+    throw error;
+  }
 }

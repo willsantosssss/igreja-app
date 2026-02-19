@@ -182,6 +182,17 @@ export const appRouter = router({
         if (!cadastro) throw new Error("User profile not found");
         return db.updateUsuarioCadastrado(cadastro.id, input);
       }),
+    deleteUser: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ input: userId, ctx }) => {
+        if (ctx.user?.role !== "admin") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Only admins can delete users",
+          });
+        }
+        return db.deleteUserCompletely(userId);
+      }),
   }),
 
   // Pedidos de Oracao
