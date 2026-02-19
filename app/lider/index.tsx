@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform,
+  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import * as Haptics from 'expo-haptics';
+import { trpc } from '@/lib/trpc';
 import {
   autenticarLider, salvarSessaoLider, obterSessaoLider, encerrarSessaoLider,
-  getEstatisticasCelula,
   type LiderCelula,
 } from '@/lib/data/lideres';
 import {
@@ -38,16 +38,22 @@ export default function LiderScreen() {
   });
   const [lembreteAtivo, setLembreteAtivo] = useState(false);
 
+  // Buscar dados do banco de dados
+  const { data: membrosDB = [], isLoading: carregandoMembros } = trpc.usuarios.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Sincronizar a cada 30 segundos
+  });
+
   useEffect(() => {
     verificarSessao();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      if (lider) {
+      if (lider && membrosDB.length > 0) {
         carregarEstatisticas(lider.celula);
       }
-    }, [lider])
+    }, [lider, membrosDB])
   );
 
   const verificarSessao = async () => {
@@ -62,8 +68,25 @@ export default function LiderScreen() {
   };
 
   const carregarEstatisticas = async (celulaNome: string) => {
-    const estatisticas = await getEstatisticasCelula(celulaNome);
-    setStats(estatisticas);
+    // Filtrar membros da célula do banco de dados
+    const membrosDaCelula = membrosDB.filter((m: any) => m.celula === celulaNome);
+    
+    // Calcular aniversariantes do mês
+    const mesAtual = new Date().getMonth() + 1;
+    const aniversariantes = membrosDaCelula.filter((m: any) => {
+      if (!m.dataNascimento) return false;
+      const dataNasc = new Date(m.dataNascimento);
+      return dataNasc.getMonth() + 1 === mesAtual;
+    });
+
+    setStats({
+      totalMembros: membrosDaCelula.length,
+      aniversariantesMes: aniversariantes.length,
+      inscritosEventos: 0,
+      totalRelatorios: 0,
+      mediaPresenca: 0,
+      mediaVisitantes: 0,
+    });
   };
 
   const handleLogin = async () => {
@@ -119,11 +142,12 @@ export default function LiderScreen() {
     ]);
   };
 
-  if (carregando) {
+  if (carregando || (lider && carregandoMembros)) {
     return (
       <ScreenContainer className="p-6">
         <View className="flex-1 items-center justify-center">
-          <Text className="text-muted text-base">Carregando...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="text-muted text-base mt-4">Carregando dados da célula...</Text>
         </View>
       </ScreenContainer>
     );
@@ -305,13 +329,11 @@ export default function LiderScreen() {
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <IconSymbol name="person.2.fill" size={24} color={colors.primary} />
+              <IconSymbol name="person.fill" size={24} color={colors.primary} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Membros da Célula</Text>
-              <Text className="text-sm text-muted">
-                {stats.totalMembros} membros cadastrados
-              </Text>
+              <Text className="text-base font-semibold text-foreground">Membros</Text>
+              <Text className="text-xs text-muted">Ver lista de membros</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
@@ -327,19 +349,17 @@ export default function LiderScreen() {
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <IconSymbol name="doc.text.fill" size={24} color={colors.success} />
+              <IconSymbol name="chart.bar.fill" size={24} color={colors.success} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Novo Relatório</Text>
-              <Text className="text-sm text-muted">
-                Registrar encontro da célula
-              </Text>
+              <Text className="text-base font-semibold text-foreground">Relatórios</Text>
+              <Text className="text-xs text-muted">Registrar presença e visitantes</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.push('/lider/historico' as any)}
+            onPress={() => router.push('/lider/lembrete' as any)}
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
           >
             <View
@@ -349,108 +369,14 @@ export default function LiderScreen() {
                 alignItems: 'center', justifyContent: 'center',
               }}
             >
-              <IconSymbol name="calendar" size={24} color={colors.warning} />
+              <IconSymbol name="bell.fill" size={24} color={colors.warning} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Historico de Relatorios</Text>
-              <Text className="text-sm text-muted">
-                {stats.totalRelatorios} relatorios enviados
-              </Text>
+              <Text className="text-base font-semibold text-foreground">Lembretes</Text>
+              <Text className="text-xs text-muted">{lembreteAtivo ? 'Ativo' : 'Configurar'} lembretes semanais</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push('/lider/inscritos-eventos' as any)}
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-          >
-            <View
-              style={{
-                backgroundColor: colors.primary + '20',
-                width: 48, height: 48, borderRadius: 24,
-                alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              <Text className="text-2xl">📋</Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Inscritos em Eventos</Text>
-              <Text className="text-sm text-muted">
-                {stats.inscritosEventos} membros inscritos
-              </Text>
-            </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Resumo de Relatórios */}
-        {stats.totalRelatorios > 0 && (
-          <View className="bg-surface rounded-2xl p-4 border border-border gap-3">
-            <Text className="text-base font-bold text-foreground">Resumo dos Relatórios</Text>
-            <View className="flex-row justify-between">
-              <View className="items-center">
-                <Text style={{ color: colors.primary, fontSize: 20, fontWeight: '800' }}>
-                  {stats.mediaPresenca}
-                </Text>
-                <Text className="text-xs text-muted">Média Presença</Text>
-              </View>
-              <View className="items-center">
-                <Text style={{ color: colors.success, fontSize: 20, fontWeight: '800' }}>
-                  {stats.mediaVisitantes}
-                </Text>
-                <Text className="text-xs text-muted">Média Visitantes</Text>
-              </View>
-              <View className="items-center">
-                <Text style={{ color: colors.warning, fontSize: 20, fontWeight: '800' }}>
-                  {stats.totalRelatorios}
-                </Text>
-                <Text className="text-xs text-muted">Total Relatórios</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Lembrete Semanal */}
-        <TouchableOpacity
-          onPress={() => router.push('/lider/lembrete' as any)}
-          className="bg-surface rounded-2xl p-4 flex-row items-center gap-3 border border-border"
-        >
-          <View
-            style={{
-              backgroundColor: lembreteAtivo ? colors.success + '20' : colors.muted + '15',
-              width: 44, height: 44, borderRadius: 22,
-              alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <IconSymbol
-              name={lembreteAtivo ? 'bell.fill' : 'bell.slash.fill'}
-              size={22}
-              color={lembreteAtivo ? colors.success : colors.muted}
-            />
-          </View>
-          <View className="flex-1">
-            <Text className="text-sm font-bold text-foreground">Lembrete Semanal</Text>
-            <Text className="text-xs text-muted">
-              {lembreteAtivo ? 'Ativo — toque para configurar' : 'Desativado — toque para ativar'}
-            </Text>
-          </View>
-          <IconSymbol name="chevron.right" size={18} color={colors.muted} />
-        </TouchableOpacity>
-
-        {/* Card motivacional */}
-        <View
-          style={{
-            backgroundColor: colors.primary,
-            borderRadius: 16,
-            padding: 20,
-          }}
-        >
-          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, marginBottom: 8 }}>
-            Continue o bom trabalho!
-          </Text>
-          <Text style={{ color: '#fff', opacity: 0.9, fontSize: 13, lineHeight: 20 }}>
-            "Apascentai o rebanho de Deus que está entre vós, tendo cuidado dele, não por força, mas voluntariamente." — 1 Pedro 5:2
-          </Text>
         </View>
       </ScrollView>
     </ScreenContainer>
