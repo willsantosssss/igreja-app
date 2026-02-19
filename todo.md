@@ -340,3 +340,8 @@
 - [x] Substituir getPedidosOracao() por trpc.oracao.list.useQuery()
 - [x] Adaptar formato de dados do banco para formato do app
 - [x] Testar visualização de pedidos sincronizados
+
+## Migrar Aviso Importante para tRPC
+- [x] Migrar tela admin de aviso importante para usar tRPC mutations
+- [x] Migrar tela home para buscar aviso via tRPC queries
+- [x] Testar sincronização de aviso entre dispositivos

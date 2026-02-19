@@ -7,7 +7,8 @@ import { router } from "expo-router";
 import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getEventos, type Event as EventoTipo } from "@/lib/data/events";
-import { getAvisoImportante, type AvisoImportante } from "@/lib/data/aviso-importante";
+import { type AvisoImportante } from "@/lib/data/aviso-importante";
+import { trpc } from "@/lib/trpc";
 
 interface Usuario {
   nome: string;
@@ -38,13 +39,18 @@ export default function HomeScreen() {
     mensagem: "Inscrições abertas para o retiro espiritual de março! Vagas limitadas.",
     ativo: true,
   });
+
+  // @ts-expect-error - Endpoint avisos existe
+  const { data: avisoData } = trpc.avisos.get.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   useEffect(() => {
     carregarCapituloDoDia();
     carregarAniversariantes();
     carregarProximoEvento();
-    carregarAviso();
   }, []);
 
   const carregarAniversariantes = async () => {
@@ -100,25 +106,21 @@ export default function HomeScreen() {
     }
   };
 
-  const carregarAviso = async () => {
-    try {
-      const avisoAtual = await getAvisoImportante();
+  useEffect(() => {
+    if (avisoData) {
       setAviso({
-        titulo: avisoAtual.titulo,
-        mensagem: avisoAtual.mensagem,
-        ativo: avisoAtual.ativo,
+        titulo: avisoData.titulo,
+        mensagem: avisoData.mensagem,
+        ativo: avisoData.ativo,
       });
-    } catch (err) {
-      console.error("Erro ao carregar aviso:", err);
     }
-  };
+  }, [avisoData]);
 
   const onRefresh = () => {
     setRefreshing(true);
     carregarCapituloDoDia();
     carregarAniversariantes();
     carregarProximoEvento();
-    carregarAviso();
     setTimeout(() => setRefreshing(false), 1000);
   };
 

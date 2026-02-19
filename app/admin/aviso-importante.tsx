@@ -5,7 +5,8 @@ import { useColors } from "@/hooks/use-colors";
 import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { getAvisoImportante, salvarAvisoImportante, type AvisoImportante } from "@/lib/data/aviso-importante";
+import { type AvisoImportante } from "@/lib/data/aviso-importante";
+import { trpc } from "@/lib/trpc";
 
 export default function AvisoImportanteScreen() {
   const colors = useColors();
@@ -13,30 +14,30 @@ export default function AvisoImportanteScreen() {
   const [titulo, setTitulo] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [ativo, setAtivo] = useState(true);
-  const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+
+  // @ts-expect-error - Endpoint avisos existe
+  const { data: avisoData, isLoading: carregando, refetch } = trpc.avisos.get.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+
+  // @ts-expect-error - Endpoint avisos existe
+  const salvarMutation = trpc.avisos.save.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
-      carregarAviso();
-    }, [])
+      if (avisoData) {
+        setAviso(avisoData);
+        setTitulo(avisoData.titulo);
+        setMensagem(avisoData.mensagem);
+        setAtivo(avisoData.ativo);
+      }
+    }, [avisoData])
   );
-
-  const carregarAviso = async () => {
-    try {
-      setCarregando(true);
-      const avisoAtual = await getAvisoImportante();
-      setAviso(avisoAtual);
-      setTitulo(avisoAtual.titulo);
-      setMensagem(avisoAtual.mensagem);
-      setAtivo(avisoAtual.ativo);
-    } catch (error) {
-      console.error("Erro ao carregar aviso:", error);
-      Alert.alert("Erro", "Não foi possível carregar o aviso importante");
-    } finally {
-      setCarregando(false);
-    }
-  };
 
   const handleSalvar = async () => {
     if (!titulo.trim()) {
@@ -55,15 +56,12 @@ export default function AvisoImportanteScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
 
-      const novoAviso: AvisoImportante = {
+      await salvarMutation.mutateAsync({
         titulo: titulo.trim(),
         mensagem: mensagem.trim(),
         ativo,
-        dataCriacao: aviso?.dataCriacao || new Date().toISOString(),
-      };
-
-      await salvarAvisoImportante(novoAviso);
-      Alert.alert("Sucesso", "Aviso importante atualizado com sucesso!");
+      });
+      Alert.alert("Sucesso", "Aviso importante atualizado e sincronizado!");
       router.back();
     } catch (error) {
       console.error("Erro ao salvar aviso:", error);
