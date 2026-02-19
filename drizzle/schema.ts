@@ -81,6 +81,8 @@ export const pedidosOracao = mysqlTable("pedidosOracao", {
   descricao: text("descricao").notNull(),
   categoria: varchar("categoria", { length: 50 }).notNull(),
   contadorOrando: int("contadorOrando").default(0).notNull(),
+  respondido: int("respondido").default(0).notNull(), // 0 = ativo, 1 = respondido
+  testemunho: text("testemunho"), // Testemunho de como Deus respondeu (opcional)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

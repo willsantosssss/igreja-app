@@ -43,6 +43,13 @@
       "when": 1771458929792,
       "tag": "0005_lovely_ares",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1771474267239,
+      "tag": "0006_lean_guardsmen",
+      "breakpoints": true
     }
   ]
 }

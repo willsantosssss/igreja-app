@@ -362,3 +362,22 @@
 - [x] Verificar se há erros de console no navegador
 - [x] Corrigir problemas encontrados
 - [x] Testar criação, edição e remoção em todas as telas admin
+
+## Painel Admin Web (Segunda Opção)
+- [ ] Criar estrutura base do painel admin web
+- [ ] Criar página de login web
+- [ ] Criar dashboard principal web
+- [ ] Implementar gerenciamento de eventos (CRUD completo)
+- [ ] Implementar gerenciamento de células (CRUD completo)
+- [ ] Implementar gerenciamento de notícias (CRUD completo)
+- [ ] Implementar gerenciamento de pedidos de oração (CRUD completo)
+- [ ] Implementar gerenciamento de aviso importante (edição)
+- [ ] Testar sincronização entre painel web e app mobile
+- [ ] Adicionar validações e feedback visual
+
+## Adicionar Campos na Tabela pedidosOracao
+- [x] Verificar estrutura atual da tabela pedidosOracao no schema
+- [x] Adicionar campo "respondido" (boolean/int) ao schema
+- [x] Adicionar campo "testemunho" (text) ao schema
+- [x] Gerar e executar migração do banco de dados
+- [x] Testar alteração de status de oração no banco
