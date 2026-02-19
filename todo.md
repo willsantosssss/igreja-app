@@ -549,3 +549,8 @@
 - [x] Criar endpoint tRPC para registrar usuário após login
 - [x] Integrar criação de usuário no fluxo de autenticação
 - [x] Testar fluxo completo de login e sincronização
+
+## Adicionar Botão Logout na Aba Mais
+- [x] Adicionar botão de logout na seção Suporte
+- [x] Implementar função de logout que limpa dados locais
+- [x] Redirecionar para tela de login após logout

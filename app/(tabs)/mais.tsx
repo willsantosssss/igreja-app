@@ -1,4 +1,5 @@
 import { ScrollView, Text, View, TouchableOpacity, Alert, Linking, Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -89,6 +90,36 @@ export default function MaisScreen() {
       "Enviar Feedback",
       "Sua opinião é muito importante para nós! Em breve você poderá enviar sugestões e relatar problemas.",
       [{ text: "OK" }]
+    );
+  };
+
+  const handleLogout = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    Alert.alert(
+      "Sair da Conta",
+      "Tem certeza que deseja sair?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Sair",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              // Limpar dados de autenticação
+              await AsyncStorage.removeItem("@is_logged_in");
+              await AsyncStorage.removeItem("@cadastro_completo");
+              await AsyncStorage.removeItem("@user_email");
+              await AsyncStorage.removeItem("@user_name");
+              // Redirecionar para login
+              router.replace("/login" as any);
+            } catch (error) {
+              Alert.alert("Erro", "Erro ao fazer logout. Tente novamente.");
+            }
+          },
+        },
+      ]
     );
   };
 
@@ -306,6 +337,23 @@ export default function MaisScreen() {
               <Text className="text-sm text-muted">Versão e informações</Text>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="bg-error/10 rounded-2xl p-5 flex-row items-center gap-4 border border-error"
+            onPress={handleLogout}
+          >
+            <View 
+              className="w-12 h-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${colors.error}20` }}
+            >
+              <IconSymbol name="arrowtriangledown.fill" size={24} color={colors.error} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-error">Sair da Conta</Text>
+              <Text className="text-sm text-muted">Fazer logout</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.error} />
           </TouchableOpacity>
         </View>
 
