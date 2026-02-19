@@ -5,19 +5,27 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 
+// Helper para parsear datas em ambos formatos (YYYY-MM-DD ou DD/MM/YYYY)
+const parseDateString = (dateStr: string) => {
+  if (dateStr.includes("-")) {
+    // Formato YYYY-MM-DD (do banco)
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return { day, month, year };
+  } else {
+    // Formato DD/MM/YYYY (compatibilidade)
+    const [day, month, year] = dateStr.split("/").map(Number);
+    return { day, month, year };
+  }
+};
+
 export default function AniversariantesScreen() {
   const colors = useColors();
   const { data: aniversariantes = [], isLoading } = trpc.usuarios.getAniversariantes.useQuery(new Date().getMonth() + 1);
 
   const stats = useMemo(() => {
-    const currentMonth = new Date().getMonth() + 1;
-    
-    const aniversariantesDoMes = aniversariantes.filter((user) => {
-      const [day, month] = user.dataNascimento.split("/").map(Number);
-      return month === currentMonth;
-    }).sort((a, b) => {
-      const dayA = parseInt(a.dataNascimento.split("/")[0]);
-      const dayB = parseInt(b.dataNascimento.split("/")[0]);
+    const aniversariantesDoMes = aniversariantes.sort((a, b) => {
+      const dayA = parseDateString(a.dataNascimento).day;
+      const dayB = parseDateString(b.dataNascimento).day;
       return dayA - dayB;
     });
 
@@ -28,10 +36,9 @@ export default function AniversariantesScreen() {
   }, [aniversariantes]);
 
   const getAge = (birthDate: string) => {
-    const [day, month, year] = birthDate.split("/").map(Number);
+    const { day, month, year } = parseDateString(birthDate);
     const today = new Date();
-    const birthYear = year;
-    let age = today.getFullYear() - birthYear;
+    let age = today.getFullYear() - year;
     
     const birthMonth = month - 1;
     if (today.getMonth() < birthMonth || 
@@ -43,10 +50,15 @@ export default function AniversariantesScreen() {
   };
 
   const getDayOfWeek = (birthDate: string) => {
-    const [day, month, year] = birthDate.split("/").map(Number);
+    const { day, month, year } = parseDateString(birthDate);
     const date = new Date(year, month - 1, day);
     const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     return days[date.getDay()];
+  };
+
+  const formatDate = (birthDate: string) => {
+    const { day, month } = parseDateString(birthDate);
+    return `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
   };
 
   if (isLoading) {
@@ -110,7 +122,7 @@ export default function AniversariantesScreen() {
                       </Text>
                     </View>
                     <Text className="text-sm text-muted">
-                      {person.dataNascimento} • {getAge(person.dataNascimento)} anos
+                      {formatDate(person.dataNascimento)} • {getAge(person.dataNascimento)} anos
                     </Text>
                     <Text className="text-sm text-muted">
                       {getDayOfWeek(person.dataNascimento)}

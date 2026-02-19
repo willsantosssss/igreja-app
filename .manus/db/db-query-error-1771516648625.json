@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO usuariosCadastrados (nome, dataNascimento, celula, userId) VALUES ('João Silva Teste', '2000-02-14', 'Célula Alive', 'test-user-123');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO usuariosCadastrados (nome, dataNascimento, celula, userId) VALUES ('João Silva Teste', '2000-02-14', 'Célula Alive', 'test-user-123');",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1366 (HY000) at line 1: Incorrect ? value: '?' for column 'userId' at row 1"
+  ]
+}

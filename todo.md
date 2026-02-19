@@ -543,3 +543,9 @@
 - [x] Criar endpoint tRPC para atualizar dados do usuário
 - [x] Atualizar tela de perfil com formulário de edição
 - [x] Testar fluxo de edição de perfil
+
+## Implementar Login com Google OAuth e Sincronização com Banco
+- [x] Verificar implementação atual de Google OAuth
+- [x] Criar endpoint tRPC para registrar usuário após login
+- [x] Integrar criação de usuário no fluxo de autenticação
+- [x] Testar fluxo completo de login e sincronização

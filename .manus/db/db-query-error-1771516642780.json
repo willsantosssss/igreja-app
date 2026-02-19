@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO usuariosCadastrados (nome, dataNascimento, celula, userId, criadoEm) VALUES ('João Silva Teste', '2000-02-14', 'Célula Alive', 'test-user-123', NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO usuariosCadastrados (nome, dataNascimento, celula, userId, criadoEm) VALUES ('João Silva Teste', '2000-02-14', 'Célula Alive', 'test-user-123', NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'criadoEm' in 'field list'"
+  ]
+}

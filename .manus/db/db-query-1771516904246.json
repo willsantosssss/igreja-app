@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO users (openId, name, email, loginMethod, role) VALUES ('test-maria-santos', 'Maria Santos Teste', 'maria.teste@example.com', 'manual', 'user');\nINSERT INTO usuariosCadastrados (userId, nome, dataNascimento, celula) VALUES (2, 'Maria Santos Teste', '1998-02-19', 'Célula Vencendo em Cristo');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO users (openId, name, email, loginMethod, role) VALUES ('test-maria-santos', 'Maria Santos Teste', 'maria.teste@example.com', 'manual', 'user');\nINSERT INTO usuariosCadastrados (userId, nome, dataNascimento, celula) VALUES (2, 'Maria Santos Teste', '1998-02-19', 'Célula Vencendo em Cristo');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 81
+}

@@ -70,8 +70,18 @@ export default function HomeScreen() {
       const mesHoje = hoje.getMonth() + 1;
 
       const aniversariantes = aniversariantesData.filter((user) => {
-        const [ano, mes, dia] = user.dataNascimento.split("-");
-        return parseInt(dia) === diaHoje && parseInt(mes) === mesHoje;
+        // Suportar ambos formatos: YYYY-MM-DD e DD/MM/YYYY
+        let dia, mes;
+        if (user.dataNascimento.includes("-")) {
+          const [ano, m, d] = user.dataNascimento.split("-");
+          dia = parseInt(d);
+          mes = parseInt(m);
+        } else {
+          const [d, m] = user.dataNascimento.split("/");
+          dia = parseInt(d);
+          mes = parseInt(m);
+        }
+        return dia === diaHoje && mes === mesHoje;
       });
       setAniversariantesHoje(aniversariantes);
     }
@@ -282,7 +292,7 @@ export default function HomeScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-sm font-semibold text-foreground">{user.nome}</Text>
-                    <Text className="text-xs text-muted">{user.celula}</Text>
+                    <Text className="text-xs text-muted">{user.celula || 'Sem célula'}</Text>
                   </View>
                 </View>
               ))}

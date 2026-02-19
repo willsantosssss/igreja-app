@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OAuthCallback() {
   const router = useRouter();
@@ -59,10 +60,14 @@ export default function OAuthCallback() {
             }
           }
 
+          // Mark user as logged in but without complete registration
+          await AsyncStorage.setItem("@is_logged_in", "true");
+          await AsyncStorage.setItem("@cadastro_completo", "false");
+          
           setStatus("success");
-          console.log("[OAuth] Web authentication successful, redirecting to home...");
+          console.log("[OAuth] Web authentication successful, redirecting to cadastro...");
           setTimeout(() => {
-            router.replace("/(tabs)");
+            router.replace("/completar-cadastro");
           }, 1000);
           return;
         }
@@ -209,13 +214,17 @@ export default function OAuthCallback() {
             console.log("[OAuth] No user data in result");
           }
 
+          // Mark user as logged in but without complete registration
+          await AsyncStorage.setItem("@is_logged_in", "true");
+          await AsyncStorage.setItem("@cadastro_completo", "false");
+          
           setStatus("success");
-          console.log("[OAuth] Authentication successful, redirecting to home...");
+          console.log("[OAuth] Authentication successful, redirecting to cadastro...");
 
-          // Redirect to home after a short delay
+          // Redirect to cadastro after a short delay
           setTimeout(() => {
             console.log("[OAuth] Executing redirect...");
-            router.replace("/(tabs)");
+            router.replace("/completar-cadastro");
           }, 1000);
         } else {
           console.error("[OAuth] No session token in result:", result);

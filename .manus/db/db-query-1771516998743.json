@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, nome, dataNascimento, celula FROM usuariosCadastrados;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, nome, dataNascimento, celula FROM usuariosCadastrados;",
+  "rows": [
+    {
+      "id": "1",
+      "nome": "João Silva Teste",
+      "dataNascimento": "2000-02-14",
+      "celula": "Célula Alive"
+    },
+    {
+      "id": "2",
+      "nome": "Maria Santos Teste",
+      "dataNascimento": "1998-02-19",
+      "celula": "Célula Vencendo em Cristo"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\tdataNascimento\tcelula\n1\tJoão Silva Teste\t2000-02-14\tCélula Alive\n2\tMaria Santos Teste\t1998-02-19\tCélula Vencendo em Cristo\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

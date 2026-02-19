@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE usuariosCadastrados SET dataNascimento = '2000-02-14' WHERE nome = 'João Silva Teste';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute UPDATE usuariosCadastrados SET dataNascimento = '2000-02-14' WHERE nome = 'João Silva Teste';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 57
+}
