@@ -1,9 +1,10 @@
-import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
+
 
 export default function LoginScreen() {
   const [isSignup, setIsSignup] = useState(false);
@@ -29,12 +30,22 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       console.log("[Login] Starting signup with:", { email, name });
-      await signupMutation.mutateAsync({ email, password, name });
+      const signupResult = await signupMutation.mutateAsync({ email, password, name });
       console.log("[Login] Signup success, auto-logging in...");
       
       // Auto-login após signup
-      await loginMutation.mutateAsync({ email, password });
+      const loginResult = await loginMutation.mutateAsync({ email, password });
       console.log("[Login] Auto-login success");
+      
+      // Guardar token JWT no localStorage
+      if (loginResult.sessionToken) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('@session_token', loginResult.sessionToken);
+          console.log("[Login] Session token saved to localStorage");
+        } else {
+          await AsyncStorage.setItem('@session_token', loginResult.sessionToken);
+        }
+      }
       
       await AsyncStorage.setItem("@is_logged_in", "true");
       await AsyncStorage.setItem("@cadastro_completo", "false");
@@ -57,7 +68,19 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await loginMutation.mutateAsync({ email, password });
+      const loginResult = await loginMutation.mutateAsync({ email, password });
+      console.log("[Login] Login success");
+      
+      // Guardar token JWT no localStorage
+      if (loginResult.sessionToken) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('@session_token', loginResult.sessionToken);
+          console.log("[Login] Session token saved to localStorage");
+        } else {
+          await AsyncStorage.setItem('@session_token', loginResult.sessionToken);
+        }
+      }
+      
       await AsyncStorage.setItem("@is_logged_in", "true");
       await AsyncStorage.setItem("@cadastro_completo", "true");
       await AsyncStorage.setItem("@user_email", email);
@@ -98,7 +121,6 @@ export default function LoginScreen() {
                 />
               </View>
             )}
-
             <View>
               <Text className="text-sm font-semibold text-foreground mb-2">Email</Text>
               <TextInput
@@ -108,11 +130,9 @@ export default function LoginScreen() {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
-                autoCapitalize="none"
                 editable={!loading}
               />
             </View>
-
             <View>
               <Text className="text-sm font-semibold text-foreground mb-2">Senha</Text>
               <TextInput
@@ -129,9 +149,9 @@ export default function LoginScreen() {
 
           {/* Button */}
           <TouchableOpacity
-            className="bg-primary rounded-lg p-4 items-center"
             onPress={isSignup ? handleSignup : handleLogin}
             disabled={loading}
+            className="bg-primary rounded-lg p-4 items-center active:opacity-80"
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -144,11 +164,11 @@ export default function LoginScreen() {
 
           {/* Toggle */}
           <View className="flex-row items-center justify-center gap-2">
-            <Text className="text-muted">
+            <Text className="text-muted text-sm">
               {isSignup ? "Já tem conta?" : "Não tem conta?"}
             </Text>
             <TouchableOpacity onPress={() => setIsSignup(!isSignup)} disabled={loading}>
-              <Text className="text-primary font-semibold">
+              <Text className="text-primary font-semibold text-sm">
                 {isSignup ? "Faça login" : "Cadastre-se"}
               </Text>
             </TouchableOpacity>

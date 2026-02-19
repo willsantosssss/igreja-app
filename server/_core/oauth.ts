@@ -1,4 +1,3 @@
-import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const.js";
 import type { Express, Request, Response } from "express";
 import { getUserByOpenId, upsertUser } from "../db";
 import { getSessionCookieOptions } from "./cookies";
@@ -48,20 +47,25 @@ function buildUserResponse(
         name?: string | null;
         email?: string | null;
         loginMethod?: string | null;
-        lastSignedIn?: Date | null;
-      },
+        lastSignedIn?: Date;
+      }
 ) {
+  const u = user as any;
   return {
-    id: (user as any)?.id ?? null,
-    openId: user?.openId ?? null,
-    name: user?.name ?? null,
-    email: user?.email ?? null,
-    loginMethod: user?.loginMethod ?? null,
-    lastSignedIn: (user?.lastSignedIn ?? new Date()).toISOString(),
+    id: u.id ?? undefined,
+    openId: u.openId,
+    name: u.name,
+    email: u.email,
+    loginMethod: u.loginMethod,
+    lastSignedIn: u.lastSignedIn,
   };
 }
 
+const COOKIE_NAME = "session";
+const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
 export function registerOAuthRoutes(app: Express) {
+  // OAuth callback
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
@@ -74,7 +78,8 @@ export function registerOAuthRoutes(app: Express) {
     try {
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);
       const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-      await syncUser(userInfo);
+      const user = await syncUser(userInfo);
+
       const sessionToken = await sdk.createSessionToken(userInfo.openId!, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
@@ -83,20 +88,18 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Redirect to the frontend URL (Expo web on port 8081)
-      // Cookie is set with parent domain so it works across both 3000 and 8081 subdomains
-      const frontendUrl =
-        process.env.EXPO_WEB_PREVIEW_URL ||
-        process.env.EXPO_PACKAGER_PROXY_URL ||
-        "http://localhost:8081";
-      res.redirect(302, frontendUrl);
+      res.json({
+        app_session_id: sessionToken,
+        user: buildUserResponse(user),
+      });
     } catch (error) {
-      console.error("[OAuth] Callback failed", error);
-      res.status(500).json({ error: "OAuth callback failed" });
+      console.error("[OAuth] Desktop exchange failed", error);
+      res.status(500).json({ error: "OAuth desktop exchange failed" });
     }
   });
 
-  app.get("/api/oauth/mobile", async (req: Request, res: Response) => {
+  // OAuth mobile callback
+  app.post("/api/oauth/mobile", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
 
@@ -137,7 +140,11 @@ export function registerOAuthRoutes(app: Express) {
   // Get current authenticated user - works with both cookie (web) and Bearer token (mobile)
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     try {
+      console.log("[Auth] /api/auth/me called");
+      const authHeader = req.headers.authorization;
+      console.log("[Auth] Auth header present:", authHeader ? "yes" : "no");
       const user = await sdk.authenticateRequest(req);
+      console.log("[Auth] /api/auth/me success");
       res.json({ user: buildUserResponse(user) });
     } catch (error) {
       console.error("[Auth] /api/auth/me failed:", error);
@@ -150,11 +157,15 @@ export function registerOAuthRoutes(app: Express) {
   // to get a proper Set-Cookie response from the backend (3000-xxx domain)
   app.post("/api/auth/session", async (req: Request, res: Response) => {
     try {
+      console.log("[Auth] /api/auth/session called");
+      const authHeader = req.headers.authorization || req.headers.Authorization;
+      console.log("[Auth] Authorization header:", authHeader ? "present" : "missing");
+      
       // Authenticate using Bearer token from Authorization header
       const user = await sdk.authenticateRequest(req);
+      console.log("[Auth] User authenticated:", user?.openId);
 
       // Get the token from the Authorization header to set as cookie
-      const authHeader = req.headers.authorization || req.headers.Authorization;
       if (typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
         res.status(400).json({ error: "Bearer token required" });
         return;
@@ -163,7 +174,9 @@ export function registerOAuthRoutes(app: Express) {
 
       // Set cookie for this domain (3000-xxx)
       const cookieOptions = getSessionCookieOptions(req);
+      console.log("[Auth] Setting cookie with options:", { domain: cookieOptions.domain, sameSite: cookieOptions.sameSite });
       res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      console.log("[Auth] Cookie set successfully");
 
       res.json({ success: true, user: buildUserResponse(user) });
     } catch (error) {

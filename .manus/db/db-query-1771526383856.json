@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, openId, email, name FROM users ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, openId, email, name FROM users ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "30160",
+      "openId": "NULL",
+      "email": "pedro.oliveira@example.com",
+      "name": "Pedro Oliveira"
+    },
+    {
+      "id": "30159",
+      "openId": "NULL",
+      "email": "ana.costa@example.com",
+      "name": "Ana Costa"
+    },
+    {
+      "id": "30158",
+      "openId": "NULL",
+      "email": "joao.silva@example.com",
+      "name": "João Silva"
+    },
+    {
+      "id": "30157",
+      "openId": "NULL",
+      "email": "maria.santos@example.com",
+      "name": "Maria Santos"
+    },
+    {
+      "id": "30156",
+      "openId": "NULL",
+      "email": "joao.silva.test@example.com",
+      "name": "João Silva"
+    },
+    {
+      "id": "30151",
+      "openId": "NULL",
+      "email": "joaosilva.teste@gmail.com",
+      "name": "João Silva Teste"
+    },
+    {
+      "id": "30150",
+      "openId": "NULL",
+      "email": "teste@example.com",
+      "name": "Teste User"
+    },
+    {
+      "id": "30142",
+      "openId": "email_1771524570461",
+      "email": "willsantos.adv7@gmail.com",
+      "name": "Will Santos"
+    },
+    {
+      "id": "30001",
+      "openId": "KLksXyoV3f6Rd24GNwVZZH",
+      "email": "willsantos.adv@gmail.com",
+      "name": "Will Santos"
+    },
+    {
+      "id": "2",
+      "openId": "test-maria-santos",
+      "email": "maria.teste@example.com",
+      "name": "Maria Santos Teste"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\temail\tname\n30160\tNULL\tpedro.oliveira@example.com\tPedro Oliveira\n30159\tNULL\tana.costa@example.com\tAna Costa\n30158\tNULL\tjoao.silva@example.com\tJoão Silva\n30157\tNULL\tmaria.santos@example.com\tMaria Santos\n30156\tNULL\tjoao.silva.test@example.com\tJoão Silva\n30151\tNULL\tjoaosilva.teste@gmail.com\tJoão Silva Teste\n30150\tNULL\tteste@example.com\tTeste User\n30142\temail_1771524570461\twillsantos.adv7@gmail.com\tWill Santos\n30001\tKLksXyoV3f6Rd24GNwVZZH\twillsantos.adv@gmail.com\tWill Santos\n2\ttest-maria-santos\tmaria.teste@example.com\tMaria Santos Teste\n",
+  "stderr": "",
+  "execution_time_ms": 71
+}

@@ -93,6 +93,8 @@ export default function MaisScreen() {
     );
   };
 
+  const logoutMutation = trpc.auth.logout.useMutation();
+
   const handleLogout = () => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -107,6 +109,9 @@ export default function MaisScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              // Chamar endpoint de logout para invalidar sessão
+              await logoutMutation.mutateAsync();
+              
               // Limpar TODOS os dados de autenticação
               const keys = await AsyncStorage.getAllKeys();
               const authKeys = keys.filter(key => 

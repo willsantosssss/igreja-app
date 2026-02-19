@@ -33,14 +33,20 @@ function getParentDomain(hostname: string): string | undefined {
   // Split hostname into parts
   const parts = hostname.split(".");
 
-  // Need at least 3 parts for a subdomain (e.g., "3000-xxx.manuspre.computer")
-  // For "manuspre.computer", we can't set a parent domain
+  // Need at least 3 parts for a subdomain (e.g., "3000-xxx.us2.manus.computer")
+  // For "manus.computer", we can't set a parent domain
   if (parts.length < 3) {
     return undefined;
   }
 
-  // Return parent domain with leading dot (e.g., ".manuspre.computer")
-  // This allows cookie to be shared across all subdomains
+  // For Manus sandbox (4+ parts like "3000-xxx.us2.manus.computer"):
+  // Return the last 3 parts (e.g., ".us2.manus.computer")
+  // This allows cookie to be shared across all subdomains in the same region
+  if (parts.length >= 4) {
+    return "." + parts.slice(-3).join(".");
+  }
+
+  // Fallback for 3-part domains (e.g., "3000-xxx.manuspre.computer")
   return "." + parts.slice(-2).join(".");
 }
 
@@ -54,7 +60,7 @@ export function getSessionCookieOptions(
     domain,
     httpOnly: true,
     path: "/",
-    sameSite: "none",
+    sameSite: "lax",
     secure: isSecureRequest(req),
   };
 }

@@ -19,10 +19,15 @@ export const trpc = createTRPCReact<AppRouter>();
  * Call this once in your app's root layout.
  */
 export function createTRPCClient() {
+  // Get API base URL - on web, this converts 8081 (Metro) to 3000 (API Server)
+  const apiBaseUrl = getApiBaseUrl();
+  const trpcUrl = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : `/api/trpc`;
+  console.log('[tRPC] Using URL:', trpcUrl);
+  
   return trpc.createClient({
     links: [
       httpBatchLink({
-        url: `${getApiBaseUrl()}/api/trpc`,
+        url: trpcUrl,
         // tRPC v11: transformer MUST be inside httpBatchLink, not at root
         transformer: superjson,
         async headers() {

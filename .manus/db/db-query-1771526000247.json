@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, email, name, loginMethod FROM users WHERE email = 'joao.silva@example.com' OR email = 'maria.santos@example.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, email, name, loginMethod FROM users WHERE email = 'joao.silva@example.com' OR email = 'maria.santos@example.com';",
+  "rows": [
+    {
+      "id": "30158",
+      "email": "joao.silva@example.com",
+      "name": "João Silva",
+      "loginMethod": "email"
+    },
+    {
+      "id": "30157",
+      "email": "maria.santos@example.com",
+      "name": "Maria Santos",
+      "loginMethod": "email"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tloginMethod\n30158\tjoao.silva@example.com\tJoão Silva\temail\n30157\tmaria.santos@example.com\tMaria Santos\temail\n",
+  "stderr": "",
+  "execution_time_ms": 215
+}

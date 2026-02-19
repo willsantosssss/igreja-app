@@ -187,14 +187,18 @@ class SDKServer {
     }
 
     try {
+      console.log("[Auth] verifySession: token received:", cookieValue ? `${cookieValue.substring(0, 50)}...` : "missing");
       const secretKey = this.getSessionSecret();
+      console.log("[Auth] verifySession: secret key length:", secretKey.byteLength);
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
+      console.log("[Auth] verifySession: payload:", payload);
       const { openId, appId, name } = payload as Record<string, unknown>;
+      console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
       if (!isNonEmptyString(openId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
-        console.warn("[Auth] Session payload missing required fields");
+        console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
         return null;
       }
 
@@ -238,10 +242,13 @@ class SDKServer {
     if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
       token = authHeader.slice("Bearer ".length).trim();
     }
+    console.log("[Auth] authenticateRequest: token from header:", token ? `${token.substring(0, 50)}...` : "missing");
 
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = token || cookies.get(COOKIE_NAME);
+    console.log("[Auth] authenticateRequest: sessionCookie:", sessionCookie ? `${sessionCookie.substring(0, 50)}...` : "missing");
     const session = await this.verifySession(sessionCookie);
+    console.log("[Auth] authenticateRequest: session:", session ? `openId: ${session.openId}` : "invalid");
 
     if (!session) {
       throw ForbiddenError("Invalid session cookie");

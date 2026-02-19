@@ -29,12 +29,22 @@ export const appRouter = router({
           
           // Set session cookie
           const cookieOptions = getSessionCookieOptions(ctx.req);
+          console.log("[Signup] Setting cookie with options:", {
+            domain: cookieOptions.domain,
+            path: cookieOptions.path,
+            sameSite: cookieOptions.sameSite,
+            secure: cookieOptions.secure,
+            httpOnly: cookieOptions.httpOnly,
+            hostname: ctx.req.hostname,
+            protocol: ctx.req.protocol,
+          });
           ctx.res.cookie(COOKIE_NAME, sessionToken, {
             ...cookieOptions,
             maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
           });
+          console.log("[Signup] Cookie set successfully");
           
-          return { success: true, userId: result.userId, email: result.email, name: result.name };
+          return { success: true, userId: result.userId, email: result.email, name: result.name, sessionToken };
         } catch (error: any) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
@@ -59,7 +69,7 @@ export const appRouter = router({
             maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
           });
           
-          return { success: true, userId: result.userId, email: result.email, name: result.name };
+          return { success: true, userId: result.userId, email: result.email, name: result.name, sessionToken };
         } catch (error: any) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
