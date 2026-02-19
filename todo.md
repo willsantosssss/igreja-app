@@ -574,3 +574,11 @@
 - [x] Criar testes para validar criação de relatórios
 - [x] Testar end-to-end: criar, recuperar e deletar relatórios
 - [x] Validar sincronização com banco de dados
+
+## Corrigir Erro "Out of range value for column liderId"
+- [x] Investigar causa do erro ao enviar relatorio
+- [x] Identificar que liderId estava vindo como timestamp (13 digitos) do AsyncStorage
+- [x] Atualizar obterSessaoLider para buscar ID real do banco se detectar timestamp antigo
+- [x] Adicionar validacao de liderId na pagina de relatorio
+- [x] Criar teste de validacao de liderId
+- [x] Todos os testes passando (5/5)

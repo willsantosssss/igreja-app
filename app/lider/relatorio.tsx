@@ -70,8 +70,24 @@ export default function RelatorioScreen() {
     if (!liderSessao || !liderSessao.id || !validarFormulario()) return;
 
     try {
+      // Converter liderId para número inteiro válido
+      const liderIdStr = String(liderSessao.id).trim();
+      const liderIdNum = parseInt(liderIdStr, 10);
+      
+      console.log('[Relatório] Validando liderId:', {
+        original: liderSessao.id,
+        string: liderIdStr,
+        numero: liderIdNum,
+        isValid: !isNaN(liderIdNum) && liderIdNum > 0,
+      });
+      
+      if (isNaN(liderIdNum) || liderIdNum <= 0) {
+        Alert.alert('Erro', 'ID do líder inválido. Faça login novamente.');
+        return;
+      }
+      
       console.log('[Relatório] Enviando relatório com dados:', {
-        liderId: liderSessao.id,
+        liderId: liderIdNum,
         celula: liderSessao.celula,
         tipo: 'semanal',
         periodo: data.trim(),
@@ -82,7 +98,7 @@ export default function RelatorioScreen() {
       });
       
       await createRelatorioMutation.mutateAsync({
-        liderId: Number(liderSessao.id),
+        liderId: liderIdNum,
         celula: liderSessao.celula,
         tipo: 'semanal',
         periodo: data.trim(),

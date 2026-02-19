@@ -86,8 +86,35 @@ export async function salvarSessaoLider(lider: LiderCelula): Promise<void> {
 export async function obterSessaoLider(): Promise<LiderCelula | null> {
   try {
     const data = await AsyncStorage.getItem(LIDER_LOGADO_KEY);
-    return data ? JSON.parse(data) : null;
-  } catch {
+    if (!data) return null;
+    
+    const lider = JSON.parse(data) as LiderCelula;
+    
+    // Se o ID for uma string timestamp do AsyncStorage antigo, buscar do banco
+    if (typeof lider.id === 'string' && lider.id.length > 10) {
+      // Buscar lider real do banco via API
+      try {
+        const response = await fetch('/api/trpc/lideres.list');
+        if (response.ok) {
+          const result = await response.json();
+          const lideresBanco = result.result?.data || [];
+          const liderBanco = lideresBanco.find((l: any) => l.celula === lider.celula);
+          
+          if (liderBanco) {
+            // Atualizar sessão com ID real do banco
+            const liderAtualizado = { ...lider, id: String(liderBanco.id) };
+            await AsyncStorage.setItem(LIDER_LOGADO_KEY, JSON.stringify(liderAtualizado));
+            return liderAtualizado;
+          }
+        }
+      } catch (error) {
+        console.warn('[Lider] Erro ao buscar lider do banco:', error);
+      }
+    }
+    
+    return lider;
+  } catch (error) {
+    console.error('[Lider] Erro ao obter sessão:', error);
     return null;
   }
 }
