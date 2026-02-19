@@ -28,12 +28,21 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      console.log("[Login] Starting signup with:", { email, name });
       await signupMutation.mutateAsync({ email, password, name });
+      console.log("[Login] Signup success, auto-logging in...");
+      
+      // Auto-login após signup
+      await loginMutation.mutateAsync({ email, password });
+      console.log("[Login] Auto-login success");
+      
       await AsyncStorage.setItem("@is_logged_in", "true");
       await AsyncStorage.setItem("@cadastro_completo", "false");
       await AsyncStorage.setItem("@user_email", email);
+      console.log("[Login] AsyncStorage set, redirecting...");
       router.replace("/completar-cadastro");
     } catch (error: any) {
+      console.error("[Login] Signup error:", error);
       Alert.alert("Erro", error.message || "Erro ao criar conta");
     } finally {
       setLoading(false);
@@ -48,7 +57,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const result = await loginMutation.mutateAsync({ email, password });
+      await loginMutation.mutateAsync({ email, password });
       await AsyncStorage.setItem("@is_logged_in", "true");
       await AsyncStorage.setItem("@cadastro_completo", "true");
       await AsyncStorage.setItem("@user_email", email);
@@ -123,10 +132,9 @@ export default function LoginScreen() {
             className="bg-primary rounded-lg p-4 items-center"
             onPress={isSignup ? handleSignup : handleLogin}
             disabled={loading}
-            activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color="#fff" />
             ) : (
               <Text className="text-white font-semibold text-base">
                 {isSignup ? "Criar Conta" : "Entrar"}
@@ -135,7 +143,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* Toggle */}
-          <View className="flex-row justify-center gap-2">
+          <View className="flex-row items-center justify-center gap-2">
             <Text className="text-muted">
               {isSignup ? "Já tem conta?" : "Não tem conta?"}
             </Text>

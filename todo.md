@@ -561,3 +561,8 @@
 - [x] Reescrever tela de login com formulário manual
 - [x] Integrar autenticação no fluxo do app
 - [x] Testar fluxo completo
+
+## Bug: App fica carregando após cadastro
+- [ ] Verificar erro no endpoint de signup
+- [ ] Debugar fluxo de redirecionamento
+- [ ] Corrigir e testar

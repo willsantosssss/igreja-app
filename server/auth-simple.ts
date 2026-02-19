@@ -17,16 +17,20 @@ export async function signupUser(email: string, password: string, name: string) 
   }
 
   const passwordHash = hashPassword(password);
-  const result = await db.insert(users).values({
-    email,
-    passwordHash,
-    name,
-    loginMethod: "email",
-    openId: `email_${Date.now()}`,
-    lastSignedIn: new Date(),
-  });
-
-  return { success: true, userId: (result as any).insertId };
+  try {
+    const result = await db.insert(users).values({
+      email,
+      passwordHash,
+      name,
+      loginMethod: "email",
+      openId: null,
+      lastSignedIn: new Date(),
+    });
+    return { success: true, userId: (result as any).insertId };
+  } catch (error: any) {
+    console.error("[Auth] Signup error:", error);
+    throw new Error(error.message || "Failed to create user");
+  }
 }
 
 export async function loginUser(email: string, password: string) {
