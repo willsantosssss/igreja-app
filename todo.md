@@ -563,6 +563,14 @@
 - [x] Testar fluxo completo
 
 ## Bug: App fica carregando após cadastro
-- [ ] Verificar erro no endpoint de signup
-- [ ] Debugar fluxo de redirecionamento
-- [ ] Corrigir e testar
+- [x] Verificar erro no endpoint de signup
+- [x] Debugar fluxo de redirecionamento
+- [x] Corrigir e testar
+
+## Corrigir Erro de Envio de Relatórios de Líderes
+- [x] Investigar erro "Failed query: insert into relatorios" com placeholders incorretos
+- [x] Reescrever função createRelatorio usando SQL direto em vez de Drizzle ORM
+- [x] Adicionar função getRelatoriosByLiderId que estava faltando
+- [x] Criar testes para validar criação de relatórios
+- [x] Testar end-to-end: criar, recuperar e deletar relatórios
+- [x] Validar sincronização com banco de dados
