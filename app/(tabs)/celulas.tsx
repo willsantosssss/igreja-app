@@ -94,16 +94,6 @@ export default function CelulasScreen() {
           </View>
         </View>
 
-        {/* Mapa placeholder */}
-        <View 
-          className="rounded-2xl items-center justify-center border"
-          style={{ height: 200, backgroundColor: colors.surface, borderColor: colors.border }}
-        >
-          <IconSymbol name="map.fill" size={48} color={colors.muted} />
-          <Text className="text-sm text-muted mt-2">Mapa das Células</Text>
-          <Text className="text-xs text-muted">(Visualização disponível em breve)</Text>
-        </View>
-
         {/* Lista de células */}
         <View className="gap-4">
           <Text className="text-xl font-bold text-foreground">Todas as Células</Text>

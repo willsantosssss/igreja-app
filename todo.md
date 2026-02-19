@@ -508,3 +508,8 @@
 ## Trocar Cor Ciano por Verde Menta
 - [x] Atualizar cor primary no theme.config.js de ciano para verde menta
 - [x] Verificar se cor aparece corretamente em light e dark mode
+
+## Remover Mapa das Células
+- [x] Localizar tela de células
+- [x] Remover botão/link "Mapa das Células"
+- [x] Verificar se há tela de mapa para deletar
