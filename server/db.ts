@@ -15,7 +15,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const pool = mysql.createPool(process.env.DATABASE_URL);
+      const pool = mysql.createPool(process.env.DATABASE_URL) as any;
       _db = drizzle(pool);
       console.log("[Database] Connected successfully");
     } catch (error) {
@@ -341,7 +341,7 @@ export async function createEvento(data: Omit<InsertEvento, 'id' | 'createdAt' |
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(eventos).values(data);
-  return result.insertId;
+  return (result as any).insertId;
 }
 
 export async function updateEvento(id: number, data: Partial<Omit<InsertEvento, 'id' | 'createdAt' | 'updatedAt'>>) {
@@ -375,7 +375,7 @@ export async function createNoticia(data: Omit<InsertNoticia, 'id' | 'createdAt'
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const result = await db.insert(noticias).values(data);
-  return result.insertId;
+  return (result as any).insertId;
 }
 
 export async function updateNoticia(id: number, data: Partial<Omit<InsertNoticia, 'id' | 'createdAt' | 'updatedAt'>>) {
@@ -406,7 +406,7 @@ export async function createAvisoImportante(data: Omit<InsertAvisoImportante, 'i
   await db.update(avisoImportante).set({ ativo: 0 });
   // Criar novo aviso
   const result = await db.insert(avisoImportante).values(data);
-  return result.insertId;
+  return (result as any).insertId;
 }
 
 export async function desativarAvisoImportante() {

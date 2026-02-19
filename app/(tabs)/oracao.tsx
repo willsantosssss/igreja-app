@@ -44,10 +44,10 @@ export default function OracaoScreen() {
         description: p.descricao,
         author: p.categoria,
         category: 'espiritual' as PrayerCategory,
-        date: p.criadoEm,
-        prayerCount: p.orandoPor || 0,
-        prayingCount: p.orandoPor || 0,
-        isAnswered: false,
+        date: p.createdAt || new Date().toISOString(),
+        prayerCount: p.contadorOrando || 0,
+        prayingCount: p.contadorOrando || 0,
+        isAnswered: p.respondido || false,
       })));
     }
   }, [pedidosData]);
