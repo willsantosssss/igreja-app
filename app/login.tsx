@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
+import { SESSION_TOKEN_KEY } from "@/constants/oauth";
 
 
 export default function LoginScreen() {
@@ -40,10 +41,10 @@ export default function LoginScreen() {
       // Guardar token JWT no localStorage
       if (loginResult.sessionToken) {
         if (typeof window !== 'undefined') {
-          localStorage.setItem('@session_token', loginResult.sessionToken);
+          localStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
           console.log("[Login] Session token saved to localStorage");
         } else {
-          await AsyncStorage.setItem('@session_token', loginResult.sessionToken);
+          await AsyncStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
         }
       }
       
@@ -74,10 +75,10 @@ export default function LoginScreen() {
       // Guardar token JWT no localStorage
       if (loginResult.sessionToken) {
         if (typeof window !== 'undefined') {
-          localStorage.setItem('@session_token', loginResult.sessionToken);
+          localStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
           console.log("[Login] Session token saved to localStorage");
         } else {
-          await AsyncStorage.setItem('@session_token', loginResult.sessionToken);
+          await AsyncStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
         }
       }
       

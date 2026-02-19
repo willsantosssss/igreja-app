@@ -197,7 +197,7 @@ class SDKServer {
       const { openId, appId, name } = payload as Record<string, unknown>;
       console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
-      if (!isNonEmptyString(openId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
+      if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
         console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
         return null;
       }
@@ -205,7 +205,7 @@ class SDKServer {
       return {
         openId,
         appId,
-        name,
+        name: typeof name === 'string' ? name : '',
       };
     } catch (error) {
       console.warn("[Auth] Session verification failed", String(error));
@@ -237,25 +237,32 @@ class SDKServer {
 
   async authenticateRequest(req: Request): Promise<User> {
     // Regular authentication flow
+    console.log("[Auth] authenticateRequest: request headers:", Object.keys(req.headers).join(", "));
     const authHeader = req.headers.authorization || req.headers.Authorization;
+    console.log("[Auth] authenticateRequest: Authorization header:", authHeader ? (typeof authHeader === 'string' ? authHeader.substring(0, 50) + "..." : "array") : "missing");
     let token: string | undefined;
     if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
       token = authHeader.slice("Bearer ".length).trim();
     }
-    console.log("[Auth] authenticateRequest: token from header:", token ? `${token.substring(0, 50)}...` : "missing");
+    console.log("[Auth] authenticateRequest: Bearer token extracted:", token ? `${token.substring(0, 50)}...` : "missing");
 
     const cookies = this.parseCookies(req.headers.cookie);
+    console.log("[Auth] authenticateRequest: cookies parsed from header:", cookies && cookies.size > 0 ? `${cookies.size} found` : "none");
     const sessionCookie = token || cookies.get(COOKIE_NAME);
+    console.log("[Auth] authenticateRequest: sessionCookie source:", token ? "Bearer token" : "from cookies");
     console.log("[Auth] authenticateRequest: sessionCookie:", sessionCookie ? `${sessionCookie.substring(0, 50)}...` : "missing");
     const session = await this.verifySession(sessionCookie);
-    console.log("[Auth] authenticateRequest: session:", session ? `openId: ${session.openId}` : "invalid");
+    console.log("[Auth] authenticateRequest: verifySession completed, result:", session ? `valid (openId: ${session.openId})` : "invalid");
 
     if (!session) {
+      console.log("[Auth] authenticateRequest: session is null/undefined, throwing ForbiddenError");
       throw ForbiddenError("Invalid session cookie");
     }
 
+    console.log("[Auth] authenticateRequest: session verified, proceeding to fetch user");
     const sessionUserId = session.openId;
     const signedInAt = new Date();
+    console.log("[Auth] authenticateRequest: looking up user in DB, openId:", sessionUserId);
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not in DB, sync from OAuth server automatically

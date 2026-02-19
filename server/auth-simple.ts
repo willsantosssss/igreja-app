@@ -18,7 +18,8 @@ export async function signupUser(email: string, password: string, name: string) 
 
   const passwordHash = hashPassword(password);
   try {
-    const result = await db.insert(users).values({
+    // Insert user and get the created user
+    await db.insert(users).values({
       email,
       passwordHash,
       name,
@@ -26,7 +27,17 @@ export async function signupUser(email: string, password: string, name: string) 
       openId: null,
       lastSignedIn: new Date(),
     });
-    return { success: true, userId: (result as any).insertId, email, name };
+    // Fetch the created user to get the ID
+    const createdUser = await db.select().from(users).where(eq(users.email, email));
+    const userId = createdUser[0]?.id;
+    
+    // Update openId for login method
+    if (userId) {
+      const openId = `email_${userId}`;
+      await db.update(users).set({ openId }).where(eq(users.id, userId));
+    }
+    
+    return { success: true, userId, email, name };
   } catch (error: any) {
     console.error("[Auth] Signup error:", error);
     throw new Error(error.message || "Failed to create user");

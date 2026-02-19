@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, email, openId, loginMethod FROM users WHERE email = 'beatriz.oliveira@example.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, name, email, openId, loginMethod FROM users WHERE email = 'beatriz.oliveira@example.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "30230",
+      "name": "Beatriz Oliveira",
+      "email": "beatriz.oliveira@example.com",
+      "openId": "email_30230",
+      "loginMethod": "email"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\topenId\tloginMethod\n30230\tBeatriz Oliveira\tbeatriz.oliveira@example.com\temail_30230\temail\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

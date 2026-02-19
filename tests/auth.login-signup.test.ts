@@ -90,7 +90,7 @@ describe("auth.signup and auth.login with session", () => {
     expect(sessionCookie?.options).toMatchObject({
       httpOnly: true,
       path: "/",
-      sameSite: "none",
+      sameSite: "lax",
       secure: true,
     });
   });
@@ -128,7 +128,7 @@ describe("auth.signup and auth.login with session", () => {
     expect(sessionCookie?.options).toMatchObject({
       httpOnly: true,
       path: "/",
-      sameSite: "none",
+      sameSite: "lax",
       secure: true,
     });
   });

@@ -13,13 +13,15 @@ export type User = {
 
 export async function getSessionToken(): Promise<string | null> {
   try {
-    // Web platform uses cookie-based auth, no manual token management needed
     if (Platform.OS === "web") {
-      console.log("[Auth] Web platform uses cookie-based auth, skipping token retrieval");
+      const token = window.localStorage.getItem(SESSION_TOKEN_KEY);
+      if (token) {
+        console.log("[Auth] Session token retrieved from localStorage");
+        return token;
+      }
       return null;
     }
 
-    // Use SecureStore for native
     console.log("[Auth] Getting session token...");
     const token = await SecureStore.getItemAsync(SESSION_TOKEN_KEY);
     console.log(
