@@ -305,6 +305,13 @@ export default function AdminScreen() {
         <View className="gap-2">
           <Text className="text-sm font-semibold text-foreground">⚡ Ações Rápidas</Text>
           <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#3B82F6' }}
+            onPress={() => router.push("/admin/membros" as any)}
+          >
+            <Text className="text-white font-bold">👤 Gerenciar Membros</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             className="bg-secondary rounded-full py-3 items-center"
             onPress={() => router.push("/admin/aniversariantes")}
           >
