@@ -101,3 +101,62 @@ export const anotacoesDevocional = mysqlTable("anotacoesDevocional", {
 
 export type AnotacaoDevocional = typeof anotacoesDevocional.$inferSelect;
 export type InsertAnotacaoDevocional = typeof anotacoesDevocional.$inferInsert;
+
+// Eventos table
+export const eventos = mysqlTable("eventos", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao").notNull(),
+  data: varchar("data", { length: 50 }).notNull(),
+  horario: varchar("horario", { length: 20 }).notNull(),
+  local: varchar("local", { length: 255 }).notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(),
+  requireInscricao: int("requireInscricao").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Evento = typeof eventos.$inferSelect;
+export type InsertEvento = typeof eventos.$inferInsert;
+
+// Noticias table
+export const noticias = mysqlTable("noticias", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  conteudo: text("conteudo").notNull(),
+  data: varchar("data", { length: 50 }).notNull(),
+  imagemUrl: varchar("imagemUrl", { length: 500 }),
+  destaque: int("destaque").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Noticia = typeof noticias.$inferSelect;
+export type InsertNoticia = typeof noticias.$inferInsert;
+
+// Aviso Importante table
+export const avisoImportante = mysqlTable("avisoImportante", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  mensagem: text("mensagem").notNull(),
+  ativo: int("ativo").default(1).notNull(),
+  dataExpiracao: varchar("dataExpiracao", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AvisoImportante = typeof avisoImportante.$inferSelect;
+export type InsertAvisoImportante = typeof avisoImportante.$inferInsert;
+
+// Contatos Igreja table
+export const contatosIgreja = mysqlTable("contatosIgreja", {
+  id: int("id").autoincrement().primaryKey(),
+  telefone: varchar("telefone", { length: 20 }).notNull(),
+  whatsapp: varchar("whatsapp", { length: 20 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContatoIgreja = typeof contatosIgreja.$inferSelect;
+export type InsertContatoIgreja = typeof contatosIgreja.$inferInsert;

@@ -1,0 +1,9 @@
+{
+  "query": "-- Criar evento de teste\nINSERT INTO eventos (titulo, descricao, data, horario, local, tipo, requireInscricao)\nVALUES ('Culto de Celebração', 'Culto especial de louvor e adoração com pregação da Palavra', '2026-02-23T00:00:00', '19:00', 'Templo Central', 'culto', 0);\n\n-- Criar célula de teste\nINSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario)\nVALUES ('Célula Vitória', 'Pastor João Silva', '(66) 99999-8888', 'Rua das Flores, 123 - Centro', '-16.4706', '-54.6354', 'Quarta-feira', '19:30');\n\n-- Criar pedido de oração de teste\nINSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando)\nVALUES ('Maria Santos', 'Pedido de Cura\\n\\nPeço oração pela minha mãe que está internada no hospital. Que Deus a cure e restaure sua saúde.', 'saude', 5);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute -- Criar evento de teste\nINSERT INTO eventos (titulo, descricao, data, horario, local, tipo, requireInscricao)\nVALUES ('Culto de Celebração', 'Culto especial de louvor e adoração com pregação da Palavra', '2026-02-23T00:00:00', '19:00', 'Templo Central', 'culto', 0);\n\n-- Criar célula de teste\nINSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario)\nVALUES ('Célula Vitória', 'Pastor João Silva', '(66) 99999-8888', 'Rua das Flores, 123 - Centro', '-16.4706', '-54.6354', 'Quarta-feira', '19:30');\n\n-- Criar pedido de oração de teste\nINSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando)\nVALUES ('Maria Santos', 'Pedido de Cura\\n\\nPeço oração pela minha mãe que está internada no hospital. Que Deus a cure e restaure sua saúde.', 'saude', 5);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 656
+}

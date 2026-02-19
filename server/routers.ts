@@ -195,6 +195,91 @@ export const appRouter = router({
         return db.deleteAnotacoesDevocionalByCapitulo(ctx.user.id, input.livro, input.capitulo);
       }),
   }),
+
+  // Eventos
+  eventos: router({
+    list: publicProcedure.query(() => db.getEventos()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getEventoById(input)),
+    create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1),
+        descricao: z.string().min(1),
+        data: z.string().min(1),
+        horario: z.string().min(1),
+        local: z.string().min(1),
+        tipo: z.string().min(1),
+        requireInscricao: z.number().default(0),
+      }))
+      .mutation(({ input }) => db.createEvento(input)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          titulo: z.string().optional(),
+          descricao: z.string().optional(),
+          data: z.string().optional(),
+          horario: z.string().optional(),
+          local: z.string().optional(),
+          tipo: z.string().optional(),
+        }),
+      }))
+      .mutation(({ input }) => db.updateEvento(input.id, input.data)),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteEvento(input)),
+  }),
+
+  // Notícias
+  noticias: router({
+    list: publicProcedure.query(() => db.getNoticias()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getNoticiaById(input)),
+    create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1),
+        conteudo: z.string().min(1),
+        data: z.string().min(1),
+        imagemUrl: z.string().optional(),
+        destaque: z.number().default(0),
+      }))
+      .mutation(({ input }) => db.createNoticia(input)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          titulo: z.string().optional(),
+          conteudo: z.string().optional(),
+          data: z.string().optional(),
+          imagemUrl: z.string().optional(),
+          destaque: z.number().optional(),
+        }),
+      }))
+      .mutation(({ input }) => db.updateNoticia(input.id, input.data)),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteNoticia(input)),
+  }),
+
+  // Aviso Importante
+  avisoImportante: router({
+    get: publicProcedure.query(() => db.getAvisoImportante()),
+    create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1),
+        mensagem: z.string().min(1),
+        ativo: z.number().default(1),
+        dataExpiracao: z.string().optional(),
+      }))
+      .mutation(({ input }) => db.createAvisoImportante(input)),
+    desativar: protectedProcedure.mutation(() => db.desativarAvisoImportante()),
+  }),
+
+  // Contatos Igreja
+  contatosIgreja: router({
+    get: publicProcedure.query(() => db.getContatosIgreja()),
+    update: protectedProcedure
+      .input(z.object({
+        telefone: z.string().min(1),
+        whatsapp: z.string().min(1),
+        email: z.string().email(),
+      }))
+      .mutation(({ input }) => db.updateContatosIgreja(input)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

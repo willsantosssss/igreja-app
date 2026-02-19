@@ -1,6 +1,11 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional, InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional } from "../drizzle/schema";
+import { 
+  InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
+  eventos, noticias, avisoImportante, contatosIgreja,
+  InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja
+} from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -312,4 +317,118 @@ export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro:
         eq(anotacoesDevocional.capitulo, capitulo)
       )
     );
+}
+
+// ==================== EVENTOS ====================
+
+export async function getEventos() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(eventos).orderBy(desc(eventos.data));
+}
+
+export async function getEventoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(eventos).where(eq(eventos.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function createEvento(data: Omit<InsertEvento, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(eventos).values(data);
+  return result.insertId;
+}
+
+export async function updateEvento(id: number, data: Partial<Omit<InsertEvento, 'id' | 'createdAt' | 'updatedAt'>>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(eventos).set(data).where(eq(eventos.id, id));
+}
+
+export async function deleteEvento(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(eventos).where(eq(eventos.id, id));
+}
+
+// ==================== NOTÍCIAS ====================
+
+export async function getNoticias() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(noticias).orderBy(desc(noticias.createdAt));
+}
+
+export async function getNoticiaById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(noticias).where(eq(noticias.id, id)).limit(1);
+  return result[0] || null;
+}
+
+export async function createNoticia(data: Omit<InsertNoticia, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(noticias).values(data);
+  return result.insertId;
+}
+
+export async function updateNoticia(id: number, data: Partial<Omit<InsertNoticia, 'id' | 'createdAt' | 'updatedAt'>>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(noticias).set(data).where(eq(noticias.id, id));
+}
+
+export async function deleteNoticia(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(noticias).where(eq(noticias.id, id));
+}
+
+// ==================== AVISO IMPORTANTE ====================
+
+export async function getAvisoImportante() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(avisoImportante).where(eq(avisoImportante.ativo, 1)).limit(1);
+  return result[0] || null;
+}
+
+export async function createAvisoImportante(data: Omit<InsertAvisoImportante, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Desativar avisos anteriores
+  await db.update(avisoImportante).set({ ativo: 0 });
+  // Criar novo aviso
+  const result = await db.insert(avisoImportante).values(data);
+  return result.insertId;
+}
+
+export async function desativarAvisoImportante() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(avisoImportante).set({ ativo: 0 });
+}
+
+// ==================== CONTATOS IGREJA ====================
+
+export async function getContatosIgreja() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(contatosIgreja).limit(1);
+  return result[0] || null;
+}
+
+export async function updateContatosIgreja(data: Omit<InsertContatoIgreja, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getContatosIgreja();
+  if (existing) {
+    await db.update(contatosIgreja).set(data).where(eq(contatosIgreja.id, existing.id));
+  } else {
+    await db.insert(contatosIgreja).values(data);
+  }
 }

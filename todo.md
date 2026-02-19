@@ -281,3 +281,12 @@
 - [ ] **DECISÃO:** App funciona apenas com dados locais (AsyncStorage)
 - [ ] Para sincronização futura: usar apenas tRPC client nas telas (sem camada intermediária)
 - [ ] Alternativa recomendada: cada dispositivo mantém seus próprios dados localmente
+
+## Sincronização com Backend Manus (tRPC + PostgreSQL)
+- [x] Criar tabelas no banco para eventos, notícias, avisos e contatos
+- [x] Criar funções CRUD no server/db.ts
+- [x] Criar endpoints tRPC para eventos, notícias, avisos e contatos
+- [x] Testar endpoints via curl (funcionando perfeitamente)
+- [ ] Modificar telas admin para usar tRPC mutations (próxima etapa)
+- [ ] Modificar telas de usuário para usar tRPC queries com refetch automático (próxima etapa)
+- [ ] Criar tela de teste de sincronização para demonstrar funcionamento
