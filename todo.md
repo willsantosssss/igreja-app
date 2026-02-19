@@ -296,3 +296,12 @@
 - [x] Criar tela de demonstração usando tRPC
 - [x] Verificar se dados aparecem automaticamente
 - [x] Documentar resultados
+
+## Migrar Admin de Eventos para tRPC
+- [x] Analisar estrutura atual da tela admin/eventos.tsx
+- [x] Substituir criarEvento() por trpc.eventos.create.useMutation()
+- [x] Substituir editarEvento() por trpc.eventos.update.useMutation()
+- [x] Substituir removerEvento() por trpc.eventos.delete.useMutation()
+- [x] Substituir obterEventos() por trpc.eventos.list.useQuery()
+- [x] Testar criação, edição e remoção de eventos
+- [x] Verificar sincronização na tela /demo-sync

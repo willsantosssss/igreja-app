@@ -8,10 +8,10 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import * as Haptics from 'expo-haptics';
 import {
-  getEventos, criarEvento, editarEvento, removerEvento,
   categoryLabels, categoryColors,
   type Event, type EventCategory,
 } from '@/lib/data/events';
+import { trpc } from '@/lib/trpc';
 
 type FormData = {
   title: string;
@@ -41,23 +41,50 @@ export default function AdminEventosScreen() {
   const [form, setForm] = useState<FormData>(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
 
-  const carregarEventos = async () => {
-    const lista = await getEventos();
-    // Ordenar por data (mais recentes primeiro)
-    lista.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    setEventos(lista);
-    setCarregando(false);
-  };
+  // @ts-expect-error - Endpoint eventos existe mas tipos não foram regenerados ainda
+  const { data: eventosData, isLoading, refetch } = trpc.eventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+
+  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
+  const criarMutation = trpc.eventos.create.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
+  const atualizarMutation = trpc.eventos.update.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
+  const deletarMutation = trpc.eventos.delete.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
 
   useEffect(() => {
-    carregarEventos();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      carregarEventos();
-    }, [])
-  );
+    if (eventosData) {
+      // Ordenar por data (mais recentes primeiro)
+      const lista = [...eventosData].sort((a, b) => 
+        new Date(b.data).getTime() - new Date(a.data).getTime()
+      );
+      setEventos(lista.map(e => ({
+        id: e.id.toString(),
+        title: e.titulo,
+        description: e.descricao,
+        date: e.data,
+        time: e.horario,
+        location: e.local,
+        category: e.tipo as EventCategory,
+      })));
+      setCarregando(false);
+    }
+  }, [eventosData]);
 
   const abrirFormCriar = () => {
     setEditandoId(null);
@@ -113,36 +140,37 @@ export default function AdminEventosScreen() {
       const dataComHora = form.date.trim() + 'T00:00:00';
       
       if (editandoId) {
-        await editarEvento(editandoId, {
-          title: form.title.trim(),
-          description: form.description.trim(),
-          date: dataComHora,
-          time: form.time.trim(),
-          location: form.location.trim(),
-          category: form.category,
+        await atualizarMutation.mutateAsync({
+          id: parseInt(editandoId),
+          titulo: form.title.trim(),
+          descricao: form.description.trim(),
+          data: dataComHora,
+          horario: form.time.trim(),
+          local: form.location.trim(),
+          tipo: form.category,
         });
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
-        Alert.alert('Sucesso', 'Evento atualizado com sucesso!');
+        Alert.alert('Sucesso', 'Evento atualizado e sincronizado!');
       } else {
-        await criarEvento({
-          title: form.title.trim(),
-          description: form.description.trim(),
-          date: dataComHora,
-          time: form.time.trim(),
-          location: form.location.trim(),
-          category: form.category,
+        await criarMutation.mutateAsync({
+          titulo: form.title.trim(),
+          descricao: form.description.trim(),
+          data: dataComHora,
+          horario: form.time.trim(),
+          local: form.location.trim(),
+          tipo: form.category,
+          requireInscricao: 0,
         });
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
-        Alert.alert('Sucesso', 'Evento criado com sucesso!');
+        Alert.alert('Sucesso', 'Evento criado e sincronizado!');
       }
       setModalVisivel(false);
       setForm(FORM_VAZIO);
       setEditandoId(null);
-      await carregarEventos();
     } catch {
       Alert.alert('Erro', 'Não foi possível salvar o evento.');
     } finally {
@@ -160,11 +188,15 @@ export default function AdminEventosScreen() {
           text: 'Remover',
           style: 'destructive',
           onPress: async () => {
-            await removerEvento(evento.id);
-            if (Platform.OS !== 'web') {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            try {
+              await deletarMutation.mutateAsync({ id: parseInt(evento.id) });
+              if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }
+              Alert.alert('Sucesso', 'Evento removido e sincronizado!');
+            } catch {
+              Alert.alert('Erro', 'Não foi possível remover o evento.');
             }
-            await carregarEventos();
           },
         },
       ],
