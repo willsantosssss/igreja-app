@@ -490,3 +490,17 @@
 - [x] Salvar flag de onboarding concluído no AsyncStorage
 - [x] Integrar onboarding na home após primeiro login
 - [x] Testar fluxo completo
+
+## Persistência de Login
+- [ ] Investigar sistema de autenticação atual (OAuth, sessão)
+- [ ] Implementar salvamento de token/sessão no SecureStore
+- [ ] Criar verificação de sessão ao iniciar app
+- [ ] Redirecionar para home se já autenticado
+- [ ] Adicionar botão de logout
+- [ ] Testar fluxo completo (login, fechar app, reabrir)
+
+## Remover Tour Guiado
+- [x] Remover importação e uso do componente Onboarding na home
+- [x] Remover estado showOnboarding
+- [x] Remover useEffect de verificação de onboarding
+- [x] Deletar arquivo components/onboarding.tsx

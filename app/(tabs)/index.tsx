@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Onboarding } from "@/components/onboarding";
 
 import { type AvisoImportante } from "@/lib/data/aviso-importante";
 import { trpc } from "@/lib/trpc";
@@ -34,7 +33,6 @@ interface AvisoState {
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [aniversariantesHoje, setAniversariantesHoje] = useState<Usuario[]>([]);
   const [proximoEvento, setProximoEvento] = useState<ProximoEvento | null>(null);
   const [aviso, setAviso] = useState<AvisoState>({
@@ -50,30 +48,6 @@ export default function HomeScreen() {
 
   const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
-
-  // Verificar se deve mostrar onboarding
-  useEffect(() => {
-    const verificarOnboarding = async () => {
-      try {
-        const onboardingConcluido = await AsyncStorage.getItem("@onboarding_concluido");
-        if (!onboardingConcluido) {
-          setShowOnboarding(true);
-        }
-      } catch (error) {
-        console.error("Erro ao verificar onboarding:", error);
-      }
-    };
-    verificarOnboarding();
-  }, []);
-
-  const handleOnboardingComplete = async () => {
-    try {
-      await AsyncStorage.setItem("@onboarding_concluido", "true");
-      setShowOnboarding(false);
-    } catch (error) {
-      console.error("Erro ao salvar onboarding:", error);
-    }
-  };
 
   const mesAtual = new Date().getMonth() + 1;
   const { data: aniversariantesData } = trpc.usuarios.getAniversariantes.useQuery(mesAtual, {
@@ -158,7 +132,6 @@ export default function HomeScreen() {
   };
 
   return (
-    <>
     <ScreenContainer>
       <ScrollView 
         contentContainerStyle={{ padding: 20, gap: 20 }}
@@ -322,13 +295,5 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
     </ScreenContainer>
-
-    {/* Onboarding Modal */}
-    {showOnboarding && (
-      <View className="absolute inset-0 z-50">
-        <Onboarding onComplete={handleOnboardingComplete} />
-      </View>
-    )}
-    </>
   );
 }
