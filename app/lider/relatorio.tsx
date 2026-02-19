@@ -70,8 +70,19 @@ export default function RelatorioScreen() {
     if (!liderSessao || !liderSessao.id || !validarFormulario()) return;
 
     try {
-      await createRelatorioMutation.mutateAsync({
+      console.log('[Relatório] Enviando relatório com dados:', {
         liderId: liderSessao.id,
+        celula: liderSessao.celula,
+        tipo: 'semanal',
+        periodo: data.trim(),
+        presentes: Number(totalPessoas),
+        novosVisitantes: Number(visitantes),
+        conversoes: Number(conversoes) || 0,
+        observacoes: observacoes.trim() || undefined,
+      });
+      
+      await createRelatorioMutation.mutateAsync({
+        liderId: Number(liderSessao.id),
         celula: liderSessao.celula,
         tipo: 'semanal',
         periodo: data.trim(),
@@ -85,16 +96,18 @@ export default function RelatorioScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
 
+      console.log('[Relatório] Relatório enviado com sucesso!');
       Alert.alert(
         'Relatório Enviado!',
         `Relatório da célula "${liderSessao.celula}" registrado com sucesso.\n\nData: ${data}\nTotal: ${totalPessoas} pessoas\nVisitantes: ${visitantes}`,
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
+      console.error('[Relatório] Erro ao enviar relatório:', error);
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
-      Alert.alert('Erro', 'Não foi possível enviar o relatório. Tente novamente.');
+      Alert.alert('Erro', `Não foi possível enviar o relatório. Tente novamente.\n\nDetalhes: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     }
   };
 
