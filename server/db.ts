@@ -405,6 +405,41 @@ export async function getRelatoriosByLiderId(liderId: number) {
   return db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
 }
 
+export async function getRelatoriosByLiderIdWithFilters(
+  liderId: number,
+  filtro?: { dataInicio?: string; dataFim?: string; tipo?: string; limite?: number }
+) {
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
+  try {
+    const pool = mysql.createPool(process.env.DATABASE_URL);
+    const connection = await pool.getConnection();
+    let query = `SELECT * FROM relatorios WHERE liderId = ?`;
+    const params: any[] = [liderId];
+    if (filtro?.dataInicio) {
+      query += ` AND DATE(periodo) >= ?`;
+      params.push(filtro.dataInicio);
+    }
+    if (filtro?.dataFim) {
+      query += ` AND DATE(periodo) <= ?`;
+      params.push(filtro.dataFim);
+    }
+    if (filtro?.tipo) {
+      query += ` AND tipo = ?`;
+      params.push(filtro.tipo);
+    }
+    query += ` ORDER BY periodo DESC`;
+    if (filtro?.limite && filtro.limite > 0) {
+      query += ` LIMIT ` + filtro.limite;
+    }
+    const [rows] = await connection.execute(query, params);
+    await connection.end();
+    return rows as any[];
+  } catch (error) {
+    console.error("[Database] Error fetching relatorios with filters:", error);
+    throw error;
+  }
+}
+
 export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'createdAt' | 'updatedAt'>) {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
   

@@ -417,6 +417,20 @@ export const appRouter = router({
   relatorios: router({
     list: publicProcedure.query(() => db.getRelatorios()),
     getByLiderId: publicProcedure.input(z.number()).query(({ input }) => db.getRelatoriosByLiderId(input)),
+    getByLiderIdWithFilters: publicProcedure
+      .input(z.object({
+        liderId: z.number(),
+        dataInicio: z.string().optional(),
+        dataFim: z.string().optional(),
+        tipo: z.string().optional(),
+        limite: z.number().optional(),
+      }))
+      .query(({ input }) => db.getRelatoriosByLiderIdWithFilters(input.liderId, {
+        dataInicio: input.dataInicio,
+        dataFim: input.dataFim,
+        tipo: input.tipo,
+        limite: input.limite,
+      })),
     getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getRelatoriosByCelula(input)),
     create: publicProcedure
       .input(z.object({

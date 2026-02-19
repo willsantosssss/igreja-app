@@ -592,3 +592,13 @@
 - [x] Validar login com senha armazenada
 - [x] Criar testes de geração e validação de senha
 - [x] Todos os testes passando (2/2)
+
+## Histórico de Relatórios para Líderes
+- [x] Adicionar função getRelatoriosByLiderId com filtro de data ao db.ts
+- [x] Criar endpoint tRPC para buscar relatórios com filtros
+- [x] Criar tela de histórico de relatórios (app/lider/historico.tsx)
+- [x] Implementar filtros (última semana, mês, customizado)
+- [x] Implementar busca por data
+- [x] Criar tela de detalhes do relatório (modal ou página)
+- [x] Adicionar estatísticas (média de presença, visitantes)
+- [x] Testar fluxo completo de histórico

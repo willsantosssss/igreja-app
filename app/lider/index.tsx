@@ -429,6 +429,36 @@ export default function LiderScreen() {
               <Text className="text-xs text-muted">Registre os dados da célula</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/lider/historico')}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: colors.success + '20',
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <IconSymbol name="doc.text.fill" size={24} color={colors.success} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-foreground font-semibold">Histórico</Text>
+              <Text className="text-xs text-muted">Veja relatórios anteriores</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>
