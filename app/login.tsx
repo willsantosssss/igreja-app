@@ -6,7 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { getCelulas } from "@/lib/data/celulas";
+import { trpc } from "@/lib/trpc";
 
 const logoImage = require("../assets/images/logo-2ieq.png");
 
@@ -24,22 +24,16 @@ export default function LoginScreen() {
   const [birthDate, setBirthDate] = useState("");
   const [celula, setCelula] = useState("");
   const [loading, setLoading] = useState(false);
-  const [celulas, setCelulas] = useState<string[]>([]);
+  const [celulas, setCelulas] = useState<Array<{id: number, nome: string, lider: string}>>([]);
+
+  // Buscar células do banco via tRPC
+  const { data: celulasData } = trpc.celulas.list.useQuery();
 
   useEffect(() => {
-    const carregarCelulas = async () => {
-      try {
-        const celulasList = await getCelulas();
-        const nomes = celulasList.map(c => c.name);
-        setCelulas(nomes);
-      } catch (error) {
-        console.error("Erro ao carregar células:", error);
-        // Fallback para células padrão se houver erro
-        setCelulas(["Vida Nova", "Esperança", "Fé e Graça", "Amor Perfeito", "Renovo", "Outra"]);
-      }
-    };
-    carregarCelulas();
-  }, []);
+    if (celulasData) {
+      setCelulas(celulasData);
+    }
+  }, [celulasData]);
 
   const handleLogin = async () => {
     if (!name.trim()) {
@@ -176,21 +170,27 @@ export default function LoginScreen() {
               >
                 {celulas.map((cel) => (
                   <TouchableOpacity
-                    key={cel}
+                    key={cel.id}
                     className="px-4 py-3 rounded-full mr-2"
                     style={{
-                      backgroundColor: celula === cel ? colors.primary : colors.surface,
+                      backgroundColor: celula === cel.nome ? colors.primary : colors.surface,
                       borderWidth: 1,
-                      borderColor: celula === cel ? colors.primary : colors.border,
+                      borderColor: celula === cel.nome ? colors.primary : colors.border,
                     }}
-                    onPress={() => setCelula(cel)}
+                    onPress={() => setCelula(cel.nome)}
                     disabled={loading}
                   >
                     <Text
                       className="font-semibold text-sm whitespace-nowrap"
-                      style={{ color: celula === cel ? "#FFFFFF" : colors.foreground }}
+                      style={{ color: celula === cel.nome ? "#FFFFFF" : colors.foreground }}
                     >
-                      {cel}
+                      {cel.nome}
+                    </Text>
+                    <Text
+                      className="text-xs whitespace-nowrap"
+                      style={{ color: celula === cel.nome ? "#FFFFFF" : colors.muted }}
+                    >
+                      Líder: {cel.lider}
                     </Text>
                   </TouchableOpacity>
                 ))}

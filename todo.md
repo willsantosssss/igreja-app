@@ -475,3 +475,10 @@
 - [x] Localizar configuração de cores do tema
 - [x] Trocar azul escuro por preto no dark mode
 - [x] Verificar contraste e legibilidade
+
+## Corrigir Seleção de Células no Login/Cadastro
+- [x] Identificar tela de login/cadastro onde célula é selecionada
+- [x] Verificar se está usando AsyncStorage ou lista hardcoded
+- [x] Implementar busca de células da tabela celulas via tRPC
+- [x] Adicionar dropdown/picker com células do banco
+- [x] Testar seleção durante cadastro
