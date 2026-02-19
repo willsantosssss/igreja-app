@@ -457,3 +457,11 @@
 - [x] Criar endpoints tRPC se necessário
 - [x] Implementar salvamento no banco
 - [x] Testar preenchimento e salvamento
+
+## Tela Admin de Visualização de Relatórios
+- [x] Criar tela /admin/relatorios
+- [x] Listar todos os relatórios com dados completos
+- [x] Adicionar filtros por célula e período
+- [x] Mostrar estatísticas (média de presentes, total de conversões)
+- [x] Adicionar gráficos de crescimento
+- [x] Implementar visualização de evolução temporal
