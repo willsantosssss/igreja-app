@@ -582,3 +582,13 @@
 - [x] Adicionar validacao de liderId na pagina de relatorio
 - [x] Criar teste de validacao de liderId
 - [x] Todos os testes passando (5/5)
+
+## Implementar Geração de Senha para Líderes
+- [x] Criar função de geração de senha aleatória
+- [x] Adicionar botão "Gerar" na página de admin de líderes
+- [x] Exibir senha gerada após criar líder
+- [x] Implementar botão "Copiar Senha"
+- [x] Armazenar senha no campo telefone do banco
+- [x] Validar login com senha armazenada
+- [x] Criar testes de geração e validação de senha
+- [x] Todos os testes passando (2/2)
