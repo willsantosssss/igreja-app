@@ -412,3 +412,10 @@
 - [x] Incrementar contador ao clicar em "Estou Orando"
 - [x] Sincronizar contador entre todos os usuários
 - [x] Testar cadastro e visualização entre múltiplos usuários
+
+## Debug: Cadastro de Pedidos de Oração Não Funciona
+- [x] Verificar se endpoint create está funcionando
+- [x] Verificar se função createPedidoOracao existe no db.ts
+- [x] Testar mutation manualmente
+- [x] Verificar logs de erro no console
+- [x] Corrigir implementação
