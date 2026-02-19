@@ -162,3 +162,83 @@ export const contatosIgreja = mysqlTable("contatosIgreja", {
 
 export type ContatoIgreja = typeof contatosIgreja.$inferSelect;
 export type InsertContatoIgreja = typeof contatosIgreja.$inferInsert;
+
+// Aniversariantes table
+export const aniversariantes = mysqlTable("aniversariantes", {
+  id: int("id").autoincrement().primaryKey(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(), // Formato: DD/MM/YYYY
+  celula: varchar("celula", { length: 255 }),
+  telefone: varchar("telefone", { length: 20 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Aniversariante = typeof aniversariantes.$inferSelect;
+export type InsertAniversariante = typeof aniversariantes.$inferInsert;
+
+// Contribuições table
+export const contribuicoes = mysqlTable("contribuicoes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  valor: varchar("valor", { length: 20 }).notNull(), // Formato: "R$ 100,00"
+  tipo: varchar("tipo", { length: 50 }).notNull(), // dizimo, oferta, missoes
+  data: varchar("data", { length: 50 }).notNull(),
+  comprovanteUrl: varchar("comprovanteUrl", { length: 500 }),
+  status: mysqlEnum("status", ["pendente", "confirmado", "rejeitado"]).default("pendente").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Contribuicao = typeof contribuicoes.$inferSelect;
+export type InsertContribuicao = typeof contribuicoes.$inferInsert;
+
+// Inscrições em Eventos table
+export const inscricoesEventos = mysqlTable("inscricoesEventos", {
+  id: int("id").autoincrement().primaryKey(),
+  eventoId: int("eventoId").notNull(),
+  userId: int("userId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  telefone: varchar("telefone", { length: 20 }).notNull(),
+  status: mysqlEnum("status", ["confirmado", "cancelado"]).default("confirmado").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InscricaoEvento = typeof inscricoesEventos.$inferSelect;
+export type InsertInscricaoEvento = typeof inscricoesEventos.$inferInsert;
+
+// Líderes table
+export const lideres = mysqlTable("lideres", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  celula: varchar("celula", { length: 255 }).notNull(),
+  telefone: varchar("telefone", { length: 20 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  ativo: int("ativo").default(1).notNull(), // 1 = ativo, 0 = inativo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Lider = typeof lideres.$inferSelect;
+export type InsertLider = typeof lideres.$inferInsert;
+
+// Relatórios table
+export const relatorios = mysqlTable("relatorios", {
+  id: int("id").autoincrement().primaryKey(),
+  liderId: int("liderId").notNull(),
+  celula: varchar("celula", { length: 255 }).notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(), // semanal, mensal, trimestral
+  periodo: varchar("periodo", { length: 100 }).notNull(), // Ex: "Janeiro 2026"
+  presentes: int("presentes").notNull(),
+  novosVisitantes: int("novosVisitantes").default(0).notNull(),
+  conversoes: int("conversoes").default(0).notNull(),
+  observacoes: text("observacoes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Relatorio = typeof relatorios.$inferSelect;
+export type InsertRelatorio = typeof relatorios.$inferInsert;

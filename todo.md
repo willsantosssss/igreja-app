@@ -381,3 +381,11 @@
 - [x] Adicionar campo "testemunho" (text) ao schema
 - [x] Gerar e executar migração do banco de dados
 - [x] Testar alteração de status de oração no banco
+
+## Auditoria de Correspondência Banco de Dados ↔ App
+- [x] Listar todas as funcionalidades do app que usam dados
+- [x] Verificar schema de cada tabela no banco
+- [x] Identificar campos faltantes ou incompatíveis
+- [x] Corrigir discrepâncias encontradas
+- [x] Executar migrações necessárias
+- [x] Validar que todos os dados aparecem corretamente no app
