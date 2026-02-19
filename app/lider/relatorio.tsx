@@ -67,11 +67,11 @@ export default function RelatorioScreen() {
   };
 
   const handleEnviar = async () => {
-    if (!liderSessao || !validarFormulario()) return;
+    if (!liderSessao || !liderSessao.id || !validarFormulario()) return;
 
     try {
       await createRelatorioMutation.mutateAsync({
-        liderId: liderSessao.id || 0,
+        liderId: liderSessao.id,
         celula: liderSessao.celula,
         tipo: 'semanal',
         periodo: data.trim(),
