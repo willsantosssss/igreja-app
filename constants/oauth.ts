@@ -69,9 +69,19 @@ const encodeState = (value: string) => {
  * - Native: uses deep link scheme
  */
 export const getRedirectUri = () => {
-  return Linking.createURL("/oauth/callback", {
-    scheme: env.deepLinkScheme,
-  });
+  if (ReactNative.Platform.OS === "web") {
+    // Web: use HTTPS callback endpoint
+    const apiUrl = getApiBaseUrl();
+    if (apiUrl) {
+      return `${apiUrl}/api/oauth/callback`;
+    }
+    return "https://localhost:3000/api/oauth/callback";
+  } else {
+    // Mobile: use deep link to mobile endpoint
+    return Linking.createURL("/oauth/mobile", {
+      scheme: env.deepLinkScheme,
+    });
+  }
 };
 
 export const getLoginUrl = () => {
