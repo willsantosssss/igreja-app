@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
-import { getCelulas, criarCelula, editarCelula, removerCelula, type Celula } from '@/lib/data/celulas';
+import { type Celula } from '@/lib/data/celulas';
+import { trpc } from '@/lib/trpc';
 
 const DIAS_SEMANA = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
 
@@ -12,9 +13,16 @@ export default function AdminCelulasScreen() {
   const colors = useColors();
   const router = useRouter();
   const [celulas, setCelulas] = useState<Celula[]>([]);
-  const [carregando, setCarregando] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
+
+  const { data: celulasData, isLoading: carregando, refetch } = trpc.celulas.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+
+  const criarMutation = trpc.celulas.create.useMutation({ onSuccess: () => refetch() });
+  const atualizarMutation = trpc.celulas.update.useMutation({ onSuccess: () => refetch() });
+  const deletarMutation = trpc.celulas.delete.useMutation({ onSuccess: () => refetch() });
 
   // Form state
   const [nome, setNome] = useState('');
@@ -27,18 +35,18 @@ export default function AdminCelulasScreen() {
   const [cidade, setCidade] = useState('Rondonópolis - MT');
   const [descricao, setDescricao] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [])
-  );
-
-  const carregarDados = async () => {
-    setCarregando(true);
-    const dados = await getCelulas();
-    setCelulas(dados);
-    setCarregando(false);
-  };
+  useEffect(() => {
+    if (celulasData) {
+      setCelulas(celulasData.map((c: any) => ({
+        id: c.id.toString(),
+        name: c.nome,
+        leader: { name: c.lider, phone: c.telefone },
+        schedule: { day: c.diaReuniao, time: c.horario },
+        address: { street: c.endereco, neighborhood: '', city: '' },
+        description: '',
+      })));
+    }
+  }, [celulasData]);
 
   const limparForm = () => {
     setNome(''); setLiderNome(''); setLiderTelefone('');
@@ -61,25 +69,40 @@ export default function AdminCelulasScreen() {
       return;
     }
 
-    const dados = {
-      name: nome.trim(),
-      leader: { name: liderNome.trim(), phone: liderTelefone.trim() },
-      schedule: { day: dia, time: horario.trim() },
-      address: { street: rua.trim(), neighborhood: bairro.trim(), city: cidade.trim() },
-      description: descricao.trim(),
-    };
+    const endereco = `${rua.trim()}, ${bairro.trim()} - ${cidade.trim()}`;
 
-    if (editandoId) {
-      await editarCelula(editandoId, dados);
-      Alert.alert('Sucesso', 'Célula atualizada!');
-    } else {
-      await criarCelula(dados);
-      Alert.alert('Sucesso', 'Nova célula criada!');
+    try {
+      if (editandoId) {
+        await atualizarMutation.mutateAsync({
+          id: parseInt(editandoId),
+          data: {
+            nome: nome.trim(),
+            lider: liderNome.trim(),
+            telefone: liderTelefone.trim(),
+            endereco,
+            diaReuniao: dia,
+            horario: horario.trim(),
+          },
+        });
+        Alert.alert('Sucesso', 'Célula atualizada e sincronizada!');
+      } else {
+        await criarMutation.mutateAsync({
+          nome: nome.trim(),
+          lider: liderNome.trim(),
+          telefone: liderTelefone.trim(),
+          endereco,
+          diaReuniao: dia,
+          horario: horario.trim(),
+          latitude: '',
+          longitude: '',
+        });
+        Alert.alert('Sucesso', 'Nova célula criada e sincronizada!');
+      }
+      limparForm();
+      setShowForm(false);
+    } catch {
+      Alert.alert('Erro', 'Não foi possível salvar a célula.');
     }
-
-    limparForm();
-    setShowForm(false);
-    await carregarDados();
   };
 
   const handleRemover = (id: string, nomeCelula: string) => {
@@ -91,8 +114,12 @@ export default function AdminCelulasScreen() {
         {
           text: 'Remover', style: 'destructive',
           onPress: async () => {
-            await removerCelula(id);
-            await carregarDados();
+            try {
+              await deletarMutation.mutateAsync(parseInt(id));
+              Alert.alert('Sucesso', 'Célula removida e sincronizada!');
+            } catch {
+              Alert.alert('Erro', 'Não foi possível remover a célula.');
+            }
           },
         },
       ]

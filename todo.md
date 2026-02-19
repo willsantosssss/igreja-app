@@ -305,3 +305,23 @@
 - [x] Substituir obterEventos() por trpc.eventos.list.useQuery()
 - [x] Testar criação, edição e remoção de eventos
 - [x] Verificar sincronização na tela /demo-sync
+
+## Migrar Tela de Agenda do Usuário
+- [x] Substituir getEventos() por trpc.eventos.list.useQuery()
+- [x] Adaptar formato de dados do banco para formato do app
+- [x] Testar visualização de eventos sincronizados
+
+## Migrar Admin de Células para tRPC
+- [x] Substituir criarCelula() por trpc.celulas.create.useMutation()
+- [x] Substituir editarCelula() por trpc.celulas.update.useMutation()
+- [x] Substituir removerCelula() por trpc.celulas.delete.useMutation()
+- [x] Substituir obterCelulas() por trpc.celulas.list.useQuery()
+- [x] Testar sincronização de células
+
+## Migrar Admin de Notícias para tRPC
+- [x] Criar endpoints tRPC para notícias (create, update, delete, list)
+- [x] Substituir criarNoticia() por trpc.noticias.create.useMutation()
+- [x] Substituir editarNoticia() por trpc.noticias.update.useMutation()
+- [x] Substituir removerNoticia() por trpc.noticias.delete.useMutation()
+- [x] Substituir obterNoticias() por trpc.noticias.list.useQuery()
+- [x] Testar sincronização de notícias

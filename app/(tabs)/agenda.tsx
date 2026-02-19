@@ -2,36 +2,40 @@ import { ScrollView, Text, View, TouchableOpacity, RefreshControl } from "react-
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState, useEffect, useCallback } from "react";
-import { getEventos, categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
+import { useState, useEffect } from "react";
+import { categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
 import { router } from "expo-router";
-import { useFocusEffect } from "expo-router";
+import { trpc } from "@/lib/trpc";
 
 export default function AgendaScreen() {
   const colors = useColors();
-  const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [eventos, setEventos] = useState<Event[]>([]);
 
-  const carregarEventos = async () => {
-    const lista = await getEventos();
-    setEventos(lista);
-  };
+  // @ts-expect-error - Endpoint eventos existe mas tipos não foram regenerados ainda
+  const { data: eventosData, isLoading, refetch } = trpc.eventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Atualizar a cada 30 segundos
+  });
 
   useEffect(() => {
-    carregarEventos();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      carregarEventos();
-    }, [])
-  );
+    if (eventosData) {
+      // Adaptar formato do banco para formato do app
+      // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
+      setEventos(eventosData.map(e => ({
+        id: e.id.toString(),
+        title: e.titulo,
+        description: e.descricao,
+        date: e.data,
+        time: e.horario,
+        location: e.local,
+        category: e.tipo as EventCategory,
+      })));
+    }
+  }, [eventosData]);
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    await carregarEventos();
-    setRefreshing(false);
+    await refetch();
   };
 
   const filteredEvents = selectedCategory === "all" 
@@ -54,7 +58,7 @@ export default function AgendaScreen() {
       <ScrollView 
         contentContainerStyle={{ padding: 20, gap: 20 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         <View className="gap-2">

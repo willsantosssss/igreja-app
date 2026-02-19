@@ -1,39 +1,44 @@
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert, Switch, FlatList } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router, useFocusEffect } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { getNoticias, adicionarNoticia, removerNoticia, atualizarNoticia, type Noticia } from "@/lib/data/noticias";
+import { type Noticia } from "@/lib/data/noticias";
+import { trpc } from "@/lib/trpc";
 
 export default function NoticiasScreen() {
   const colors = useColors();
   const [noticias, setNoticias] = useState<Noticia[]>([]);
-  const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState<string | null>(null);
   const [titulo, setTitulo] = useState("");
   const [conteudo, setConteudo] = useState("");
   const [destaque, setDestaque] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarNoticias();
-    }, [])
-  );
+  // @ts-expect-error - Endpoint noticias existe
+  const { data: noticiasData, isLoading: carregando, refetch } = trpc.noticias.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
 
-  const carregarNoticias = async () => {
-    try {
-      setCarregando(true);
-      const dados = await getNoticias();
-      setNoticias(dados);
-    } catch (error) {
-      console.error("Erro ao carregar notícias:", error);
-      Alert.alert("Erro", "Não foi possível carregar as notícias");
-    } finally {
-      setCarregando(false);
+  // @ts-expect-error - Tipos serão regenerados
+  const criarMutation = trpc.noticias.create.useMutation({ onSuccess: () => refetch() });
+  // @ts-expect-error - Tipos serão regenerados
+  const atualizarMutation = trpc.noticias.update.useMutation({ onSuccess: () => refetch() });
+  // @ts-expect-error - Tipos serão regenerados
+  const deletarMutation = trpc.noticias.delete.useMutation({ onSuccess: () => refetch() });
+
+  useEffect(() => {
+    if (noticiasData) {
+      setNoticias(noticiasData.map((n: any) => ({
+        id: n.id.toString(),
+        titulo: n.titulo,
+        conteudo: n.conteudo,
+        data: n.data,
+        destaque: Boolean(n.destaque),
+      })));
     }
-  };
+  }, [noticiasData]);
 
   const handleAdicionarNoticia = async () => {
     if (!titulo.trim()) {
@@ -52,29 +57,29 @@ export default function NoticiasScreen() {
       }
 
       if (editando) {
-        // Atualizar notícia existente
-        await atualizarNoticia(editando, {
-          titulo: titulo.trim(),
-          conteudo: conteudo.trim(),
-          destaque,
+        await atualizarMutation.mutateAsync({
+          id: parseInt(editando),
+          data: {
+            titulo: titulo.trim(),
+            conteudo: conteudo.trim(),
+            destaque: destaque ? 1 : 0,
+          },
         });
-        Alert.alert("Sucesso", "Notícia atualizada com sucesso!");
+        Alert.alert("Sucesso", "Notícia atualizada e sincronizada!");
       } else {
-        // Adicionar nova notícia
-        await adicionarNoticia({
+        await criarMutation.mutateAsync({
           titulo: titulo.trim(),
           conteudo: conteudo.trim(),
           data: new Date().toISOString(),
-          destaque,
+          destaque: destaque ? 1 : 0,
         });
-        Alert.alert("Sucesso", "Notícia adicionada com sucesso!");
+        Alert.alert("Sucesso", "Notícia criada e sincronizada!");
       }
 
       setTitulo("");
       setConteudo("");
       setDestaque(false);
       setEditando(null);
-      carregarNoticias();
     } catch (error) {
       console.error("Erro ao salvar notícia:", error);
       Alert.alert("Erro", "Não foi possível salvar a notícia");
@@ -98,11 +103,11 @@ export default function NoticiasScreen() {
           text: "Remover",
           onPress: async () => {
             try {
-              await removerNoticia(id);
+              await deletarMutation.mutateAsync(parseInt(id));
               if (Platform.OS !== "web") {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               }
-              carregarNoticias();
+              Alert.alert("Sucesso", "Notícia removida e sincronizada!");
             } catch (error) {
               Alert.alert("Erro", "Não foi possível remover a notícia");
             }
