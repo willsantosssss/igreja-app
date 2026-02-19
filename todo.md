@@ -419,3 +419,9 @@
 - [x] Testar mutation manualmente
 - [x] Verificar logs de erro no console
 - [x] Corrigir implementação
+
+## Corrigir Aviso Importante na Home
+- [x] Verificar como aviso é carregado na tela home
+- [x] Verificar se está buscando do banco ou AsyncStorage
+- [x] Corrigir mapeamento de campos se necessário (endpoint errado)
+- [x] Testar exibição do aviso

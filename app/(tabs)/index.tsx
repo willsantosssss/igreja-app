@@ -41,8 +41,7 @@ export default function HomeScreen() {
     ativo: true,
   });
 
-  // @ts-expect-error - Endpoint avisos existe
-  const { data: avisoData, dataUpdatedAt } = trpc.avisos.get.useQuery(undefined, {
+  const { data: avisoData, dataUpdatedAt } = trpc.avisoImportante.get.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
@@ -75,7 +74,6 @@ export default function HomeScreen() {
     }
   };
 
-  // @ts-expect-error - Endpoint eventos existe
   const { data: eventosData } = trpc.eventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
