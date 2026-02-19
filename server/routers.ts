@@ -106,6 +106,22 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateUsuarioCadastrado(input.id, input.data)),
+    getMeuPerfil: protectedProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) throw new Error("Not authenticated");
+      return db.getUsuarioCadastradoByUserId(ctx.user.id);
+    }),
+    updateMeuPerfil: protectedProcedure
+      .input(z.object({
+        nome: z.string().min(1),
+        dataNascimento: z.string().min(1),
+        celula: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) throw new Error("Not authenticated");
+        const cadastro = await db.getUsuarioCadastradoByUserId(ctx.user.id);
+        if (!cadastro) throw new Error("User profile not found");
+        return db.updateUsuarioCadastrado(cadastro.id, input);
+      }),
   }),
 
   // Pedidos de Oracao

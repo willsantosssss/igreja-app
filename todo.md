@@ -432,3 +432,21 @@
 - [x] Verificar se usuários são salvos na tabela usuariosCadastrados
 - [x] Implementar salvamento automático se necessário
 - [x] Testar login e verificar tabelas
+
+## Tela de Perfil do Usuário
+- [x] Criar tela app/perfil.tsx
+- [x] Adicionar formulário de edição de dados pessoais
+- [x] Implementar salvamento via tRPC
+- [ ] Adicionar link para perfil no menu
+
+## Aniversariantes do Banco na Home
+- [x] Criar endpoint tRPC para buscar aniversariantes do mês
+- [x] Atualizar home para buscar do banco em vez de AsyncStorage
+- [x] Testar exibição de aniversariantes
+
+## Relatório de Membros Admin
+- [x] Criar tela app/admin/membros.tsx
+- [x] Listar todos os usuários cadastrados
+- [x] Adicionar filtros por célula
+- [x] Mostrar estatísticas (total, por célula)
+- [ ] Adicionar link no menu admin

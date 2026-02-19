@@ -49,28 +49,31 @@ export default function HomeScreen() {
   const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
+  const mesAtual = new Date().getMonth() + 1;
+  const { data: aniversariantesData } = trpc.usuarios.getAniversariantes.useQuery(mesAtual, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
   useEffect(() => {
     carregarCapituloDoDia();
-    carregarAniversariantes();
   }, []);
 
-  const carregarAniversariantes = async () => {
-    try {
-      const dadosUsuarios = await AsyncStorage.getItem("@usuarios_login");
-      if (dadosUsuarios) {
-        const lista: Usuario[] = JSON.parse(dadosUsuarios);
-        const hoje = new Date();
-        const diaHoje = hoje.getDate();
-        const mesHoje = hoje.getMonth() + 1;
+  useEffect(() => {
+    carregarAniversariantes();
+  }, [aniversariantesData]);
 
-        const aniversariantes = lista.filter((user) => {
-          const dataNasc = new Date(user.dataNascimento);
-          return dataNasc.getDate() === diaHoje && dataNasc.getMonth() + 1 === mesHoje;
-        });
-        setAniversariantesHoje(aniversariantes);
-      }
-    } catch (err) {
-      console.error("Erro ao carregar aniversariantes:", err);
+  const carregarAniversariantes = () => {
+    if (aniversariantesData) {
+      const hoje = new Date();
+      const diaHoje = hoje.getDate();
+      const mesHoje = hoje.getMonth() + 1;
+
+      const aniversariantes = aniversariantesData.filter((user) => {
+        const [ano, mes, dia] = user.dataNascimento.split("-");
+        return parseInt(dia) === diaHoje && parseInt(mes) === mesHoje;
+      });
+      setAniversariantesHoje(aniversariantes);
     }
   };
 
