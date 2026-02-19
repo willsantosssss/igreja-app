@@ -37,14 +37,16 @@ export async function getSessionToken(): Promise<string | null> {
 
 export async function setSessionToken(token: string): Promise<void> {
   try {
-    // Web platform uses cookie-based auth, no manual token management needed
+    // Web platform uses localStorage for JWT token
     if (Platform.OS === "web") {
-      console.log("[Auth] Web platform uses cookie-based auth, skipping token storage");
+      console.log("[Auth] Setting session token in localStorage...", token.substring(0, 20) + "...");
+      window.localStorage.setItem(SESSION_TOKEN_KEY, token);
+      console.log("[Auth] Session token stored in localStorage successfully");
       return;
     }
 
     // Use SecureStore for native
-    console.log("[Auth] Setting session token...", token.substring(0, 20) + "...");
+    console.log("[Auth] Setting session token in SecureStore...", token.substring(0, 20) + "...");
     await SecureStore.setItemAsync(SESSION_TOKEN_KEY, token);
     console.log("[Auth] Session token stored in SecureStore successfully");
   } catch (error) {
@@ -55,14 +57,16 @@ export async function setSessionToken(token: string): Promise<void> {
 
 export async function removeSessionToken(): Promise<void> {
   try {
-    // Web platform uses cookie-based auth, logout is handled by server clearing cookie
+    // Web platform uses localStorage for JWT token
     if (Platform.OS === "web") {
-      console.log("[Auth] Web platform uses cookie-based auth, skipping token removal");
+      console.log("[Auth] Removing session token from localStorage...");
+      window.localStorage.removeItem(SESSION_TOKEN_KEY);
+      console.log("[Auth] Session token removed from localStorage successfully");
       return;
     }
 
     // Use SecureStore for native
-    console.log("[Auth] Removing session token...");
+    console.log("[Auth] Removing session token from SecureStore...");
     await SecureStore.deleteItemAsync(SESSION_TOKEN_KEY);
     console.log("[Auth] Session token removed from SecureStore successfully");
   } catch (error) {

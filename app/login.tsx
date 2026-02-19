@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
-import { SESSION_TOKEN_KEY } from "@/constants/oauth";
+import { setSessionToken } from "@/lib/_core/auth";
 
 
 export default function LoginScreen() {
@@ -38,13 +38,13 @@ export default function LoginScreen() {
       const loginResult = await loginMutation.mutateAsync({ email, password });
       console.log("[Login] Auto-login success");
       
-      // Guardar token JWT no localStorage
+      // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
       if (loginResult.sessionToken) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
-          console.log("[Login] Session token saved to localStorage");
-        } else {
-          await AsyncStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
+        try {
+          await setSessionToken(loginResult.sessionToken);
+          console.log("[Login] Session token saved");
+        } catch (e) {
+          console.warn("[Login] Failed to save token", e);
         }
       }
       
@@ -72,13 +72,13 @@ export default function LoginScreen() {
       const loginResult = await loginMutation.mutateAsync({ email, password });
       console.log("[Login] Login success");
       
-      // Guardar token JWT no localStorage
+      // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
       if (loginResult.sessionToken) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
-          console.log("[Login] Session token saved to localStorage");
-        } else {
-          await AsyncStorage.setItem(SESSION_TOKEN_KEY, loginResult.sessionToken);
+        try {
+          await setSessionToken(loginResult.sessionToken);
+          console.log("[Login] Session token saved");
+        } catch (e) {
+          console.warn("[Login] Failed to save token", e);
         }
       }
       
