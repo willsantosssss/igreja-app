@@ -70,15 +70,9 @@ const encodeState = (value: string) => {
  */
 export const getRedirectUri = () => {
   if (ReactNative.Platform.OS === "web") {
-    // Web: use HTTPS callback endpoint
-    const apiUrl = getApiBaseUrl();
-    if (apiUrl) {
-      return `${apiUrl}/api/oauth/callback`;
-    }
-    return "https://localhost:3000/api/oauth/callback";
+    return `${getApiBaseUrl()}/api/oauth/callback`;
   } else {
-    // Mobile: use deep link to mobile endpoint
-    return Linking.createURL("/oauth/mobile", {
+    return Linking.createURL("/oauth/callback", {
       scheme: env.deepLinkScheme,
     });
   }
@@ -88,16 +82,12 @@ export const getLoginUrl = () => {
   const redirectUri = getRedirectUri();
   const state = encodeState(redirectUri);
 
-  console.log("[OAuth] getRedirectUri returned:", redirectUri);
-  console.log("[OAuth] OAUTH_PORTAL_URL:", OAUTH_PORTAL_URL);
-
   const url = new URL(`${OAUTH_PORTAL_URL}/app-auth`);
   url.searchParams.set("appId", APP_ID);
   url.searchParams.set("redirectUri", redirectUri);
   url.searchParams.set("state", state);
   url.searchParams.set("type", "signIn");
 
-  console.log("[OAuth] Final login URL:", url.toString());
   return url.toString();
 };
 
@@ -113,15 +103,10 @@ export const getLoginUrl = () => {
  */
 export async function startOAuthLogin(): Promise<string | null> {
   const loginUrl = getLoginUrl();
-  const redirectUri = getRedirectUri();
-  
-  console.log("[OAuth] Redirect URI:", redirectUri);
 
   if (ReactNative.Platform.OS === "web") {
-    // On web, show debug info
+    // On web, just redirect
     if (typeof window !== "undefined") {
-      const msg = `Redirect URI: ${redirectUri}`;
-      console.log("[OAuth]", msg);
       window.location.href = loginUrl;
     }
     return null;
