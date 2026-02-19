@@ -359,6 +359,28 @@ export const appRouter = router({
       .mutation(({ input }) => db.updateRelatorio(input.id, input.data)),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteRelatorio(input)),
   }),
+
+  // Dados de Contribuição
+  contribuicao: router({
+    get: publicProcedure.query(() => db.getDadosContribuicao()),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        data: z.object({
+          pixKey: z.string().optional(),
+          pixType: z.enum(["email", "cpf", "cnpj", "telefone", "aleatoria"]).optional(),
+          bank: z.string().optional(),
+          agency: z.string().optional(),
+          account: z.string().optional(),
+          cnpj: z.string().optional(),
+          titular: z.string().optional(),
+          mensagemMotivacional: z.string().optional(),
+          versiculoRef: z.string().optional(),
+          mensagemAgradecimento: z.string().optional(),
+        }),
+      }))
+      .mutation(({ input }) => db.updateDadosContribuicao(input.id, input.data)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

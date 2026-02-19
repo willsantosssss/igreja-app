@@ -242,3 +242,23 @@ export const relatorios = mysqlTable("relatorios", {
 
 export type Relatorio = typeof relatorios.$inferSelect;
 export type InsertRelatorio = typeof relatorios.$inferInsert;
+
+// Dados de Contribuição table (configurações gerais de PIX e banco)
+export const dadosContribuicao = mysqlTable("dadosContribuicao", {
+  id: int("id").autoincrement().primaryKey(),
+  pixKey: varchar("pixKey", { length: 255 }).notNull(),
+  pixType: mysqlEnum("pixType", ["email", "cpf", "cnpj", "telefone", "aleatoria"]).notNull(),
+  bank: varchar("bank", { length: 255 }).notNull(),
+  agency: varchar("agency", { length: 50 }).notNull(),
+  account: varchar("account", { length: 50 }).notNull(),
+  cnpj: varchar("cnpj", { length: 50 }).notNull(),
+  titular: varchar("titular", { length: 255 }).notNull(),
+  mensagemMotivacional: text("mensagemMotivacional").notNull(),
+  versiculoRef: varchar("versiculoRef", { length: 255 }).notNull(),
+  mensagemAgradecimento: text("mensagemAgradecimento").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DadosContribuicao = typeof dadosContribuicao.$inferSelect;
+export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;

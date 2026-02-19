@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
-  eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios,
+  eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -530,4 +530,26 @@ export async function deleteRelatorio(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(relatorios).where(eq(relatorios.id, id));
+}
+
+// ==================== DADOS DE CONTRIBUIÇÃO ====================
+
+export async function getDadosContribuicao() {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(dadosContribuicao).limit(1);
+  return result[0] || null;
+}
+
+export async function createDadosContribuicao(data: Omit<InsertDadosContribuicao, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(dadosContribuicao).values(data);
+  return (result as any).insertId;
+}
+
+export async function updateDadosContribuicao(id: number, data: Partial<InsertDadosContribuicao>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(dadosContribuicao).set(data).where(eq(dadosContribuicao.id, id));
 }

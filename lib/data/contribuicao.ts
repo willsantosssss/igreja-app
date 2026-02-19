@@ -23,12 +23,12 @@ export interface TipoContribuicao {
 }
 
 const DADOS_INICIAIS: DadosContribuicao = {
-  pixKey: 'igreja@connect.com.br',
-  pixType: 'email',
-  bank: 'Banco do Brasil',
-  agency: '1234-5',
-  account: '67890-1',
-  cnpj: '12.345.678/0001-90',
+  pixKey: '62.955.505/3071-30',
+  pixType: 'cnpj',
+  bank: 'Mercado Pago',
+  agency: '0001',
+  account: '22124669645',
+  cnpj: '62.955.505/3071-30',
   titular: '2ª IEQ Rondonópolis',
   mensagemMotivacional: '"Cada um contribua segundo propôs no seu coração"',
   versiculoRef: '2 Coríntios 9:7',

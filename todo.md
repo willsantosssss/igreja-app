@@ -518,3 +518,12 @@
 - [x] Adicionar botão "Meu Perfil" na seção Principal da aba Mais
 - [x] Configurar navegação para /perfil
 - [x] Adicionar ícone apropriado
+
+## Migrar Contribuições para PostgreSQL
+- [x] Criar tabela dadosContribuicao no schema
+- [x] Criar funções CRUD no db.ts
+- [x] Criar endpoints tRPC (get, update)
+- [x] Inserir dados iniciais no banco (PIX: 62.955.505/3071-30, Banco: Mercado Pago)
+- [x] Migrar tela de contribuições para usar tRPC
+- [x] Criar tela admin para editar dados de contribuição
+- [x] Testar sincronização automática

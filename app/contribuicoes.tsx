@@ -1,22 +1,26 @@
 import { ScrollView, Text, View, TouchableOpacity, Alert, Image } from "react-native";
-import { useState, useCallback } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { getDadosContribuicao, type DadosContribuicao } from "@/lib/data/contribuicao";
+import { trpc } from "@/lib/trpc";
+
+// Tipos de contribuição fixos (não vêm do banco)
+const TIPOS_CONTRIBUICAO = [
+  { id: '1', nome: 'Dízimo', emoji: '💰', descricao: '10% da sua renda devolvida a Deus como reconhecimento de Sua provisão.' },
+  { id: '2', nome: 'Oferta', emoji: '🎁', descricao: 'Contribuição voluntária além do dízimo para apoiar projetos e necessidades da igreja.' },
+  { id: '3', nome: 'Missões', emoji: '🌍', descricao: 'Apoio financeiro para o trabalho missionário e evangelístico.' },
+  { id: '4', nome: 'Projetos Especiais', emoji: '🏗️', descricao: 'Contribuição para obras, reformas e projetos específicos da igreja.' },
+];
 
 export default function ContribuicoesScreen() {
   const colors = useColors();
-  const [dados, setDados] = useState<DadosContribuicao | null>(null);
-
-  useFocusEffect(
-    useCallback(() => {
-      getDadosContribuicao().then(setDados);
-    }, [])
-  );
+  const { data: dados, isLoading } = trpc.contribuicao.get.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
 
   const handleCopyPix = async () => {
     if (!dados) return;
@@ -37,15 +41,13 @@ export default function ContribuicoesScreen() {
     Alert.alert("Copiado!", "Dados bancários copiados para a área de transferência.");
   };
 
-  if (!dados) {
+  if (isLoading || !dados) {
     return (
       <ScreenContainer className="items-center justify-center">
         <Text className="text-muted">Carregando...</Text>
       </ScreenContainer>
     );
   }
-
-  const tiposAtivos = dados.tiposContribuicao.filter(t => t.ativo);
 
   return (
     <ScreenContainer>
@@ -71,20 +73,18 @@ export default function ContribuicoesScreen() {
         </View>
 
         {/* Tipos de contribuição */}
-        {tiposAtivos.length > 0 && (
-          <View className="gap-3">
-            <Text className="text-xl font-bold text-foreground">Tipos de Contribuição</Text>
-            {tiposAtivos.map(tipo => (
-              <View key={tipo.id} className="bg-surface rounded-2xl p-5 gap-2 border border-border">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-2xl">{tipo.emoji}</Text>
-                  <Text className="text-base font-bold text-foreground">{tipo.nome}</Text>
-                </View>
-                <Text className="text-sm text-muted leading-relaxed">{tipo.descricao}</Text>
+        <View className="gap-3">
+          <Text className="text-xl font-bold text-foreground">Tipos de Contribuição</Text>
+          {TIPOS_CONTRIBUICAO.map(tipo => (
+            <View key={tipo.id} className="bg-surface rounded-2xl p-5 gap-2 border border-border">
+              <View className="flex-row items-center gap-2">
+                <Text className="text-2xl">{tipo.emoji}</Text>
+                <Text className="text-base font-bold text-foreground">{tipo.nome}</Text>
               </View>
-            ))}
-          </View>
-        )}
+              <Text className="text-sm text-muted leading-relaxed">{tipo.descricao}</Text>
+            </View>
+          ))}
+        </View>
 
         {/* PIX */}
         <View className="gap-3">

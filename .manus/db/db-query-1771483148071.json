@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO dadosContribuicao (pixKey, pixType, bank, agency, account, cnpj, titular, mensagemMotivacional, versiculoRef, mensagemAgradecimento) \nVALUES (\n  '62.955.505/3071-30',\n  'cnpj',\n  'Mercado Pago',\n  '0001',\n  '22124669645',\n  '62.955.505/3071-30',\n  '2ª IEQ Rondonópolis',\n  '\"Cada um contribua segundo propôs no seu coração\"',\n  '2 Coríntios 9:7',\n  'Sua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO dadosContribuicao (pixKey, pixType, bank, agency, account, cnpj, titular, mensagemMotivacional, versiculoRef, mensagemAgradecimento) \nVALUES (\n  '62.955.505/3071-30',\n  'cnpj',\n  'Mercado Pago',\n  '0001',\n  '22124669645',\n  '62.955.505/3071-30',\n  '2ª IEQ Rondonópolis',\n  '\"Cada um contribua segundo propôs no seu coração\"',\n  '2 Coríntios 9:7',\n  'Sua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.'\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 117
+}
