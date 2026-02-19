@@ -532,3 +532,9 @@
 - [x] Migrar tela de contatos para usar tRPC (contatosIgreja)
 - [x] Migrar tela de aniversariantes para usar tRPC
 - [x] Testar sincronização de dados
+
+## Criar Tela de Completar Cadastro após Login
+- [x] Criar endpoint tRPC para registrar novo usuário
+- [x] Criar tela de Completar Cadastro
+- [x] Integrar tela no fluxo de autenticação (mostrar após primeiro login)
+- [x] Testar fluxo completo de login e cadastro

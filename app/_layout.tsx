@@ -35,6 +35,7 @@ export default function RootLayout() {
   const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
   const [frame, setFrame] = useState<Rect>(initialFrame);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [needsCadastro, setNeedsCadastro] = useState<boolean | null>(null);
 
   // Initialize Manus runtime for cookie injection from parent container
   useEffect(() => {
@@ -46,10 +47,13 @@ export default function RootLayout() {
   const checkLoginStatus = async () => {
     try {
       const loggedIn = await AsyncStorage.getItem("@is_logged_in");
+      const cadastroCompleto = await AsyncStorage.getItem("@cadastro_completo");
       setIsLoggedIn(loggedIn === "true");
+      setNeedsCadastro(loggedIn === "true" && cadastroCompleto !== "true");
     } catch (error) {
       console.error("Error checking login status:", error);
       setIsLoggedIn(false);
+      setNeedsCadastro(false);
     }
   };
 
@@ -103,6 +107,8 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             {!isLoggedIn ? (
               <Stack.Screen name="login" />
+            ) : needsCadastro ? (
+              <Stack.Screen name="completar-cadastro" />
             ) : (
               <>
                 <Stack.Screen name="(tabs)" />
