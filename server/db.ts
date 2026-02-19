@@ -206,10 +206,16 @@ export async function getAniversariantesMes(mes: number) {
   const db = await getDb();
   if (!db) return [];
   const usuarios = await db.select().from(usuariosCadastrados);
-  return usuarios.filter((u) => {
-    const [, m] = u.dataNascimento.split("-");
-    return parseInt(m) === mes;
-  });
+  return usuarios
+    .filter((u) => {
+      const [, m] = u.dataNascimento.split("-");
+      return parseInt(m) === mes;
+    })
+    .sort((a, b) => {
+      const [, , dayA] = a.dataNascimento.split("-");
+      const [, , dayB] = b.dataNascimento.split("-");
+      return parseInt(dayA) - parseInt(dayB);
+    });
 }
 
 export async function getMembrosPorCelula(celula: string) {

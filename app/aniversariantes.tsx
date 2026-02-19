@@ -2,7 +2,7 @@ import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator } from "rea
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 
 // Helper para parsear datas em ambos formatos (YYYY-MM-DD ou DD/MM/YYYY)
@@ -20,7 +20,8 @@ const parseDateString = (dateStr: string) => {
 
 export default function AniversariantesScreen() {
   const colors = useColors();
-  const { data: aniversariantes = [], isLoading } = trpc.usuarios.getAniversariantes.useQuery(new Date().getMonth() + 1);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const { data: aniversariantes = [], isLoading } = trpc.usuarios.getAniversariantes.useQuery(currentMonth);
 
   const stats = useMemo(() => {
     const aniversariantesDoMes = aniversariantes.sort((a, b) => {
@@ -89,11 +90,32 @@ export default function AniversariantesScreen() {
           </View>
         </View>
 
+        {/* Month Navigation */}
+        <View className="flex-row items-center justify-between gap-3">
+          <TouchableOpacity
+            className="flex-1 py-3 px-4 rounded-lg bg-surface items-center border border-border"
+            onPress={() => setCurrentMonth((m) => m === 1 ? 12 : m - 1)}
+          >
+            <Text className="text-sm font-semibold text-foreground">← Mês Anterior</Text>
+          </TouchableOpacity>
+          <View className="flex-1 py-3 px-4 rounded-lg bg-primary/10 items-center border border-primary/20">
+            <Text className="text-sm font-semibold" style={{ color: colors.primary }}>
+              {new Date(2024, currentMonth - 1).toLocaleString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() + new Date(2024, currentMonth - 1).toLocaleString('pt-BR', { month: 'long' }).slice(1)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            className="flex-1 py-3 px-4 rounded-lg bg-surface items-center border border-border"
+            onPress={() => setCurrentMonth((m) => m === 12 ? 1 : m + 1)}
+          >
+            <Text className="text-sm font-semibold text-foreground">Próximo →</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Stats */}
         <View className="grid grid-cols-2 gap-3">
           <View className="bg-primary/10 rounded-2xl p-5 gap-2 border border-primary/20">
             <Text className="text-3xl font-bold text-primary">{stats.aniversariantes.length}</Text>
-            <Text className="text-sm text-muted">Aniversariantes este mês</Text>
+            <Text className="text-sm text-muted">Aniversariantes</Text>
           </View>
           <View className="bg-secondary/10 rounded-2xl p-5 gap-2 border border-secondary/20">
             <Text className="text-3xl font-bold" style={{ color: colors.secondary }}>{stats.total}</Text>
@@ -104,7 +126,7 @@ export default function AniversariantesScreen() {
         {/* Aniversariantes */}
         <View className="gap-3">
           <Text className="text-xl font-bold text-foreground">
-            {new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).charAt(0).toUpperCase() + new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).slice(1)}
+            {new Date(2024, currentMonth - 1).toLocaleString('pt-BR', { month: 'long' }).charAt(0).toUpperCase() + new Date(2024, currentMonth - 1).toLocaleString('pt-BR', { month: 'long' }).slice(1)}
           </Text>
           
           {stats.aniversariantes.length > 0 ? (
