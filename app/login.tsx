@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
-import { setSessionToken } from "@/lib/_core/auth";
+import { setSessionToken, setUserInfo } from "@/lib/_core/auth";
 
 
 export default function LoginScreen() {
@@ -48,6 +48,23 @@ export default function LoginScreen() {
         }
       }
       
+      // Salvar informações do usuário em cache para uso imediato na tela de completar cadastro
+      if (loginResult.openId && loginResult.email) {
+        try {
+          await setUserInfo({
+            id: loginResult.userId,
+            openId: loginResult.openId,
+            email: loginResult.email,
+            name: loginResult.name || null,
+            loginMethod: "manual",
+            lastSignedIn: new Date(),
+          });
+          console.log("[Login] User info cached");
+        } catch (e) {
+          console.warn("[Login] Failed to cache user info", e);
+        }
+      }
+      
       await AsyncStorage.setItem("@is_logged_in", "true");
       await AsyncStorage.setItem("@cadastro_completo", "false");
       await AsyncStorage.setItem("@user_email", email);
@@ -79,6 +96,23 @@ export default function LoginScreen() {
           console.log("[Login] Session token saved");
         } catch (e) {
           console.warn("[Login] Failed to save token", e);
+        }
+      }
+      
+      // Salvar informações do usuário em cache
+      if (loginResult.openId && loginResult.email) {
+        try {
+          await setUserInfo({
+            id: loginResult.userId,
+            openId: loginResult.openId,
+            email: loginResult.email,
+            name: loginResult.name || null,
+            loginMethod: "manual",
+            lastSignedIn: new Date(),
+          });
+          console.log("[Login] User info cached");
+        } catch (e) {
+          console.warn("[Login] Failed to cache user info", e);
         }
       }
       
