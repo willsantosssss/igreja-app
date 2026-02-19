@@ -318,6 +318,9 @@ export const appRouter = router({
       }))
       .mutation(({ input }) => db.updateEvento(input.id, input.data)),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteEvento(input)),
+    getInscritosEspeciaisByCelula: publicProcedure
+      .input(z.string())
+      .query(({ input }) => db.getInscritosEventosEspeciaisByCelula(input)),
   }),
 
   // Notícias

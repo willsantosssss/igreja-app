@@ -109,6 +109,7 @@ export const eventos = mysqlTable("eventos", {
   horario: varchar("horario", { length: 20 }).notNull(),
   local: varchar("local", { length: 255 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
+  especial: int("especial").default(0).notNull(),
   requireInscricao: int("requireInscricao").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

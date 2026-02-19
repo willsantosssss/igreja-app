@@ -602,3 +602,12 @@
 - [x] Criar tela de detalhes do relatório (modal ou página)
 - [x] Adicionar estatísticas (média de presença, visitantes)
 - [x] Testar fluxo completo de histórico
+
+## Visualizar Inscritos em Eventos Especiais da Célula
+- [x] Investigar estrutura de eventos e inscrições no banco de dados
+- [x] Adicionar campo 'especial' à tabela eventos (migração aplicada)
+- [x] Criar função getInscritosEventosEspeciaisByCelula no db.ts
+- [x] Criar endpoint tRPC para buscar inscritos em eventos especiais
+- [x] Implementar card de inscritos no painel do líder
+- [x] Criar página de visualização de inscritos com filtros
+- [x] Testar fluxo completo de visualização de inscritos
