@@ -193,6 +193,20 @@ export const appRouter = router({
         }
         return db.deleteUserCompletely(userId);
       }),
+    delete: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ input: usuarioId, ctx }) => {
+        if (ctx.user?.role !== "admin") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Only admins can delete users",
+          });
+        }
+        return db.deleteUserCompletely(usuarioId);
+      }),
+    get: protectedProcedure
+      .input(z.number())
+      .query(({ input }) => db.getUsuarioCadastradoByUserId(input)),
   }),
 
   // Pedidos de Oracao
@@ -348,6 +362,14 @@ export const appRouter = router({
   avisoImportante: router({
     get: publicProcedure.query(() => db.getAvisoImportante()),
     create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1),
+        mensagem: z.string().min(1),
+        ativo: z.number().default(1),
+        dataExpiracao: z.string().optional(),
+      }))
+      .mutation(({ input }) => db.createAvisoImportante(input)),
+    save: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
         mensagem: z.string().min(1),

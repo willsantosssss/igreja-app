@@ -16,13 +16,11 @@ export default function AvisoImportanteScreen() {
   const [ativo, setAtivo] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
-  // @ts-expect-error - Endpoint avisos existe
-  const { data: avisoData, isLoading: carregando, refetch } = trpc.avisos.get.useQuery(undefined, {
+  const { data: avisoData, isLoading: carregando, refetch } = trpc.avisoImportante.get.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
-  // @ts-expect-error - Endpoint avisos existe
-  const salvarMutation = trpc.avisos.save.useMutation({
+  const salvarMutation = trpc.avisoImportante.save.useMutation({
     onSuccess: () => {
       refetch();
     },
