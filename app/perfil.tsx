@@ -17,6 +17,7 @@ export default function PerfilScreen() {
   const [celula, setCelula] = useState("");
   const [loading, setLoading] = useState(true);
   const [mostrarCelulas, setMostrarCelulas] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   // Buscar dados do usuário
   const { data: userData, refetch } = trpc.usuarios.getMeuPerfil.useQuery(undefined, {
@@ -49,15 +50,49 @@ export default function PerfilScreen() {
     }
   }, [userData]);
 
+  const formatarDataExibicao = (data: string) => {
+    if (!data) return "";
+    if (data.includes("-")) {
+      const [ano, mes, dia] = data.split("-");
+      return `${dia}/${mes}/${ano}`;
+    }
+    return data;
+  };
+
+  const formatarDataBanco = (data: string) => {
+    if (!data) return "";
+    const numeros = data.replace(/\D/g, "");
+    if (numeros.length <= 2) {
+      return numeros;
+    } else if (numeros.length <= 4) {
+      return `${numeros.slice(0, 2)}/${numeros.slice(2)}`;
+    } else {
+      return `${numeros.slice(0, 2)}/${numeros.slice(2, 4)}/${numeros.slice(4, 8)}`;
+    }
+  };
+
+  const converterParaBanco = (data: string) => {
+    const numeros = data.replace(/\D/g, "");
+    if (numeros.length === 8) {
+      return `${numeros.slice(4, 8)}-${numeros.slice(2, 4)}-${numeros.slice(0, 2)}`;
+    }
+    return data;
+  };
+
   const handleSave = async () => {
     if (!nome.trim()) {
       Alert.alert("Atenção", "Por favor, preencha seu nome.");
       return;
     }
 
-    // Validar formato de data (YYYY-MM-DD)
-    if (dataNascimento && !/^\d{4}-\d{2}-\d{2}$/.test(dataNascimento)) {
-      Alert.alert("Atenção", "Data de nascimento deve estar no formato AAAA-MM-DD (ex: 1990-05-15)");
+    // Validar e converter data
+    let dataParaBanco = dataNascimento;
+    if (dataNascimento && dataNascimento.includes("/")) {
+      dataParaBanco = converterParaBanco(dataNascimento);
+    }
+
+    if (dataParaBanco && !/^\d{4}-\d{2}-\d{2}$/.test(dataParaBanco)) {
+      Alert.alert("Atenção", "Data de nascimento inválida. Use o formato DD/MM/YYYY.");
       return;
     }
 
@@ -67,7 +102,7 @@ export default function PerfilScreen() {
 
     updateMutation.mutate({
       nome: nome.trim(),
-      dataNascimento: dataNascimento || "2000-01-01",
+      dataNascimento: dataParaBanco || "2000-01-01",
       celula: celula.trim(),
     });
   };
@@ -124,13 +159,18 @@ export default function PerfilScreen() {
           <View className="gap-2">
             <Text className="text-sm font-semibold text-foreground">Data de Nascimento</Text>
             <TextInput
-              value={dataNascimento}
-              onChangeText={setDataNascimento}
-              placeholder="AAAA-MM-DD (ex: 1990-05-15)"
+              value={editMode ? formatarDataExibicao(dataNascimento) : formatarDataExibicao(dataNascimento)}
+              onChangeText={(text) => {
+                const formatada = formatarDataBanco(text);
+                setDataNascimento(converterParaBanco(formatada));
+              }}
+              placeholder="DD/MM/YYYY (ex: 15/05/1990)"
               placeholderTextColor={colors.muted}
               className="bg-surface border border-border rounded-xl px-4 py-3 text-foreground"
+              keyboardType="numeric"
+              maxLength={10}
             />
-            <Text className="text-xs text-muted">Formato: AAAA-MM-DD (ex: 1990-05-15)</Text>
+            <Text className="text-xs text-muted">Formato: DD/MM/YYYY (ex: 15/05/1990)</Text>
           </View>
 
           {/* Célula */}

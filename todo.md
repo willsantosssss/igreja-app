@@ -538,3 +538,8 @@
 - [x] Criar tela de Completar Cadastro
 - [x] Integrar tela no fluxo de autenticação (mostrar após primeiro login)
 - [x] Testar fluxo completo de login e cadastro
+
+## Editar Perfil do Usuário
+- [x] Criar endpoint tRPC para atualizar dados do usuário
+- [x] Atualizar tela de perfil com formulário de edição
+- [x] Testar fluxo de edição de perfil
