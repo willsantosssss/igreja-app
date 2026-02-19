@@ -387,6 +387,7 @@ export const appRouter = router({
     list: publicProcedure.query(() => db.getLideres()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
     getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
+    getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getLiderByCelula(input)),
     create: protectedProcedure
       .input(z.object({
         userId: z.number(),

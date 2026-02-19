@@ -353,6 +353,20 @@ export async function getLiderByUserId(userId: number) {
   return result[0] || null;
 }
 
+export async function getLiderByCelula(celula: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(lideres).where(eq(lideres.celula, celula));
+  return result[0] || null;
+}
+
+export async function getLiderById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(lideres).where(eq(lideres.id, id));
+  return result[0] || null;
+}
+
 export async function createLider(data: InsertLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

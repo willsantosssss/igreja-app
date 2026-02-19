@@ -8,10 +8,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import * as Haptics from 'expo-haptics';
 import { trpc } from '@/lib/trpc';
-import {
-  autenticarLider, salvarSessaoLider, obterSessaoLider, encerrarSessaoLider,
-  type LiderCelula,
-} from '@/lib/data/lideres';
+import { salvarSessaoLider, obterSessaoLider, encerrarSessaoLider, type LiderCelula } from '@/lib/data/lideres';
 import {
   agendarLembreteSemanal,
   cancelarLembrete,
@@ -26,6 +23,7 @@ export default function LiderScreen() {
   const router = useRouter();
   const [lider, setLider] = useState<LiderCelula | null>(null);
   const [senhaInput, setSenhaInput] = useState('');
+  const [celulaInput, setCelulaInput] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [autenticando, setAutenticando] = useState(false);
   const [stats, setStats] = useState({
@@ -41,7 +39,12 @@ export default function LiderScreen() {
   // Buscar dados do banco de dados
   const { data: membrosDB = [], isLoading: carregandoMembros } = trpc.usuarios.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
-    refetchInterval: 30000, // Sincronizar a cada 30 segundos
+    refetchInterval: 30000,
+  });
+
+  // Buscar líderes do banco
+  const { data: lideresDB = [] } = trpc.lideres.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
@@ -68,10 +71,7 @@ export default function LiderScreen() {
   };
 
   const carregarEstatisticas = async (celulaNome: string) => {
-    // Filtrar membros da célula do banco de dados
     const membrosDaCelula = membrosDB.filter((m: any) => m.celula === celulaNome);
-    
-    // Calcular aniversariantes do mês
     const mesAtual = new Date().getMonth() + 1;
     const aniversariantes = membrosDaCelula.filter((m: any) => {
       if (!m.dataNascimento) return false;
@@ -90,6 +90,10 @@ export default function LiderScreen() {
   };
 
   const handleLogin = async () => {
+    if (!celulaInput.trim()) {
+      Alert.alert('Atenção', 'Selecione uma célula.');
+      return;
+    }
     if (!senhaInput.trim()) {
       Alert.alert('Atenção', 'Digite a senha de acesso.');
       return;
@@ -97,29 +101,58 @@ export default function LiderScreen() {
 
     setAutenticando(true);
     try {
-      const resultado = await autenticarLider(senhaInput.trim());
-      if (resultado) {
-        await salvarSessaoLider(resultado);
-        setLider(resultado);
-        await carregarEstatisticas(resultado.celula);
-        setSenhaInput('');
-        // Agendar lembrete automaticamente no primeiro login
-        if (Platform.OS !== 'web') {
-          const config = await obterConfigLembrete();
-          if (config.ativo) {
-            await agendarLembreteSemanal(resultado.nome, resultado.celula, config);
-            setLembreteAtivo(true);
-          }
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }
-      } else {
+      // Buscar líder do banco pela célula
+      const liderBanco = lideresDB.find((l: any) => l.celula === celulaInput);
+      
+      if (!liderBanco) {
+        Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');
+        setAutenticando(false);
+        return;
+      }
+
+      // Validar senha (usando telefone como senha temporária)
+      if (liderBanco.telefone !== senhaInput.trim()) {
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
         Alert.alert('Erro', 'Senha incorreta. Solicite a senha ao administrador da igreja.');
         setSenhaInput('');
+        setAutenticando(false);
+        return;
+      }
+
+      // Converter para LiderCelula com ID do banco
+      const resultado: LiderCelula = {
+        id: String(liderBanco.id), // ID real do banco
+        nome: liderBanco.nome,
+        celula: liderBanco.celula,
+        senha: senhaInput,
+        criadoEm: new Date().toISOString(),
+      };
+
+      console.log('[Login] Autenticado:', {
+        id: resultado.id,
+        nome: resultado.nome,
+        celula: resultado.celula,
+        idType: typeof resultado.id,
+      });
+
+      await salvarSessaoLider(resultado);
+      setLider(resultado);
+      await carregarEstatisticas(resultado.celula);
+      setSenhaInput('');
+      setCelulaInput('');
+
+      if (Platform.OS !== 'web') {
+        const config = await obterConfigLembrete();
+        if (config.ativo) {
+          await agendarLembreteSemanal(resultado.nome, resultado.celula, config);
+          setLembreteAtivo(true);
+        }
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch (error) {
+      console.error('[Login] Erro:', error);
       Alert.alert('Erro', 'Não foi possível autenticar. Tente novamente.');
     } finally {
       setAutenticando(false);
@@ -136,6 +169,7 @@ export default function LiderScreen() {
           await encerrarSessaoLider();
           setLider(null);
           setSenhaInput('');
+          setCelulaInput('');
           setLembreteAtivo(false);
         },
       },
@@ -178,34 +212,82 @@ export default function LiderScreen() {
               </View>
               <Text className="text-lg font-bold text-foreground">Autenticação</Text>
               <Text className="text-sm text-muted text-center">
-                Digite a senha fornecida pelo administrador
+                Selecione sua célula e digite a senha
               </Text>
             </View>
 
-            <TextInput
-              value={senhaInput}
-              onChangeText={setSenhaInput}
-              placeholder="Senha de acesso"
-              placeholderTextColor={colors.muted}
-              secureTextEntry
-              returnKeyType="done"
-              onSubmitEditing={handleLogin}
-              style={{
-                backgroundColor: colors.background,
-                borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 12,
-                padding: 14,
-                fontSize: 16,
-                color: colors.foreground,
-              }}
-            />
+            {/* Seletor de Célula */}
+            <View>
+              <Text className="text-foreground font-semibold mb-2">Célula *</Text>
+              <View
+                style={{
+                  backgroundColor: colors.background,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 12,
+                }}
+              >
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {lideresDB.map((l: any) => (
+                    <TouchableOpacity
+                      key={l.id}
+                      onPress={() => setCelulaInput(l.celula)}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        marginRight: 8,
+                        borderRadius: 8,
+                        backgroundColor: celulaInput === l.celula ? colors.primary : colors.surface,
+                        borderWidth: 1,
+                        borderColor: celulaInput === l.celula ? colors.primary : colors.border,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: celulaInput === l.celula ? '#fff' : colors.foreground,
+                          fontSize: 12,
+                          fontWeight: '600',
+                        }}
+                      >
+                        {l.celula}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
 
+            {/* Senha */}
+            <View>
+              <Text className="text-foreground font-semibold mb-2">Senha *</Text>
+              <TextInput
+                value={senhaInput}
+                onChangeText={setSenhaInput}
+                placeholder="Senha de acesso"
+                placeholderTextColor={colors.muted}
+                secureTextEntry
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+                style={{
+                  backgroundColor: colors.background,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 12,
+                  padding: 14,
+                  fontSize: 16,
+                  color: colors.foreground,
+                }}
+              />
+            </View>
+
+            {/* Botão Login */}
             <TouchableOpacity
               onPress={handleLogin}
-              disabled={autenticando}
+              disabled={autenticando || !celulaInput}
               style={{
-                backgroundColor: autenticando ? colors.muted : colors.primary,
+                backgroundColor: autenticando || !celulaInput ? colors.muted : colors.primary,
                 borderRadius: 24,
                 padding: 14,
                 alignItems: 'center',
@@ -317,65 +399,35 @@ export default function LiderScreen() {
         {/* Ações Principais */}
         <View className="gap-3">
           <Text className="text-sm font-semibold text-muted uppercase">Ações</Text>
-
           <TouchableOpacity
-            onPress={() => router.push('/lider/membros' as any)}
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
+            onPress={() => router.push('/lider/relatorio')}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
           >
             <View
               style={{
                 backgroundColor: colors.primary + '20',
-                width: 48, height: 48, borderRadius: 24,
-                alignItems: 'center', justifyContent: 'center',
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              <IconSymbol name="person.fill" size={24} color={colors.primary} />
+              <IconSymbol name="paperplane.fill" size={24} color={colors.primary} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-semibold text-foreground">Membros</Text>
-              <Text className="text-xs text-muted">Ver lista de membros</Text>
+              <Text className="text-foreground font-semibold">Novo Relatório</Text>
+              <Text className="text-xs text-muted">Registre os dados da célula</Text>
             </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push('/lider/relatorio' as any)}
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-          >
-            <View
-              style={{
-                backgroundColor: colors.success + '20',
-                width: 48, height: 48, borderRadius: 24,
-                alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="chart.bar.fill" size={24} color={colors.success} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-foreground">Relatórios</Text>
-              <Text className="text-xs text-muted">Registrar presença e visitantes</Text>
-            </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push('/lider/lembrete' as any)}
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-          >
-            <View
-              style={{
-                backgroundColor: colors.warning + '20',
-                width: 48, height: 48, borderRadius: 24,
-                alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="bell.fill" size={24} color={colors.warning} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-foreground">Lembretes</Text>
-              <Text className="text-xs text-muted">{lembreteAtivo ? 'Ativo' : 'Configurar'} lembretes semanais</Text>
-            </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
         </View>
       </ScrollView>
