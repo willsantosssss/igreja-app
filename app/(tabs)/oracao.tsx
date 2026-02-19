@@ -3,7 +3,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
-import { criarPedido, categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
+import { categoryLabels, categoryEmojis, type PrayerCategory, type PrayerRequest } from "@/lib/data/oracao";
 import { trpc } from "@/lib/trpc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
@@ -20,6 +20,18 @@ export default function OracaoScreen() {
   const { data: pedidosData, isLoading, refetch, dataUpdatedAt } = trpc.oracao.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
+  });
+
+  const createMutation = trpc.oracao.create.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const incrementCounterMutation = trpc.oracao.incrementarContador.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
   });
 
   const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
@@ -63,12 +75,21 @@ export default function OracaoScreen() {
     }
     
     const newPrayingFor = new Set(prayingFor);
+    const wasNotPraying = !prayingFor.has(id);
+    
     if (prayingFor.has(id)) {
       newPrayingFor.delete(id);
     } else {
       newPrayingFor.add(id);
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
+      // Incrementar contador no banco apenas quando começar a orar
+      try {
+        await incrementCounterMutation.mutateAsync(parseInt(id));
+      } catch (error) {
+        console.error("Erro ao incrementar contador:", error);
       }
     }
     
@@ -94,15 +115,17 @@ export default function OracaoScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
-    await criarPedido({
-      title: newTitle.trim(),
-      description: newDescription.trim(),
-      category: newCategory,
-      author: 'Membro',
-      date: new Date().toISOString().split('T')[0],
-    });
-
-      await refetch();
+    try {
+      await createMutation.mutateAsync({
+        nome: newTitle.trim(),
+        descricao: newDescription.trim(),
+        categoria: newCategory,
+      });
+    } catch (error) {
+      console.error("Erro ao criar pedido:", error);
+      Alert.alert("Erro", "Não foi possível enviar o pedido. Tente novamente.");
+      return;
+    }
 
     Alert.alert(
       "Pedido Enviado!",

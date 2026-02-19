@@ -403,3 +403,12 @@
 - [x] Corrigir para mostrar sempre o evento mais próximo
 - [x] Testar sincronização entre home e agenda
 - [x] Validar que alterações na agenda refletem na home
+
+## Sistema de Pedidos de Oração Público
+- [x] Adicionar botão "Novo Pedido" na tela de oração
+- [x] Criar formulário de cadastro de pedido (nome, descrição, categoria)
+- [x] Salvar novos pedidos no banco via tRPC
+- [x] Implementar botão "Estou Orando" funcional
+- [x] Incrementar contador ao clicar em "Estou Orando"
+- [x] Sincronizar contador entre todos os usuários
+- [x] Testar cadastro e visualização entre múltiplos usuários
