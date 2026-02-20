@@ -622,3 +622,14 @@
 - [x] Adicionar fallback para isLoadingUser do tRPC
 - [x] Criar testes de validação de carregamento
 - [x] Validar que página carrega corretamente
+
+
+## Correção de Bugs de Carregamento - 20/02/2026 (2ª Rodada)
+- [x] Investigar erro "Maximum update depth exceeded" no histórico de relatórios
+- [x] Corrigir loop infinito de useEffect no historico.tsx
+- [x] Remover dependência circular de filtroAtivo
+- [x] Usar relatoriosDB?.length em vez de relatoriosDB completo
+- [x] Investigar carregamento infinito em Meu Perfil
+- [x] Remover timeout de segurança que causava loop
+- [x] Usar isLoadingUser do tRPC em vez de estado local
+- [x] Simplificar lógica de loading

@@ -24,13 +24,6 @@ export default function PerfilScreen() {
     enabled: !!user,
   });
 
-  // Usar isLoadingUser do tRPC como fallback
-  useEffect(() => {
-    if (!isLoadingUser && !loading) {
-      // Já carregou
-    }
-  }, [isLoadingUser]);
-
   // Buscar células do banco
   const { data: celulas } = trpc.celulas.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
@@ -52,25 +45,14 @@ export default function PerfilScreen() {
   });
 
   useEffect(() => {
-    // Definir loading como false quando userData chegar (mesmo que seja null)
-    if (userData !== undefined) {
+    // Usar isLoadingUser do tRPC para controlar loading
+    if (!isLoadingUser && userData !== undefined) {
       setNome(userData?.nome || "");
       setDataNascimento(userData?.dataNascimento || "");
       setCelula(userData?.celula || "");
       setLoading(false);
     }
-  }, [userData]);
-
-  // Timeout de segurança: se não carregar em 5 segundos, parar de carregar
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn("[Perfil] Timeout de carregamento - definindo loading como false");
-        setLoading(false);
-      }
-    }, 5000);
-    return () => clearTimeout(timeout);
-  }, [loading]);
+  }, [isLoadingUser, userData]);
 
   const formatarDataExibicao = (data: string) => {
     if (!data) return "";
@@ -143,7 +125,7 @@ export default function PerfilScreen() {
     );
   }
 
-  if (loading || !userData) {
+  if (isLoadingUser || !userData) {
     return (
       <ScreenContainer className="p-6 justify-center items-center">
         <ActivityIndicator size="large" color={colors.primary} />

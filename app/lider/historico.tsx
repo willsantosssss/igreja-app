@@ -64,10 +64,13 @@ export default function HistoricoScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (lider) {
-        aplicarFiltro(filtroAtivo);
+      if (lider && !carregandoRelatorios) {
+        // Aplicar filtro padrão apenas uma vez quando lider mudar
+        if (filtroAtivo === 'ultimo_mes' && !dataInicio) {
+          aplicarFiltro('ultimo_mes');
+        }
       }
-    }, [lider])
+    }, [lider?.id])
   );
 
   const verificarSessao = async () => {
@@ -148,15 +151,19 @@ export default function HistoricoScreen() {
   };
 
   useEffect(() => {
-    if (relatoriosDB && relatoriosDB.length > 0) {
-      const dados = relatoriosDB as Relatorio[];
-      setRelatorios(dados.sort((a, b) => new Date(b.periodo).getTime() - new Date(a.periodo).getTime()));
+    if (relatoriosDB && Array.isArray(relatoriosDB)) {
+      const dados = (relatoriosDB as Relatorio[]).sort((a, b) => {
+        const dataA = new Date(b.periodo || b.createdAt || 0).getTime();
+        const dataB = new Date(a.periodo || a.createdAt || 0).getTime();
+        return dataA - dataB;
+      });
+      setRelatorios(dados);
       calcularEstatisticas(dados);
     } else {
       setRelatorios([]);
       calcularEstatisticas([]);
     }
-  }, [relatoriosDB]);
+  }, [relatoriosDB?.length]); // Usar apenas length para evitar comparação de objetos
 
   if (carregando) {
     return (
