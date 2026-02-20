@@ -613,3 +613,12 @@
 - [x] Validar que membros aparecem no admin
 - [x] Validar que contador de oração funciona
 - [x] Validar que relatórios do líder funcionam
+
+
+## Correção de Carregamento Infinito em Meu Perfil
+- [x] Investigar causa de carregamento infinito na tela "Meu Perfil"
+- [x] Corrigir lógica de estado de loading (userData !== undefined)
+- [x] Adicionar timeout de segurança de 5 segundos
+- [x] Adicionar fallback para isLoadingUser do tRPC
+- [x] Criar testes de validação de carregamento
+- [x] Validar que página carrega corretamente

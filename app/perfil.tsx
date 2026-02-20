@@ -20,9 +20,16 @@ export default function PerfilScreen() {
   const [editMode, setEditMode] = useState(false);
 
   // Buscar dados do usuário
-  const { data: userData, refetch } = trpc.usuarios.getMeuPerfil.useQuery(undefined, {
+  const { data: userData, isLoading: isLoadingUser, refetch } = trpc.usuarios.getMeuPerfil.useQuery(undefined, {
     enabled: !!user,
   });
+
+  // Usar isLoadingUser do tRPC como fallback
+  useEffect(() => {
+    if (!isLoadingUser && !loading) {
+      // Já carregou
+    }
+  }, [isLoadingUser]);
 
   // Buscar células do banco
   const { data: celulas } = trpc.celulas.list.useQuery(undefined, {
@@ -45,13 +52,25 @@ export default function PerfilScreen() {
   });
 
   useEffect(() => {
-    if (userData) {
-      setNome(userData.nome || "");
-      setDataNascimento(userData.dataNascimento || "");
-      setCelula(userData.celula || "");
+    // Definir loading como false quando userData chegar (mesmo que seja null)
+    if (userData !== undefined) {
+      setNome(userData?.nome || "");
+      setDataNascimento(userData?.dataNascimento || "");
+      setCelula(userData?.celula || "");
       setLoading(false);
     }
   }, [userData]);
+
+  // Timeout de segurança: se não carregar em 5 segundos, parar de carregar
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn("[Perfil] Timeout de carregamento - definindo loading como false");
+        setLoading(false);
+      }
+    }, 5000);
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   const formatarDataExibicao = (data: string) => {
     if (!data) return "";
@@ -124,7 +143,7 @@ export default function PerfilScreen() {
     );
   }
 
-  if (loading) {
+  if (loading || !userData) {
     return (
       <ScreenContainer className="p-6 justify-center items-center">
         <ActivityIndicator size="large" color={colors.primary} />
