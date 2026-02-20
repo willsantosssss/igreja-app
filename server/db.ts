@@ -591,3 +591,54 @@ export async function deleteUserCompletely(userId: number) {
   await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
   await db.delete(users).where(eq(users.id, userId));
 }
+
+
+// ==================== USUÁRIOS CADASTRADOS ====================
+
+export async function getUsuariosCadastrados() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const result = await db.select().from(usuariosCadastrados);
+    return result;
+  } catch (error) {
+    console.error("[Database] Error fetching usuarios cadastrados:", error);
+    return [];
+  }
+}
+
+export async function getMembrosPorCelula(celula: string) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const result = await db.select().from(usuariosCadastrados).where(eq(usuariosCadastrados.celula, celula));
+    return result;
+  } catch (error) {
+    console.error("[Database] Error fetching membros por celula:", error);
+    return [];
+  }
+}
+
+// ==================== ORAÇÃO - INCREMENTAR CONTADOR ====================
+
+export async function incrementarContadorOracao(pedidoId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  try {
+    // Buscar pedido atual
+    const pedido = await db.select().from(pedidosOracao).where(eq(pedidosOracao.id, pedidoId));
+    if (!pedido || pedido.length === 0) throw new Error("Pedido not found");
+    
+    // Incrementar contador
+    const novoContador = (pedido[0].contadorOrando || 0) + 1;
+    await db.update(pedidosOracao)
+      .set({ contadorOrando: novoContador })
+      .where(eq(pedidosOracao.id, pedidoId));
+    
+    return { success: true, novoContador };
+  } catch (error) {
+    console.error("[Database] Error incrementing oracao counter:", error);
+    throw error;
+  }
+}

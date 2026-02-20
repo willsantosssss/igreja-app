@@ -602,3 +602,14 @@
 - [x] Criar tela de detalhes do relatório (modal ou página)
 - [x] Adicionar estatísticas (média de presença, visitantes)
 - [x] Testar fluxo completo de histórico
+
+
+## Correção de Bugs Críticos - 20/02/2026
+- [x] Adicionar função getUsuariosCadastrados ao db.ts
+- [x] Adicionar função getMembrosPorCelula ao db.ts
+- [x] Adicionar função incrementarContadorOracao ao db.ts
+- [x] Corrigir função incrementarContadorOracao para usar Drizzle ORM
+- [x] Criar teste de validação de correção de bugs
+- [x] Validar que membros aparecem no admin
+- [x] Validar que contador de oração funciona
+- [x] Validar que relatórios do líder funcionam
