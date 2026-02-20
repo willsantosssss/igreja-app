@@ -558,21 +558,6 @@ export async function deleteInscricaoEvento(id: number) {
   await db.delete(inscricoesEventos).where(eq(inscricoesEventos.id, id));
 }
 
-export async function getInscritosEventosEspeciaisByCelula(celula: string) {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
-  try {
-    const pool = mysql.createPool(process.env.DATABASE_URL);
-    const connection = await pool.getConnection();
-    const query = `SELECT ie.id, ie.eventoId, ie.nome, ie.telefone, ie.status, ie.createdAt, e.titulo as eventoTitulo, e.data as eventoData, e.horario as eventoHorario, e.local as eventoLocal, e.tipo as eventoTipo FROM inscricoesEventos ie JOIN eventos e ON ie.eventoId = e.id WHERE e.tipo = 'evento-especial' AND e.local LIKE ? ORDER BY e.data DESC, ie.createdAt DESC`;
-    const [rows] = await connection.execute(query, [`%${celula}%`]);
-    await connection.end();
-    return rows as any[];
-  } catch (error) {
-    console.error("[Database] Error fetching inscritos em eventos especiais:", error);
-    throw error;
-  }
-}
-
 // ==================== ANIVERSARIANTES ====================
 
 export async function getAniversariantes() {
