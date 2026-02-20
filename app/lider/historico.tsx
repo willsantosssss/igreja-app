@@ -81,28 +81,7 @@ export default function HistoricoScreen() {
     setCarregando(false);
   }, [router]);
 
-  const calcularEstatisticas = useCallback((dados: Relatorio[]) => {
-    if (dados.length === 0) {
-      setEstatisticas({
-        totalRelatorios: 0,
-        mediaPresentes: 0,
-        mediaVisitantes: 0,
-        totalConversoes: 0,
-      });
-      return;
-    }
-
-    const totalPresentes = dados.reduce((acc, r) => acc + (r.presentes || 0), 0);
-    const totalVisitantes = dados.reduce((acc, r) => acc + (r.novosVisitantes || 0), 0);
-    const totalConversoes = dados.reduce((acc, r) => acc + (r.conversoes || 0), 0);
-
-    setEstatisticas({
-      totalRelatorios: dados.length,
-      mediaPresentes: Math.round(totalPresentes / dados.length),
-      mediaVisitantes: Math.round(totalVisitantes / dados.length),
-      totalConversoes,
-    });
-  }, []);
+  // Função removida - lógica movida para useEffect inline para evitar loop
 
   const aplicarFiltro = useCallback((tipo: FiltroTipo) => {
     const hoje = new Date();
@@ -156,10 +135,34 @@ export default function HistoricoScreen() {
         return dataA - dataB;
       });
       setRelatorios(dados);
-      calcularEstatisticas(dados);
+      
+      // Calcular estatísticas inline para evitar loop infinito
+      if (dados.length === 0) {
+        setEstatisticas({
+          totalRelatorios: 0,
+          mediaPresentes: 0,
+          mediaVisitantes: 0,
+          totalConversoes: 0,
+        });
+      } else {
+        const totalPresentes = dados.reduce((acc, r) => acc + (r.presentes || 0), 0);
+        const totalVisitantes = dados.reduce((acc, r) => acc + (r.novosVisitantes || 0), 0);
+        const totalConversoes = dados.reduce((acc, r) => acc + (r.conversoes || 0), 0);
+        setEstatisticas({
+          totalRelatorios: dados.length,
+          mediaPresentes: Math.round(totalPresentes / dados.length),
+          mediaVisitantes: Math.round(totalVisitantes / dados.length),
+          totalConversoes,
+        });
+      }
     } else {
       setRelatorios([]);
-      calcularEstatisticas([]);
+      setEstatisticas({
+        totalRelatorios: 0,
+        mediaPresentes: 0,
+        mediaVisitantes: 0,
+        totalConversoes: 0,
+      });
     }
   }, [relatoriosDB]);
 
