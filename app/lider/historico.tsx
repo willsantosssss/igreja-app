@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   ScrollView, Text, View, TouchableOpacity, Alert, Platform, ActivityIndicator,
 } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
@@ -29,6 +29,7 @@ type FiltroTipo = 'todos' | 'ultima_semana' | 'ultimo_mes' | 'customizado';
 export default function HistoricoScreen() {
   const colors = useColors();
   const router = useRouter();
+  const didInitialize = useRef(false);
   const [lider, setLider] = useState<any>(null);
   const [relatorios, setRelatorios] = useState<Relatorio[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -62,18 +63,15 @@ export default function HistoricoScreen() {
     verificarSessao();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (lider && !carregandoRelatorios) {
-        // Aplicar filtro padrão apenas uma vez quando lider mudar
-        if (filtroAtivo === 'ultimo_mes' && !dataInicio) {
-          aplicarFiltro('ultimo_mes');
-        }
-      }
-    }, [lider?.id])
-  );
+  // Inicializar filtro apenas uma vez quando lider carrega
+  useEffect(() => {
+    if (lider && !didInitialize.current) {
+      didInitialize.current = true;
+      aplicarFiltro('ultimo_mes');
+    }
+  }, [lider?.id]);
 
-  const verificarSessao = async () => {
+  const verificarSessao = useCallback(async () => {
     const sessao = await obterSessaoLider();
     if (!sessao) {
       router.replace('/lider');
@@ -81,9 +79,9 @@ export default function HistoricoScreen() {
     }
     setLider(sessao);
     setCarregando(false);
-  };
+  }, [router]);
 
-  const calcularEstatisticas = (dados: Relatorio[]) => {
+  const calcularEstatisticas = useCallback((dados: Relatorio[]) => {
     if (dados.length === 0) {
       setEstatisticas({
         totalRelatorios: 0,
@@ -104,9 +102,9 @@ export default function HistoricoScreen() {
       mediaVisitantes: Math.round(totalVisitantes / dados.length),
       totalConversoes,
     });
-  };
+  }, []);
 
-  const aplicarFiltro = (tipo: FiltroTipo) => {
+  const aplicarFiltro = useCallback((tipo: FiltroTipo) => {
     const hoje = new Date();
     let inicio = '';
     let fim = hoje.toISOString().split('T')[0];
@@ -135,9 +133,9 @@ export default function HistoricoScreen() {
     setDataFim(fim);
     setFiltroAtivo(tipo);
     setMostrarFiltroCustomizado(false);
-  };
+  }, []);
 
-  const handleAplicarFiltroCustomizado = () => {
+  const handleAplicarFiltroCustomizado = useCallback(() => {
     if (!dataInicio || !dataFim) {
       Alert.alert('Atenção', 'Selecione data de início e fim.');
       return;
@@ -148,7 +146,7 @@ export default function HistoricoScreen() {
     }
     setFiltroAtivo('customizado');
     setMostrarFiltroCustomizado(false);
-  };
+  }, [dataInicio, dataFim]);
 
   useEffect(() => {
     if (relatoriosDB && Array.isArray(relatoriosDB)) {
@@ -163,7 +161,7 @@ export default function HistoricoScreen() {
       setRelatorios([]);
       calcularEstatisticas([]);
     }
-  }, [relatoriosDB?.length]); // Usar apenas length para evitar comparação de objetos
+  }, [relatoriosDB]);
 
   if (carregando) {
     return (

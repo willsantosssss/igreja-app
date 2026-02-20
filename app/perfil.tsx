@@ -83,7 +83,7 @@ export default function PerfilScreen() {
     return data;
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!nome.trim()) {
       Alert.alert("Atenção", "Por favor, preencha seu nome.");
       return;
@@ -125,11 +125,97 @@ export default function PerfilScreen() {
     );
   }
 
-  if (isLoadingUser || !userData) {
+  // Mostrar loading apenas enquanto carregando, não quando userData é null
+  if (isLoadingUser) {
     return (
       <ScreenContainer className="p-6 justify-center items-center">
         <ActivityIndicator size="large" color={colors.primary} />
         <Text className="text-muted mt-4">Carregando perfil...</Text>
+      </ScreenContainer>
+    );
+  }
+
+  // Se userData é null, mostrar formulário vazio para criar perfil
+  if (!userData) {
+    return (
+      <ScreenContainer>
+        <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
+          <View className="gap-2">
+            <Text className="text-3xl font-bold text-foreground">Criar Perfil</Text>
+            <Text className="text-base text-muted">
+              Preencha suas informações pessoais para continuar
+            </Text>
+          </View>
+          <View className="gap-4">
+            <View className="gap-2">
+              <Text className="text-sm font-semibold text-foreground">Nome Completo *</Text>
+              <TextInput
+                value={nome}
+                onChangeText={setNome}
+                placeholder="Seu nome completo"
+                placeholderTextColor={colors.muted}
+                className="bg-surface border border-border rounded-xl px-4 py-3 text-foreground"
+              />
+            </View>
+            <View className="gap-2">
+              <Text className="text-sm font-semibold text-foreground">Data de Nascimento</Text>
+              <TextInput
+                value={formatarDataExibicao(dataNascimento)}
+                onChangeText={(text) => {
+                  const formatada = formatarDataBanco(text);
+                  setDataNascimento(converterParaBanco(formatada));
+                }}
+                placeholder="DD/MM/YYYY"
+                placeholderTextColor={colors.muted}
+                className="bg-surface border border-border rounded-xl px-4 py-3 text-foreground"
+                keyboardType="numeric"
+                maxLength={10}
+              />
+            </View>
+            <View className="gap-2">
+              <Text className="text-sm font-semibold text-foreground">Célula</Text>
+              <TouchableOpacity
+                onPress={() => setMostrarCelulas(!mostrarCelulas)}
+                className="bg-surface border border-border rounded-xl px-4 py-3 flex-row justify-between items-center"
+              >
+                <Text className={celula ? "text-foreground" : "text-muted"}>
+                  {celula || "Selecione sua célula"}
+                </Text>
+                <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+              </TouchableOpacity>
+              {mostrarCelulas && celulas && (
+                <View className="bg-surface border border-border rounded-xl overflow-hidden">
+                  <ScrollView style={{ maxHeight: 200 }}>
+                    {celulas.map((c) => (
+                      <TouchableOpacity
+                        key={c.id}
+                        onPress={() => {
+                          setCelula(c.nome);
+                          setMostrarCelulas(false);
+                        }}
+                        className="px-4 py-3 border-b border-border"
+                      >
+                        <Text className="text-foreground font-semibold">{c.nome}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={updateMutation.isPending}
+            className="bg-primary py-4 rounded-full items-center mt-4"
+            style={{ opacity: updateMutation.isPending ? 0.6 : 1 }}
+          >
+            {updateMutation.isPending ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-background font-bold text-base">Criar Perfil</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
       </ScreenContainer>
     );
   }
