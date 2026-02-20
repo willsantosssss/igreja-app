@@ -55,7 +55,8 @@ export default function HistoricoScreen() {
     },
     {
       enabled: !!lider?.id,
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
     }
   );
 
@@ -69,7 +70,7 @@ export default function HistoricoScreen() {
       didInitialize.current = true;
       aplicarFiltro('ultimo_mes');
     }
-  }, [lider?.id]);
+  }, [lider?.id, aplicarFiltro]);
 
   const verificarSessao = useCallback(async () => {
     const sessao = await obterSessaoLider();
@@ -164,7 +165,7 @@ export default function HistoricoScreen() {
         totalConversoes: 0,
       });
     }
-  }, [relatoriosDB]);
+  }, [relatoriosDB?.length]);
 
   if (carregando) {
     return (
