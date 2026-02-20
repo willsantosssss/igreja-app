@@ -1,0 +1,46 @@
+{
+  "query": "SELECT * FROM eventos;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT * FROM eventos;",
+  "rows": [
+    {
+      "id": "1",
+      "titulo": "Culto de Celebração",
+      "descricao": "Culto especial de louvor e adoração com pregação da Palavra.",
+      "data": "2026-02-22T00:00:00",
+      "horario": "19:00",
+      "local": "Igreja",
+      "tipo": "culto",
+      "requireInscricao": "0",
+      "createdAt": "2026-02-18 23:58:01",
+      "updatedAt": "2026-02-18 23:58:01"
+    },
+    {
+      "id": "2",
+      "titulo": "Tempo de mesa",
+      "descricao": "Tempo de aprofundamento na palavra de Deus e comunhão.",
+      "data": "2026-03-01T00:00:00",
+      "horario": "08:00",
+      "local": "Igreja",
+      "tipo": "culto",
+      "requireInscricao": "0",
+      "createdAt": "2026-02-19 00:05:12",
+      "updatedAt": "2026-02-19 20:55:12"
+    },
+    {
+      "id": "3",
+      "titulo": "Encontro com Deus KIDS",
+      "descricao": "Finalmente chegou a vez dos nossos pequenos terem um Encontro face a face com Deus. Serão dois dias incríveis! ❤️‍🔥",
+      "data": "2026-03-14T00:00:00",
+      "horario": "07:00",
+      "local": "2IEQ",
+      "tipo": "evento-especial",
+      "requireInscricao": "1",
+      "createdAt": "2026-02-19 21:37:45",
+      "updatedAt": "2026-02-19 21:37:45"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\tdescricao\tdata\thorario\tlocal\ttipo\trequireInscricao\tcreatedAt\tupdatedAt\n1\tCulto de Celebração\tCulto especial de louvor e adoração com pregação da Palavra.\t2026-02-22T00:00:00\t19:00\tIgreja\tculto\t0\t2026-02-18 23:58:01\t2026-02-18 23:58:01\n2\tTempo de mesa\tTempo de aprofundamento na palavra de Deus e comunhão.\t2026-03-01T00:00:00\t08:00\tIgreja\tculto\t0\t2026-02-19 00:05:12\t2026-02-19 20:55:12\n3\tEncontro com Deus KIDS\tFinalmente chegou a vez dos nossos pequenos terem um Encontro face a face com Deus. Serão dois dias incríveis! ❤️‍🔥\t2026-03-14T00:00:00\t07:00\t2IEQ\tevento-especial\t1\t2026-02-19 21:37:45\t2026-02-19 21:37:45\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

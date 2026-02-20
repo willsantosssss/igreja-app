@@ -33,15 +33,28 @@ export default function EventDetailScreen() {
   const carregarCelulas = async () => {
     try {
       const lista = await getCelulas();
-      setCelulas(lista);
+      // Filtrar apenas células ativas/válidas
+      const celulasFiltradas = lista.filter((c: any) => {
+        return c && c.name && c.leader && c.leader.name && c.schedule;
+      });
+      console.log("Células carregadas:", celulasFiltradas.length, celulasFiltradas);
+      setCelulas(celulasFiltradas);
     } catch (err) {
       console.error("Erro ao carregar células:", err);
+      setCelulas([]);
     }
   };
 
   const carregarEvento = async () => {
     if (typeof id === 'string') {
-      const ev = await getEventoById(id);
+      // Tentar buscar como string primeiro (AsyncStorage)
+      let ev = await getEventoById(id);
+      
+      // Se não encontrou, tentar como número (banco de dados)
+      if (!ev && !isNaN(Number(id))) {
+        ev = await getEventoById(String(Number(id)));
+      }
+      
       setEvent(ev);
     }
     setCarregando(false);
@@ -278,20 +291,26 @@ export default function EventDetailScreen() {
                 {mostrarSeletorCelulas && (
                   <View className="bg-surface rounded-xl border border-border mt-2 max-h-48">
                     <ScrollView>
-                      {celulas.map((cel) => (
-                        <TouchableOpacity
-                          key={cel.name}
-                          className="px-4 py-3 border-b border-border"
-                          style={{ borderBottomColor: colors.border }}
-                          onPress={() => {
-                            setCelula(cel.name);
-                            setMostrarSeletorCelulas(false);
-                          }}
-                        >
-                          <Text className="text-foreground">{cel.name}</Text>
-                          <Text className="text-xs text-muted">{cel.leader.name} - {cel.schedule.day} {cel.schedule.time}</Text>
-                        </TouchableOpacity>
-                      ))}
+                      {celulas && celulas.length > 0 ? (
+                        celulas.map((cel) => (
+                          <TouchableOpacity
+                            key={cel.id || cel.name}
+                            className="px-4 py-3 border-b border-border"
+                            style={{ borderBottomColor: colors.border }}
+                            onPress={() => {
+                              setCelula(cel.name);
+                              setMostrarSeletorCelulas(false);
+                            }}
+                          >
+                            <Text className="text-foreground">{cel.name}</Text>
+                            <Text className="text-xs text-muted">{cel.leader?.name} - {cel.schedule?.day} {cel.schedule?.time}</Text>
+                          </TouchableOpacity>
+                        ))
+                      ) : (
+                        <View className="p-4 items-center">
+                          <Text className="text-muted">Nenhuma célula disponível</Text>
+                        </View>
+                      )}
                     </ScrollView>
                   </View>
                 )}
