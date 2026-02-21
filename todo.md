@@ -633,3 +633,12 @@
 - [x] Remover timeout de segurança que causava loop
 - [x] Usar isLoadingUser do tRPC em vez de estado local
 - [x] Simplificar lógica de loading
+
+
+## Sincronizar Células com Banco de Dados
+- [x] Criar função getCelulasFromDB no backend (db.ts) - já existia
+- [x] Criar endpoint tRPC para buscar células - já existia (celulas.list)
+- [x] Atualizar getCelulas() em lib/data/celulas.ts para usar tRPC
+- [x] Atualizar página de evento para usar hook useCelulas()
+- [ ] Testar sincronização no formulário de inscrição
+- [ ] Validar que admin e inscrição mostram mesmas células

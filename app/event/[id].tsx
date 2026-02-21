@@ -9,7 +9,7 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCelulas, type Celula } from "@/lib/data/celulas";
+import { useCelulas, type Celula } from "@/lib/data/celulas";
 
 export default function EventDetailScreen() {
   const colors = useColors();
@@ -21,29 +21,18 @@ export default function EventDetailScreen() {
   const [nome, setNome] = useState("");
   const [celula, setCelula] = useState("");
   const [telefone, setTelefone] = useState("");
-  const [celulas, setCelulas] = useState<Celula[]>([]);
+
   const [mostrarSeletorCelulas, setMostrarSeletorCelulas] = useState(false);
+
+  const { data: celulasList = [], isLoading: carregandoCelulas } = useCelulas();
+  const celulas = celulasList.filter((c: any) => c && c.nome && c.lider && c.horario);
 
   useEffect(() => {
     carregarEvento();
     carregarDadosUsuario();
-    carregarCelulas();
   }, [id]);
 
-  const carregarCelulas = async () => {
-    try {
-      const lista = await getCelulas();
-      // Filtrar apenas células ativas/válidas
-      const celulasFiltradas = lista.filter((c: any) => {
-        return c && c.name && c.leader && c.leader.name && c.schedule;
-      });
-      console.log("Células carregadas:", celulasFiltradas.length, celulasFiltradas);
-      setCelulas(celulasFiltradas);
-    } catch (err) {
-      console.error("Erro ao carregar células:", err);
-      setCelulas([]);
-    }
-  };
+
 
   const carregarEvento = async () => {
     if (typeof id === 'string') {

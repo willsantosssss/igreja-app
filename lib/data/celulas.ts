@@ -1,136 +1,92 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { trpc } from '@/lib/trpc';
 
 export interface Celula {
-  id: string;
-  name: string;
-  leader: {
-    name: string;
-    phone: string;
-  };
-  schedule: {
-    day: string;
-    time: string;
-  };
-  address: {
-    street: string;
-    neighborhood: string;
-    city: string;
-  };
-  description: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
+  id: number;
+  nome: string;
+  lider: string;
+  telefone: string;
+  endereco: string;
+  latitude: string;
+  longitude: string;
+  diaReuniao: string;
+  horario: string;
 }
 
-// Dados iniciais (seed)
-const CELULAS_INICIAIS: Celula[] = [
-  {
-    id: "1",
-    name: "Célula Vida Nova",
-    leader: { name: "João Silva", phone: "+55 66 98765-4321" },
-    schedule: { day: "Terça-feira", time: "19:30" },
-    address: { street: "Rua das Flores, 123", neighborhood: "Centro", city: "Rondonópolis - MT" },
-    description: "Célula focada em jovens e adultos, com estudos bíblicos profundos e momentos de comunhão.",
-  },
-  {
-    id: "2",
-    name: "Célula Esperança",
-    leader: { name: "Maria Santos", phone: "+55 66 99876-5432" },
-    schedule: { day: "Quinta-feira", time: "20:00" },
-    address: { street: "Av. Brasil, 456", neighborhood: "Vila Aurora", city: "Rondonópolis - MT" },
-    description: "Célula acolhedora para famílias, com atividades para crianças e adultos.",
-  },
-  {
-    id: "3",
-    name: "Célula Fé e Graça",
-    leader: { name: "Pedro Oliveira", phone: "+55 66 97654-3210" },
-    schedule: { day: "Sexta-feira", time: "19:00" },
-    address: { street: "Rua da Paz, 789", neighborhood: "Jardim Tropical", city: "Rondonópolis - MT" },
-    description: "Célula voltada para jovens profissionais, com foco em crescimento espiritual.",
-  },
-  {
-    id: "4",
-    name: "Célula Amor Perfeito",
-    leader: { name: "Ana Costa", phone: "+55 66 96543-2109" },
-    schedule: { day: "Quarta-feira", time: "20:30" },
-    address: { street: "Rua do Amor, 321", neighborhood: "Vila Operária", city: "Rondonópolis - MT" },
-    description: "Célula para casais, com estudos sobre relacionamentos à luz da Bíblia.",
-  },
-  {
-    id: "5",
-    name: "Célula Renovo",
-    leader: { name: "Carlos Mendes", phone: "+55 66 95432-1098" },
-    schedule: { day: "Sábado", time: "18:00" },
-    address: { street: "Rua Nova Vida, 654", neighborhood: "Parque Sagrada Família", city: "Rondonópolis - MT" },
-    description: "Célula com foco em restauração e cura interior, aberta a todos que buscam renovação espiritual.",
-  },
-];
-
-const CELULAS_KEY = '@celulas_igreja';
-const CELULAS_INIT_KEY = '@celulas_init';
-
-// ==================== LEITURA ====================
-
+/**
+ * Busca todas as células do banco de dados via tRPC
+ * Sincroniza automaticamente com o backend
+ */
 export async function getCelulas(): Promise<Celula[]> {
   try {
-    const init = await AsyncStorage.getItem(CELULAS_INIT_KEY);
-    if (!init) {
-      await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(CELULAS_INICIAIS));
-      await AsyncStorage.setItem(CELULAS_INIT_KEY, 'true');
-      return CELULAS_INICIAIS;
+    // Nota: Esta função é async mas tRPC queries são síncronas
+    // Para uso em componentes, use o hook useQuery diretamente
+    // Para uso em funções async, use fetch direto na API
+    const response = await fetch('/api/trpc/celulas.list');
+    if (!response.ok) {
+      console.error('Erro ao buscar células:', response.statusText);
+      return [];
     }
-    const data = await AsyncStorage.getItem(CELULAS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return CELULAS_INICIAIS;
+    const data = await response.json();
+    return data.result?.data || [];
+  } catch (error) {
+    console.error('Erro ao buscar células:', error);
+    return [];
   }
 }
 
-export async function getCelulaById(id: string): Promise<Celula | null> {
-  const todas = await getCelulas();
-  return todas.find(c => c.id === id) || null;
+/**
+ * Busca uma célula específica por ID
+ */
+export async function getCelulaById(id: number): Promise<Celula | null> {
+  try {
+    const response = await fetch(`/api/trpc/celulas.getById?input=${id}`);
+    if (!response.ok) {
+      console.error('Erro ao buscar célula:', response.statusText);
+      return null;
+    }
+    const data = await response.json();
+    return data.result?.data || null;
+  } catch (error) {
+    console.error('Erro ao buscar célula:', error);
+    return null;
+  }
 }
 
-// ==================== CRIAÇÃO ====================
-
-export async function criarCelula(dados: Omit<Celula, 'id'>): Promise<Celula> {
-  const todas = await getCelulas();
-  const nova: Celula = { ...dados, id: Date.now().toString() };
-  todas.push(nova);
-  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
-  return nova;
+/**
+ * Hook para usar em componentes React
+ * Busca células do banco com refetch automático
+ */
+export function useCelulas() {
+  return trpc.celulas.list.useQuery();
 }
 
-// ==================== EDIÇÃO ====================
-
-export async function editarCelula(id: string, dados: Partial<Omit<Celula, 'id'>>): Promise<Celula | null> {
-  const todas = await getCelulas();
-  const index = todas.findIndex(c => c.id === id);
-  if (index < 0) return null;
-
-  // Merge profundo para objetos aninhados
-  const atual = todas[index];
-  todas[index] = {
-    ...atual,
-    ...dados,
-    leader: { ...atual.leader, ...(dados.leader || {}) },
-    schedule: { ...atual.schedule, ...(dados.schedule || {}) },
-    address: { ...atual.address, ...(dados.address || {}) },
-  };
-  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(todas));
-  return todas[index];
+/**
+ * Hook para buscar célula específica
+ */
+export function useCelulaById(id: number) {
+  return trpc.celulas.getById.useQuery(id);
 }
 
-// ==================== REMOÇÃO ====================
-
-export async function removerCelula(id: string): Promise<boolean> {
-  const todas = await getCelulas();
-  const filtradas = todas.filter(c => c.id !== id);
-  if (filtradas.length === todas.length) return false;
-  await AsyncStorage.setItem(CELULAS_KEY, JSON.stringify(filtradas));
-  return true;
+/**
+ * Criar nova célula
+ */
+export function useCreateCelula() {
+  return trpc.celulas.create.useMutation();
 }
 
-// Compatibilidade
-export const mockCelulas: Celula[] = CELULAS_INICIAIS;
+/**
+ * Editar célula existente
+ */
+export function useUpdateCelula() {
+  return trpc.celulas.update.useMutation();
+}
+
+/**
+ * Remover célula
+ */
+export function useDeleteCelula() {
+  return trpc.celulas.delete.useMutation();
+}
+
+// Para compatibilidade com código legado
+export const mockCelulas: Celula[] = [];
