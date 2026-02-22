@@ -672,3 +672,11 @@
 2. Reescrita página de detalhes (app/event/[id].tsx) para usar tRPC
 3. Convertido ID de string para número antes de buscar
 4. Testes criados e passando (6/6 ✓)
+
+
+## Bug: Histórico de Relatórios com Carregamento Infinito
+- [x] Investigar código do histórico de relatórios
+- [x] Identificar causa do carregamento infinito
+- [x] Simplificar lógica de filtros e estado
+- [x] Remover dependências circulares
+- [x] Testar e validar
