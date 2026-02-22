@@ -377,7 +377,10 @@ export async function getLiderById(id: number) {
 export async function createLider(data: InsertLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(lideres).values(data);
+  const result = await db.insert(lideres).values(data);
+  // Buscar o líder criado para retornar com ID
+  const lider = await db.select().from(lideres).where(eq(lideres.celula, data.celula)).limit(1);
+  return lider[0];
 }
 
 export async function updateLider(id: number, data: Partial<InsertLider>) {
@@ -416,34 +419,33 @@ export async function getRelatoriosByLiderIdWithFilters(
   liderId: number,
   filtro?: { dataInicio?: string; dataFim?: string; tipo?: string; limite?: number }
 ) {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
+  const db = await getDb();
+  if (!db) return [];
+  
   try {
-    const pool = mysql.createPool(process.env.DATABASE_URL);
-    const connection = await pool.getConnection();
-    let query = `SELECT * FROM relatorios WHERE liderId = ?`;
-    const params: any[] = [liderId];
+    let query = db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
+    
     if (filtro?.dataInicio) {
-      query += ` AND DATE(periodo) >= ?`;
-      params.push(filtro.dataInicio);
+      query = query.where((col) => col.periodo >= filtro.dataInicio);
     }
     if (filtro?.dataFim) {
-      query += ` AND DATE(periodo) <= ?`;
-      params.push(filtro.dataFim);
+      query = query.where((col) => col.periodo <= filtro.dataFim);
     }
     if (filtro?.tipo) {
-      query += ` AND tipo = ?`;
-      params.push(filtro.tipo);
+      query = query.where(eq(relatorios.tipo, filtro.tipo));
     }
-    query += ` ORDER BY periodo DESC`;
+    
+    query = query.orderBy(desc(relatorios.periodo));
+    
     if (filtro?.limite && filtro.limite > 0) {
-      query += ` LIMIT ` + filtro.limite;
+      query = query.limit(filtro.limite);
     }
-    const [rows] = await connection.execute(query, params);
-    await connection.end();
-    return rows as any[];
+    
+    const result = await query;
+    return result;
   } catch (error) {
     console.error("[Database] Error fetching relatorios with filters:", error);
-    throw error;
+    return [];
   }
 }
 

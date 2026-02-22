@@ -680,3 +680,15 @@
 - [x] Simplificar lógica de filtros e estado
 - [x] Remover dependências circulares
 - [x] Testar e validar
+
+**Problemas Encontrados:**
+1. Funcao getRelatoriosByLiderIdWithFilters criava novo pool MySQL
+2. Usava connection.end() em vez de connection.release()
+3. Isso causava travamento e timeout
+4. Funcao createLider nao retornava objeto criado
+
+**Solucao Implementada:**
+1. Reescrita getRelatoriosByLiderIdWithFilters usando Drizzle ORM
+2. Removido SQL raw e pool manual
+3. Corrigida createLider para retornar objeto com ID
+4. Testes criados e passando (5/5)
