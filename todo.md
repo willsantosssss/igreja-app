@@ -642,3 +642,14 @@
 - [x] Atualizar página de evento para usar hook useCelulas()
 - [ ] Testar sincronização no formulário de inscrição
 - [ ] Validar que admin e inscrição mostram mesmas células
+
+
+## Migrar Painel Admin de AsyncStorage para tRPC
+- [x] Investigar como admin está salvando dados (AsyncStorage vs tRPC) - JÁ USA tRPC!
+- [x] Migrar gerenciamento de eventos para usar tRPC - JÁ IMPLEMENTADO
+- [x] Migrar gerenciamento de células para usar tRPC - JÁ IMPLEMENTADO
+- [x] Migrar gerenciamento de notícias para usar tRPC - JÁ IMPLEMENTADO
+- [x] Migrar gerenciamento de líderes para usar tRPC - JÁ IMPLEMENTADO
+- [x] Testar CRUD de eventos via tRPC - TESTES PASSANDO
+- [x] Testar CRUD de células via tRPC - TESTES PASSANDO
+- [x] Validar que app busca dados do banco, não AsyncStorage - CONFIRMADO
