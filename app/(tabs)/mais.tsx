@@ -65,20 +65,28 @@ export default function MaisScreen() {
       return;
     }
 
+    const buttons = [
+      { text: "Cancelar", style: "cancel" }
+    ];
+
+    if (contatosIgreja?.whatsapp) {
+      buttons.push({
+        text: "WhatsApp",
+        onPress: () => Linking.openURL(`https://wa.me/${contatosIgreja.whatsapp.replace(/\D/g, '')}`)
+      });
+    }
+
+    if (contatosIgreja?.email) {
+      buttons.push({
+        text: "Email",
+        onPress: () => Linking.openURL(`mailto:${contatosIgreja.email}`)
+      });
+    }
+
     Alert.alert(
       "Contato da Igreja",
       "Entre em contato conosco:",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "WhatsApp", 
-          onPress: () => Linking.openURL(`https://wa.me/${contatosIgreja.whatsapp.replace(/\D/g, '')}`)
-        },
-        { 
-          text: "Email", 
-          onPress: () => Linking.openURL(`mailto:${contatosIgreja.email}`)
-        },
-      ]
+      buttons
     );
   };
 

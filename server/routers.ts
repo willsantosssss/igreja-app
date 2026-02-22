@@ -370,7 +370,10 @@ export const appRouter = router({
 
   // Contatos Igreja
   contatosIgreja: router({
-    get: publicProcedure.query(() => db.getContatosIgreja()),
+    get: publicProcedure.query(async () => {
+      const contatos = await db.getContatosIgreja();
+      return contatos?.[0] || null;
+    }),
     update: protectedProcedure
       .input(z.object({
         telefone: z.string().min(1),

@@ -731,3 +731,21 @@
 **Problema:** Função chamada no router não existia (getUsuarioCadastradoByUserId)
 **Solução:** Corrigido nome de função e endpoints para usar upsertUsuarioCadastrado()
 **Testes:** 3/3 passando
+
+
+## Bug: Erro ao Clicar em "Contatos da Igreja"
+- [x] Localizar arquivo mais.tsx
+- [x] Identificar por que .replace() está sendo chamado em undefined
+- [x] Corrigir o erro
+- [x] Testar navegação
+
+**Problema:** Erro "Cannot read property 'replace' of undefined" ao clicar em "Contatos da Igreja"
+**Causa Raiz:** 
+1. Endpoint retornava array mas código esperava objeto
+2. Campos whatsapp/email podiam ser undefined
+
+**Solução Implementada:**
+1. Corrigido endpoint para retornar primeiro elemento do array: `contatos?.[0] || null`
+2. Adicionadas verificações de segurança com optional chaining: `contatosIgreja?.whatsapp`
+3. Botões só são adicionados se campos existem
+**Testes:** 3/3 passando
