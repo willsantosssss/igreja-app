@@ -7,9 +7,11 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { type AvisoImportante } from "@/lib/data/aviso-importante";
 import { trpc } from "@/lib/trpc";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AvisoImportanteScreen() {
   const colors = useColors();
+  const queryClient = useQueryClient();
   const [aviso, setAviso] = useState<AvisoImportante | null>(null);
   const [titulo, setTitulo] = useState("");
   const [mensagem, setMensagem] = useState("");
@@ -23,6 +25,7 @@ export default function AvisoImportanteScreen() {
   const salvarMutation = trpc.avisoImportante.save.useMutation({
     onSuccess: () => {
       refetch();
+      queryClient.invalidateQueries({ queryKey: [['avisoImportante', 'get']] });
     },
   });
 

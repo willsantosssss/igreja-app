@@ -703,3 +703,14 @@
 **Problema:** Campo `ativo` estava sendo enviado como booleano, mas servidor esperava número (0 ou 1)
 **Solução:** Convertido `ativo ? 1 : 0` antes de enviar para tRPC
 **Testes:** 3/3 passando ✓
+
+
+## Bug: Aviso Importante Não Atualiza na Home
+- [x] Investigar como aviso é carregado na home
+- [x] Verificar cache e refetch de dados
+- [x] Validar se tRPC está retornando dados atualizados
+- [x] Corrigir sincronização entre admin e home
+
+**Problema:** Home não estava atualizando após salvar aviso no admin
+**Solução:** Adicionada invalidação de cache do tRPC com `queryClient.invalidateQueries()` no `onSuccess` da mutation
+**Testes:** 3/3 passando ✓
