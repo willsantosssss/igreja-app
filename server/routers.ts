@@ -141,8 +141,8 @@ export const appRouter = router({
 
   // Usuarios Cadastrados
   usuarios: router({
-    list: publicProcedure.query(() => db.getUsuariosCadastrados()),
-    getByUserId: protectedProcedure.query(({ ctx }) => db.getUsuarioCadastradoByUserId(ctx.user.id)),
+    list: publicProcedure.query(() => db.getAllUsuariosCadastrados()),
+    getByUserId: protectedProcedure.query(({ ctx }) => db.getUsuarioCadastrado(ctx.user.id)),
     getAniversariantes: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getAniversariantesMes(input)),
@@ -155,7 +155,7 @@ export const appRouter = router({
         dataNascimento: z.string().min(1),
         celula: z.string().min(1),
       }))
-      .mutation(({ ctx, input }) => db.createUsuarioCadastrado({ ...input, userId: ctx.user.id })),
+      .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id })),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -165,10 +165,10 @@ export const appRouter = router({
           celula: z.string().optional(),
         }),
       }))
-      .mutation(({ input }) => db.updateUsuarioCadastrado(input.id, input.data)),
+      .mutation(({ input }) => db.upsertUsuarioCadastrado({ ...input.data, userId: input.id })),
     getMeuPerfil: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.user) throw new Error("Not authenticated");
-      return db.getUsuarioCadastradoByUserId(ctx.user.id);
+      return db.getUsuarioCadastrado(ctx.user.id);
     }),
     updateMeuPerfil: protectedProcedure
       .input(z.object({
@@ -178,9 +178,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         if (!ctx.user) throw new Error("Not authenticated");
-        const cadastro = await db.getUsuarioCadastradoByUserId(ctx.user.id);
-        if (!cadastro) throw new Error("User profile not found");
-        return db.updateUsuarioCadastrado(cadastro.id, input);
+        return db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id });
       }),
     deleteUser: protectedProcedure
       .input(z.number())
@@ -196,7 +194,7 @@ export const appRouter = router({
       }),
     get: protectedProcedure
       .input(z.number())
-      .query(({ input }) => db.getUsuarioCadastradoByUserId(input)),
+      .query(({ input }) => db.getUsuarioCadastrado(input)),
   }),
 
   // Pedidos de Oracao

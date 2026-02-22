@@ -719,3 +719,15 @@
 3. Corrigido endpoint `save` para usar `saveAvisoImportante()`
 4. Adicionada invalidação de cache do tRPC
 **Testes:** 6/6 passando ✓ (3 de sync + 3 de sync-fix)
+
+
+## Bug: "Meu Perfil" Sempre Mostra Criar Perfil
+- [x] Localizar arquivo de perfil e entender lógica de navegação
+- [x] Verificar como detecta se usuário já tem perfil
+- [x] Identificar por que sempre mostra criar perfil mesmo logado
+- [x] Corrigir lógica de verificação de perfil existente
+- [x] Testar navegação com usuário logado
+
+**Problema:** Função chamada no router não existia (getUsuarioCadastradoByUserId)
+**Solução:** Corrigido nome de função e endpoints para usar upsertUsuarioCadastrado()
+**Testes:** 3/3 passando
