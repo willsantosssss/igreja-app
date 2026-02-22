@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, titulo, descricao, tipo, data FROM eventos ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, titulo, descricao, tipo, data FROM eventos ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "titulo": "Culto de Celebração",
+      "descricao": "Culto especial de louvor e adoração com pregação da Palavra.",
+      "tipo": "culto",
+      "data": "2026-02-22T00:00:00"
+    },
+    {
+      "id": "2",
+      "titulo": "Tempo de mesa",
+      "descricao": "Tempo de aprofundamento na palavra de Deus e comunhão.",
+      "tipo": "culto",
+      "data": "2026-03-01T00:00:00"
+    },
+    {
+      "id": "3",
+      "titulo": "Encontro com Deus KIDS",
+      "descricao": "Finalmente chegou a vez dos nossos pequenos terem um Encontro face a face com Deus. Serão dois dias incríveis! ❤️‍🔥",
+      "tipo": "evento-especial",
+      "data": "2026-03-14T00:00:00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitulo\tdescricao\ttipo\tdata\n1\tCulto de Celebração\tCulto especial de louvor e adoração com pregação da Palavra.\tculto\t2026-02-22T00:00:00\n2\tTempo de mesa\tTempo de aprofundamento na palavra de Deus e comunhão.\tculto\t2026-03-01T00:00:00\n3\tEncontro com Deus KIDS\tFinalmente chegou a vez dos nossos pequenos terem um Encontro face a face com Deus. Serão dois dias incríveis! ❤️‍🔥\tevento-especial\t2026-03-14T00:00:00\n",
+  "stderr": "",
+  "execution_time_ms": 113
+}

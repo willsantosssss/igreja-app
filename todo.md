@@ -653,3 +653,22 @@
 - [x] Testar CRUD de eventos via tRPC - TESTES PASSANDO
 - [x] Testar CRUD de células via tRPC - TESTES PASSANDO
 - [x] Validar que app busca dados do banco, não AsyncStorage - CONFIRMADO
+
+
+## Bug: Redirecionamento Errado de Eventos na Agenda
+- [x] Investigar fluxo de clique em evento (agenda → detalhes)
+- [x] Verificar como IDs estão sendo passados entre páginas
+- [x] Debugar página de detalhes do evento
+- [x] Encontrar causa do redirecionamento para evento errado
+- [x] Corrigir e testar com múltiplos eventos
+
+**Problema Encontrado:**
+- Função `getEventoById` não existia no servidor (db.ts)
+- Página de detalhes usava AsyncStorage em vez de tRPC
+- Resultado: clicava em um evento mas carregava dados de outro
+
+**Solução Implementada:**
+1. Adicionada função `getEventoById(id: number)` no server/db.ts
+2. Reescrita página de detalhes (app/event/[id].tsx) para usar tRPC
+3. Convertido ID de string para número antes de buscar
+4. Testes criados e passando (6/6 ✓)

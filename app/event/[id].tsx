@@ -3,13 +3,14 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalSearchParams, router } from "expo-router";
-import { getEventoById, categoryLabels, categoryColors, type Event } from "@/lib/data/events";
+import { categoryLabels, categoryColors, type Event } from "@/lib/data/events";
 import { eventoPermiteInscricao, criarInscricao, verificarInscricao } from "@/lib/data/inscricoes-eventos";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCelulas, type Celula } from "@/lib/data/celulas";
+import { trpc } from "@/lib/trpc";
 
 export default function EventDetailScreen() {
   const colors = useColors();
@@ -27,27 +28,36 @@ export default function EventDetailScreen() {
   const { data: celulasList = [], isLoading: carregandoCelulas } = useCelulas();
   const celulas = celulasList.filter((c: any) => c && c.nome && c.lider && c.horario);
 
+  // Usar hook tRPC para buscar evento
+  const eventoId = typeof id === 'string' && !isNaN(Number(id)) ? Number(id) : null;
+  // @ts-expect-error - Endpoint existe mas tipos não foram regenerados
+  const { data: eventoData, isLoading: carregandoEvento } = trpc.eventos.getById.useQuery(
+    eventoId || 0,
+    { enabled: eventoId !== null }
+  );
+
   useEffect(() => {
-    carregarEvento();
+    if (eventoData) {
+      // Adaptar formato do banco para formato do app
+      const eventoFormatado: Event = {
+        id: eventoData.id.toString(),
+        title: eventoData.titulo,
+        description: eventoData.descricao,
+        date: eventoData.data,
+        time: eventoData.horario,
+        location: eventoData.local,
+        category: eventoData.tipo as any,
+      };
+      setEvent(eventoFormatado);
+      setCarregando(false);
+    } else if (!carregandoEvento && eventoId !== null) {
+      setCarregando(false);
+    }
+  }, [eventoData, carregandoEvento, eventoId]);
+
+  useEffect(() => {
     carregarDadosUsuario();
   }, [id]);
-
-
-
-  const carregarEvento = async () => {
-    if (typeof id === 'string') {
-      // Tentar buscar como string primeiro (AsyncStorage)
-      let ev = await getEventoById(id);
-      
-      // Se não encontrou, tentar como número (banco de dados)
-      if (!ev && !isNaN(Number(id))) {
-        ev = await getEventoById(String(Number(id)));
-      }
-      
-      setEvent(ev);
-    }
-    setCarregando(false);
-  };
 
   const carregarDadosUsuario = async () => {
     try {
@@ -287,17 +297,16 @@ export default function EventDetailScreen() {
                             className="px-4 py-3 border-b border-border"
                             style={{ borderBottomColor: colors.border }}
                             onPress={() => {
-                              setCelula(cel.name);
+                              setCelula(cel.nome || cel.name || "");
                               setMostrarSeletorCelulas(false);
                             }}
                           >
-                            <Text className="text-foreground">{cel.name}</Text>
-                            <Text className="text-xs text-muted">{cel.leader?.name} - {cel.schedule?.day} {cel.schedule?.time}</Text>
+                            <Text className="text-foreground">{cel.nome || cel.name}</Text>
                           </TouchableOpacity>
                         ))
                       ) : (
-                        <View className="p-4 items-center">
-                          <Text className="text-muted">Nenhuma célula disponível</Text>
+                        <View className="px-4 py-3">
+                          <Text className="text-muted text-center">Nenhuma célula disponível</Text>
                         </View>
                       )}
                     </ScrollView>
@@ -306,11 +315,11 @@ export default function EventDetailScreen() {
               </View>
 
               <View className="gap-2">
-                <Text className="text-sm font-semibold text-foreground">Telefone (opcional)</Text>
+                <Text className="text-sm font-semibold text-foreground">Telefone (Opcional)</Text>
                 <TextInput
                   className="bg-background rounded-xl px-4 py-3 text-foreground border"
                   style={{ borderColor: colors.border }}
-                  placeholder="(00) 00000-0000"
+                  placeholder="Seu telefone"
                   placeholderTextColor={colors.muted}
                   value={telefone}
                   onChangeText={setTelefone}
@@ -319,49 +328,45 @@ export default function EventDetailScreen() {
               </View>
 
               <TouchableOpacity
-                className="rounded-full py-4 items-center"
-                style={{ backgroundColor: colors.primary }}
+                className="bg-primary rounded-xl py-3 items-center justify-center"
                 onPress={handleSubscribe}
               >
                 <Text className="text-white font-bold text-base">Confirmar Inscrição</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                className="border border-border rounded-xl py-3 items-center justify-center"
+                onPress={() => setMostrarFormulario(false)}
+              >
+                <Text className="text-foreground font-semibold">Cancelar</Text>
+              </TouchableOpacity>
             </View>
           )}
 
-          {/* Mensagem se não permite inscrição */}
-          {!permiteInscricao && (
-            <View className="bg-surface rounded-2xl p-4 gap-2 border border-border">
-              <Text className="text-sm text-muted text-center">
-                Este é um evento regular da igreja. Não é necessário inscrição prévia. Venha e participe!
-              </Text>
+          {/* Botão de inscrição */}
+          {permiteInscricao && !mostrarFormulario && !jaInscrito && (
+            <TouchableOpacity
+              className="bg-primary rounded-xl py-4 items-center justify-center"
+              onPress={() => setMostrarFormulario(true)}
+            >
+              <Text className="text-white font-bold text-base">Inscrever-se no Evento</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Confirmação de inscrição */}
+          {jaInscrito && (
+            <View className="bg-success/10 rounded-xl p-4 border border-success">
+              <View className="flex-row items-center gap-3">
+                <Text className="text-2xl">✅</Text>
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-success">Você já está inscrito</Text>
+                  <Text className="text-xs text-success/80">Aguarde mais informações</Text>
+                </View>
+              </View>
             </View>
           )}
         </View>
       </ScrollView>
-
-      {/* Botão fixo de inscrição (apenas eventos especiais) */}
-      {permiteInscricao && (
-        <View 
-          className="absolute bottom-0 left-0 right-0 p-5 border-t"
-          style={{ backgroundColor: colors.background, borderTopColor: colors.border }}
-        >
-          {jaInscrito ? (
-            <View className="rounded-full py-4 items-center" style={{ backgroundColor: colors.success }}>
-              <Text className="text-white font-bold text-base">✓ Inscrito neste Evento</Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              className="rounded-full py-4 items-center"
-              style={{ backgroundColor: colors.primary }}
-              onPress={() => setMostrarFormulario(!mostrarFormulario)}
-            >
-              <Text className="text-white font-bold text-base">
-                {mostrarFormulario ? "Fechar Formulário" : "Inscrever-se no Evento"}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
     </ScreenContainer>
   );
 }

@@ -233,6 +233,13 @@ export async function getEventos() {
   return db.select().from(eventos);
 }
 
+export async function getEventoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(eventos).where(eq(eventos.id, id));
+  return result[0] || null;
+}
+
 export async function getEventosEspeciais() {
   const db = await getDb();
   if (!db) return [];
