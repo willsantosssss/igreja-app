@@ -298,6 +298,19 @@ export async function getAvisosImportantes() {
   return db.select().from(avisoImportante);
 }
 
+export async function getAvisoImportante() {
+  const db = await getDb();
+  if (!db) return null;
+  // Retornar o aviso mais recente e ativo
+  const result = await db
+    .select()
+    .from(avisoImportante)
+    .where(eq(avisoImportante.ativo, 1))
+    .orderBy(desc(avisoImportante.updatedAt))
+    .limit(1);
+  return result[0] || null;
+}
+
 export async function createAvisoImportante(data: InsertAvisoImportante) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -317,6 +330,25 @@ export async function deleteAvisoImportante(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(avisoImportante).where(eq(avisoImportante.id, id));
+}
+
+export async function desativarAvisoImportante() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Desativar todos os avisos
+  await db.update(avisoImportante).set({ ativo: 0 });
+}
+
+export async function saveAvisoImportante(data: InsertAvisoImportante) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Desativar todos os avisos antigos
+  await db.update(avisoImportante).set({ ativo: 0 });
+  // Criar novo aviso com ativo=1
+  return await db.insert(avisoImportante).values({
+    ...data,
+    ativo: 1,
+  });
 }
 
 // ==================== CONTATOS IGREJA ====================

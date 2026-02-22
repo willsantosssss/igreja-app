@@ -366,7 +366,7 @@ export const appRouter = router({
         ativo: z.number().default(1),
         dataExpiracao: z.string().optional(),
       }))
-      .mutation(({ input }) => db.createAvisoImportante(input)),
+      .mutation(({ input }) => db.saveAvisoImportante(input)),
     desativar: protectedProcedure.mutation(() => db.desativarAvisoImportante()),
   }),
 

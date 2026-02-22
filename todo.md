@@ -712,5 +712,10 @@
 - [x] Corrigir sincronização entre admin e home
 
 **Problema:** Home não estava atualizando após salvar aviso no admin
-**Solução:** Adicionada invalidação de cache do tRPC com `queryClient.invalidateQueries()` no `onSuccess` da mutation
-**Testes:** 3/3 passando ✓
+**Causa Raíz:** Endpoint `save` estava criando novo registro em vez de atualizar. `getAvisoImportante()` não existia, retornando avisos antigos.
+**Solução:** 
+1. Criada função `getAvisoImportante()` que retorna o aviso mais recente e ativo
+2. Criada função `saveAvisoImportante()` que desativa avisos antigos e cria novo com ativo=1
+3. Corrigido endpoint `save` para usar `saveAvisoImportante()`
+4. Adicionada invalidação de cache do tRPC
+**Testes:** 6/6 passando ✓ (3 de sync + 3 de sync-fix)
