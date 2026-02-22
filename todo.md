@@ -749,3 +749,9 @@
 2. Adicionadas verificações de segurança com optional chaining: `contatosIgreja?.whatsapp`
 3. Botões só são adicionados se campos existem
 **Testes:** 3/3 passando
+
+
+## Tarefa: Remover Botão "Enviar Mensagem" de Aniversariantes
+- [x] Localizar arquivo de aniversariantes
+- [x] Remover botão de enviar mensagem
+- [x] Testar tela

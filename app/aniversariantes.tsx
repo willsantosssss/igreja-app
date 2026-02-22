@@ -163,14 +163,7 @@ export default function AniversariantesScreen() {
                   </View>
                 </View>
 
-                <TouchableOpacity
-                  className="rounded-full py-2 items-center border"
-                  style={{ borderColor: colors.primary }}
-                >
-                  <Text className="font-semibold text-sm" style={{ color: colors.primary }}>
-                    Enviar mensagem 💌
-                  </Text>
-                </TouchableOpacity>
+
               </View>
             ))
           ) : (
