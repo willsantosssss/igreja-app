@@ -692,3 +692,14 @@
 2. Removido SQL raw e pool manual
 3. Corrigida createLider para retornar objeto com ID
 4. Testes criados e passando (5/5)
+
+
+## Bug: Erro ao Salvar Aviso Importante no Painel Admin
+- [x] Localizar arquivo aviso-importante.tsx
+- [x] Identificar onde booleano está sendo enviado em vez de número
+- [x] Converter ativo de boolean para number (0 ou 1)
+- [x] Testar salvamento de aviso
+
+**Problema:** Campo `ativo` estava sendo enviado como booleano, mas servidor esperava número (0 ou 1)
+**Solução:** Convertido `ativo ? 1 : 0` antes de enviar para tRPC
+**Testes:** 3/3 passando ✓

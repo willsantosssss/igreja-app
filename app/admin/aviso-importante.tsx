@@ -57,7 +57,7 @@ export default function AvisoImportanteScreen() {
       await salvarMutation.mutateAsync({
         titulo: titulo.trim(),
         mensagem: mensagem.trim(),
-        ativo,
+        ativo: ativo ? 1 : 0,
       });
       Alert.alert("Sucesso", "Aviso importante atualizado e sincronizado!");
       router.back();
