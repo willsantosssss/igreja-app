@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScreenContainer } from '@/components/screen-container';
