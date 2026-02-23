@@ -798,3 +798,16 @@
 3. Botão YouTube (vermelho) com link: https://www.youtube.com/@2ieqroo
 4. Ambos os botões usam Linking.openURL() para abrir links
 5. Testes criados e passando (4/4)
+
+
+## Tarefa: Trocar Ícones de Emoji pelos Oficiais
+- [x] Instalar biblioteca de ícones SVG
+- [x] Substituir ícones de emoji pelos oficiais
+- [x] Testar
+
+**Implementação:**
+1. Criado componente InstagramIcon com gradiente oficial (rosa/roxo)
+2. Criado componente YouTubeIcon com cor oficial (vermelho)
+3. Substituídos ícones de emoji pelos SVG oficiais
+4. Ícones renderizam com tamanho 28px
+5. Testes criados e passando (4/4)

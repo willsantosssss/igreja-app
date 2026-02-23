@@ -1,15 +1,16 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl, ActivityIndicator } from "react-native";
-import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColors } from "@/hooks/use-colors";
-import { useState, useEffect } from "react";
-import { router } from "expo-router";
-import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScreenContainer } from '@/components/screen-container';
+import { useColors } from '@/hooks/use-colors';
+import { router } from 'expo-router';
+import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
+import { InstagramIcon } from '@/components/icons/instagram-icon';
+import { YouTubeIcon } from '@/components/icons/youtube-icon';
 
-import { type AvisoImportante } from "@/lib/data/aviso-importante";
-import { trpc } from "@/lib/trpc";
-import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+import { type AvisoImportante } from '@/lib/data/aviso-importante';
+import { trpc } from '@/lib/trpc';
+import { useTempoRelativo } from '@/hooks/use-tempo-relativo';
 
 interface Usuario {
   nome: string;
@@ -313,25 +314,25 @@ export default function HomeScreen() {
 
           <View className="flex-row gap-3">
             <TouchableOpacity
-              className="flex-1 bg-pink-500 rounded-xl py-4 items-center justify-center"
+              className="flex-1 rounded-xl py-4 items-center justify-center" style={{ backgroundColor: '#E4405F' }}
               onPress={() => {
                 const { Linking } = require('react-native');
                 Linking.openURL('https://www.instagram.com/2ieqroo/');
               }}
             >
-              <Text className="text-2xl mb-1">📷</Text>
-              <Text className="text-white font-semibold text-sm">Instagram</Text>
+              <InstagramIcon size={28} color="white" />
+              <Text className="text-white font-semibold text-sm mt-2">Instagram</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-1 bg-red-600 rounded-xl py-4 items-center justify-center"
+              className="flex-1 rounded-xl py-4 items-center justify-center" style={{ backgroundColor: '#FF0000' }}
               onPress={() => {
                 const { Linking } = require('react-native');
                 Linking.openURL('https://www.youtube.com/@2ieqroo');
               }}
             >
-              <Text className="text-2xl mb-1">▶️</Text>
-              <Text className="text-white font-semibold text-sm">YouTube</Text>
+              <YouTubeIcon size={28} color="white" />
+              <Text className="text-white font-semibold text-sm mt-2">YouTube</Text>
             </TouchableOpacity>
           </View>
         </View>
