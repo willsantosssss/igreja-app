@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
 import { InstagramIcon } from '@/components/icons/instagram-icon';
 import { YouTubeIcon } from '@/components/icons/youtube-icon';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { type AvisoImportante } from '@/lib/data/aviso-importante';
 import { trpc } from '@/lib/trpc';
