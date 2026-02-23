@@ -770,3 +770,17 @@
 4. Usuário pode digitar testemunho e salvar via tRPC
 5. Testemunho aparece em card verde quando salvo
 6. Testes criados e passando (3/3)
+
+
+## Tarefa: Adicionar Opção de Compartilhar Anotações no Devocional
+- [x] Localizar arquivo de devocional
+- [x] Encontrar seção de anotações
+- [x] Adicionar botão de compartilhar
+- [x] Implementar funcionalidade de compartilhamento
+- [x] Testar
+
+**Status:** Feature já estava implementada!
+- Botão "📤 Compartilhar" aparece automaticamente quando há anotações
+- Formata mensagem com nome do capítulo e assinatura da igreja
+- Usa Share API nativa do React Native
+- Testes criados e passando (4/4)
