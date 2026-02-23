@@ -36,6 +36,10 @@ export default function EventDetailScreen() {
     { enabled: eventoId !== null }
   );
 
+  // Hook para criar inscrição no banco de dados
+  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+  const criarInscricaoMutation = trpc.inscricoesEventos.create.useMutation();
+
   useEffect(() => {
     if (eventoData) {
       // Adaptar formato do banco para formato do app
@@ -127,8 +131,7 @@ export default function EventDetailScreen() {
 
     try {
       // Salvar no banco de dados via tRPC
-      // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
-      await trpc.inscricoesEventos.create.mutate({
+      await criarInscricaoMutation.mutateAsync({
         eventoId: Number(event.id),
         nome: nome.trim(),
         telefone: telefone.trim(),
