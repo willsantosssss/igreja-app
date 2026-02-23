@@ -480,6 +480,33 @@ export const appRouter = router({
       }))
       .mutation(({ input }) => db.updateDadosContribuicao(input.id, input.data)),
   }),
+
+  // Inscrições em Eventos
+  inscricoesEventos: router({
+    list: publicProcedure.query(() => db.getInscricoesEventos()),
+    getByEvento: publicProcedure.input(z.number()).query(({ input }) => db.getInscricoesEventosByEventoId(input)),
+    create: publicProcedure
+      .input(z.object({
+        eventoId: z.number(),
+        nome: z.string().min(1),
+        telefone: z.string().min(1),
+        celula: z.string().min(1),
+        userId: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Usar userId do contexto se disponível, caso contrário usar o fornecido
+        const userId = ctx.user?.id || input.userId || 0;
+        return db.createInscricaoEvento({
+          eventoId: input.eventoId,
+          nome: input.nome,
+          telefone: input.telefone,
+          celula: input.celula,
+          userId,
+          status: 'confirmado',
+        });
+      }),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEvento(input)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

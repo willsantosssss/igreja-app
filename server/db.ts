@@ -5,7 +5,7 @@ import {
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
   contribuicoes, inscricoesEventos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -587,10 +587,11 @@ export async function getInscricoesEventosByEventoId(eventoId: number) {
   return db.select().from(inscricoesEventos).where(eq(inscricoesEventos.eventoId, eventoId));
 }
 
-export async function createInscricaoEvento(data: any) {
+export async function createInscricaoEvento(data: InsertInscricaoEvento) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(inscricoesEventos).values(data);
+  return data;
 }
 
 export async function deleteInscricaoEvento(id: number) {

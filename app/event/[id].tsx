@@ -126,6 +126,16 @@ export default function EventDetailScreen() {
     }
 
     try {
+      // Salvar no banco de dados via tRPC
+      // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+      await trpc.inscricoesEventos.create.mutate({
+        eventoId: Number(event.id),
+        nome: nome.trim(),
+        telefone: telefone.trim(),
+        celula: celula.trim(),
+      });
+
+      // Também salvar no AsyncStorage para compatibilidade com relatórios locais
       await criarInscricao({
         eventoId: event.id,
         eventoTitulo: event.title,
@@ -146,7 +156,8 @@ export default function EventDetailScreen() {
         `Você foi inscrito no evento "${event.title}". Em breve você receberá mais informações.`,
         [{ text: "OK" }]
       );
-    } catch {
+    } catch (error) {
+      console.error("Erro ao inscrever:", error);
       Alert.alert("Erro", "Não foi possível realizar a inscrição. Tente novamente.");
     }
   };

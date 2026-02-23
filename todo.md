@@ -816,3 +816,11 @@
 - [x] Modificar código para usar latitude/longitude em vez de endereço em texto
 - [x] Atualizar função handleNavigate para construir URL com coordenadas
 - [x] Testar funcionamento do botão "Como Chegar" em cada célula
+
+## Inscrições em Eventos Especiais - Salvar no Banco de Dados
+- [x] Adicionar campo `celula` à tabela de inscrições no banco de dados
+- [x] Aplicar migração do banco de dados
+- [x] Criar router tRPC para inscrições de eventos
+- [x] Implementar endpoint para criar inscrição no banco de dados
+- [x] Modificar app para usar endpoint tRPC além de AsyncStorage
+- [x] Criar testes para validar que inscrições são salvas (19/19 passando)

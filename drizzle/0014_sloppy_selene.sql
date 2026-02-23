@@ -1,0 +1,1 @@
+ALTER TABLE `inscricoesEventos` ADD `celula` varchar(255) NOT NULL;

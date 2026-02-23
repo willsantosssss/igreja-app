@@ -197,6 +197,7 @@ export const inscricoesEventos = mysqlTable("inscricoesEventos", {
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
+  celula: varchar("celula", { length: 255 }).notNull(),
   status: mysqlEnum("status", ["confirmado", "cancelado"]).default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
