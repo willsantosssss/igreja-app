@@ -784,3 +784,17 @@
 - Formata mensagem com nome do capítulo e assinatura da igreja
 - Usa Share API nativa do React Native
 - Testes criados e passando (4/4)
+
+
+## Tarefa: Adicionar Seção de Redes Sociais na Home
+- [x] Localizar arquivo de home
+- [x] Encontrar seção de aniversariantes
+- [x] Adicionar seção de redes sociais com botões
+- [x] Testar
+
+**Implementação:**
+1. Adicionada seção "Acesse nossas redes sociais" abaixo de "Aniversariantes do Dia"
+2. Botão Instagram (rosa) com link: https://www.instagram.com/2ieqroo/
+3. Botão YouTube (vermelho) com link: https://www.youtube.com/@2ieqroo
+4. Ambos os botões usam Linking.openURL() para abrir links
+5. Testes criados e passando (4/4)

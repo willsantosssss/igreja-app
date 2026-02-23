@@ -303,6 +303,38 @@ export default function HomeScreen() {
             </Text>
           )}
         </View>
+
+        {/* Redes Sociais */}
+        <View className="bg-surface rounded-2xl p-5 gap-4 border border-border">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-2xl">📱</Text>
+            <Text className="text-base font-bold text-foreground">Acesse nossas redes sociais</Text>
+          </View>
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity
+              className="flex-1 bg-pink-500 rounded-xl py-4 items-center justify-center"
+              onPress={() => {
+                const { Linking } = require('react-native');
+                Linking.openURL('https://www.instagram.com/2ieqroo/');
+              }}
+            >
+              <Text className="text-2xl mb-1">📷</Text>
+              <Text className="text-white font-semibold text-sm">Instagram</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 bg-red-600 rounded-xl py-4 items-center justify-center"
+              onPress={() => {
+                const { Linking } = require('react-native');
+                Linking.openURL('https://www.youtube.com/@2ieqroo');
+              }}
+            >
+              <Text className="text-2xl mb-1">▶️</Text>
+              <Text className="text-white font-semibold text-sm">YouTube</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </ScreenContainer>
   );
