@@ -755,3 +755,18 @@
 - [x] Localizar arquivo de aniversariantes
 - [x] Remover botão de enviar mensagem
 - [x] Testar tela
+
+
+## Tarefa: Mostrar Campo "Testemunho" Quando Oração for Respondida
+- [x] Localizar arquivo de oração
+- [x] Encontrar lógica de exibição do campo testemunho
+- [x] Corrigir para mostrar testemunho quando respondida
+- [x] Testar
+
+**Implementação:**
+1. Adicionado campo `testimony` ao mapeamento de dados da query
+2. Criado formulário para adicionar testemunho quando oração for respondida
+3. Botão "+ Adicionar Testemunho" aparece quando oração é marcada como respondida
+4. Usuário pode digitar testemunho e salvar via tRPC
+5. Testemunho aparece em card verde quando salvo
+6. Testes criados e passando (3/3)

@@ -48,6 +48,7 @@ export default function OracaoScreen() {
         prayerCount: p.contadorOrando || 0,
         prayingCount: p.contadorOrando || 0,
         isAnswered: p.respondido || false,
+        testimony: p.testemunho || undefined,
       })));
     }
   }, [pedidosData]);
@@ -56,6 +57,8 @@ export default function OracaoScreen() {
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newCategory, setNewCategory] = useState<PrayerCategory>("espiritual");
+  const [newTestimony, setNewTestimony] = useState("");
+  const [showTestimonyForm, setShowTestimonyForm] = useState<string | null>(null);
 
   const onRefresh = async () => {
     await refetch();
@@ -346,10 +349,72 @@ export default function OracaoScreen() {
                   {request.description}
                 </Text>
 
-                {request.testimony && (
-                  <View className="p-3 rounded-xl" style={{ backgroundColor: `${colors.success}10` }}>
-                    <Text className="text-sm font-semibold text-foreground mb-1">Testemunho:</Text>
-                    <Text className="text-sm text-foreground italic">{request.testimony}</Text>
+                {request.isAnswered && (
+                  <View className="gap-2">
+                    {request.testimony && (
+                      <View className="p-3 rounded-xl" style={{ backgroundColor: `${colors.success}10` }}>
+                        <Text className="text-sm font-semibold text-foreground mb-1">Testemunho:</Text>
+                        <Text className="text-sm text-foreground italic">{request.testimony}</Text>
+                      </View>
+                    )}
+                    {!request.testimony && showTestimonyForm !== request.id && (
+                      <TouchableOpacity
+                        className="px-4 py-2 rounded-full items-center border"
+                        style={{ borderColor: colors.success }}
+                        onPress={() => setShowTestimonyForm(request.id)}
+                      >
+                        <Text className="text-sm font-semibold" style={{ color: colors.success }}>
+                          + Adicionar Testemunho
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    {showTestimonyForm === request.id && (
+                      <View className="gap-2">
+                        <TextInput
+                          className="bg-surface rounded-xl px-4 py-3 text-foreground border"
+                          style={{ borderColor: colors.border, minHeight: 80, textAlignVertical: "top" }}
+                          placeholder="Compartilhe como Deus respondeu sua oracao..."
+                          placeholderTextColor={colors.muted}
+                          value={newTestimony}
+                          onChangeText={setNewTestimony}
+                          multiline
+                          numberOfLines={3}
+                        />
+                        <View className="flex-row gap-2">
+                          <TouchableOpacity
+                            className="flex-1 px-4 py-2 rounded-full items-center"
+                            style={{ backgroundColor: colors.primary }}
+                            onPress={async () => {
+                              if (newTestimony.trim()) {
+                                try {
+                                  await trpc.oracao.update.mutate({
+                                    id: parseInt(request.id),
+                                    data: { testemunho: newTestimony.trim() },
+                                  });
+                                  setNewTestimony("");
+                                  setShowTestimonyForm(null);
+                                  refetch();
+                                } catch (error) {
+                                  console.error("Erro ao salvar testemunho:", error);
+                                }
+                              }
+                            }}
+                          >
+                            <Text className="text-white font-semibold text-sm">Salvar</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            className="flex-1 px-4 py-2 rounded-full items-center border"
+                            style={{ borderColor: colors.border }}
+                            onPress={() => {
+                              setNewTestimony("");
+                              setShowTestimonyForm(null);
+                            }}
+                          >
+                            <Text className="text-foreground font-semibold text-sm">Cancelar</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
                   </View>
                 )}
 
