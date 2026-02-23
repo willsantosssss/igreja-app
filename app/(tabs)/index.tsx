@@ -5,8 +5,7 @@ import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { router } from 'expo-router';
 import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
-import { InstagramIcon } from '@/components/icons/instagram-icon';
-import { YouTubeIcon } from '@/components/icons/youtube-icon';
+import { Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { type AvisoImportante } from '@/lib/data/aviso-importante';
@@ -315,25 +314,31 @@ export default function HomeScreen() {
 
           <View className="flex-row gap-3">
             <TouchableOpacity
-              className="flex-1 rounded-xl py-4 items-center justify-center" style={{ backgroundColor: '#E4405F' }}
+              className="flex-1 rounded-xl py-4 items-center justify-center bg-white"
               onPress={() => {
                 const { Linking } = require('react-native');
                 Linking.openURL('https://www.instagram.com/2ieqroo/');
               }}
             >
-              <InstagramIcon size={28} color="white" />
-              <Text className="text-white font-semibold text-sm mt-2">Instagram</Text>
+              <Image
+                source={require('@/assets/images/instagram-icon.png')}
+                style={{ width: 48, height: 48 }}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-1 rounded-xl py-4 items-center justify-center" style={{ backgroundColor: '#FF0000' }}
+              className="flex-1 rounded-xl py-4 items-center justify-center bg-white"
               onPress={() => {
                 const { Linking } = require('react-native');
                 Linking.openURL('https://www.youtube.com/@2ieqroo');
               }}
             >
-              <YouTubeIcon size={28} color="white" />
-              <Text className="text-white font-semibold text-sm mt-2">YouTube</Text>
+              <Image
+                source={require('@/assets/images/youtube-icon.png')}
+                style={{ width: 48, height: 48 }}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           </View>
         </View>
