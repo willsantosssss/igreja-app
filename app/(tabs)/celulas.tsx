@@ -61,16 +61,32 @@ export default function CelulasScreen() {
     );
   };
 
-  const handleNavigate = (address: string) => {
+  const handleNavigate = (latitude: string, longitude: string, address: string) => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    const encodedAddress = encodeURIComponent(address);
-    const url = Platform.select({
-      ios: `maps://app?daddr=${encodedAddress}`,
-      android: `google.navigation:q=${encodedAddress}`,
-      default: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
-    });
+    
+    // Usar coordenadas (latitude/longitude) para precisão máxima no Google Maps
+    // Se as coordenadas não estiverem disponíveis, usar o endereço como fallback
+    let url: string;
+    
+    if (latitude && longitude) {
+      // Usar coordenadas para máxima precisão
+      url = Platform.select({
+        ios: `maps://maps.apple.com/?daddr=${latitude},${longitude}`,
+        android: `google.navigation:q=${latitude},${longitude}`,
+        default: `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
+      }) || '';
+    } else {
+      // Fallback para endereço em texto se coordenadas não estiverem disponíveis
+      const encodedAddress = encodeURIComponent(address);
+      url = Platform.select({
+        ios: `maps://app?daddr=${encodedAddress}`,
+        android: `google.navigation:q=${encodedAddress}`,
+        default: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
+      }) || '';
+    }
+    
     Linking.openURL(url);
   };
 
@@ -159,7 +175,13 @@ export default function CelulasScreen() {
                   style={{ borderColor: colors.primary }}
                   onPress={() => {
                     const fullAddress = `${celula.address.street}, ${celula.address.neighborhood}, ${celula.address.city}`;
-                    handleNavigate(fullAddress);
+                    // Buscar latitude e longitude do objeto original da célula
+                    const celulaOriginal = celulasData?.find((c: any) => c.id.toString() === celula.id);
+                    handleNavigate(
+                      celulaOriginal?.latitude || '',
+                      celulaOriginal?.longitude || '',
+                      fullAddress
+                    );
                   }}
                 >
                   <Text className="font-semibold text-sm" style={{ color: colors.primary }}>

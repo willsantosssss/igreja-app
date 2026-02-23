@@ -811,3 +811,8 @@
 3. Substituídos ícones de emoji pelos SVG oficiais
 4. Ícones renderizam com tamanho 28px
 5. Testes criados e passando (4/4)
+
+## Correção de Coordenadas do Google Maps (Células)
+- [x] Modificar código para usar latitude/longitude em vez de endereço em texto
+- [x] Atualizar função handleNavigate para construir URL com coordenadas
+- [x] Testar funcionamento do botão "Como Chegar" em cada célula
