@@ -843,3 +843,7 @@
 - [x] Adicionar link/botão para Escola de Crescimento no painel admin
 - [x] Registrar rota no root layout se necessário
 - [x] Testar se aba aparece e funciona corretamente
+
+## Correção - Erro de eventosDB no Painel Admin
+- [x] Corrigir erro "Cannot access 'eventosDB' before initialization" na tela de inscritos em eventos
+- [x] Testar se tela de inscritos em eventos funciona corretamente

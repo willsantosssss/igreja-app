@@ -21,17 +21,17 @@ export default function AdminInscricoesEventosScreen() {
   const [filtroCelula, setFiltroCelula] = useState<string>('todas');
   const [carregando, setCarregando] = useState(true);
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [eventosDB])
-  );
-
   // Buscar eventos especiais do banco de dados
   const { data: eventosDB = [], isLoading: carregandoEventos } = trpc.eventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarDados();
+    }, [eventosDB])
+  );
 
   const carregarDados = async () => {
     setCarregando(true);
