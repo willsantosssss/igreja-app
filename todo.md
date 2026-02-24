@@ -838,3 +838,8 @@
 - [x] Criar painel admin para editar data de início
 - [x] Atualizar textos de apresentação dos cursos
 - [x] Exibir data de início na aba Agenda
+
+## Correção - Aba Escola de Crescimento no Admin
+- [x] Adicionar link/botão para Escola de Crescimento no painel admin
+- [x] Registrar rota no root layout se necessário
+- [x] Testar se aba aparece e funciona corretamente
