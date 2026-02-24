@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
@@ -34,23 +34,16 @@ export default function AdminInscricoesEventosScreen() {
     refetchInterval: 30000,
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [eventosDB, inscricoesDB])
-  );
-
-  const carregarDados = async () => {
-    setCarregando(true);
-    // Usar dados do banco de dados via tRPC
+  // Sincronizar inscrições do banco de dados
+  useEffect(() => {
     if (inscricoesDB && inscricoesDB.length > 0) {
       setInscricoes(inscricoesDB);
-    } else {
-      // Fallback para AsyncStorage se banco estiver vazio
-      const insc = await getInscricoesEventos();
-      setInscricoes(insc);
+      setCarregando(false);
     }
-    // Filtrar eventos especiais do banco de dados
+  }, [inscricoesDB]);
+
+  // Sincronizar eventos especiais
+  useEffect(() => {
     if (eventosDB && eventosDB.length > 0) {
       const eventosEspeciais = eventosDB.filter((e: any) => e.tipo === 'evento-especial' || e.tipo === 'retiro' || e.tipo === 'conferencia');
       setEventosEspeciais(eventosEspeciais.map((e: any) => ({
@@ -63,8 +56,7 @@ export default function AdminInscricoesEventosScreen() {
         category: e.tipo || 'evento-especial',
       })));
     }
-    setCarregando(false);
-  };
+  }, [eventosDB]);
 
   // Filtrar inscrições
   const inscricoesFiltradas = useMemo(() => {
