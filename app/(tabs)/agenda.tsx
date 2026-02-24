@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, RefreshControl, Alert, TextInput, Modal, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -7,6 +7,8 @@ import { categoryLabels, categoryColors, type EventCategory, type Event } from "
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
 import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+import { useCelulas } from "@/lib/data/celulas";
+import * as Haptics from "expo-haptics";
 
 export default function AgendaScreen() {
   const colors = useColors();
@@ -175,6 +177,26 @@ export default function AgendaScreen() {
             </Text>
           </View>
         )}
+
+        {/* Seção Escola de Crescimento */}
+        <View className="mt-8 gap-4">
+          <View className="gap-2">
+            <Text className="text-2xl font-bold text-foreground">Escola de Crescimento</Text>
+            <Text className="text-base text-muted">Inscreva-se nos cursos de desenvolvimento espiritual</Text>
+          </View>
+          <TouchableOpacity
+            className="bg-primary rounded-2xl p-5 gap-3"
+            onPress={() => router.push("/escola-crescimento")}
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-lg font-bold text-white">Cursos Disponíveis</Text>
+                <Text className="text-sm text-white opacity-80 mt-1">Conecte • Lidere 1 • Lidere 2 • Avance</Text>
+              </View>
+              <IconSymbol name="chevron.right" size={24} color="white" />
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </ScreenContainer>
   );

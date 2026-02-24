@@ -259,3 +259,18 @@ export const dadosContribuicao = mysqlTable("dadosContribuicao", {
 
 export type DadosContribuicao = typeof dadosContribuicao.$inferSelect;
 export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;
+
+// Inscrições Escola de Crescimento table
+export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimento", {
+  id: int("id").autoincrement().primaryKey(),
+  nome: varchar("nome", { length: 255 }).notNull(),
+  celula: varchar("celula", { length: 255 }).notNull(),
+  curso: mysqlEnum("curso", ["Conecte", "Lidere 1", "Lidere 2", "Avance"]).notNull(),
+  userId: int("userId"),
+  status: mysqlEnum("status", ["confirmado", "cancelado"]).default("confirmado").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferSelect;
+export type InsertInscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferInsert;

@@ -3,9 +3,9 @@ import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -598,6 +598,27 @@ export async function deleteInscricaoEvento(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(inscricoesEventos).where(eq(inscricoesEventos.id, id));
+}
+
+// ==================== ESCOLA DE CRESCIMENTO ====================
+
+export async function getInscricoesEscolaCrescimento() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(inscricoesEscolaCrescimento);
+}
+
+export async function createInscricaoEscolaCrescimento(data: InsertInscricaoEscolaCrescimento) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(inscricoesEscolaCrescimento).values(data);
+  return data;
+}
+
+export async function deleteInscricaoEscolaCrescimento(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(inscricoesEscolaCrescimento).where(eq(inscricoesEscolaCrescimento.id, id));
 }
 
 // ==================== ANIVERSARIANTES ====================

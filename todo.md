@@ -824,3 +824,11 @@
 - [x] Implementar endpoint para criar inscrição no banco de dados
 - [x] Modificar app para usar endpoint tRPC além de AsyncStorage
 - [x] Criar testes para validar que inscrições são salvas (19/19 passando)
+
+## Escola de Crescimento - Novo Tipo de Evento
+- [x] Criar tabela de inscrições no banco de dados
+- [x] Criar router tRPC para inscrições
+- [x] Criar tela de inscrição na aba Agenda
+- [x] Implementar formulário com campos: Nome, Célula, Curso
+- [x] Criar painel de relatório no admin
+- [x] Testar fluxo completo de inscrição
