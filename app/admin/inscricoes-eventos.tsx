@@ -27,18 +27,18 @@ export default function AdminInscricoesEventosScreen() {
     refetchInterval: 30000,
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      carregarDados();
-    }, [eventosDB, inscricoesDB])
-  );
-
   // Buscar inscrições do banco de dados via tRPC
   // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
   const { data: inscricoesDB = [], isLoading: carregandoInscricoes, refetch: refetchInscricoes } = trpc.inscricoesEventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarDados();
+    }, [eventosDB, inscricoesDB])
+  );
 
   const carregarDados = async () => {
     setCarregando(true);
