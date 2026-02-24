@@ -578,7 +578,18 @@ export async function deleteContribuicao(id: number) {
 export async function getInscricoesEventos() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inscricoesEventos);
+  const inscricoes = await db.select().from(inscricoesEventos);
+  // Transformar dados para formato esperado pela tela
+  return inscricoes.map(i => ({
+    id: i.id?.toString() || '',
+    eventoId: i.eventoId?.toString() || '',
+    eventoTitulo: i.eventoTitulo || '',
+    eventoData: i.eventoData || '',
+    nomeCompleto: i.nome || '',
+    celula: i.celula || '',
+    telefone: i.telefone || '',
+    createdAt: i.createdAt?.toISOString() || new Date().toISOString(),
+  }));
 }
 
 export async function getInscricoesEventosByEventoId(eventoId: number) {
