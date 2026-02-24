@@ -847,3 +847,8 @@
 ## Correção - Erro de eventosDB no Painel Admin
 - [x] Corrigir erro "Cannot access 'eventosDB' before initialization" na tela de inscritos em eventos
 - [x] Testar se tela de inscritos em eventos funciona corretamente
+
+## Sincronização de Inscritos em Eventos
+- [x] Sincronizar relatório de inscritos em eventos com banco de dados
+- [x] Modificar tela admin para buscar inscrições via tRPC em vez de AsyncStorage
+- [x] Testar se relatório mostra dados corretos do banco de dados

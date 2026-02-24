@@ -30,13 +30,26 @@ export default function AdminInscricoesEventosScreen() {
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-    }, [eventosDB])
+    }, [eventosDB, inscricoesDB])
   );
+
+  // Buscar inscrições do banco de dados via tRPC
+  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+  const { data: inscricoesDB = [], isLoading: carregandoInscricoes, refetch: refetchInscricoes } = trpc.inscricoesEventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
 
   const carregarDados = async () => {
     setCarregando(true);
-    const insc = await getInscricoesEventos();
-    setInscricoes(insc);
+    // Usar dados do banco de dados via tRPC
+    if (inscricoesDB && inscricoesDB.length > 0) {
+      setInscricoes(inscricoesDB);
+    } else {
+      // Fallback para AsyncStorage se banco estiver vazio
+      const insc = await getInscricoesEventos();
+      setInscricoes(insc);
+    }
     // Filtrar eventos especiais do banco de dados
     if (eventosDB && eventosDB.length > 0) {
       const eventosEspeciais = eventosDB.filter((e: any) => e.tipo === 'evento-especial' || e.tipo === 'retiro' || e.tipo === 'conferencia');
