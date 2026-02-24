@@ -527,6 +527,16 @@ export const appRouter = router({
         });
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEscolaCrescimento(input)),
+    getConfig: publicProcedure.query(() => db.getConfigEscolaCrescimento()),
+    updateConfig: protectedProcedure
+      .input(z.object({
+        dataInicio: z.string().optional(),
+        descricaoConecte: z.string().optional(),
+        descricaoLidere1: z.string().optional(),
+        descricaoLidere2: z.string().optional(),
+        descricaoAvance: z.string().optional(),
+      }))
+      .mutation(({ input }) => db.updateConfigEscolaCrescimento(input)),
   }),
 });
 

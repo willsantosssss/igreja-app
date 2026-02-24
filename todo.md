@@ -832,3 +832,9 @@
 - [x] Implementar formulário com campos: Nome, Célula, Curso
 - [x] Criar painel de relatório no admin
 - [x] Testar fluxo completo de inscrição
+
+## Personalização da Escola de Crescimento
+- [x] Adicionar campo de data de início no banco de dados
+- [x] Criar painel admin para editar data de início
+- [x] Atualizar textos de apresentação dos cursos
+- [x] Exibir data de início na aba Agenda

@@ -3,9 +3,9 @@ import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, configEscolaCrescimento,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertConfigEscolaCrescimento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -702,6 +702,50 @@ export async function incrementarContadorOracao(pedidoId: number) {
     return { success: true, novoContador };
   } catch (error) {
     console.error("[Database] Error incrementing oracao counter:", error);
+    throw error;
+  }
+}
+
+// ==================== CONFIG ESCOLA DE CRESCIMENTO ====================
+
+export async function getConfigEscolaCrescimento() {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const result = await db.select().from(configEscolaCrescimento).limit(1);
+    if (result.length === 0) {
+      // Criar configuração padrão se não existir
+      const defaultConfig = {
+        dataInicio: "10/03/2026",
+        descricaoConecte: "Principios elementares da fé.",
+        descricaoLidere1: "Uma vida com propósitos.",
+        descricaoLidere2: "Tornando-se um cristão apaixonado e contagiante.",
+        descricaoAvance: "Kriptonita: Como destruir o que rouba a sua força.",
+      };
+      await db.insert(configEscolaCrescimento).values(defaultConfig);
+      return defaultConfig;
+    }
+    return result[0];
+  } catch (error) {
+    console.error("[Database] Error fetching config escola crescimento:", error);
+    return null;
+  }
+}
+
+export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEscolaCrescimento>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    const config = await getConfigEscolaCrescimento();
+    if (!config) {
+      // Criar nova configuração
+      return await db.insert(configEscolaCrescimento).values(data as InsertConfigEscolaCrescimento);
+    }
+    // Atualizar configuração existente
+    await db.update(configEscolaCrescimento).set(data).limit(1);
+    return await getConfigEscolaCrescimento();
+  } catch (error) {
+    console.error("[Database] Error updating config escola crescimento:", error);
     throw error;
   }
 }

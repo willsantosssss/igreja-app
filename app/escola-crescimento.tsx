@@ -99,28 +99,28 @@ export default function EscolaCrescimentoScreen() {
               <Text className="text-primary font-bold">•</Text>
               <View className="flex-1">
                 <Text className="font-semibold text-foreground">Conecte</Text>
-                <Text className="text-sm text-muted">Introdução aos princípios básicos da fé</Text>
+                <Text className="text-sm text-muted">Principios elementares da fé.</Text>
               </View>
             </View>
             <View className="flex-row items-start gap-2">
               <Text className="text-primary font-bold">•</Text>
               <View className="flex-1">
                 <Text className="font-semibold text-foreground">Lidere 1</Text>
-                <Text className="text-sm text-muted">Fundamentos de liderança cristã</Text>
+                <Text className="text-sm text-muted">Uma vida com propósitos.</Text>
               </View>
             </View>
             <View className="flex-row items-start gap-2">
               <Text className="text-primary font-bold">•</Text>
               <View className="flex-1">
                 <Text className="font-semibold text-foreground">Lidere 2</Text>
-                <Text className="text-sm text-muted">Desenvolvimento avançado de liderança</Text>
+                <Text className="text-sm text-muted">Tornando-se um cristão apaixonado e contagiante.</Text>
               </View>
             </View>
             <View className="flex-row items-start gap-2">
               <Text className="text-primary font-bold">•</Text>
               <View className="flex-1">
-                <Text className="font-semibold text-foreground">Avance</Text>
-                <Text className="text-sm text-muted">Especialização e crescimento contínuo</Text>
+                <Text className="font-semibold text-foreground">Avançe</Text>
+                <Text className="text-sm text-muted">Kriptonita: Como destruir o que rouba a sua força.</Text>
               </View>
             </View>
           </View>

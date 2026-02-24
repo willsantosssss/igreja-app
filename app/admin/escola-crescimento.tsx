@@ -15,6 +15,9 @@ export default function AdminEscolaCrescimentoScreen() {
   const [filtroCurso, setFiltroCurso] = useState<string>('todos');
   const [filtroCelula, setFiltroCelula] = useState<string>('todas');
   const [carregando, setCarregando] = useState(true);
+  const [config, setConfig] = useState<any>(null);
+  const [novaData, setNovaData] = useState("");
+  const [editandoConfig, setEditandoConfig] = useState(false);
 
   // Buscar inscrições de Escola de Crescimento
   // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
@@ -23,13 +26,27 @@ export default function AdminEscolaCrescimentoScreen() {
     refetchInterval: 30000,
   });
 
+  // Buscar configuração
+  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+  const { data: configData, refetch: refetchConfig } = trpc.escolaCrescimento.getConfig.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+
+  // Mutation para atualizar config
+  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+  const updateConfigMutation = trpc.escolaCrescimento.updateConfig.useMutation();
+
   useFocusEffect(
     useCallback(() => {
       if (inscricoesData) {
         setInscricoes(inscricoesData);
       }
+      if (configData) {
+        setConfig(configData);
+        setNovaData(configData.dataInicio || "");
+      }
       setCarregando(carregandoInscricoes);
-    }, [inscricoesData, carregandoInscricoes])
+    }, [inscricoesData, carregandoInscricoes, configData])
   );
 
   // Filtrar inscrições
@@ -57,6 +74,23 @@ export default function AdminEscolaCrescimentoScreen() {
     });
     return stats;
   }, [inscricoes]);
+
+  const handleAtualizarData = async () => {
+    if (!novaData.trim()) {
+      Alert.alert("Atenção", "Informe a data de início.");
+      return;
+    }
+    try {
+      await updateConfigMutation.mutateAsync({
+        dataInicio: novaData,
+      });
+      refetchConfig();
+      setEditandoConfig(false);
+      Alert.alert("Sucesso", "Data de início atualizada com sucesso!");
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível atualizar a data.");
+    }
+  };
 
   const handleDeletar = async (id: number) => {
     Alert.alert(
@@ -112,6 +146,39 @@ export default function AdminEscolaCrescimentoScreen() {
               </View>
             ))}
           </View>
+        </View>
+
+        {/* Configuração */}
+        <View className="bg-primary rounded-2xl p-4 gap-3 border border-primary">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-lg font-bold text-white">Data de Início</Text>
+              <Text className="text-sm text-white opacity-80 mt-1">{config?.dataInicio || "Não configurado"}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setEditandoConfig(!editandoConfig)}
+              className="p-2"
+            >
+              <IconSymbol name="pencil" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+          {editandoConfig && (
+            <View className="gap-2 mt-2">
+              <TextInput
+                placeholder="DD/MM/YYYY"
+                placeholderTextColor="rgba(255,255,255,0.5)"
+                value={novaData}
+                onChangeText={setNovaData}
+                className="bg-white bg-opacity-20 text-white rounded-lg px-3 py-2"
+              />
+              <TouchableOpacity
+                onPress={handleAtualizarData}
+                className="bg-white rounded-lg py-2 items-center"
+              >
+                <Text className="text-primary font-bold">Salvar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Filtros */}

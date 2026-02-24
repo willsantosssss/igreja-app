@@ -274,3 +274,17 @@ export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimen
 
 export type InscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferSelect;
 export type InsertInscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferInsert;
+
+// Configuração da Escola de Crescimento
+export const configEscolaCrescimento = mysqlTable("configEscolaCrescimento", {
+  id: int("id").autoincrement().primaryKey(),
+  dataInicio: varchar("dataInicio", { length: 10 }).notNull(), // Formato: DD/MM/YYYY
+  descricaoConecte: text("descricaoConecte").notNull(),
+  descricaoLidere1: text("descricaoLidere1").notNull(),
+  descricaoLidere2: text("descricaoLidere2").notNull(),
+  descricaoAvance: text("descricaoAvance").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferSelect;
+export type InsertConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferInsert;

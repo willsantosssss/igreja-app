@@ -10,6 +10,47 @@ import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
 import { useCelulas } from "@/lib/data/celulas";
 import * as Haptics from "expo-haptics";
 
+function EscolaCrescimentoSection() {
+  const colors = useColors();
+  const [config, setConfig] = useState<any>(null);
+  const [carregando, setCarregando] = useState(true);
+
+  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
+  const { data: configData } = trpc.escolaCrescimento.getConfig.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (configData) {
+      setConfig(configData);
+    }
+    setCarregando(false);
+  }, [configData]);
+
+  return (
+    <View className="mt-8 gap-4">
+      <View className="gap-2">
+        <Text className="text-2xl font-bold text-foreground">Escola de Crescimento</Text>
+        <Text className="text-base text-muted">
+          {config?.dataInicio ? `Próxima turma: ${config.dataInicio}` : "Inscreva-se nos cursos de desenvolvimento espiritual"}
+        </Text>
+      </View>
+      <TouchableOpacity
+        className="bg-primary rounded-2xl p-5 gap-3"
+        onPress={() => router.push("/escola-crescimento")}
+      >
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-white">Cursos Disponíveis</Text>
+            <Text className="text-sm text-white opacity-80 mt-1">Conecte • Lidere 1 • Lidere 2 • Avance</Text>
+          </View>
+          <IconSymbol name="chevron.right" size={24} color="white" />
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 export default function AgendaScreen() {
   const colors = useColors();
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
@@ -179,24 +220,7 @@ export default function AgendaScreen() {
         )}
 
         {/* Seção Escola de Crescimento */}
-        <View className="mt-8 gap-4">
-          <View className="gap-2">
-            <Text className="text-2xl font-bold text-foreground">Escola de Crescimento</Text>
-            <Text className="text-base text-muted">Inscreva-se nos cursos de desenvolvimento espiritual</Text>
-          </View>
-          <TouchableOpacity
-            className="bg-primary rounded-2xl p-5 gap-3"
-            onPress={() => router.push("/escola-crescimento")}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1">
-                <Text className="text-lg font-bold text-white">Cursos Disponíveis</Text>
-                <Text className="text-sm text-white opacity-80 mt-1">Conecte • Lidere 1 • Lidere 2 • Avance</Text>
-              </View>
-              <IconSymbol name="chevron.right" size={24} color="white" />
-            </View>
-          </TouchableOpacity>
-        </View>
+        <EscolaCrescimentoSection />
       </ScrollView>
     </ScreenContainer>
   );
