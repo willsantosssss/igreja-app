@@ -852,3 +852,9 @@
 - [x] Sincronizar relatório de inscritos em eventos com banco de dados
 - [x] Modificar tela admin para buscar inscrições via tRPC em vez de AsyncStorage
 - [x] Testar se relatório mostra dados corretos do banco de dados
+
+## Correção - Erro de Build do Gradle para Google Play
+- [ ] Corrigir erro de dependências do Gradle (react-native-gesture-handler)
+- [ ] Ajustar configurações do build.gradle
+- [ ] Testar build do Android localmente
+- [ ] Tentar publicar novamente no Google Play
