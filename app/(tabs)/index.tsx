@@ -176,22 +176,13 @@ export default function HomeScreen() {
           ) : (
             <Text className="text-sm text-white opacity-90">Carregando devocional...</Text>
           )}
-          <View className="flex-row gap-2 mt-2">
-            <TouchableOpacity 
-              className="bg-white rounded-full px-4 py-2 flex-1"
-              onPress={() => router.push("/devocional")}
-              style={{ opacity: 0.95 }}
-            >
-              <Text className="text-primary font-semibold text-sm text-center">Ler capítulo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="border-2 border-white rounded-full px-4 py-2"
-              onPress={() => router.push("/historico-devocionais")}
-              style={{ opacity: 0.95 }}
-            >
-              <Text className="text-white font-semibold text-sm">📚 Histórico</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity 
+            className="bg-white rounded-full px-4 py-2 self-start mt-2"
+            onPress={() => router.push("/devocional")}
+            style={{ opacity: 0.95 }}
+          >
+            <Text className="text-primary font-semibold text-sm">Ler capítulo</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Card de Próximo Evento */}
