@@ -188,25 +188,6 @@ export default function CelulasScreen() {
                     📍 Como Chegar
                   </Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  className="flex-1 rounded-full py-3 items-center"
-                  style={{ backgroundColor: colors.success }}
-                  onPress={() => {
-                    if (Platform.OS !== "web") {
-                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                    }
-                    Alert.alert(
-                      "Interesse Registrado!",
-                      `Obrigado por demonstrar interesse na ${celula.name}. O líder entrará em contato em breve.`,
-                      [{ text: "OK" }]
-                    );
-                  }}
-                >
-                  <Text className="text-white font-semibold text-sm">
-                    ✓ Participar
-                  </Text>
-                </TouchableOpacity>
               </View>
             </View>
           ))}
