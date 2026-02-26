@@ -22,9 +22,7 @@ export function useTempoRelativo(timestamp: number | undefined): string {
       const horas = Math.floor(minutos / 60);
       const dias = Math.floor(horas / 24);
 
-      if (segundos < 10) {
-        setTempoRelativo('Agora mesmo');
-      } else if (segundos < 60) {
+      if (segundos < 60) {
         setTempoRelativo('Há menos de 1 min');
       } else if (minutos < 60) {
         setTempoRelativo(`Há ${minutos} min`);
