@@ -47,7 +47,7 @@ const config: ExpoConfig = {
   supportsTablet: true,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
-  newArchEnabled: true,
+  newArchEnabled: false,
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
@@ -124,13 +124,15 @@ const config: ExpoConfig = {
           kotlinVersion: "2.2.20",
           gradleVersion: "8.10.2",
           ndkVersion: "27.0.12077973",
+          extraProguardRules: "-dontwarn com.facebook.**\n-dontwarn com.google.errorprone.**\n-dontwarn org.bouncycastle.**",
+          newArchEnabled: false,
         },
       },
     ],
   ],
   experiments: {
     typedRoutes: true,
-    reactCompiler: true,
+    reactCompiler: false,
   },
 };
 

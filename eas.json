@@ -14,7 +14,9 @@
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
         "env": {
-          "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4096m"
+          "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4096m -Dorg.gradle.workers.max=4",
+          "ORG_GRADLE_PROJECT_android_useAndroidX": "true",
+          "ORG_GRADLE_PROJECT_android_enableJetifier": "true"
         }
       }
     },
@@ -24,7 +26,9 @@
         "buildType": "app-bundle",
         "gradleCommand": ":app:bundleRelease",
         "env": {
-          "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4096m"
+          "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4096m -Dorg.gradle.workers.max=4",
+          "ORG_GRADLE_PROJECT_android_useAndroidX": "true",
+          "ORG_GRADLE_PROJECT_android_enableJetifier": "true"
         }
       }
     }
