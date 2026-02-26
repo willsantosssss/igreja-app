@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, Linking, Platform } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, Linking, Platform, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -6,9 +6,13 @@ import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { trpc } from "@/lib/trpc";
+import { useState } from "react";
+import { useThemeContext } from "@/lib/theme-provider";
 
 export default function MaisScreen() {
   const colors = useColors();
+  const { colorScheme, setColorScheme } = useThemeContext();
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   const handleContribuir = () => {
     if (Platform.OS !== "web") {
@@ -35,11 +39,15 @@ export default function MaisScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    Alert.alert(
-      "Configurações",
-      "Preferências e ajustes do aplicativo",
-      [{ text: "OK" }]
-    );
+    setShowThemeModal(true);
+  };
+
+  const handleThemeChange = (theme: 'light' | 'dark') => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    setColorScheme(theme);
+    setShowThemeModal(false);
   };
 
   const handleSobre = () => {
@@ -384,6 +392,60 @@ export default function MaisScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Modal de Tema */}
+      <Modal
+        visible={showThemeModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowThemeModal(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center">
+          <View className="bg-background rounded-3xl p-6 w-80 gap-4 border border-border">
+            <Text className="text-2xl font-bold text-foreground text-center">Tema</Text>
+            <Text className="text-base text-muted text-center">Escolha o tema do aplicativo</Text>
+            
+            <View className="gap-3 mt-4">
+              <TouchableOpacity
+                className={`rounded-2xl p-4 flex-row items-center gap-3 border-2 ${colorScheme === 'light' ? 'bg-primary/10 border-primary' : 'bg-surface border-border'}`}
+                onPress={() => handleThemeChange('light')}
+              >
+                <View className="flex-1">
+                  <Text className="text-lg font-bold text-foreground">Claro</Text>
+                  <Text className="text-sm text-muted">Tema claro e luminoso</Text>
+                </View>
+                {colorScheme === 'light' && (
+                  <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
+                    <Text className="text-white font-bold">✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className={`rounded-2xl p-4 flex-row items-center gap-3 border-2 ${colorScheme === 'dark' ? 'bg-primary/10 border-primary' : 'bg-surface border-border'}`}
+                onPress={() => handleThemeChange('dark')}
+              >
+                <View className="flex-1">
+                  <Text className="text-lg font-bold text-foreground">Escuro</Text>
+                  <Text className="text-sm text-muted">Tema escuro e confortavel</Text>
+                </View>
+                {colorScheme === 'dark' && (
+                  <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
+                    <Text className="text-white font-bold">✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              className="bg-primary rounded-2xl p-4 mt-4"
+              onPress={() => setShowThemeModal(false)}
+            >
+              <Text className="text-white font-bold text-center">Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
