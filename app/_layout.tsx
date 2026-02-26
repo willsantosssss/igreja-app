@@ -85,7 +85,7 @@ function RootLayoutContent() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {!isLoggedIn ? (
+      {isLoggedIn === null || !isLoggedIn ? (
         <Stack.Screen name="login" />
       ) : needsCadastro ? (
         <Stack.Screen name="completar-cadastro" />
