@@ -43,9 +43,10 @@ const config: ExpoConfig = {
   slug: env.appSlug,
   version: "1.0.0",
   orientation: "portrait",
+  userInterfaceStyle: "automatic",
+  supportsTablet: true,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
-  userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
@@ -78,6 +79,7 @@ const config: ExpoConfig = {
         category: ["BROWSABLE", "DEFAULT"],
       },
     ],
+    screenOrientation: "portrait",
   },
   web: {
     bundler: "metro",
