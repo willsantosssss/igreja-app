@@ -25,7 +25,7 @@ const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 
 export const unstable_settings = {
-  anchor: "(tabs)",
+  anchor: "login",
 };
 
 function RootLayoutContent() {
@@ -83,42 +83,53 @@ function RootLayoutContent() {
     );
   }
 
+  // Explicit routing based on authentication state
+  if (isLoggedIn === true && needsCadastro === true) {
+    // User is logged in but needs to complete registration
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="completar-cadastro" options={{ animationEnabled: false }} />
+      </Stack>
+    );
+  }
+
+  if (isLoggedIn === true && needsCadastro === false) {
+    // User is fully logged in
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ animationEnabled: false }} />
+        <Stack.Screen name="oauth/callback" />
+        <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/inscricoes-eventos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/oracao" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/celulas" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/contribuicao" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aniversariantes-gerenciar" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aviso-importante" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/noticias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/historico" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
+      </Stack>
+    );
+  }
+
+  // Default: User is not logged in - show login screen
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {isLoggedIn === null || !isLoggedIn ? (
-        <Stack.Screen name="login" />
-      ) : needsCadastro ? (
-        <Stack.Screen name="completar-cadastro" />
-      ) : (
-        <>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="oauth/callback" />
-          <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
-          <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
-          <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
-          <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
-          <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/inscricoes-eventos" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/oracao" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/celulas" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/contribuicao" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/aniversariantes-gerenciar" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/aviso-importante" options={{ presentation: "modal" }} />
-          <Stack.Screen name="admin/noticias" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/historico" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
-          <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
-        </>
-      )}
-      <StatusBar style="auto" />
+      <Stack.Screen name="login" options={{ animationEnabled: false }} />
     </Stack>
   );
 }
