@@ -8,7 +8,7 @@ import { trpc } from "@/lib/trpc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+
 
 export default function OracaoScreen() {
   const colors = useColors();
@@ -34,7 +34,7 @@ export default function OracaoScreen() {
     },
   });
 
-  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
+
 
   useEffect(() => {
     if (pedidosData) {
@@ -249,14 +249,9 @@ export default function OracaoScreen() {
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="text-3xl font-bold text-foreground">Oração</Text>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-base text-muted">
-                Pedidos da comunidade
-              </Text>
-              <Text className="text-xs text-muted">
-                🔄 {ultimaAtualizacao}
-              </Text>
-            </View>
+            <Text className="text-base text-muted">
+              Pedidos da comunidade
+            </Text>
           </View>
           <TouchableOpacity
             className="rounded-full px-4 py-2 flex-row items-center gap-2"

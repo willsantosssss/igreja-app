@@ -7,7 +7,7 @@ import { type Celula } from "@/lib/data/celulas";
 import { trpc } from "@/lib/trpc";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
-import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+
 
 export default function CelulasScreen() {
   const colors = useColors();
@@ -18,7 +18,7 @@ export default function CelulasScreen() {
     refetchInterval: 30000,
   });
 
-  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
+
 
   useEffect(() => {
     if (celulasData) {
@@ -100,14 +100,9 @@ export default function CelulasScreen() {
       >
         <View className="gap-2">
           <Text className="text-3xl font-bold text-foreground">Células</Text>
-          <View className="flex-row items-center justify-between">
-            <Text className="text-base text-muted">
-              Encontre uma célula perto de você
-            </Text>
-            <Text className="text-xs text-muted">
-              🔄 {ultimaAtualizacao}
-            </Text>
-          </View>
+          <Text className="text-base text-muted">
+            Encontre uma célula perto de você
+          </Text>
         </View>
 
         {/* Lista de células */}

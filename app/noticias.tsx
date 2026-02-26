@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { useState, useEffect } from "react";
 import { type Noticia } from "@/lib/data/noticias";
 import { trpc } from "@/lib/trpc";
-import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+
 
 interface News {
   id: string;
@@ -43,7 +43,7 @@ export default function NoticiasScreen() {
     refetchInterval: 30000,
   });
 
-  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
+
 
   useEffect(() => {
     if (noticiasData) {
@@ -104,14 +104,9 @@ export default function NoticiasScreen() {
           </TouchableOpacity>
           <View className="flex-1">
             <Text className="text-3xl font-bold text-foreground">Notícias</Text>
-            <View className="flex-row items-center justify-between mt-1">
-              <Text className="text-sm text-muted">
-                Fique por dentro das novidades
-              </Text>
-              <Text className="text-xs text-muted">
-                🔄 {ultimaAtualizacao}
-              </Text>
-            </View>
+            <Text className="text-sm text-muted mt-1">
+              Fique por dentro das novidades
+            </Text>
           </View>
         </View>
 

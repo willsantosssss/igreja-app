@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
-import { useTempoRelativo } from "@/hooks/use-tempo-relativo";
+
 import { useCelulas } from "@/lib/data/celulas";
 import * as Haptics from "expo-haptics";
 
@@ -62,7 +62,7 @@ export default function AgendaScreen() {
     refetchInterval: 30000, // Atualizar a cada 30 segundos
   });
 
-  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
+
 
   useEffect(() => {
     if (eventosData) {
@@ -109,14 +109,9 @@ export default function AgendaScreen() {
       >
         <View className="gap-2">
           <Text className="text-3xl font-bold text-foreground">Agenda</Text>
-          <View className="flex-row items-center justify-between">
-            <Text className="text-base text-muted">
-              Eventos e programações da igreja
-            </Text>
-            <Text className="text-xs text-muted">
-              🔄 {ultimaAtualizacao}
-            </Text>
-          </View>
+          <Text className="text-base text-muted">
+            Eventos e programações da igreja
+          </Text>
         </View>
 
         {/* Filtros por categoria */}

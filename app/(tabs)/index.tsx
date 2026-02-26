@@ -10,7 +10,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { type AvisoImportante } from '@/lib/data/aviso-importante';
 import { trpc } from '@/lib/trpc';
-import { useTempoRelativo } from '@/hooks/use-tempo-relativo';
+
 
 interface Usuario {
   nome: string;
@@ -47,7 +47,7 @@ export default function HomeScreen() {
     refetchInterval: 30000,
   });
 
-  const ultimaAtualizacao = useTempoRelativo(dataUpdatedAt);
+
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   const mesAtual = new Date().getMonth() + 1;
@@ -256,14 +256,9 @@ export default function HomeScreen() {
         {/* Avisos Importantes */}
         {aviso.ativo && (
           <View className="bg-warning/10 rounded-2xl p-5 gap-2 border border-warning/20">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-2xl">📢</Text>
-                <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
-              </View>
-              <Text className="text-xs text-muted">
-                🔄 {ultimaAtualizacao}
-              </Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-2xl">📢</Text>
+              <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
             </View>
             <Text className="text-sm text-foreground">
               {aviso.mensagem}
