@@ -226,7 +226,7 @@ export default function MaisScreen() {
               className="w-12 h-12 items-center justify-center rounded-full"
               style={{ backgroundColor: `${colors.secondary}20` }}
             >
-              <Text className="text-2xl">\ud83c\udf82</Text>
+              <Text className="text-2xl">🎂</Text>
             </View>
             <View className="flex-1">
               <Text className="text-base font-bold text-foreground">Aniversariantes</Text>
