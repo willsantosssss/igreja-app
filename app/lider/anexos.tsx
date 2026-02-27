@@ -1,32 +1,45 @@
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import * as FileSystem from "expo-file-system/legacy";
-import * as WebBrowser from "expo-web-browser";
+import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useColors } from "@/hooks/use-colors";
 
 interface Anexo {
   id: number;
   titulo: string;
   descricao?: string;
   arquivoUrl: string;
+  nomeArquivo: string;
+  tamanhoArquivo: number;
   tipo: string;
   ativo: number;
   createdAt: string;
 }
 
 export default function AnexosLiderScreen() {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
 
-  const { data: anexosData, isLoading, refetch } = trpc.anexosLideres.list.useQuery();
+  const { data: anexosData, isLoading } = trpc.anexosLideres.list.useQuery();
 
   useEffect(() => {
     if (anexosData) {
-      setAnexos(anexosData as Anexo[]);
+      // Filtrar apenas anexos ativos
+      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
+      setAnexos(anexosAtivos);
       setLoading(false);
     }
   }, [anexosData]);
@@ -35,28 +48,58 @@ export default function AnexosLiderScreen() {
     try {
       setDownloading(anexo.id);
 
-      // Abrir no navegador/visualizador de PDF
-      await WebBrowser.openBrowserAsync(anexo.arquivoUrl);
-    } catch (error) {
+      // Construir URL completa
+      const baseUrl = "https://8081-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
+      const fullUrl = anexo.arquivoUrl.startsWith("http")
+        ? anexo.arquivoUrl
+        : `${baseUrl}${anexo.arquivoUrl}`;
+
+      // Baixar arquivo
+      const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+      const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
+
+      if (downloadResult.status === 200) {
+        // Compartilhar arquivo para abrir/salvar
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: "application/pdf",
+            dialogTitle: "Abrir PDF",
+          });
+        } else {
+          Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
+        }
+      } else {
+        Alert.alert("Erro", "Não foi possível baixar o arquivo");
+      }
+    } catch (error: any) {
       console.error("Erro ao baixar PDF:", error);
-      Alert.alert("Erro", "Não foi possível abrir o arquivo. Tente novamente.");
+      Alert.alert("Erro", error.message || "Não foi possível baixar o arquivo");
     } finally {
       setDownloading(null);
     }
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
   const renderAnexo = ({ item }: { item: Anexo }) => (
     <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
-      <View className="flex-row items-start justify-between mb-2">
-        <View className="flex-1">
-          <Text className="text-lg font-bold text-foreground">{item.titulo}</Text>
-          {item.descricao && (
-            <Text className="text-sm text-muted mt-1">{item.descricao}</Text>
-          )}
-          <Text className="text-xs text-muted mt-2 capitalize">
-            Tipo: {item.tipo}
-          </Text>
-        </View>
+      <View className="mb-3">
+        <Text className="text-lg font-bold text-foreground">{item.titulo}</Text>
+        {item.descricao && (
+          <Text className="text-sm text-muted mt-1">{item.descricao}</Text>
+        )}
+        <Text className="text-xs text-muted mt-2">
+          📄 {item.nomeArquivo} ({formatFileSize(item.tamanhoArquivo)})
+        </Text>
+        <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
       </View>
 
       <TouchableOpacity
@@ -65,9 +108,9 @@ export default function AnexosLiderScreen() {
         className="bg-primary rounded-lg p-3 items-center active:opacity-80"
       >
         {downloading === item.id ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.background} />
         ) : (
-          <Text className="text-white font-semibold">📥 Baixar PDF</Text>
+          <Text className="text-white font-semibold">⬇️ Baixar PDF</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -76,7 +119,7 @@ export default function AnexosLiderScreen() {
   if (loading || isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
-        <ActivityIndicator size="large" color="#0a7ea4" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </ScreenContainer>
     );
   }
@@ -86,7 +129,7 @@ export default function AnexosLiderScreen() {
       <View className="mb-4">
         <Text className="text-2xl font-bold text-foreground">Anexos</Text>
         <Text className="text-sm text-muted mt-1">
-          Documentos e materiais para líderes de célula
+          Documentos para líderes de célula
         </Text>
       </View>
 
@@ -102,7 +145,6 @@ export default function AnexosLiderScreen() {
           renderItem={renderAnexo}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={false}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
         />
       )}
     </ScreenContainer>
