@@ -5,6 +5,17 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { signupUser, loginUser } from "./auth-simple";
+import * as fs from "fs/promises";
+import * as path from "path";
+import * as crypto from "crypto";
+import { Readable } from "stream";
+import { finished } from "stream/promises";
+import fetch from "node-fetch";
+
+const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+
+// Garantir que o diretório de uploads existe
+fs.mkdir(UPLOAD_DIR, { recursive: true }).catch(console.error);
 
 const COOKIE_NAME = "session";
 
@@ -547,11 +558,36 @@ export const appRouter = router({
       .input(z.object({
         titulo: z.string().min(1),
         descricao: z.string().optional(),
-        arquivoUrl: z.string().url(),
+        arquivoBase64: z.string().min(1),
+        nomeArquivo: z.string().min(1),
         tipo: z.string().min(1),
         ativo: z.number().default(1),
       }))
-      .mutation(({ input }) => db.createAnexoLider(input)),
+      .mutation(async ({ input }) => {
+        try {
+          const hash = crypto.randomBytes(8).toString('hex');
+          const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
+          const caminhoArquivo = path.join(UPLOAD_DIR, nomeArquivoLocal);
+          const buffer = Buffer.from(input.arquivoBase64, 'base64');
+          await fs.writeFile(caminhoArquivo, buffer);
+          const stats = await fs.stat(caminhoArquivo);
+          const arquivoUrl = `/uploads/${nomeArquivoLocal}`;
+          return db.createAnexoLider({
+            titulo: input.titulo,
+            descricao: input.descricao,
+            arquivoUrl,
+            nomeArquivo: input.nomeArquivo,
+            tamanhoArquivo: stats.size,
+            tipo: input.tipo,
+            ativo: input.ativo,
+          });
+        } catch (error: any) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Erro ao fazer upload: ${error.message}`,
+          });
+        }
+      }),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),

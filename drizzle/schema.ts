@@ -294,7 +294,9 @@ export const anexosLideres = mysqlTable("anexosLideres", {
   id: int("id").autoincrement().primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao"),
-  arquivoUrl: varchar("arquivoUrl", { length: 500 }).notNull(), // URL do PDF no S3
+  arquivoUrl: varchar("arquivoUrl", { length: 2048 }).notNull(), // URL do PDF no S3
+  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(), // Nome original do arquivo
+  tamanhoArquivo: int("tamanhoArquivo").default(0).notNull(), // Tamanho em bytes
   tipo: varchar("tipo", { length: 50 }).notNull(), // Ex: "manual", "guia", "formulario"
   ativo: int("ativo").default(1).notNull(), // 1 = visível, 0 = oculto
   createdAt: timestamp("createdAt").defaultNow().notNull(),

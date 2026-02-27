@@ -127,6 +127,13 @@
       "when": 1772208213135,
       "tag": "0017_overjoyed_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1772209305354,
+      "tag": "0018_lyrical_swordsman",
+      "breakpoints": true
     }
   ]
 }

@@ -8,17 +8,22 @@ import {
   TextInput,
   Modal,
   ScrollView,
+  Platform,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system/legacy";
 
 interface Anexo {
   id: number;
   titulo: string;
   descricao?: string;
   arquivoUrl: string;
+  nomeArquivo: string;
+  tamanhoArquivo: number;
   tipo: string;
   ativo: number;
   createdAt: string;
@@ -30,10 +35,12 @@ export default function AdminAnexosScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [formData, setFormData] = useState({
     titulo: "",
     descricao: "",
-    arquivoUrl: "",
+    nomeArquivo: "",
+    arquivoBase64: "",
     tipo: "manual",
   });
 
@@ -56,7 +63,8 @@ export default function AdminAnexosScreen() {
       setFormData({
         titulo: anexo.titulo,
         descricao: anexo.descricao || "",
-        arquivoUrl: anexo.arquivoUrl,
+        nomeArquivo: anexo.nomeArquivo,
+        arquivoBase64: "",
         tipo: anexo.tipo,
       });
     } else {
@@ -64,16 +72,47 @@ export default function AdminAnexosScreen() {
       setFormData({
         titulo: "",
         descricao: "",
-        arquivoUrl: "",
+        nomeArquivo: "",
+        arquivoBase64: "",
         tipo: "manual",
       });
     }
     setModalVisible(true);
   };
 
+  const handlePickFile = async () => {
+    try {
+      setUploadingFile(true);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf",
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        
+        // Ler arquivo e converter para base64
+        const fileContent = await FileSystem.readAsStringAsync(file.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        setFormData({
+          ...formData,
+          nomeArquivo: file.name,
+          arquivoBase64: fileContent,
+        });
+
+        Alert.alert("Sucesso", `Arquivo ${file.name} selecionado`);
+      }
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Erro ao selecionar arquivo");
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
   const handleSave = async () => {
-    if (!formData.titulo.trim() || !formData.arquivoUrl.trim()) {
-      Alert.alert("Erro", "Preencha o título e a URL do arquivo");
+    if (!formData.titulo.trim() || !formData.nomeArquivo.trim() || !formData.arquivoBase64.trim()) {
+      Alert.alert("Erro", "Preencha o título e selecione um arquivo PDF");
       return;
     }
 
@@ -81,15 +120,21 @@ export default function AdminAnexosScreen() {
       if (editingId) {
         await updateMutation.mutateAsync({
           id: editingId,
-          ...formData,
+          titulo: formData.titulo,
+          descricao: formData.descricao,
+          tipo: formData.tipo,
         });
         Alert.alert("Sucesso", "Anexo atualizado");
       } else {
         await createMutation.mutateAsync({
-          ...formData,
+          titulo: formData.titulo,
+          descricao: formData.descricao,
+          nomeArquivo: formData.nomeArquivo,
+          arquivoBase64: formData.arquivoBase64,
+          tipo: formData.tipo,
           ativo: 1,
         });
-        Alert.alert("Sucesso", "Anexo criado");
+        Alert.alert("Sucesso", "Anexo criado e enviado");
       }
       setModalVisible(false);
       refetch();
@@ -129,6 +174,14 @@ export default function AdminAnexosScreen() {
     }
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
   const renderAnexo = ({ item }: { item: Anexo }) => (
     <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
       <View className="mb-3">
@@ -136,7 +189,10 @@ export default function AdminAnexosScreen() {
         {item.descricao && (
           <Text className="text-sm text-muted mt-1">{item.descricao}</Text>
         )}
-        <Text className="text-xs text-muted mt-2">Tipo: {item.tipo}</Text>
+        <Text className="text-xs text-muted mt-2">
+          📄 {item.nomeArquivo} ({formatFileSize(item.tamanhoArquivo)})
+        </Text>
+        <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
       </View>
 
       <View className="flex-row gap-2">
@@ -210,7 +266,7 @@ export default function AdminAnexosScreen() {
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 items-center justify-center">
-          <View className="bg-background w-11/12 rounded-2xl p-6">
+          <View className="bg-background w-11/12 rounded-2xl p-6 max-h-5/6">
             <ScrollView>
               <Text className="text-2xl font-bold text-foreground mb-4">
                 {editingId ? "Editar Anexo" : "Novo Anexo"}
@@ -246,19 +302,31 @@ export default function AdminAnexosScreen() {
                 />
               </View>
 
-              <View className="mb-4">
-                <Text className="text-sm font-semibold text-foreground mb-2">
-                  URL do PDF
-                </Text>
-                <TextInput
-                  className="border border-border rounded-lg p-3 text-foreground bg-surface"
-                  placeholder="https://..."
-                  value={formData.arquivoUrl}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, arquivoUrl: text })
-                  }
-                />
-              </View>
+              {!editingId && (
+                <View className="mb-4">
+                  <Text className="text-sm font-semibold text-foreground mb-2">
+                    Arquivo PDF
+                  </Text>
+                  <TouchableOpacity
+                    onPress={handlePickFile}
+                    disabled={uploadingFile}
+                    className="border-2 border-dashed border-primary rounded-lg p-4 items-center active:opacity-80"
+                  >
+                    {uploadingFile ? (
+                      <ActivityIndicator color={colors.primary} />
+                    ) : (
+                      <>
+                        <Text className="text-primary font-semibold mb-1">
+                          📁 Selecionar PDF
+                        </Text>
+                        <Text className="text-xs text-muted text-center">
+                          {formData.nomeArquivo || "Toque para escolher um arquivo"}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )}
 
               <View className="mb-6">
                 <Text className="text-sm font-semibold text-foreground mb-2">
