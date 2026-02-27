@@ -459,6 +459,36 @@ export default function LiderScreen() {
               <Text className="text-xs text-muted">Veja relatórios anteriores</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/lider/anexos')}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: colors.warning + '20',
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <IconSymbol name="paperclip" size={24} color={colors.warning} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-foreground font-semibold">Anexos</Text>
+              <Text className="text-xs text-muted">Baixe documentos e materiais</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

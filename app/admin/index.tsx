@@ -347,6 +347,13 @@ export default function AdminScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#F59E0B' }}
+            onPress={() => router.push("/admin/anexos" as any)}
+          >
+            <Text className="text-white font-bold">📎 Gerenciar Anexos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
             style={{ backgroundColor: '#8B5CF6' }}
             onPress={() => router.push("/admin/oracao" as any)}
           >

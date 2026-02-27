@@ -537,7 +537,35 @@ export const appRouter = router({
         descricaoAvance: z.string().optional(),
       }))
       .mutation(({ input }) => db.updateConfigEscolaCrescimento(input)),
+   }),
+  
+  // Anexos Líderes
+  anexosLideres: router({
+    list: publicProcedure.query(() => db.getAnexosLideres()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getAnexoLiderById(input)),
+    create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1),
+        descricao: z.string().optional(),
+        arquivoUrl: z.string().url(),
+        tipo: z.string().min(1),
+        ativo: z.number().default(1),
+      }))
+      .mutation(({ input }) => db.createAnexoLider(input)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        titulo: z.string().optional(),
+        descricao: z.string().optional(),
+        arquivoUrl: z.string().url().optional(),
+        tipo: z.string().optional(),
+        ativo: z.number().optional(),
+      }))
+      .mutation(({ input }) => db.updateAnexoLider(input.id, input)),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteAnexoLider(input)),
+    toggleVisibility: protectedProcedure
+      .input(z.object({ id: z.number(), ativo: z.number() }))
+      .mutation(({ input }) => db.toggleAnexoLiderVisibility(input.id, input.ativo)),
   }),
 });
-
 export type AppRouter = typeof appRouter;

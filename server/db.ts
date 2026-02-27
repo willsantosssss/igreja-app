@@ -3,9 +3,9 @@ import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, configEscolaCrescimento,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, configEscolaCrescimento, anexosLideres,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertConfigEscolaCrescimento
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertConfigEscolaCrescimento, InsertAnexoLider
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -759,4 +759,44 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
     console.error("[Database] Error updating config escola crescimento:", error);
     throw error;
   }
+}
+
+// ==================== ANEXOS LÍDERES ====================
+
+export async function getAnexosLideres() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+}
+
+export async function getAnexoLiderById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.id, id));
+  return result[0] || null;
+}
+
+export async function createAnexoLider(data: InsertAnexoLider) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(anexosLideres).values(data);
+  return result.insertId;
+}
+
+export async function updateAnexoLider(id: number, data: Partial<InsertAnexoLider>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(anexosLideres).set(data).where(eq(anexosLideres.id, id));
+}
+
+export async function deleteAnexoLider(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(anexosLideres).where(eq(anexosLideres.id, id));
+}
+
+export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
 }

@@ -288,3 +288,18 @@ export const configEscolaCrescimento = mysqlTable("configEscolaCrescimento", {
 
 export type ConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferSelect;
 export type InsertConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferInsert;
+
+// Anexos para Líderes table
+export const anexosLideres = mysqlTable("anexosLideres", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  arquivoUrl: varchar("arquivoUrl", { length: 500 }).notNull(), // URL do PDF no S3
+  tipo: varchar("tipo", { length: 50 }).notNull(), // Ex: "manual", "guia", "formulario"
+  ativo: int("ativo").default(1).notNull(), // 1 = visível, 0 = oculto
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AnexoLider = typeof anexosLideres.$inferSelect;
+export type InsertAnexoLider = typeof anexosLideres.$inferInsert;
