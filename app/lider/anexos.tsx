@@ -48,17 +48,21 @@ export default function AnexosLiderScreen() {
     try {
       setDownloading(anexo.id);
 
-      // Construir URL completa
-      const baseUrl = "https://8081-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
+      // Construir URL completa usando a API do servidor
+      const apiUrl = "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
       const fullUrl = anexo.arquivoUrl.startsWith("http")
         ? anexo.arquivoUrl
-        : `${baseUrl}${anexo.arquivoUrl}`;
+        : `${apiUrl}${anexo.arquivoUrl}`;
+
+      console.log("Tentando baixar de:", fullUrl);
 
       // Baixar arquivo
       const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
       const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
+
+      console.log("Status do download:", downloadResult.status);
 
       if (downloadResult.status === 200) {
         // Compartilhar arquivo para abrir/salvar
@@ -71,7 +75,7 @@ export default function AnexosLiderScreen() {
           Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
         }
       } else {
-        Alert.alert("Erro", "Não foi possível baixar o arquivo");
+        Alert.alert("Erro", `Não foi possível baixar o arquivo (Status: ${downloadResult.status})`);
       }
     } catch (error: any) {
       console.error("Erro ao baixar PDF:", error);
