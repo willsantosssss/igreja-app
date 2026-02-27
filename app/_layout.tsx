@@ -24,9 +24,7 @@ import { inicializarNotificacoes } from "@/lib/notifications/devocional-notifica
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 
-export const unstable_settings = {
-  anchor: "login",
-};
+// Removed unstable_settings - using explicit routing instead
 
 function RootLayoutContent() {
   const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
@@ -87,7 +85,7 @@ function RootLayoutContent() {
   if (isLoggedIn === true && needsCadastro === true) {
     // User is logged in but needs to complete registration
     return (
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="completar-cadastro">
         <Stack.Screen name="completar-cadastro" options={{ animationEnabled: false }} />
       </Stack>
     );
@@ -96,7 +94,7 @@ function RootLayoutContent() {
   if (isLoggedIn === true && needsCadastro === false) {
     // User is fully logged in
     return (
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
         <Stack.Screen name="(tabs)" options={{ animationEnabled: false }} />
         <Stack.Screen name="oauth/callback" />
         <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
@@ -128,7 +126,7 @@ function RootLayoutContent() {
 
   // Default: User is not logged in - show login screen
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
       <Stack.Screen name="login" options={{ animationEnabled: false }} />
     </Stack>
   );
