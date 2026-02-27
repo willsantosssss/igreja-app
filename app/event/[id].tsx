@@ -1,4 +1,3 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl, ActivityIndicator, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -6,7 +5,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { categoryLabels, categoryColors, type Event } from "@/lib/data/events";
 import { eventoPermiteInscricao, criarInscricao, verificarInscricao } from "@/lib/data/inscricoes-eventos";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
+import { Platform, FlatList, ScrollView, View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCelulas, type Celula } from "@/lib/data/celulas";
@@ -302,12 +301,15 @@ export default function EventDetailScreen() {
                   <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
                 </TouchableOpacity>
                 {mostrarSeletorCelulas && (
-                  <View className="bg-surface rounded-xl border border-border mt-2 max-h-48">
-                    <ScrollView>
-                      {celulas && celulas.length > 0 ? (
-                        celulas.map((cel) => (
+                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
+                    {celulas && celulas.length > 0 ? (
+                      <FlatList
+                        data={celulas}
+                        keyExtractor={(cel) => cel.id?.toString() || cel.name || ""}
+                        scrollEnabled={true}
+                        nestedScrollEnabled={true}
+                        renderItem={({ item: cel }) => (
                           <TouchableOpacity
-                            key={cel.id || cel.name}
                             className="px-4 py-3 border-b border-border"
                             style={{ borderBottomColor: colors.border }}
                             onPress={() => {
@@ -317,13 +319,13 @@ export default function EventDetailScreen() {
                           >
                             <Text className="text-foreground">{cel.nome || cel.name}</Text>
                           </TouchableOpacity>
-                        ))
-                      ) : (
-                        <View className="px-4 py-3">
-                          <Text className="text-muted text-center">Nenhuma célula disponível</Text>
-                        </View>
-                      )}
-                    </ScrollView>
+                        )}
+                      />
+                    ) : (
+                      <View className="px-4 py-3">
+                        <Text className="text-muted text-center">Nenhuma célula disponível</Text>
+                      </View>
+                    )}
                   </View>
                 )}
               </View>
