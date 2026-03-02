@@ -30,13 +30,14 @@
           "ORG_GRADLE_PROJECT_android_useAndroidX": "true",
           "ORG_GRADLE_PROJECT_android_enableJetifier": "true"
         }
-      }
+      },
+      "ios": {}
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6739999999"
+        "ascAppId": "6759914899"
       }
     }
   }
