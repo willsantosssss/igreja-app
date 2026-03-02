@@ -119,7 +119,6 @@ const config: ExpoConfig = {
       {
         ios: {
           deploymentTarget: "15.1",
-          useFrameworks: "static",
         },
         android: {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
