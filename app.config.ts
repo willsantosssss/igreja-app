@@ -51,10 +51,6 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    deploymentTarget: "15.1",
-    "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
   },
   android: {
     adaptiveIcon: {
@@ -117,9 +113,6 @@ const config: ExpoConfig = {
     [
       "expo-build-properties",
       {
-        ios: {
-          deploymentTarget: "15.1",
-        },
         android: {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
           minSdkVersion: 24,
