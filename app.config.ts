@@ -51,7 +51,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    deploymentTarget: "13.4",
+    deploymentTarget: "15.1",
     "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -118,7 +118,7 @@ const config: ExpoConfig = {
       "expo-build-properties",
       {
         ios: {
-          deploymentTarget: "13.4",
+          deploymentTarget: "15.1",
           useFrameworks: "static",
         },
         android: {
