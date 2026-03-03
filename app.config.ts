@@ -1,5 +1,10 @@
 // Load environment variables with proper priority (system > .env)
 import "./scripts/load-env.js";
+
+// Set EAS_PROJECT_ID if not already set
+if (!process.env.EAS_PROJECT_ID) {
+  process.env.EAS_PROJECT_ID = "2d317e64-2cb7-4995-84bf-e6d5ea45d587";
+}
 import type { ExpoConfig } from "expo/config";
 
 // Bundle ID format: space.manus.<project_name_dots>.<timestamp>
@@ -51,7 +56,7 @@ const config: ExpoConfig = {
   runtimeVersion: "1.0.0",
   extra: {
     eas: {
-      projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587",
+      projectId: process.env.EAS_PROJECT_ID || "2d317e64-2cb7-4995-84bf-e6d5ea45d587",
     },
   },
 
