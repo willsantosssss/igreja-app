@@ -57,6 +57,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
+    deploymentTarget: "15.1",
   },
   android: {
     adaptiveIcon: {

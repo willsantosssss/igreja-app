@@ -31,7 +31,9 @@
           "ORG_GRADLE_PROJECT_android_enableJetifier": "true"
         }
       },
-      "ios": {}
+      "ios": {
+        "buildConfiguration": "Release"
+      }
     }
   },
   "submit": {
