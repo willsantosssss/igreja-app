@@ -48,11 +48,6 @@ const config: ExpoConfig = {
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
   newArchEnabled: false,
-  extra: {
-    eas: {
-      projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587",
-    },
-  },
   runtimeVersion: "1.0.0",
 
   ios: {
