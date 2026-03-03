@@ -53,6 +53,7 @@ const config: ExpoConfig = {
       projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587",
     },
   },
+  runtimeVersion: "1.0.0",
 
   ios: {
     supportsTablet: true,
