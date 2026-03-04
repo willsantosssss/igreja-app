@@ -32,7 +32,7 @@ const env = {
   appSlug: "igreja-app",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "",
+  logoUrl: "./assets/images/logo-2ieq.png",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
@@ -44,16 +44,21 @@ const config: ExpoConfig = {
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  supportsTablet: false,
+  supportsTablet: true,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
-  newArchEnabled: false,
-  runtimeVersion: "1.0.0",
-
+  newArchEnabled: true,
+  extra: {
+    eas: {
+      projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587"
+    }
+  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    deploymentTarget: "15.1",
+    "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
   },
   android: {
     adaptiveIcon: {
@@ -62,19 +67,24 @@ const config: ExpoConfig = {
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
+    edgeToEdgeEnabled: true,
+    predictiveBackGestureEnabled: false,
     package: env.androidPackage,
     permissions: ["POST_NOTIFICATIONS"],
-    minSdkVersion: 21,
-    targetSdkVersion: 35,
-    compileSdkVersion: 35,
-    supportsRtl: true,
-    allowBackup: true,
-    usesPermission: [
+    intentFilters: [
       {
-        name: "android.permission.RECEIVE_BOOT_COMPLETED",
-        maxSdkVersion: 32,
+        action: "VIEW",
+        autoVerify: true,
+        data: [
+          {
+            scheme: env.scheme,
+            host: "*",
+          },
+        ],
+        category: ["BROWSABLE", "DEFAULT"],
       },
     ],
+    screenOrientation: "portrait",
   },
   web: {
     bundler: "metro",
@@ -83,6 +93,19 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
+    [
+      "expo-audio",
+      {
+        microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone.",
+      },
+    ],
+    [
+      "expo-video",
+      {
+        supportsBackgroundPlayback: true,
+        supportsPictureInPicture: true,
+      },
+    ],
     [
       "expo-splash-screen",
       {
@@ -95,9 +118,26 @@ const config: ExpoConfig = {
         },
       },
     ],
+    [
+      "expo-build-properties",
+      {
+        android: {
+          buildArchs: ["armeabi-v7a", "arm64-v8a"],
+          minSdkVersion: 24,
+          targetSdkVersion: 34,
+          compileSdkVersion: 35,
+          kotlinVersion: "2.2.20",
+          gradleVersion: "8.10.2",
+          ndkVersion: "27.0.12077973",
+          extraProguardRules: "-dontwarn com.facebook.**\n-dontwarn com.google.errorprone.**\n-dontwarn org.bouncycastle.**",
+          newArchEnabled: true,
+        },
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
+    reactCompiler: false,
   },
 };
 
