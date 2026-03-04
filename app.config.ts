@@ -44,7 +44,7 @@ const config: ExpoConfig = {
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  supportsTablet: true,
+  supportsTablet: false,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
   newArchEnabled: true,
@@ -85,6 +85,8 @@ const config: ExpoConfig = {
       },
     ],
     screenOrientation: "portrait",
+    supportsRtl: true,
+    allowBackup: true,
   },
   web: {
     bundler: "metro",
@@ -123,8 +125,8 @@ const config: ExpoConfig = {
       {
         android: {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
-          minSdkVersion: 24,
-          targetSdkVersion: 34,
+          minSdkVersion: 21,
+          targetSdkVersion: 35,
           compileSdkVersion: 35,
           kotlinVersion: "2.2.20",
           gradleVersion: "8.10.2",
