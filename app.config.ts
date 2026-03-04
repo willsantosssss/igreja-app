@@ -44,7 +44,7 @@ const config: ExpoConfig = {
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  supportsTablet: true,
+  supportsTablet: false,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
   newArchEnabled: false,
@@ -64,6 +64,17 @@ const config: ExpoConfig = {
     },
     package: env.androidPackage,
     permissions: ["POST_NOTIFICATIONS"],
+    minSdkVersion: 21,
+    targetSdkVersion: 35,
+    compileSdkVersion: 35,
+    supportsRtl: true,
+    allowBackup: true,
+    usesPermission: [
+      {
+        name: "android.permission.RECEIVE_BOOT_COMPLETED",
+        maxSdkVersion: 32,
+      },
+    ],
   },
   web: {
     bundler: "metro",
