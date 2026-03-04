@@ -30,9 +30,6 @@
           "ORG_GRADLE_PROJECT_android_useAndroidX": "true",
           "ORG_GRADLE_PROJECT_android_enableJetifier": "true"
         }
-      },
-      "ios": {
-        "buildConfiguration": "Release"
       }
     }
   },
