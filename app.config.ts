@@ -50,8 +50,8 @@ const config: ExpoConfig = {
   newArchEnabled: true,
   extra: {
     eas: {
-      projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587"
-    }
+      projectId: "2d317e64-2cb7-4995-84bf-e6d5ea45d587",
+    },
   },
   ios: {
     supportsTablet: true,
