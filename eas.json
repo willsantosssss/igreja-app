@@ -10,6 +10,9 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer"
+      },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
