@@ -593,7 +593,13 @@ export const appRouter = router({
         tipo: z.string().min(1),
         ativo: z.number().default(1),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user || ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem criar anexos',
+          });
+        }
         try {
           const hash = crypto.randomBytes(8).toString('hex');
           const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
@@ -627,11 +633,35 @@ export const appRouter = router({
         tipo: z.string().optional(),
         ativo: z.number().optional(),
       }))
-      .mutation(({ input }) => db.updateAnexoLider(input.id, input)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteAnexoLider(input)),
+      .mutation(({ input, ctx }) => {
+        if (!ctx.user || ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem atualizar anexos',
+          });
+        }
+        return db.updateAnexoLider(input.id, input);
+      }),
+    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
+      if (!ctx.user || ctx.user.role !== 'admin') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Apenas administradores podem deletar anexos',
+        });
+      }
+      return db.deleteAnexoLider(input);
+    }),
     toggleVisibility: protectedProcedure
       .input(z.object({ id: z.number(), ativo: z.number() }))
-      .mutation(({ input }) => db.toggleAnexoLiderVisibility(input.id, input.ativo)),
+      .mutation(({ input, ctx }) => {
+        if (!ctx.user || ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem alterar visibilidade de anexos',
+          });
+        }
+        return db.toggleAnexoLiderVisibility(input.id, input.ativo);
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;
