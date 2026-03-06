@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router, useFocusEffect } from "expo-router";
+import { BackButton } from "@/components/back-button";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { type Noticia } from "@/lib/data/noticias";
@@ -136,17 +137,12 @@ export default function NoticiasScreen() {
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
         {/* Header */}
-        <View className="flex-row items-center gap-3">
-          <TouchableOpacity
-            className="w-10 h-10 items-center justify-center rounded-full bg-surface"
-            onPress={() => router.back()}
-          >
-            <Text className="text-xl">←</Text>
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="text-3xl font-bold text-foreground">Notícias</Text>
             <Text className="text-sm text-muted mt-1">Gerenciar notícias da igreja</Text>
           </View>
+          <BackButton />
         </View>
 
         {/* Formulário */}

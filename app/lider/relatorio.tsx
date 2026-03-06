@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { BackButton } from '@/components/back-button';
 import { trpc } from '@/lib/trpc';
 import { obterSessaoLider } from '@/lib/data/lideres';
 import * as Haptics from 'expo-haptics';
@@ -161,17 +162,12 @@ export default function RelatorioScreen() {
     <ScreenContainer className="p-4">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
-        <View className="flex-row items-center mb-6">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{ marginRight: 12, padding: 4 }}
-          >
-            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between mb-6">
           <View className="flex-1">
             <Text className="text-2xl font-bold text-foreground">Novo Relatório</Text>
             <Text className="text-muted text-sm">Célula: {liderSessao.celula}</Text>
           </View>
+          <BackButton />
         </View>
 
         {/* Formulário */}

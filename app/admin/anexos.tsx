@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
+import { BackButton } from "@/components/back-button";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 
@@ -235,18 +236,21 @@ export default function AdminAnexosScreen() {
   return (
     <ScreenContainer className="p-4" edges={["top", "left", "right"]}>
       <View className="mb-4 flex-row items-center justify-between">
-        <View>
+        <View className="flex-1">
           <Text className="text-2xl font-bold text-foreground">Anexos</Text>
           <Text className="text-sm text-muted mt-1">
             Gerenciar documentos para líderes
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={() => handleOpenModal()}
-          className="bg-primary rounded-lg p-3 active:opacity-80"
-        >
-          <Text className="text-white font-semibold">+ Novo</Text>
-        </TouchableOpacity>
+        <View className="flex-row gap-2">
+          <TouchableOpacity
+            onPress={() => handleOpenModal()}
+            className="bg-primary rounded-lg p-3 active:opacity-80"
+          >
+            <Text className="text-white font-semibold">+ Novo</Text>
+          </TouchableOpacity>
+          <BackButton />
+        </View>
       </View>
 
       {anexos.length === 0 ? (

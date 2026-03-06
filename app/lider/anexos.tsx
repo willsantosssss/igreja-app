@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
+import { BackButton } from "@/components/back-button";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -130,11 +131,14 @@ export default function AnexosLiderScreen() {
 
   return (
     <ScreenContainer className="p-4" edges={["top", "left", "right"]}>
-      <View className="mb-4">
-        <Text className="text-2xl font-bold text-foreground">Anexos</Text>
-        <Text className="text-sm text-muted mt-1">
-          Documentos para líderes de célula
-        </Text>
+      <View className="mb-4 flex-row items-center justify-between">
+        <View className="flex-1">
+          <Text className="text-2xl font-bold text-foreground">Anexos</Text>
+          <Text className="text-sm text-muted mt-1">
+            Documentos para líderes de célula
+          </Text>
+        </View>
+        <BackButton />
       </View>
 
       {anexos.length === 0 ? (

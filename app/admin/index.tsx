@@ -1,6 +1,7 @@
 import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
+import { BackButton } from "@/components/back-button";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
@@ -160,12 +161,7 @@ export default function AdminScreen() {
             <Text className="text-3xl font-bold text-foreground">Painel Admin</Text>
             <Text className="text-sm text-muted">Bem-vindo, Administrador</Text>
           </View>
-          <TouchableOpacity
-            className="bg-error/20 px-4 py-2 rounded-lg border border-error"
-            onPress={logout}
-          >
-            <Text className="text-xs font-bold text-error">Sair</Text>
-          </TouchableOpacity>
+          <BackButton />
         </View>
 
         {/* Estatísticas Gerais */}

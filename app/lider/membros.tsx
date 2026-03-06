@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { BackButton } from '@/components/back-button';
 import { trpc } from '@/lib/trpc';
 import { obterSessaoLider, getAniversariantesDaCelula, type MembroCelula } from '@/lib/data/lideres';
 
@@ -93,17 +94,12 @@ export default function MembrosScreen() {
     <ScreenContainer className="p-4">
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
-        <View className="flex-row items-center mb-4">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{ marginRight: 12, padding: 4 }}
-          >
-            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between mb-4">
           <View className="flex-1">
             <Text className="text-2xl font-bold text-foreground">Membros</Text>
             <Text className="text-muted text-sm">Célula: {celulaNome}</Text>
           </View>
+          <BackButton />
         </View>
 
         {/* Filtros */}

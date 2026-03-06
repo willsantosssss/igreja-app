@@ -4,6 +4,7 @@ import { useColors } from "@/hooks/use-colors";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { router } from "expo-router";
+import { BackButton } from "@/components/back-button";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
@@ -43,16 +44,19 @@ export default function AdminMembrosScreen() {
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
         {/* Header */}
         <View className="flex-row items-center justify-between">
-          <View className="gap-1">
+          <View className="flex-1 gap-1">
             <Text className="text-3xl font-bold text-foreground">Membros</Text>
             <Text className="text-sm text-muted">Total: {totalMembros} membros</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => refetch()}
-            className="bg-primary px-4 py-2 rounded-full"
-          >
-            <Text className="text-background font-semibold">Atualizar</Text>
-          </TouchableOpacity>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={() => refetch()}
+              className="bg-primary px-4 py-2 rounded-full"
+            >
+              <Text className="text-background font-semibold">Atualizar</Text>
+            </TouchableOpacity>
+            <BackButton />
+          </View>
         </View>
 
         {/* Estatísticas */}

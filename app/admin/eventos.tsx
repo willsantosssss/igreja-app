@@ -6,6 +6,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { BackButton } from '@/components/back-button';
 import * as Haptics from 'expo-haptics';
 import {
   categoryLabels, categoryColors,
@@ -232,25 +233,25 @@ export default function AdminEventosScreen() {
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 100 }}>
         {/* Header */}
-        <View className="flex-row items-center gap-3 mb-2">
-          <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
-            <Text className="text-xl">←</Text>
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between gap-3 mb-2">
           <View className="flex-1">
             <Text className="text-2xl font-bold text-foreground">Gerenciar Eventos</Text>
             <Text className="text-sm text-muted">{eventos.length} eventos cadastrados</Text>
           </View>
-          <TouchableOpacity
-            onPress={abrirFormCriar}
-            style={{
-              backgroundColor: colors.primary,
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>+ Novo</Text>
-          </TouchableOpacity>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={abrirFormCriar}
+              style={{
+                backgroundColor: colors.primary,
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 12,
+              }}
+            >
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>+ Novo</Text>
+            </TouchableOpacity>
+            <BackButton />
+          </View>
         </View>
 
         {/* Lista de eventos */}

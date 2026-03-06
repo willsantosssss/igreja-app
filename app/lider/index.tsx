@@ -6,6 +6,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
+import { BackButton } from '@/components/back-button';
 import * as Haptics from 'expo-haptics';
 import { trpc } from '@/lib/trpc';
 import { salvarSessaoLider, obterSessaoLider, encerrarSessaoLider, type LiderCelula } from '@/lib/data/lideres';
@@ -338,19 +339,7 @@ export default function LiderScreen() {
             <Text className="text-2xl font-bold text-foreground">Olá, {lider.nome}!</Text>
             <Text className="text-sm text-muted">Líder da célula "{lider.celula}"</Text>
           </View>
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={{
-              backgroundColor: colors.error + '20',
-              paddingHorizontal: 14,
-              paddingVertical: 8,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: colors.error,
-            }}
-          >
-            <Text style={{ color: colors.error, fontSize: 12, fontWeight: '700' }}>Sair</Text>
-          </TouchableOpacity>
+          <BackButton />
         </View>
 
         {/* Estatísticas */}
