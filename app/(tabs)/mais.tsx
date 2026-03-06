@@ -242,7 +242,7 @@ export default function MaisScreen() {
           
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-            onPress={() => router.push("/lider/index" as any)}
+            onPress={() => router.push("lider/index" as any)}
           >
             <View 
               className="w-12 h-12 items-center justify-center rounded-full"
@@ -259,7 +259,7 @@ export default function MaisScreen() {
 
           <TouchableOpacity
             className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-            onPress={() => router.push("/admin/index" as any)}
+            onPress={() => router.push("admin/index" as any)}
           >
             <View 
               className="w-12 h-12 items-center justify-center rounded-full"
