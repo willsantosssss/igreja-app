@@ -318,7 +318,15 @@ export const appRouter = router({
         tipo: z.string().min(1),
         requireInscricao: z.number().default(0),
       }))
-      .mutation(({ input }) => db.createEvento(input)),
+      .mutation(({ input, ctx }) => {
+        if (!ctx.user || ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem criar eventos',
+          });
+        }
+        return db.createEvento(input);
+      }),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -331,8 +339,24 @@ export const appRouter = router({
           tipo: z.string().optional(),
         }),
       }))
-      .mutation(({ input }) => db.updateEvento(input.id, input.data)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteEvento(input)),
+      .mutation(({ input, ctx }) => {
+        if (!ctx.user || ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem atualizar eventos',
+          });
+        }
+        return db.updateEvento(input.id, input.data);
+      }),
+    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
+      if (!ctx.user || ctx.user.role !== 'admin') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Apenas administradores podem deletar eventos',
+        });
+      }
+      return db.deleteEvento(input);
+    }),
   }),
 
   // Notícias
