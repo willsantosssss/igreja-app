@@ -44,6 +44,20 @@ export default function PerfilScreen() {
     },
   });
 
+  const deleteAccountMutation = trpc.usuarios.deleteAccount.useMutation({
+    onSuccess: () => {
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      Alert.alert("Conta Deletada", "Sua conta foi deletada com sucesso.");
+      router.replace("/login");
+    },
+    onError: (error) => {
+      Alert.alert("Erro", "Não foi possível deletar a conta. Tente novamente.");
+      console.error("Erro ao deletar conta:", error);
+    },
+  });
+
   useEffect(() => {
     // Usar isLoadingUser do tRPC para controlar loading
     if (!isLoadingUser && userData !== undefined) {
@@ -81,6 +95,30 @@ export default function PerfilScreen() {
       return `${numeros.slice(4, 8)}-${numeros.slice(2, 4)}-${numeros.slice(0, 2)}`;
     }
     return data;
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Deletar Conta",
+      "Tem certeza que deseja deletar sua conta? Esta acao nao pode ser desfeita e todos os seus dados serao removidos permanentemente.",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Deletar",
+          onPress: () => {
+            if (Platform.OS !== "web") {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            }
+            deleteAccountMutation.mutate();
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   const handleSave = () => {
@@ -329,6 +367,20 @@ export default function PerfilScreen() {
             <Text className="text-xs text-muted">ID: {user.id}</Text>
           </View>
         </View>
+
+        {/* Botão Deletar Conta */}
+        <TouchableOpacity
+          onPress={handleDeleteAccount}
+          disabled={deleteAccountMutation.isPending}
+          className="bg-error/10 border border-error rounded-full py-4 items-center mt-4"
+          style={{ opacity: deleteAccountMutation.isPending ? 0.6 : 1 }}
+        >
+          {deleteAccountMutation.isPending ? (
+            <ActivityIndicator color={colors.error} />
+          ) : (
+            <Text className="text-error font-bold text-base">Deletar Conta</Text>
+          )}
+        </TouchableOpacity>
       </ScrollView>
     </ScreenContainer>
   );

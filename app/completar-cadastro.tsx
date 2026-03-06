@@ -69,7 +69,8 @@ export default function CompletarCadastroScreen() {
       return;
     }
 
-    if (!validarData(dataNascimento)) {
+    // Data de nascimento é opcional, mas se preenchida, deve ser válida
+    if (dataNascimento && !validarData(dataNascimento)) {
       Alert.alert("Erro", "Data de nascimento inválida (use DD/MM/YYYY)");
       return;
     }
@@ -85,9 +86,12 @@ export default function CompletarCadastroScreen() {
 
     setLoading(true);
     try {
-      // Converter data para formato YYYY-MM-DD para o banco
-      const [dia, mes, ano] = dataNascimento.split("/");
-      const dataFormatada = `${ano}-${mes}-${dia}`;
+      // Converter data para formato YYYY-MM-DD para o banco (opcional)
+      let dataFormatada: string | undefined = undefined;
+      if (dataNascimento) {
+        const [dia, mes, ano] = dataNascimento.split("/");
+        dataFormatada = `${ano}-${mes}-${dia}`;
+      }
 
       await createUserMutation.mutateAsync({
         nome,
@@ -150,7 +154,7 @@ export default function CompletarCadastroScreen() {
 
         {/* Data de Nascimento */}
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-foreground">Data de Nascimento *</Text>
+          <Text className="text-sm font-semibold text-foreground">Data de Nascimento (opcional)</Text>
           <TextInput
             className="bg-surface rounded-xl p-4 text-foreground border border-border"
             value={dataNascimento}
@@ -230,7 +234,7 @@ export default function CompletarCadastroScreen() {
           className="rounded-full py-4 items-center"
           style={{ backgroundColor: colors.primary }}
           onPress={handleConcluir}
-          disabled={loading || !nome || !dataNascimento || !celula}
+          disabled={loading || !nome || !celula}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
@@ -239,7 +243,7 @@ export default function CompletarCadastroScreen() {
           )}
         </TouchableOpacity>
 
-        <Text className="text-xs text-muted text-center">* Campos obrigatórios</Text>
+        <Text className="text-xs text-muted text-center">* Campos obrigatórios | Data de nascimento é opcional</Text>
       </ScrollView>
     </ScreenContainer>
   );

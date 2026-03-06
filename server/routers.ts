@@ -200,8 +200,14 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.number())
       .mutation(async ({ input: usuarioId, ctx }) => {
-        // Permitir deleção para usuários autenticados (painel admin web já tem autenticação por senha)
+        // Permitir delecao para usuarios autenticados (painel admin web ja tem autenticacao por senha)
         return db.deleteUserCompletely(usuarioId);
+      }),
+    deleteAccount: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+        // Deletar a conta do usuario autenticado
+        return db.deleteUserCompletely(ctx.user.id);
       }),
     get: protectedProcedure
       .input(z.number())
