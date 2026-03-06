@@ -2,6 +2,7 @@ import { ScrollView, Text, View, TouchableOpacity, Alert, Image } from "react-na
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
+import { BackButton } from "@/components/back-button";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -53,17 +54,12 @@ export default function ContribuicoesScreen() {
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
         {/* Header */}
-        <View className="flex-row items-center gap-3">
-          <TouchableOpacity
-            className="w-10 h-10 items-center justify-center rounded-full bg-surface"
-            onPress={() => router.back()}
-          >
-            <Text className="text-xl">←</Text>
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="text-3xl font-bold text-foreground">Contribuições</Text>
             <Text className="text-sm text-muted mt-1">Apoie o trabalho da igreja</Text>
           </View>
+          <BackButton />
         </View>
 
         {/* Mensagem motivacional */}

@@ -3,6 +3,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
+import { BackButton } from "@/components/back-button";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import {
@@ -134,12 +135,12 @@ export default function NotificacoesPreferenciasScreen() {
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 100 }}>
         {/* Header */}
-        <View className="gap-2">
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text className="text-primary font-semibold">← Voltar</Text>
-          </TouchableOpacity>
-          <Text className="text-3xl font-bold text-foreground">Notificações</Text>
-          <Text className="text-base text-muted">Preferências de notificação do devocional</Text>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-foreground">Notificações</Text>
+            <Text className="text-base text-muted">Preferências de notificação do devocional</Text>
+          </View>
+          <BackButton />
         </View>
 
         {/* Status de Permissão */}

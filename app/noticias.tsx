@@ -3,6 +3,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
+import { BackButton } from "@/components/back-button";
 import { useState, useEffect } from "react";
 import { type Noticia } from "@/lib/data/noticias";
 import { trpc } from "@/lib/trpc";
@@ -95,19 +96,14 @@ export default function NoticiasScreen() {
         }
       >
         {/* Header */}
-        <View className="flex-row items-center gap-3">
-          <TouchableOpacity
-            className="w-10 h-10 items-center justify-center rounded-full bg-surface"
-            onPress={() => router.back()}
-          >
-            <Text className="text-xl">←</Text>
-          </TouchableOpacity>
+        <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="text-3xl font-bold text-foreground">Notícias</Text>
             <Text className="text-sm text-muted mt-1">
               Fique por dentro das novidades
             </Text>
           </View>
+          <BackButton />
         </View>
 
                 {/* News List */}

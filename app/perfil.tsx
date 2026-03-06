@@ -2,6 +2,7 @@ import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, ActivityInd
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
+import { BackButton } from "@/components/back-button";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/use-auth";
@@ -261,9 +262,14 @@ export default function PerfilScreen() {
   return (
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20 }}>
-        {/* Header */}
+        {/* Header com botão de voltar */}
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-foreground">Meu Perfil</Text>
+          </View>
+          <BackButton />
+        </View>
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-foreground">Meu Perfil</Text>
           <Text className="text-base text-muted">
             Atualize suas informações pessoais
           </Text>
