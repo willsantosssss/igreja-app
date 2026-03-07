@@ -878,3 +878,8 @@
 
 ## Filtro de Relatórios por Célula do Líder
 - [x] Filtrar histórico de relatórios para mostrar apenas da célula do líder
+
+## Simplificação do Histórico de Relatórios
+- [x] Remover filtros (Ultima Semana, Último Mês, Customizado) do histórico
+- [x] Deixar apenas aba "Todos" visível
+- [x] Garantir ordenação cronológica (mais recentes primeiro)
