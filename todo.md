@@ -868,3 +868,10 @@
 
 ## Correções de Campos Opcionais
 - [x] Remover campo de telefone do formulário de cadastro (não era armazenado no banco)
+
+## Visualização de Dados do Líder (Nova Feature)
+- [x] Criar tela de visualização de membros da célula (lider/membros-view.tsx)
+- [x] Criar tela de visualização de aniversariantes do mês (lider/aniversariantes-view.tsx)
+- [x] Criar tela de visualização de eventos inscritos (lider/eventos-view.tsx)
+- [x] Tornar botões de estatísticas clicáveis no painel do líder
+- [x] Implementar endpoints para buscar dados filtrados por célula do líder

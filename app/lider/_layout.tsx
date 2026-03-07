@@ -10,6 +10,9 @@ export default function LiderLayout() {
       <Stack.Screen name="lembrete" />
       <Stack.Screen name="inscritos-eventos" />
       <Stack.Screen name="anexos" />
+      <Stack.Screen name="membros-view" />
+      <Stack.Screen name="aniversariantes-view" />
+      <Stack.Screen name="eventos-view" />
     </Stack>
   );
 }

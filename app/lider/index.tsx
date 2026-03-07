@@ -344,7 +344,8 @@ export default function LiderScreen() {
 
         {/* Estatísticas */}
         <View className="flex-row gap-2">
-          <View
+          <TouchableOpacity
+            onPress={() => router.push('/lider/membros-view')}
             className="flex-1 rounded-2xl p-4 items-center"
             style={{
               backgroundColor: colors.primary + '10',
@@ -356,8 +357,9 @@ export default function LiderScreen() {
               {stats.totalMembros}
             </Text>
             <Text className="text-xs text-muted text-center">Membros</Text>
-          </View>
-          <View
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/lider/aniversariantes-view')}
             className="flex-1 rounded-2xl p-4 items-center"
             style={{
               backgroundColor: colors.warning + '10',
@@ -369,8 +371,9 @@ export default function LiderScreen() {
               {stats.aniversariantesMes}
             </Text>
             <Text className="text-xs text-muted text-center">Anivers. {mesAtual}</Text>
-          </View>
-          <View
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/lider/eventos-view')}
             className="flex-1 rounded-2xl p-4 items-center"
             style={{
               backgroundColor: colors.success + '10',
@@ -382,7 +385,7 @@ export default function LiderScreen() {
               {stats.inscritosEventos}
             </Text>
             <Text className="text-xs text-muted text-center">Eventos</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Ações Principais */}
