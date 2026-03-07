@@ -883,3 +883,8 @@
 - [x] Remover filtros (Ultima Semana, Último Mês, Customizado) do histórico
 - [x] Deixar apenas aba "Todos" visível
 - [x] Garantir ordenação cronológica (mais recentes primeiro)
+
+## Visualização de Eventos com Filtro (Líder)
+- [x] Adicionar detalhes dos eventos na tela de eventos do líder
+- [x] Implementar filtro por evento específico
+- [x] Mostrar inscrições agrupadas por evento
