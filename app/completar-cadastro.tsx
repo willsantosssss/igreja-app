@@ -20,7 +20,6 @@ export default function CompletarCadastroScreen() {
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [celula, setCelula] = useState("");
-  const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { data: celulas = [] } = trpc.celulas.list.useQuery(undefined, {
@@ -207,19 +206,7 @@ export default function CompletarCadastroScreen() {
           </View>
         </View>
 
-        {/* Telefone (opcional) */}
-        <View className="gap-2">
-          <Text className="text-sm font-semibold text-foreground">Telefone (opcional)</Text>
-          <TextInput
-            className="bg-surface rounded-xl p-4 text-foreground border border-border"
-            value={telefone}
-            onChangeText={setTelefone}
-            placeholder="(XX) XXXXX-XXXX"
-            placeholderTextColor={colors.muted}
-            keyboardType="phone-pad"
-            editable={!loading}
-          />
-        </View>
+
 
         {/* Info */}
         <View className="bg-primary/10 rounded-2xl p-4 gap-2 border border-primary/20">

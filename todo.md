@@ -865,3 +865,6 @@
 
 ## Bugs em Teste (Versão Atual)
 - [x] Data de nascimento opcional ainda não funciona - frontend valida como obrigatório mesmo sendo opcional no backend
+
+## Correções de Campos Opcionais
+- [x] Remover campo de telefone do formulário de cadastro (não era armazenado no banco)
