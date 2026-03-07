@@ -61,7 +61,7 @@ export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
-  dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(),
+  dataNascimento: varchar("dataNascimento", { length: 10 }),
   celula: varchar("celula", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

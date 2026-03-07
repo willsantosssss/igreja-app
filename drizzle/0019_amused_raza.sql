@@ -1,0 +1,1 @@
+ALTER TABLE `usuariosCadastrados` MODIFY COLUMN `dataNascimento` varchar(10);

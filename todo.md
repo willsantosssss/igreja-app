@@ -862,3 +862,6 @@
 - [ ] Ajustar configurações do build.gradle
 - [ ] Testar build do Android localmente
 - [ ] Tentar publicar novamente no Google Play
+
+## Bugs em Teste (Versão Atual)
+- [x] Data de nascimento opcional ainda não funciona - frontend valida como obrigatório mesmo sendo opcional no backend
