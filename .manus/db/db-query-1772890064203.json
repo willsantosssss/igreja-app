@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, email, name, role FROM users ORDER BY id ASC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, email, name, role FROM users ORDER BY id ASC;",
+  "rows": [
+    {
+      "id": "30598",
+      "email": "2ieqroo@gmail.com",
+      "name": "Igreja",
+      "role": "user"
+    },
+    {
+      "id": "90001",
+      "email": "willsantos.adv@gmail.com",
+      "name": "Will Santos",
+      "role": "user"
+    },
+    {
+      "id": "90002",
+      "email": "oguicaiofilmmaker@gmail.com",
+      "name": "Guilherme Caio",
+      "role": "user"
+    },
+    {
+      "id": "90003",
+      "email": "fernandaborgeslima@gmail.com",
+      "name": "Fernanda Borges",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\n30598\t2ieqroo@gmail.com\tIgreja\tuser\n90001\twillsantos.adv@gmail.com\tWill Santos\tuser\n90002\toguicaiofilmmaker@gmail.com\tGuilherme Caio\tuser\n90003\tfernandaborgeslima@gmail.com\tFernanda Borges\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

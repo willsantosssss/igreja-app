@@ -319,12 +319,6 @@ export const appRouter = router({
         requireInscricao: z.number().default(0),
       }))
       .mutation(({ input, ctx }) => {
-        if (!ctx.user || ctx.user.role !== 'admin') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Apenas administradores podem criar eventos',
-          });
-        }
         return db.createEvento(input);
       }),
     update: protectedProcedure
@@ -340,21 +334,9 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input, ctx }) => {
-        if (!ctx.user || ctx.user.role !== 'admin') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Apenas administradores podem atualizar eventos',
-          });
-        }
         return db.updateEvento(input.id, input.data);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      if (!ctx.user || ctx.user.role !== 'admin') {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Apenas administradores podem deletar eventos',
-        });
-      }
       return db.deleteEvento(input);
     }),
   }),
@@ -594,12 +576,6 @@ export const appRouter = router({
         ativo: z.number().default(1),
       }))
       .mutation(async ({ input, ctx }) => {
-        if (!ctx.user || ctx.user.role !== 'admin') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Apenas administradores podem criar anexos',
-          });
-        }
         try {
           const hash = crypto.randomBytes(8).toString('hex');
           const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
@@ -634,32 +610,14 @@ export const appRouter = router({
         ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {
-        if (!ctx.user || ctx.user.role !== 'admin') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Apenas administradores podem atualizar anexos',
-          });
-        }
         return db.updateAnexoLider(input.id, input);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      if (!ctx.user || ctx.user.role !== 'admin') {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Apenas administradores podem deletar anexos',
-        });
-      }
       return db.deleteAnexoLider(input);
     }),
     toggleVisibility: protectedProcedure
       .input(z.object({ id: z.number(), ativo: z.number() }))
       .mutation(({ input, ctx }) => {
-        if (!ctx.user || ctx.user.role !== 'admin') {
-          throw new TRPCError({
-            code: 'FORBIDDEN',
-            message: 'Apenas administradores podem alterar visibilidade de anexos',
-          });
-        }
         return db.toggleAnexoLiderVisibility(input.id, input.ativo);
       }),
   }),
