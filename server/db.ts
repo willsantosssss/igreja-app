@@ -455,7 +455,17 @@ export async function getRelatoriosByLiderIdWithFilters(
   if (!db) return [];
   
   try {
-    let query = db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
+    // Primeiro, buscar a célula do líder
+    const liderData = await db.select().from(lideres).where(eq(lideres.id, liderId));
+    if (!liderData || liderData.length === 0) {
+      console.warn("[Database] Líder não encontrado:", liderId);
+      return [];
+    }
+    
+    const celulaDolider = liderData[0].celula;
+    
+    // Filtrar relatórios apenas da célula do líder
+    let query = db.select().from(relatorios).where(eq(relatorios.celula, celulaDolider));
     
     if (filtro?.dataInicio) {
       query = query.where((col) => col.periodo >= filtro.dataInicio);

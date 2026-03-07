@@ -875,3 +875,6 @@
 - [x] Criar tela de visualização de eventos inscritos (lider/eventos-view.tsx)
 - [x] Tornar botões de estatísticas clicáveis no painel do líder
 - [x] Implementar endpoints para buscar dados filtrados por célula do líder
+
+## Filtro de Relatórios por Célula do Líder
+- [x] Filtrar histórico de relatórios para mostrar apenas da célula do líder
