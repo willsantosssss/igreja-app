@@ -1,0 +1,38 @@
+{
+  "query": "SELECT id, email, name, role, createdAt FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, email, name, role, createdAt FROM users;",
+  "rows": [
+    {
+      "id": "30598",
+      "email": "2ieqroo@gmail.com",
+      "name": "Igreja",
+      "role": "user",
+      "createdAt": "2026-02-19 20:12:23"
+    },
+    {
+      "id": "90001",
+      "email": "willsantos.adv@gmail.com",
+      "name": "Will Santos",
+      "role": "user",
+      "createdAt": "2026-02-23 22:51:20"
+    },
+    {
+      "id": "90002",
+      "email": "oguicaiofilmmaker@gmail.com",
+      "name": "Guilherme Caio",
+      "role": "user",
+      "createdAt": "2026-02-23 23:19:54"
+    },
+    {
+      "id": "90003",
+      "email": "fernandaborgeslima@gmail.com",
+      "name": "Fernanda Borges",
+      "role": "user",
+      "createdAt": "2026-02-23 23:36:04"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\tcreatedAt\n30598\t2ieqroo@gmail.com\tIgreja\tuser\t2026-02-19 20:12:23\n90001\twillsantos.adv@gmail.com\tWill Santos\tuser\t2026-02-23 22:51:20\n90002\toguicaiofilmmaker@gmail.com\tGuilherme Caio\tuser\t2026-02-23 23:19:54\n90003\tfernandaborgeslima@gmail.com\tFernanda Borges\tuser\t2026-02-23 23:36:04\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

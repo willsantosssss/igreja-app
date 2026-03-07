@@ -163,7 +163,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         nome: z.string().min(1),
-        dataNascimento: z.string().min(1),
+        dataNascimento: z.string().optional(),
         celula: z.string().min(1),
       }))
       .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id })),
@@ -184,7 +184,7 @@ export const appRouter = router({
     updateMeuPerfil: protectedProcedure
       .input(z.object({
         nome: z.string().min(1),
-        dataNascimento: z.string().min(1),
+        dataNascimento: z.string().optional(),
         celula: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {

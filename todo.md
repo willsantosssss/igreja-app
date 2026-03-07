@@ -404,6 +404,10 @@
 - [x] Testar sincronização entre home e agenda
 - [x] Validar que alterações na agenda refletem na home
 
+## Bugs Encontrados em Teste (Versão 1.0)
+- [x] Data de nascimento opcional não funciona - backend rejeita quando vazio
+- [x] Admin não consegue criar anexos - erro de permissão mesmo sendo admin
+
 ## Sistema de Pedidos de Oração Público
 - [x] Adicionar botão "Novo Pedido" na tela de oração
 - [x] Criar formulário de cadastro de pedido (nome, descrição, categoria)
