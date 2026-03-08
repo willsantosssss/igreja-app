@@ -906,3 +906,8 @@
 
 ## Correção de Datas de Aniversário
 - [x] Corrigir datas que aparecem um dia antes (problema de timezone)
+
+## Escola de Crescimento no Painel do Líder
+- [x] Verificar schema de inscrições em Escola de Crescimento
+- [x] Criar tela de visualização de inscritos da célula
+- [x] Adicionar botão no painel do líder
