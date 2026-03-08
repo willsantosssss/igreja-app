@@ -28,8 +28,9 @@ export default function AniversariantesViewScreen() {
       const membrosDaCelula = membrosDB.filter((m: any) => m.celula === lider.celula);
       const aniversariantesDoCelula = membrosDaCelula.filter((m: any) => {
         if (!m.dataNascimento) return false;
-        const dataNasc = new Date(m.dataNascimento);
-        return dataNasc.getMonth() + 1 === mesAtual;
+        // Parsear data no formato YYYY-MM-DD para evitar problema de timezone
+        const [ano, mes, dia] = m.dataNascimento.split('-').map(Number);
+        return mes === mesAtual;
       });
       setAniversariantes(aniversariantesDoCelula);
     }
@@ -60,9 +61,13 @@ export default function AniversariantesViewScreen() {
   }
 
   const renderAniversariante = ({ item }: { item: any }) => {
-    const dataNasc = new Date(item.dataNascimento);
-    const dia = dataNasc.getDate();
-    const mes = dataNasc.toLocaleString('pt-BR', { month: 'long' });
+    // Parsear data no formato YYYY-MM-DD para evitar problema de timezone
+    const [ano, mesNum, dia] = item.dataNascimento.split('-').map(Number);
+    const meses = [
+      '', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+    ];
+    const mes = meses[mesNum];
 
     return (
       <View

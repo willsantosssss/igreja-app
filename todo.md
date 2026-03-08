@@ -903,3 +903,6 @@
 - [x] Cada líder com senha individual
 - [x] Interface para adicionar novos líderes na célula
 - [x] Endpoint para criar novo líder
+
+## Correção de Datas de Aniversário
+- [x] Corrigir datas que aparecem um dia antes (problema de timezone)
