@@ -888,3 +888,8 @@
 - [x] Adicionar detalhes dos eventos na tela de eventos do líder
 - [x] Implementar filtro por evento específico
 - [x] Mostrar inscrições agrupadas por evento
+
+## Correção de Sincronização de Dados
+- [x] Verificar sincronização de eventos (mostra 0 no painel, mas tem inscrições)
+- [x] Verificar sincronização de membros
+- [x] Corrigir queries de banco de dados para eventos e membros

@@ -48,6 +48,27 @@ export default function LiderScreen() {
     refetchOnWindowFocus: true,
   });
 
+  // Buscar inscrições em eventos
+  const { data: inscricoesEventosDB = [] } = trpc.inscricoesEventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
+  // Buscar relatórios
+  const { data: relatoriosDB = [] } = trpc.relatorios.getByLiderIdWithFilters.useQuery(
+    {
+      liderId: lider?.id ? parseInt(lider.id) : 0,
+      dataInicio: '',
+      dataFim: '',
+      limite: 1000,
+    },
+    {
+      enabled: !!lider?.id,
+      refetchOnWindowFocus: true,
+      refetchInterval: 30000,
+    }
+  );
+
   useEffect(() => {
     verificarSessao();
   }, []);
@@ -57,7 +78,7 @@ export default function LiderScreen() {
       if (lider && membrosDB.length > 0) {
         carregarEstatisticas(lider.celula);
       }
-    }, [lider, membrosDB])
+    }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB])
   );
 
   const verificarSessao = async () => {
@@ -80,13 +101,28 @@ export default function LiderScreen() {
       return dataNasc.getMonth() + 1 === mesAtual;
     });
 
+    // Contar inscrições em eventos da célula
+    const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === celulaNome);
+
+    // Calcular médias de relatórios
+    let mediaPresenca = 0;
+    let mediaVisitantes = 0;
+    if (relatoriosDB.length > 0) {
+      mediaPresenca = Math.round(
+        relatoriosDB.reduce((acc: number, r: any) => acc + (r.presentes || 0), 0) / relatoriosDB.length
+      );
+      mediaVisitantes = Math.round(
+        relatoriosDB.reduce((acc: number, r: any) => acc + (r.novosVisitantes || 0), 0) / relatoriosDB.length
+      );
+    }
+
     setStats({
       totalMembros: membrosDaCelula.length,
       aniversariantesMes: aniversariantes.length,
-      inscritosEventos: 0,
-      totalRelatorios: 0,
-      mediaPresenca: 0,
-      mediaVisitantes: 0,
+      inscritosEventos: inscricoesEventosDaCelula.length,
+      totalRelatorios: relatoriosDB.length,
+      mediaPresenca,
+      mediaVisitantes,
     });
   };
 
