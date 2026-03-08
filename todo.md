@@ -897,3 +897,9 @@
 ## Exibição de Inscritos em Eventos (Líder)
 - [x] Exibir nomes de inscritos na tela de eventos
 - [x] Mostrar status de inscrição (confirmado/cancelado)
+
+## Múltiplos Líderes por Célula (Nova Feature)
+- [x] Permitir criar múltiplos líderes por célula
+- [x] Cada líder com senha individual
+- [x] Interface para adicionar novos líderes na célula
+- [x] Endpoint para criar novo líder
