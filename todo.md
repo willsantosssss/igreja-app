@@ -893,3 +893,7 @@
 - [x] Verificar sincronização de eventos (mostra 0 no painel, mas tem inscrições)
 - [x] Verificar sincronização de membros
 - [x] Corrigir queries de banco de dados para eventos e membros
+
+## Exibição de Inscritos em Eventos (Líder)
+- [x] Exibir nomes de inscritos na tela de eventos
+- [x] Mostrar status de inscrição (confirmado/cancelado)

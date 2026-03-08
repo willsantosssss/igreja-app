@@ -589,16 +589,17 @@ export async function getInscricoesEventos() {
   const db = await getDb();
   if (!db) return [];
   const inscricoes = await db.select().from(inscricoesEventos);
-  // Transformar dados para formato esperado pela tela
+  // Retornar dados conforme esperado pela tela
   return inscricoes.map(i => ({
-    id: i.id?.toString() || '',
-    eventoId: i.eventoId?.toString() || '',
-    eventoTitulo: i.eventoTitulo || '',
-    eventoData: i.eventoData || '',
-    nomeCompleto: i.nome || '',
-    celula: i.celula || '',
-    telefone: i.telefone || '',
-    createdAt: i.createdAt?.toISOString() || new Date().toISOString(),
+    id: i.id,
+    eventoId: i.eventoId,
+    nome: i.nome,
+    celula: i.celula,
+    telefone: i.telefone,
+    status: i.status,
+    userId: i.userId,
+    createdAt: i.createdAt,
+    updatedAt: i.updatedAt,
   }));
 }
 
