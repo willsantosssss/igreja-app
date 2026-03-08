@@ -547,36 +547,6 @@ export default function LiderScreen() {
               <Text className="text-xs text-muted">Ver inscritos dos cursos</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/lider/adicionar-lider')}
-            style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.primary + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="person.badge.plus" size={24} color={colors.primary} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Novo Líder</Text>
-              <Text className="text-xs text-muted">Adicionar líder à célula</Text>
-            </View>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

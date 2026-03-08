@@ -911,3 +911,8 @@
 - [x] Verificar schema de inscrições em Escola de Crescimento
 - [x] Criar tela de visualização de inscritos da célula
 - [x] Adicionar botão no painel do líder
+
+## Remoção de Botão Novo Líder
+- [x] Remover botão "Novo Líder" do painel do líder
+- [x] Remover arquivo adicionar-lider.tsx
+- [x] Remover rota de adicionar-lider

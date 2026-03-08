@@ -14,7 +14,6 @@ export default function LiderLayout() {
       <Stack.Screen name="aniversariantes-view" />
       <Stack.Screen name="eventos-view" />
       <Stack.Screen name="escola-crescimento-view" />
-      <Stack.Screen name="adicionar-lider" />
     </Stack>
   );
 }
