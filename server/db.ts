@@ -132,6 +132,13 @@ export async function getCelulas() {
   return db.select().from(celulas);
 }
 
+export async function getCelulaById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(celulas).where(eq(celulas.id, id));
+  return result[0] || null;
+}
+
 export async function createCelula(data: InsertCelula) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -158,10 +165,22 @@ export async function getInscricoesBatismo() {
   return db.select().from(inscricoesBatismo);
 }
 
+export async function getInscricoesBatismoPendentes() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(inscricoesBatismo).where(eq(inscricoesBatismo.status, "pendente"));
+}
+
 export async function createInscricaoBatismo(data: InsertInscricaoBatismo) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(inscricoesBatismo).values(data);
+}
+
+export async function updateInscricaoBatismo(id: number, data: Partial<InsertInscricaoBatismo>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(inscricoesBatismo).set(data).where(eq(inscricoesBatismo.id, id));
 }
 
 export async function deleteInscricaoBatismo(id: number) {
@@ -178,10 +197,23 @@ export async function getPedidosOracao() {
   return db.select().from(pedidosOracao);
 }
 
+export async function getPedidoOracaoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(pedidosOracao).where(eq(pedidosOracao.id, id));
+  return result[0] || null;
+}
+
 export async function createPedidoOracao(data: InsertPedidoOracao) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(pedidosOracao).values(data);
+}
+
+export async function updatePedidoOracao(id: number, data: Partial<InsertPedidoOracao>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(pedidosOracao).set(data).where(eq(pedidosOracao.id, id));
 }
 
 export async function deletePedidoOracao(id: number) {
@@ -199,6 +231,29 @@ export async function getAnotacoesDevocional(userId: number) {
     .select()
     .from(anotacoesDevocional)
     .where(eq(anotacoesDevocional.userId, userId));
+}
+
+export async function getAnotacoesDevocionalByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(anotacoesDevocional)
+    .where(eq(anotacoesDevocional.userId, userId));
+}
+
+export async function getAnotacaoDevocionalByCapitulo(userId: number, livro: string, capitulo: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(anotacoesDevocional)
+    .where(
+      eq(anotacoesDevocional.userId, userId) &&
+      eq(anotacoesDevocional.livro, livro) &&
+      eq(anotacoesDevocional.capitulo, capitulo)
+    );
+  return result[0] || null;
 }
 
 export async function createAnotacaoDevocional(data: InsertAnotacaoDevocional) {
@@ -223,6 +278,18 @@ export async function deleteAnotacaoDevocional(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.id, id));
+}
+
+export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro: string, capitulo: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .delete(anotacoesDevocional)
+    .where(
+      eq(anotacoesDevocional.userId, userId) &&
+      eq(anotacoesDevocional.livro, livro) &&
+      eq(anotacoesDevocional.capitulo, capitulo)
+    );
 }
 
 // ==================== EVENTOS ====================
@@ -270,6 +337,13 @@ export async function getNoticias() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(noticias);
+}
+
+export async function getNoticiaById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(noticias).where(eq(noticias.id, id));
+  return result[0] || null;
 }
 
 export async function createNoticia(data: InsertNoticia) {

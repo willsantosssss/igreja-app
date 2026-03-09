@@ -916,3 +916,8 @@
 - [x] Remover botão "Novo Líder" do painel do líder
 - [x] Remover arquivo adicionar-lider.tsx
 - [x] Remover rota de adicionar-lider
+
+## Deploy no Railway - Correção de Erros
+- [x] Corrigir funções faltando no backend (getPedidoOracaoById, updatePedidoOracao, getAnotacoesDevocionalByUserId)
+- [x] Fazer novo deploy no Railway
+- [x] Obter URL permanente e atualizar app.config.ts
