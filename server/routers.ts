@@ -403,7 +403,7 @@ export const appRouter = router({
         whatsapp: z.string().min(1),
         email: z.string().email(),
       }))
-      .mutation(({ input }) => db.updateContatosIgreja(input)),
+      .mutation(({ input }) => db.createContatoIgreja(input)),
   }),
 
   // Líderes
