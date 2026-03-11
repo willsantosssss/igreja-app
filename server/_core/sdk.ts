@@ -181,6 +181,7 @@ class SDKServer {
   async verifySession(
     cookieValue: string | undefined | null,
   ): Promise<{ openId: string; appId: string; name: string } | null> {
+    console.log("[VERIFY_SESSION_START] 2026-03-11-new-version");
     if (!cookieValue) {
       console.warn("[Auth] Missing session cookie");
       return null;
