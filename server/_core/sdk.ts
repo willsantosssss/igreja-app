@@ -197,7 +197,7 @@ class SDKServer {
       const { openId, appId, name } = payload as Record<string, unknown>;
       console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
-      if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
+      if (!isNonEmptyString(openId)) {
         console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
         return null;
       }
