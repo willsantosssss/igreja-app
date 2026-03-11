@@ -116,9 +116,6 @@ export default function LoginScreen() {
         }
       }
       
-      await AsyncStorage.setItem("@is_logged_in", "true");
-      await AsyncStorage.setItem("@cadastro_completo", "true");
-      await AsyncStorage.setItem("@user_email", email);
       router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Email ou senha incorretos");
