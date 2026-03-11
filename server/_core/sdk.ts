@@ -198,14 +198,17 @@ class SDKServer {
       const { openId, appId, name } = payload as Record<string, unknown>;
       console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
+      // Accept any token with a valid openId
+      // appId and name can be empty for manual authentication
       if (!isNonEmptyString(openId)) {
-        console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
+        console.error("[Auth] CRITICAL: openId is not a string:", { openId, type: typeof openId });
         return null;
       }
 
+      console.log("[Auth] verifySession: SUCCESS - token verified", { openId });
       return {
-        openId,
-        appId,
+        openId: String(openId),
+        appId: typeof appId === 'string' ? appId : '',
         name: typeof name === 'string' ? name : '',
       };
     } catch (error) {
