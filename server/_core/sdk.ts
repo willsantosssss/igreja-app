@@ -187,6 +187,7 @@ class SDKServer {
     }
 
     try {
+      console.log("[SDK_VERSION] 2026-03-11-fix-appid");
       console.log("[Auth] verifySession: token received:", cookieValue ? `${cookieValue.substring(0, 50)}...` : "missing");
       const secretKey = this.getSessionSecret();
       console.log("[Auth] verifySession: secret key length:", secretKey.byteLength);
