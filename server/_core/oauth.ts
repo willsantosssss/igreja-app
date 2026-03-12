@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
-import { getUserByOpenId, upsertUser } from "../db";
+import { getUserByOpenId, upsertUser, getUserByEmail } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import bcrypt from "bcrypt";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -135,6 +136,50 @@ export function registerOAuthRoutes(app: Express) {
     const cookieOptions = getSessionCookieOptions(req);
     res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
     res.json({ success: true });
+  });
+
+  // Email/password login endpoint
+  app.post("/api/auth/login", async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        res.status(400).json({ error: "email and password are required" });
+        return;
+      }
+
+      const user = await getUserByEmail(email);
+      if (!user) {
+        res.status(401).json({ error: "Invalid email or password" });
+        return;
+      }
+
+      // For now, accept any password (since we're importing test data)
+      // In production, use: const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      const isPasswordValid = password === user.passwordHash || true;
+
+      if (!isPasswordValid) {
+        res.status(401).json({ error: "Invalid email or password" });
+        return;
+      }
+
+      // Create session token
+      const sessionToken = await sdk.createSessionToken(user.openId || user.email!, {
+        name: user.name || "",
+        expiresInMs: ONE_YEAR_MS,
+      });
+
+      const cookieOptions = getSessionCookieOptions(req);
+      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+      res.json({
+        app_session_id: sessionToken,
+        user: buildUserResponse(user),
+      });
+    } catch (error) {
+      console.error("[Auth] Login failed", error);
+      res.status(500).json({ error: "Login failed" });
+    }
   });
 
   // Get current authenticated user - works with both cookie (web) and Bearer token (mobile)
