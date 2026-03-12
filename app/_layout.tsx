@@ -19,79 +19,35 @@ import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
+import { AuthProvider } from "@/lib/auth-context";
+import { useAuthEmail } from "@/hooks/use-auth-email";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 
 // Removed unstable_settings - using explicit routing instead
 
-function RootLayoutContent() {
-  const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
-  const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
-
-  const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
-  const [frame, setFrame] = useState<Rect>(initialFrame);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [needsCadastro, setNeedsCadastro] = useState<boolean | null>(null);
+function RootLayoutContentWithAuth() {
+  const { state: authState } = useAuthEmail();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize Manus runtime for cookie injection from parent container
   useEffect(() => {
-    initManusRuntime();
-    checkLoginStatus();
-    inicializarNotificacoes();
-  }, []);
-
-  const checkLoginStatus = async () => {
-    try {
-      console.log("[Layout] Checking login status...");
-      const loggedIn = await AsyncStorage.getItem("@is_logged_in");
-      const cadastroCompleto = await AsyncStorage.getItem("@cadastro_completo");
-      console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
-      setIsLoggedIn(loggedIn === "true");
-      setNeedsCadastro(loggedIn === "true" && cadastroCompleto !== "true");
-    } catch (error) {
-      console.error("Error checking login status:", error);
-      setIsLoggedIn(false);
-      setNeedsCadastro(false);
-    } finally {
+    // Wait for auth state to be restored
+    if (!authState.isLoading) {
       setIsLoading(false);
-      console.log("[Layout] Login status check completed");
     }
-  };
+  }, [authState.isLoading]);
 
-  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
-    setInsets(metrics.insets);
-    setFrame(metrics.frame);
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
-    return () => unsubscribe();
-  }, [handleSafeAreaUpdate]);
-
-  // Show loading screen while checking login status
-  if (isLoading) {
+  if (isLoading || authState.isLoading) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" />
+        <Stack.Screen name="(auth)" options={{ animationEnabled: false }} />
       </Stack>
     );
   }
 
-  // Explicit routing based on authentication state
-  if (isLoggedIn === true && needsCadastro === true) {
-    // User is logged in but needs to complete registration
-    return (
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="completar-cadastro">
-        <Stack.Screen name="completar-cadastro" options={{ animationEnabled: false }} />
-      </Stack>
-    );
-  }
-
-  if (isLoggedIn === true && needsCadastro === false) {
-    // User is fully logged in
+  // User is authenticated
+  if (authState.token && authState.user) {
     return (
       <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
         <Stack.Screen name="(tabs)" options={{ animationEnabled: false }} />
@@ -125,12 +81,30 @@ function RootLayoutContent() {
     );
   }
 
-  // Default: User is not logged in - show login screen
+  // User is not authenticated - show login
   return (
-    <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
-      <Stack.Screen name="login" options={{ animationEnabled: false }} />
+    <Stack screenOptions={{ headerShown: false }} initialRouteName="(auth)">
+      <Stack.Screen name="(auth)" options={{ animationEnabled: false }} />
     </Stack>
   );
+}
+
+function RootLayoutContent() {
+  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {}, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
+    return () => unsubscribe();
+  }, [handleSafeAreaUpdate]);
+
+  // Initialize Manus runtime
+  useEffect(() => {
+    initManusRuntime();
+    inicializarNotificacoes();
+  }, []);
+
+  return <RootLayoutContentWithAuth />;
 }
 
 export default function RootLayout() {
@@ -167,11 +141,13 @@ export default function RootLayout() {
   const [trpcClient] = useState(() => createTRPCClient());
 
   const content = (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <RootLayoutContent />
-      </QueryClientProvider>
-    </trpc.Provider>
+    <AuthProvider apiBaseUrl={process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000"}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <RootLayoutContent />
+        </QueryClientProvider>
+      </trpc.Provider>
+    </AuthProvider>
   );
 
   const shouldOverrideSafeArea = Platform.OS === "web";
@@ -192,7 +168,10 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <SafeAreaProvider initialMetrics={providerInitialMetrics}>{content}</SafeAreaProvider>
+      <SafeAreaProvider initialMetrics={providerInitialMetrics}>
+        <StatusBar style="auto" />
+        {content}
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }
