@@ -1,142 +1,21 @@
 import type { Express, Request, Response } from "express";
-import { getUserByOpenId, upsertUser, getUserByEmail } from "../db";
+import { getUserByEmail } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
 
-function getQueryParam(req: Request, key: string): string | undefined {
-  const value = req.query[key];
-  return typeof value === "string" ? value : undefined;
-}
-
-async function syncUser(userInfo: {
-  openId?: string | null;
-  name?: string | null;
-  email?: string | null;
-  loginMethod?: string | null;
-  platform?: string | null;
-}) {
-  if (!userInfo.openId) {
-    throw new Error("openId missing from user info");
-  }
-
-  const lastSignedIn = new Date();
-  await upsertUser({
-    openId: userInfo.openId,
-    name: userInfo.name || null,
-    email: userInfo.email ?? null,
-    loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-    lastSignedIn,
-  });
-  const saved = await getUserByOpenId(userInfo.openId);
-  return (
-    saved ?? {
-      openId: userInfo.openId,
-      name: userInfo.name,
-      email: userInfo.email,
-      loginMethod: userInfo.loginMethod ?? null,
-      lastSignedIn,
-    }
-  );
-}
-
-function buildUserResponse(
-  user:
-    | Awaited<ReturnType<typeof getUserByOpenId>>
-    | {
-        openId: string;
-        name?: string | null;
-        email?: string | null;
-        loginMethod?: string | null;
-        lastSignedIn?: Date;
-      }
-) {
-  const u = user as any;
+function buildUserResponse(user: any) {
   return {
-    id: u.id ?? undefined,
-    openId: u.openId,
-    name: u.name,
-    email: u.email,
-    loginMethod: u.loginMethod,
-    lastSignedIn: u.lastSignedIn,
+    id: user.id ?? undefined,
+    email: user.email,
+    name: user.name,
+    role: user.role,
   };
 }
 
 const COOKIE_NAME = "session";
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
-export function registerOAuthRoutes(app: Express) {
-  // OAuth callback
-  app.get("/api/oauth/callback", async (req: Request, res: Response) => {
-    const code = getQueryParam(req, "code");
-    const state = getQueryParam(req, "state");
-
-    if (!code || !state) {
-      res.status(400).json({ error: "code and state are required" });
-      return;
-    }
-
-    try {
-      const tokenResponse = await sdk.exchangeCodeForToken(code, state);
-      const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-      const user = await syncUser(userInfo);
-
-      const sessionToken = await sdk.createSessionToken(userInfo.openId!, {
-        name: userInfo.name || "",
-        expiresInMs: ONE_YEAR_MS,
-      });
-
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
-      res.json({
-        app_session_id: sessionToken,
-        user: buildUserResponse(user),
-      });
-    } catch (error) {
-      console.error("[OAuth] Desktop exchange failed", error);
-      res.status(500).json({ error: "OAuth desktop exchange failed" });
-    }
-  });
-
-  // OAuth mobile callback
-  app.post("/api/oauth/mobile", async (req: Request, res: Response) => {
-    const code = getQueryParam(req, "code");
-    const state = getQueryParam(req, "state");
-
-    if (!code || !state) {
-      res.status(400).json({ error: "code and state are required" });
-      return;
-    }
-
-    try {
-      const tokenResponse = await sdk.exchangeCodeForToken(code, state);
-      const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
-      const user = await syncUser(userInfo);
-
-      const sessionToken = await sdk.createSessionToken(userInfo.openId!, {
-        name: userInfo.name || "",
-        expiresInMs: ONE_YEAR_MS,
-      });
-
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
-      res.json({
-        app_session_id: sessionToken,
-        user: buildUserResponse(user),
-      });
-    } catch (error) {
-      console.error("[OAuth] Mobile exchange failed", error);
-      res.status(500).json({ error: "OAuth mobile exchange failed" });
-    }
-  });
-
-  app.post("/api/auth/logout", (req: Request, res: Response) => {
-    const cookieOptions = getSessionCookieOptions(req);
-    res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-    res.json({ success: true });
-  });
-
+export function registerAuthRoutes(app: Express) {
   // Email/password login endpoint
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
@@ -162,8 +41,8 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
-      // Create session token
-      const sessionToken = await sdk.createSessionToken(user.openId || user.email!, {
+      // Create session token using email as identifier
+      const sessionToken = await sdk.createSessionToken(user.email!, {
         name: user.name || "",
         expiresInMs: ONE_YEAR_MS,
       });
@@ -179,6 +58,13 @@ export function registerOAuthRoutes(app: Express) {
       console.error("[Auth] Login failed", error);
       res.status(500).json({ error: "Login failed" });
     }
+  });
+
+  // Logout endpoint
+  app.post("/api/auth/logout", (req: Request, res: Response) => {
+    const cookieOptions = getSessionCookieOptions(req);
+    res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+    res.json({ success: true });
   });
 
   // Get current authenticated user - works with both cookie (web) and Bearer token (mobile)

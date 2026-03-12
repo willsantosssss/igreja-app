@@ -19,7 +19,8 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
 export type SessionPayload = {
-  openId: string;
+  openId?: string;
+  email?: string;
   appId: string;
   name: string;
 };
@@ -141,17 +142,17 @@ class SDKServer {
   }
 
   /**
-   * Create a session token for a Manus user openId
-   * @example
-   * const sessionToken = await sdk.createSessionToken(userInfo.openId);
+   * Create a session token for a user (openId or email)
    */
   async createSessionToken(
-    openId: string,
+    identifier: string,
     options: { expiresInMs?: number; name?: string } = {},
   ): Promise<string> {
+    const isEmail = identifier.includes("@");
     return this.signSession(
       {
-        openId,
+        openId: isEmail ? undefined : identifier,
+        email: isEmail ? identifier : undefined,
         appId: ENV.appId,
         name: options.name || "",
       },
@@ -180,7 +181,7 @@ class SDKServer {
 
   async verifySession(
     cookieValue: string | undefined | null,
-  ): Promise<{ openId: string; appId: string; name: string } | null> {
+  ): Promise<{ openId?: string; email?: string; appId: string; name: string } | null> {
     console.log("[VERIFY_SESSION_START] 2026-03-11-new-version");
     if (!cookieValue) {
       console.warn("[Auth] Missing session cookie");
@@ -196,19 +197,21 @@ class SDKServer {
         algorithms: ["HS256"],
       });
       console.log("[Auth] verifySession: payload:", payload);
-      const { openId, appId, name } = payload as Record<string, unknown>;
-      console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
+      const { openId, email, appId, name } = payload as Record<string, unknown>;
+      console.log("[Auth] verifySession: extracted fields:", { openId, email, appId, name });
 
-      // Accept any token with a valid openId
-      // appId and name can be empty for manual authentication
-      if (!isNonEmptyString(openId)) {
-        console.error("[Auth] CRITICAL: openId is not a string:", { openId, type: typeof openId });
+      const hasOpenId = isNonEmptyString(openId);
+      const hasEmail = isNonEmptyString(email);
+      
+      if (!hasOpenId && !hasEmail) {
+        console.error("[Auth] CRITICAL: neither openId nor email is a string:", { openId, email });
         return null;
       }
 
-      console.log("[Auth] verifySession: SUCCESS - token verified", { openId });
+      console.log("[Auth] verifySession: SUCCESS - token verified", { openId, email });
       return {
-        openId: String(openId),
+        openId: hasOpenId ? String(openId) : undefined,
+        email: hasEmail ? String(email) : undefined,
         appId: typeof appId === 'string' ? appId : '',
         name: typeof name === 'string' ? name : '',
       };
@@ -265,13 +268,18 @@ class SDKServer {
     }
 
     console.log("[Auth] authenticateRequest: session verified, proceeding to fetch user");
-    const sessionUserId = session.openId;
     const signedInAt = new Date();
-    console.log("[Auth] authenticateRequest: looking up user in DB, openId:", sessionUserId);
-    let user = await db.getUserByOpenId(sessionUserId);
+    let user: any = null;
 
-    // If user not in DB, sync from OAuth server automatically
-    if (!user) {
+    if (session.openId) {
+      console.log("[Auth] authenticateRequest: looking up user in DB, openId:", session.openId);
+      user = await db.getUserByOpenId(session.openId);
+    } else if (session.email) {
+      console.log("[Auth] authenticateRequest: looking up user in DB, email:", session.email);
+      user = await db.getUserByEmail(session.email);
+    }
+
+    if (!user && session.openId) {
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
@@ -292,10 +300,12 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
+    if (user.openId) {
+      await db.upsertUser({
+        openId: user.openId,
+        lastSignedIn: signedInAt,
+      });
+    }
 
     return user;
   }
