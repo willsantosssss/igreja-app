@@ -2,7 +2,6 @@ import type { Express, Request, Response } from "express";
 import { getUserByOpenId, upsertUser, getUserByEmail } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
-import bcrypt from "bcrypt";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
