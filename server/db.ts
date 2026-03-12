@@ -575,33 +575,12 @@ export async function getRelatoriosByLiderIdWithFilters(
 }
 
 export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'createdAt' | 'updatedAt'>) {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   
   try {
-    const pool = mysql.createPool(process.env.DATABASE_URL);
-    const connection = await pool.getConnection();
-    
-    const query = `INSERT INTO relatorios (liderId, celula, tipo, periodo, presentes, novosVisitantes, conversoes, observacoes) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    
-    const [result] = await connection.execute(query, [
-      data.liderId,
-      data.celula,
-      data.tipo,
-      data.periodo,
-      data.presentes,
-      data.novosVisitantes ?? 0,
-      data.conversoes ?? 0,
-      data.observacoes || null,
-    ]);
-    
-    const insertResult = result as any;
-    const insertId = insertResult?.insertId || 0;
-    
-    await connection.release();
-    await pool.end();
-    
-    return insertId;
+    const result = await db.insert(relatorios).values(data);
+    return result;
   } catch (error) {
     console.error('[Database] Error creating relatorio:', error);
     throw error;

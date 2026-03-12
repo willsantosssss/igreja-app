@@ -171,6 +171,7 @@ class SDKServer {
 
     return new SignJWT({
       openId: payload.openId,
+      email: payload.email,
       appId: payload.appId,
       name: payload.name,
     })
