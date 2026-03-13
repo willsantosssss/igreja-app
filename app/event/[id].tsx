@@ -130,12 +130,13 @@ export default function EventDetailScreen() {
 
     try {
       // Salvar no banco de dados via tRPC
-      await criarInscricaoMutation.mutateAsync({
+      const result = await criarInscricaoMutation.mutateAsync({
         eventoId: Number(event.id),
         nome: nome.trim(),
         telefone: telefone.trim(),
         celula: celula.trim(),
       });
+      console.log('[Event] Inscrição criada com sucesso:', result);
 
       // Também salvar no AsyncStorage para compatibilidade com relatórios locais
       await criarInscricao({
