@@ -547,6 +547,66 @@ export default function LiderScreen() {
               <Text className="text-xs text-muted">Ver inscritos dos cursos</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/lider/mudar-senha')}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: colors.warning + '20',
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <IconSymbol name="lock.fill" size={24} color={colors.warning} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-foreground font-semibold">Mudar Senha</Text>
+              <Text className="text-xs text-muted">Altere sua senha de acesso</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={{
+              backgroundColor: colors.error + '10',
+              borderWidth: 1,
+              borderColor: colors.error + '20',
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: colors.error + '20',
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <IconSymbol name="arrow.right.square.fill" size={24} color={colors.error} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-foreground font-semibold">Sair</Text>
+              <Text className="text-xs text-muted">Encerrar sessão</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

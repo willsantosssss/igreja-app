@@ -435,6 +435,23 @@ export const appRouter = router({
       }))
       .mutation(({ input }) => db.updateLider(input.id, input.data)),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
+    updatePassword: protectedProcedure
+      .input(z.object({
+        liderId: z.number(),
+        senhaAtual: z.string().min(1),
+        novaSenha: z.string().min(6),
+      }))
+      .mutation(async ({ input }) => {
+        const lider = await db.getLiderById(input.liderId);
+        if (!lider) throw new Error('Lider nao encontrado');
+        const user = await db.getUserById(lider.userId);
+        if (!user) throw new Error('Usuario nao encontrado');
+        if (user.passwordHash !== input.senhaAtual) {
+          throw new Error('Senha atual incorreta');
+        }
+        await db.updateUser(user.id, { passwordHash: input.novaSenha });
+        return { success: true, message: 'Senha alterada com sucesso' };
+      }),
   }),
 
   // Relatórios
