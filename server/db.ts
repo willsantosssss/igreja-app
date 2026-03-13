@@ -839,7 +839,8 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 export async function getAnexosLideres() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+  return result || [];
 }
 
 export async function getAnexoLiderById(id: number) {
