@@ -33,7 +33,6 @@ interface Anexo {
 export default function AdminAnexosScreen() {
   const colors = useColors();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
-  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -45,18 +44,21 @@ export default function AdminAnexosScreen() {
     tipo: "manual",
   });
 
-  const { data: anexosData, isLoading, refetch } = trpc.anexosLideres.list.useQuery();
+  const { data: anexosData, isLoading, isError, error, refetch } = trpc.anexosLideres.list.useQuery();
   const createMutation = trpc.anexosLideres.create.useMutation();
   const updateMutation = trpc.anexosLideres.update.useMutation();
   const deleteMutation = trpc.anexosLideres.delete.useMutation();
   const toggleMutation = trpc.anexosLideres.toggleVisibility.useMutation();
 
   useEffect(() => {
-    if (anexosData) {
-      setAnexos(anexosData as Anexo[]);
-      setLoading(false);
+    if (!isLoading) {
+      if (anexosData) {
+        setAnexos(anexosData as Anexo[]);
+      } else {
+        setAnexos([]);
+      }
     }
-  }, [anexosData]);
+  }, [anexosData, isLoading]);
 
   const handleOpenModal = (anexo?: Anexo) => {
     if (anexo) {
@@ -243,10 +245,27 @@ export default function AdminAnexosScreen() {
     </View>
   );
 
-  if (loading || isLoading) {
+  if (isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
+      </ScreenContainer>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ScreenContainer className="items-center justify-center p-4">
+        <Text className="text-lg font-bold text-error mb-4">Erro ao carregar anexos</Text>
+        <Text className="text-sm text-muted text-center mb-6">
+          {error?.message || "Nao foi possivel carregar a lista de anexos"}
+        </Text>
+        <TouchableOpacity
+          onPress={() => refetch()}
+          className="bg-primary rounded-lg p-3 items-center active:opacity-80"
+        >
+          <Text className="text-white font-semibold">Tentar Novamente</Text>
+        </TouchableOpacity>
       </ScreenContainer>
     );
   }

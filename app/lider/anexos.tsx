@@ -32,26 +32,29 @@ export default function AnexosLiderScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
-  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const itemsPerPage = 10;
 
-  const { data: anexosData, isLoading } = trpc.anexosLideres.list.useQuery();
+  const { data: anexosData, isLoading, isError, error } = trpc.anexosLideres.list.useQuery();
 
   useEffect(() => {
-    if (anexosData) {
-      // Filtrar apenas anexos ativos
-      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
-      // Paginacao: mostrar apenas os primeiros itemsPerPage
-      const paginados = anexosAtivos.slice(0, itemsPerPage);
-      setAnexos(paginados);
-      setHasMore(anexosAtivos.length > itemsPerPage);
-      setLoading(false);
+    if (!isLoading) {
+      if (anexosData) {
+        // Filtrar apenas anexos ativos
+        const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
+        // Paginacao: mostrar apenas os primeiros itemsPerPage
+        const paginados = anexosAtivos.slice(0, itemsPerPage);
+        setAnexos(paginados);
+        setHasMore(anexosAtivos.length > itemsPerPage);
+      } else {
+        setAnexos([]);
+        setHasMore(false);
+      }
     }
-  }, [anexosData]);
+  }, [anexosData, isLoading]);
 
   const handleLoadMore = () => {
     if (loadingMore || !hasMore || !anexosData) return;
@@ -168,10 +171,22 @@ export default function AnexosLiderScreen() {
     </View>
   );
 
-  if (loading || isLoading) {
+  if (isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
+      </ScreenContainer>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ScreenContainer className="items-center justify-center p-4">
+        <Text className="text-lg font-bold text-error mb-4">Erro ao carregar anexos</Text>
+        <Text className="text-sm text-muted text-center mb-6">
+          {error?.message || "Não foi possível carregar a lista de anexos"}
+        </Text>
+        <BackButton />
       </ScreenContainer>
     );
   }
