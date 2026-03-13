@@ -36,22 +36,14 @@ export default function AdminEscolaCrescimentoScreen() {
   // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
   const updateConfigMutation = trpc.escolaCrescimento.updateConfig.useMutation();
 
-  useFocusEffect(
-    useCallback(() => {
-      if (inscricoesData) {
-        setInscricoes(inscricoesData);
-      }
-      if (configData) {
-        setConfig(configData);
-        setNovaData(configData.dataInicio || "");
-      }
-      setCarregando(carregandoInscricoes);
-    }, [inscricoesData, carregandoInscricoes, configData])
-  );
+  // Usar os dados diretamente do tRPC sem duplicar em estado local
+  // Isso evita loops infinitos de atualização
+  const inscricoesParaExibir = inscricoesData || [];
+  const configParaExibir = configData || null;
 
   // Filtrar inscrições
   const inscricoesFiltradas = useMemo(() => {
-    let resultado = inscricoes;
+    let resultado = inscricoesParaExibir;
     if (filtroCurso !== 'todos') {
       resultado = resultado.filter(i => i.curso === filtroCurso);
     }
@@ -59,21 +51,21 @@ export default function AdminEscolaCrescimentoScreen() {
       resultado = resultado.filter(i => i.celula === filtroCelula);
     }
     return resultado.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [inscricoes, filtroCurso, filtroCelula]);
+  }, [inscricoesParaExibir, filtroCurso, filtroCelula]);
 
   // Células únicas
   const celulasUnicas = useMemo(() => {
-    return [...new Set(inscricoes.map(i => i.celula))].sort();
-  }, [inscricoes]);
+    return [...new Set(inscricoesParaExibir.map(i => i.celula))].sort();
+  }, [inscricoesParaExibir]);
 
   // Estatísticas por curso
   const estatisticasPorCurso = useMemo(() => {
     const stats: Record<string, number> = {};
     CURSOS.forEach(c => {
-      stats[c] = inscricoes.filter(i => i.curso === c).length;
+      stats[c] = inscricoesParaExibir.filter(i => i.curso === c).length;
     });
     return stats;
-  }, [inscricoes]);
+  }, [inscricoesParaExibir]);
 
   const handleAtualizarData = async () => {
     if (!novaData.trim()) {
