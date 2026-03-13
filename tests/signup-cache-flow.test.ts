@@ -90,7 +90,7 @@ describe("Signup Cache Flow - User Info Persistence", () => {
     };
 
     // Client should be able to construct openId if needed
-    const openId = loginResponse.openId || `email_${loginResponse.userId}`;
+    const openId = (loginResponse as any).openId || `email_${loginResponse.userId}`;
     expect(openId).toBeDefined();
     console.log("[Test] ✅ Fallback openId construction works");
   });
