@@ -138,7 +138,8 @@ export default function RootLayout() {
         },
       }),
   );
-  const [trpcClient] = useState(() => createTRPCClient());
+  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+  const [trpcClient] = useState(() => createTRPCClient(apiBaseUrl));
 
   const content = (
     <AuthProvider apiBaseUrl={process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000"}>

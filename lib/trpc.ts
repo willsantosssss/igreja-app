@@ -18,11 +18,12 @@ export const trpc = createTRPCReact<AppRouter>();
  * Creates the tRPC client with proper configuration.
  * Call this once in your app's root layout.
  */
-export function createTRPCClient() {
-  // Get API base URL - on web, this converts 8081 (Metro) to 3000 (API Server)
-  const apiBaseUrl = getApiBaseUrl();
-  const trpcUrl = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : `/api/trpc`;
-  console.log('[tRPC] Using URL:', trpcUrl);
+export function createTRPCClient(apiBaseUrl?: string) {
+  // Get API base URL - use provided URL or derive from environment/hostname
+  // This ensures consistency with AuthProvider which also uses apiBaseUrl
+  const baseUrl = apiBaseUrl || getApiBaseUrl();
+  const trpcUrl = baseUrl ? `${baseUrl}/api/trpc` : `/api/trpc`;
+  console.log('[tRPC] Using URL:', trpcUrl, 'Base URL:', baseUrl || 'relative');
   
   return trpc.createClient({
     links: [
