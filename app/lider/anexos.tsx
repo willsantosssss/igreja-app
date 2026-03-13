@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
@@ -33,6 +34,10 @@ export default function AnexosLiderScreen() {
   const [anexos, setAnexos] = useState<Anexo[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const itemsPerPage = 10;
 
   const { data: anexosData, isLoading } = trpc.anexosLideres.list.useQuery();
 
@@ -40,12 +45,54 @@ export default function AnexosLiderScreen() {
     if (anexosData) {
       // Filtrar apenas anexos ativos
       const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
-      setAnexos(anexosAtivos);
+      // Paginacao: mostrar apenas os primeiros itemsPerPage
+      const paginados = anexosAtivos.slice(0, itemsPerPage);
+      setAnexos(paginados);
+      setHasMore(anexosAtivos.length > itemsPerPage);
       setLoading(false);
     }
   }, [anexosData]);
 
-  const handleDownloadPDF = async (anexo: Anexo) => {
+  const handleLoadMore = () => {
+    if (loadingMore || !hasMore || !anexosData) return;
+    
+    setLoadingMore(true);
+    setTimeout(() => {
+      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
+      const novaPage = page + 1;
+      const inicio = 0;
+      const fim = novaPage * itemsPerPage;
+      const novoAnexos = anexosAtivos.slice(inicio, fim);
+      
+      setAnexos(novoAnexos);
+      setPage(novaPage);
+      setHasMore(fim < anexosAtivos.length);
+      setLoadingMore(false);
+    }, 300);
+  };
+
+  const getFileIcon = (tipo: string) => {
+    if (tipo.includes('pdf')) return '📄';
+    if (tipo.includes('word') || tipo.includes('document')) return '📝';
+    if (tipo.includes('excel') || tipo.includes('spreadsheet')) return '📊';
+    if (tipo.includes('image')) return '🖼️';
+    if (tipo.includes('video')) return '🎥';
+    if (tipo.includes('audio')) return '🎵';
+    if (tipo.includes('zip') || tipo.includes('rar')) return '📦';
+    return '📎';
+  };
+
+  const getMimeType = (tipo: string) => {
+    if (tipo.includes('pdf')) return 'application/pdf';
+    if (tipo.includes('word') || tipo.includes('document')) return 'application/msword';
+    if (tipo.includes('excel') || tipo.includes('spreadsheet')) return 'application/vnd.ms-excel';
+    if (tipo.includes('image')) return 'image/*';
+    if (tipo.includes('video')) return 'video/*';
+    if (tipo.includes('audio')) return 'audio/*';
+    return 'application/octet-stream';
+  };
+
+  const handleDownloadFile = async (anexo: Anexo) => {
     try {
       setDownloading(anexo.id);
 
@@ -69,8 +116,8 @@ export default function AnexosLiderScreen() {
         // Compartilhar arquivo para abrir/salvar
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(fileUri, {
-            mimeType: "application/pdf",
-            dialogTitle: "Abrir PDF",
+            mimeType: getMimeType(anexo.tipo),
+            dialogTitle: `Abrir ${anexo.tipo}`,
           });
         } else {
           Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
@@ -108,14 +155,14 @@ export default function AnexosLiderScreen() {
       </View>
 
       <TouchableOpacity
-        onPress={() => handleDownloadPDF(item)}
+        onPress={() => handleDownloadFile(item)}
         disabled={downloading === item.id}
         className="bg-primary rounded-lg p-3 items-center active:opacity-80"
       >
         {downloading === item.id ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text className="text-white font-semibold">⬇️ Baixar PDF</Text>
+          <Text className="text-white font-semibold">⬇️ Baixar {item.tipo.toUpperCase()}</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -148,12 +195,32 @@ export default function AnexosLiderScreen() {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={anexos}
-          renderItem={renderAnexo}
-          keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
-        />
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+          <FlatList
+            data={anexos}
+            renderItem={renderAnexo}
+            keyExtractor={(item) => item.id.toString()}
+            scrollEnabled={false}
+          />
+          {hasMore && (
+            <TouchableOpacity
+              onPress={handleLoadMore}
+              disabled={loadingMore}
+              className="bg-primary rounded-lg p-3 items-center mt-4 active:opacity-80"
+            >
+              {loadingMore ? (
+                <ActivityIndicator color={colors.background} />
+              ) : (
+                <Text className="text-white font-semibold">Carregar Mais</Text>
+              )}
+            </TouchableOpacity>
+          )}
+          {anexos.length > 0 && (
+            <Text className="text-xs text-muted text-center mt-4">
+              Mostrando {anexos.length} de {(anexosData as Anexo[])?.filter((a) => a.ativo === 1).length || 0} anexos
+            </Text>
+          )}
+        </ScrollView>
       )}
     </ScreenContainer>
   );

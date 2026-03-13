@@ -85,7 +85,16 @@ export default function AdminAnexosScreen() {
     try {
       setUploadingFile(true);
       const result = await DocumentPicker.getDocumentAsync({
-        type: "application/pdf",
+        type: [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/vnd.ms-excel",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "image/*",
+          "video/*",
+          "audio/*",
+        ],
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -96,12 +105,21 @@ export default function AdminAnexosScreen() {
           encoding: FileSystem.EncodingType.Base64,
         });
 
+        // Detectar tipo de arquivo
+        let tipoArquivo = "arquivo";
+        if (file.mimeType?.includes('pdf')) tipoArquivo = 'PDF';
+        else if (file.mimeType?.includes('word') || file.mimeType?.includes('document')) tipoArquivo = 'Word';
+        else if (file.mimeType?.includes('excel') || file.mimeType?.includes('spreadsheet')) tipoArquivo = 'Excel';
+        else if (file.mimeType?.includes('image')) tipoArquivo = 'Imagem';
+        else if (file.mimeType?.includes('video')) tipoArquivo = 'Vídeo';
+        else if (file.mimeType?.includes('audio')) tipoArquivo = 'Áudio';
+
         setFormData({
           ...formData,
           nomeArquivo: file.name,
           arquivoBase64: fileContent,
+          tipo: tipoArquivo,
         });
-
         Alert.alert("Sucesso", `Arquivo ${file.name} selecionado`);
       }
     } catch (error: any) {
@@ -243,12 +261,15 @@ export default function AdminAnexosScreen() {
           </Text>
         </View>
         <View className="flex-row gap-2">
-          <TouchableOpacity
-            onPress={() => handleOpenModal()}
-            className="bg-primary rounded-lg p-3 active:opacity-80"
-          >
-            <Text className="text-white font-semibold">+ Novo</Text>
-          </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handlePickFile()}
+        className="bg-primary rounded-lg p-3 items-center active:opacity-80 mb-4"
+      >
+        <Text className="text-white font-semibold">Selecionar Arquivo</Text>
+      </TouchableOpacity>
+      <Text className="text-xs text-muted text-center mb-4">
+        Formatos suportados: PDF, Word, Excel, Imagens, Vídeos, Áudio
+      </Text>
           <BackButton />
         </View>
       </View>
