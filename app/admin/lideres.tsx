@@ -87,12 +87,8 @@ export default function AdminLideresScreen() {
       return;
     }
 
-    // Verificar se já existe líder para essa célula
-    const existente = lideresDB.find((l: any) => l.celula === novaCelula);
-    if (existente) {
-      Alert.alert('Atenção', `Já existe um líder cadastrado para a célula "${novaCelula}". Remova-o primeiro se deseja substituir.`);
-      return;
-    }
+    // Permitir múltiplos líderes por célula
+    // Validação removida para permitir co-líderes
 
     try {
       setCarregando(true);

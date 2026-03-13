@@ -56,9 +56,10 @@ export default function AniversariantesScreen() {
 
   const getDayOfWeek = (birthDate: string) => {
     const { day, month, year } = parseDateString(birthDate);
-    const date = new Date(year, month - 1, day);
+    // Usar UTC para evitar problemas de fuso horário
+    const date = new Date(Date.UTC(year, month - 1, day));
     const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    return days[date.getDay()];
+    return days[date.getUTCDay()];
   };
 
   const formatDate = (birthDate: string) => {
