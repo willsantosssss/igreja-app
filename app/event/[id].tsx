@@ -302,15 +302,12 @@ export default function EventDetailScreen() {
                   <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
                 </TouchableOpacity>
                 {mostrarSeletorCelulas && (
-                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
+                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300, overflow: 'scroll' }}>
                     {celulas && celulas.length > 0 ? (
-                      <FlatList
-                        data={celulas}
-                        keyExtractor={(cel) => cel.id?.toString() || cel.name || ""}
-                        scrollEnabled={true}
-                        nestedScrollEnabled={true}
-                        renderItem={({ item: cel }) => (
+                      <ScrollView scrollEnabled={true}>
+                        {celulas.map((cel) => (
                           <TouchableOpacity
+                            key={cel.id?.toString() || cel.name || ""}
                             className="px-4 py-3 border-b border-border"
                             style={{ borderBottomColor: colors.border }}
                             onPress={() => {
@@ -320,8 +317,8 @@ export default function EventDetailScreen() {
                           >
                             <Text className="text-foreground">{cel.nome || cel.name}</Text>
                           </TouchableOpacity>
-                        )}
-                      />
+                        ))}
+                      </ScrollView>
                     ) : (
                       <View className="px-4 py-3">
                         <Text className="text-muted text-center">Nenhuma célula disponível</Text>

@@ -557,7 +557,7 @@ export const appRouter = router({
         userId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const userId = ctx.user?.id || input.userId;
+        const userId = ctx.user?.id || input.userId || 0; // Use 0 as default if no userId
         return db.createInscricaoEscolaCrescimento({
           nome: input.nome,
           celula: input.celula,

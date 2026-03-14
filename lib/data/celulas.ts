@@ -21,7 +21,7 @@ export async function getCelulas(): Promise<Celula[]> {
     // Nota: Esta função é async mas tRPC queries são síncronas
     // Para uso em componentes, use o hook useQuery diretamente
     // Para uso em funções async, use fetch direto na API
-    const response = await fetch('/api/trpc/celulas.list');
+    const response = await fetch('/api/trpc/celulas/list');
     if (!response.ok) {
       console.error('Erro ao buscar células:', response.statusText);
       return [];
@@ -39,7 +39,7 @@ export async function getCelulas(): Promise<Celula[]> {
  */
 export async function getCelulaById(id: number): Promise<Celula | null> {
   try {
-    const response = await fetch(`/api/trpc/celulas.getById?input=${id}`);
+    const response = await fetch(`/api/trpc/celulas/getById?input=${id}`);
     if (!response.ok) {
       console.error('Erro ao buscar célula:', response.statusText);
       return null;
