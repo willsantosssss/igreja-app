@@ -92,6 +92,7 @@ export default function AdminLideresScreen() {
 
     try {
       setCarregando(true);
+      // Armazenar a senha no campo telefone (compatível com painel do líder)
       await createLiderMutation.mutateAsync({
         userId: 0,
         nome: novoNome.trim(),

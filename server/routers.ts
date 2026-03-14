@@ -412,7 +412,7 @@ export const appRouter = router({
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
     getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
     getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getLiderByCelula(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         userId: z.number(),
         nome: z.string().min(1),
@@ -422,7 +422,7 @@ export const appRouter = router({
         ativo: z.number().default(1),
       }))
       .mutation(({ input }) => db.createLider(input)),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -434,7 +434,7 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateLider(input.id, input.data)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
+    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
     updatePassword: publicProcedure
       .input(z.object({
         liderId: z.number(),
