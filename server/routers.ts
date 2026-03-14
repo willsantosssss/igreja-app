@@ -435,7 +435,7 @@ export const appRouter = router({
       }))
       .mutation(({ input }) => db.updateLider(input.id, input.data)),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
-    updatePassword: protectedProcedure
+    updatePassword: publicProcedure
       .input(z.object({
         liderId: z.number(),
         senhaAtual: z.string().min(1),
