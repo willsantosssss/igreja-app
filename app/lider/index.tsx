@@ -137,8 +137,8 @@ export default function LiderScreen() {
 
     setAutenticando(true);
     try {
-      // Buscar líder do banco pela célula
-      const liderBanco = lideresDB.find((l: any) => l.celula === celulaInput);
+      // Buscar líder do banco pela célula usando tRPC
+      const liderBanco = await trpc.lideres.getByCelula.query(celulaInput);
       
       if (!liderBanco) {
         Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');

@@ -444,12 +444,12 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const lider = await db.getLiderById(input.liderId);
         if (!lider) throw new Error('Lider nao encontrado');
-        const user = await db.getUserById(lider.userId);
-        if (!user) throw new Error('Usuario nao encontrado');
-        if (user.passwordHash !== input.senhaAtual) {
+        // Validar senha atual (armazenada no campo telefone)
+        if (lider.telefone !== input.senhaAtual) {
           throw new Error('Senha atual incorreta');
         }
-        await db.updateUser(user.id, { passwordHash: input.novaSenha });
+        // Atualizar a senha (armazenada no campo telefone)
+        await db.updateLider(input.liderId, { telefone: input.novaSenha });
         return { success: true, message: 'Senha alterada com sucesso' };
       }),
   }),
