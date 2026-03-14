@@ -308,7 +308,7 @@ export const appRouter = router({
   eventos: router({
     list: publicProcedure.query(() => db.getEventos()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getEventoById(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         titulo: z.string().min(1),
         descricao: z.string().min(1),
@@ -321,7 +321,7 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.createEvento(input);
       }),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -336,7 +336,7 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.updateEvento(input.id, input.data);
       }),
-    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
+    delete: publicProcedure.input(z.number()).mutation(({ input, ctx }) => {
       return db.deleteEvento(input);
     }),
   }),
