@@ -73,13 +73,12 @@ export default function LiderScreen() {
     verificarSessao();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (lider && membrosDB.length > 0) {
-        carregarEstatisticas(lider.celula);
-      }
-    }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB])
-  );
+  // Carregar estatísticas quando o lider muda
+  useEffect(() => {
+    if (lider && membrosDB.length > 0) {
+      carregarEstatisticas(lider.celula);
+    }
+  }, [lider?.id, lider?.celula]);
 
   const verificarSessao = async () => {
     const sessao = await obterSessaoLider();
