@@ -94,7 +94,7 @@ export const appRouter = router({
   celulas: router({
     list: publicProcedure.query(() => db.getCelulas()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getCelulaById(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         nome: z.string().min(1),
         lider: z.string().min(1),
@@ -106,7 +106,7 @@ export const appRouter = router({
         horario: z.string().min(1),
       }))
       .mutation(({ input }) => db.createCelula(input)),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -121,7 +121,7 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateCelula(input.id, input.data)),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.number())
       .mutation(({ input }) => db.deleteCelula(input)),
   }),
