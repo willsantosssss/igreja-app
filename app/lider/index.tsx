@@ -48,6 +48,9 @@ export default function LiderScreen() {
     refetchOnWindowFocus: true,
   });
 
+  // Mutation para buscar líder por célula
+  const getByCelulaMutation = trpc.lideres.getByCelula.useMutation();
+
   // Buscar inscrições em eventos
   const { data: inscricoesEventosDB = [] } = trpc.inscricoesEventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
@@ -138,7 +141,7 @@ export default function LiderScreen() {
     setAutenticando(true);
     try {
       // Buscar líder do banco pela célula usando tRPC
-      const liderBanco = await trpc.lideres.getByCelula.query(celulaInput);
+      const liderBanco = await getByCelulaMutation.mutateAsync(celulaInput);
       
       if (!liderBanco) {
         Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');
