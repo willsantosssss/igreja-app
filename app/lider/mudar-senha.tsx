@@ -29,7 +29,6 @@ export default function MudarSenhaScreen() {
   const mudarSenhaMutation = trpc.lideres.updatePassword.useMutation();
 
   const handleMudarSenha = async () => {
-    console.log('[MudarSenha] handleMudarSenha chamado');
     // Validações
     if (!senhaAtual.trim()) {
       Alert.alert("Erro", "Digite sua senha atual");
