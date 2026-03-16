@@ -73,12 +73,6 @@ async function startServer() {
     }),
   );
 
-  // Debug: Log available procedures
-  console.log('[DEBUG] Available procedures:', Object.keys(appRouter._def.record));
-  if (appRouter._def.record.lideres) {
-    console.log('[DEBUG] Lideres procedures:', Object.keys(appRouter._def.record.lideres._def.record));
-  }
-
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
 
