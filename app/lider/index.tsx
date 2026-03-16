@@ -25,6 +25,7 @@ export default function LiderScreen() {
   const [lider, setLider] = useState<LiderCelula | null>(null);
   const [senhaInput, setSenhaInput] = useState('');
   const [celulaInput, setCelulaInput] = useState('');
+  const [nomeInput, setNomeInput] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [autenticando, setAutenticando] = useState(false);
   const [stats, setStats] = useState({
@@ -132,6 +133,10 @@ export default function LiderScreen() {
       Alert.alert('Atenção', 'Selecione uma célula.');
       return;
     }
+    if (!nomeInput.trim()) {
+      Alert.alert('Atenção', 'Selecione seu nome.');
+      return;
+    }
     if (!senhaInput.trim()) {
       Alert.alert('Atenção', 'Digite a senha de acesso.');
       return;
@@ -139,11 +144,11 @@ export default function LiderScreen() {
 
     setAutenticando(true);
     try {
-      // Buscar líder do array carregado
-      const liderBanco = lideresDB.find(l => l.celula === celulaInput);
+      // Buscar líder do array carregado por Nome + Célula
+      const liderBanco = lideresDB.find(l => l.celula === celulaInput && l.nome === nomeInput);
       
       if (!liderBanco) {
-        Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');
+        Alert.alert('Erro', 'Líder não encontrado. Verifique e tente novamente.');
         setAutenticando(false);
         return;
       }
@@ -250,7 +255,7 @@ export default function LiderScreen() {
               </View>
               <Text className="text-lg font-bold text-foreground">Autenticação</Text>
               <Text className="text-sm text-muted text-center">
-                Selecione sua célula e digite a senha
+                Selecione sua célula, seu nome e digite a senha
               </Text>
             </View>
 
@@ -268,34 +273,82 @@ export default function LiderScreen() {
                 }}
               >
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {lideresDB.map((l: any) => (
+                  {Array.from(new Set(lideresDB.map((l: any) => l.celula))).map((celula: string) => (
                     <TouchableOpacity
-                      key={l.id}
-                      onPress={() => setCelulaInput(l.celula)}
+                      key={celula}
+                      onPress={() => {
+                        setCelulaInput(celula);
+                        setNomeInput('');
+                      }}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 8,
                         marginRight: 8,
                         borderRadius: 8,
-                        backgroundColor: celulaInput === l.celula ? colors.primary : colors.surface,
+                        backgroundColor: celulaInput === celula ? colors.primary : colors.surface,
                         borderWidth: 1,
-                        borderColor: celulaInput === l.celula ? colors.primary : colors.border,
+                        borderColor: celulaInput === celula ? colors.primary : colors.border,
                       }}
                     >
                       <Text
                         style={{
-                          color: celulaInput === l.celula ? '#fff' : colors.foreground,
+                          color: celulaInput === celula ? '#fff' : colors.foreground,
                           fontSize: 12,
                           fontWeight: '600',
                         }}
                       >
-                        {l.celula}
+                        {celula}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
             </View>
+
+            {/* Seletor de Nome do Líder */}
+            {celulaInput && (
+              <View>
+                <Text className="text-foreground font-semibold mb-2">Nome do Líder *</Text>
+                <View
+                  style={{
+                    backgroundColor: colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 12,
+                    paddingHorizontal: 14,
+                    paddingVertical: 12,
+                  }}
+                >
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {lideresDB.filter((l: any) => l.celula === celulaInput).map((l: any) => (
+                      <TouchableOpacity
+                        key={l.id}
+                        onPress={() => setNomeInput(l.nome)}
+                        style={{
+                          paddingHorizontal: 12,
+                          paddingVertical: 8,
+                          marginRight: 8,
+                          borderRadius: 8,
+                          backgroundColor: nomeInput === l.nome ? colors.primary : colors.surface,
+                          borderWidth: 1,
+                          borderColor: nomeInput === l.nome ? colors.primary : colors.border,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: nomeInput === l.nome ? '#fff' : colors.foreground,
+                            fontSize: 12,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {l.nome}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            )}
 
             {/* Senha */}
             <View>
@@ -323,9 +376,9 @@ export default function LiderScreen() {
             {/* Botão Login */}
             <TouchableOpacity
               onPress={handleLogin}
-              disabled={autenticando || !celulaInput}
+              disabled={autenticando || !celulaInput || !nomeInput}
               style={{
-                backgroundColor: autenticando || !celulaInput ? colors.muted : colors.primary,
+                backgroundColor: autenticando || !celulaInput || !nomeInput ? colors.muted : colors.primary,
                 borderRadius: 24,
                 padding: 14,
                 alignItems: 'center',
