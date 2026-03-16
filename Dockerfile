@@ -13,6 +13,7 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY . .
 
 # Build the application (this MUST run, not be cached)
+# Force rebuild: 2026-03-16T12:15:00Z
 RUN npm run build
 
 # Production stage
