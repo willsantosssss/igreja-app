@@ -291,6 +291,23 @@ export const anexos = pgTable("anexos", {
 export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
+// Anexos Líderes table
+export const anexosLideres = pgTable("anexosLideres", {
+  id: serial("id").primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  arquivoUrl: varchar("arquivoUrl", { length: 2048 }).notNull(),
+  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
+  tamanhoArquivo: integer("tamanhoArquivo").default(0).notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(),
+  ativo: integer("ativo").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type AnexoLider = typeof anexosLideres.$inferSelect;
+export type InsertAnexoLider = typeof anexosLideres.$inferInsert;
+
 // Inscrições em Escola de Crescimento table
 export const inscricoesEscolaCrescimento = pgTable("inscricoesEscolaCrescimento", {
   id: serial("id").primaryKey(),

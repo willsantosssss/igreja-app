@@ -8,6 +8,13 @@
       "when": 1773154490082,
       "tag": "0000_abandoned_killmonger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773669330844,
+      "tag": "0001_special_naoko",
+      "breakpoints": true
     }
   ]
 }
