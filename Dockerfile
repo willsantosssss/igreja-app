@@ -8,7 +8,9 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 # Build the application (this MUST run, not be cached)
-# Force rebuild: 2026-03-16T14:30:00Z updatePassword fix
+# Force rebuild without cache: 2026-03-16T09:10:00Z - updatePassword fix
+# Adding ARG to invalidate cache on every build
+ARG BUILD_DATE=2026-03-16T09:10:00Z
 RUN npm run build
 # Production stage
 FROM node:22-alpine
