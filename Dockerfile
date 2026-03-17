@@ -1,4 +1,5 @@
 # Multi-stage build to ensure npm run build is executed
+ARG BUILD_DATE=unknown
 FROM node:22-alpine AS builder
 WORKDIR /app
 # Copy package files
