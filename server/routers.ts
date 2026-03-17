@@ -581,9 +581,9 @@ export const appRouter = router({
    }),
   
   // Anexos Líderes
-  anexosLideres: router({
-    list: publicProcedure.query(() => db.getAnexosLideres()),
-    getById: publicProcedure.input(z.number()).query(({ input }) => db.getAnexoLiderById(input)),
+  documentosLideres: router({
+    list: publicProcedure.query(() => db.getDocumentosLideres()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getDocumentoLiderById(input)),
     create: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
@@ -602,7 +602,7 @@ export const appRouter = router({
           await fs.writeFile(caminhoArquivo, buffer);
           const stats = await fs.stat(caminhoArquivo);
           const arquivoUrl = `/uploads/${nomeArquivoLocal}`;
-          return db.createAnexoLider({
+          return db.createDocumentoLider({
             titulo: input.titulo,
             descricao: input.descricao,
             arquivoUrl,
@@ -628,15 +628,15 @@ export const appRouter = router({
         ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {
-        return db.updateAnexoLider(input.id, input);
+        return db.updateDocumentoLider(input.id, input);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      return db.deleteAnexoLider(input);
+      return db.deleteDocumentoLider(input);
     }),
     toggleVisibility: protectedProcedure
       .input(z.object({ id: z.number(), ativo: z.number() }))
       .mutation(({ input, ctx }) => {
-        return db.toggleAnexoLiderVisibility(input.id, input.ativo);
+        return db.toggleDocumentoLiderVisibility(input.id, input.ativo);
       }),
   }),
 });

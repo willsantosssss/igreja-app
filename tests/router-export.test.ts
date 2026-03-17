@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import type { AppRouter } from "@/server/routers";
 
 describe("Router Exports", () => {
-  it("should have anexosLideres router in AppRouter type", () => {
-    // This test verifies that the AppRouter type includes anexosLideres
+  it("should have documentosLideres router in AppRouter type", () => {
+    // This test verifies that the AppRouter type includes documentosLideres
     // If this fails, it means the router is not properly exported
     const routerKeys = [
       "system",
@@ -16,14 +16,14 @@ describe("Router Exports", () => {
       "lideres",
       "membros",
       "relatorios",
-      "anexosLideres",
+      "documentosLideres",
     ];
 
     // Create a dummy router to test type inference
     const testRouter: Partial<AppRouter> = {
-      anexosLideres: {} as any,
+      documentosLideres: {} as any,
     };
 
-    expect(testRouter).toHaveProperty("anexosLideres");
+    expect(testRouter).toHaveProperty("documentosLideres");
   });
 });

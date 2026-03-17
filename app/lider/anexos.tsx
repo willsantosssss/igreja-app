@@ -38,7 +38,7 @@ export default function AnexosLiderScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const itemsPerPage = 10;
 
-  const { data: anexosData, isLoading, isError, error } = trpc.anexosLideres.list.useQuery();
+  const { data: anexosData, isLoading, isError, error } = trpc.documentosLideres.list.useQuery();
 
   useEffect(() => {
     if (!isLoading) {

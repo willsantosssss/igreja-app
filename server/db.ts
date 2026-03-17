@@ -3,9 +3,9 @@ import postgres from "postgres";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, anexosLideres,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, documentosLideres,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertAnexoLider
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertDocumentoLider
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -836,41 +836,41 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 
 // ==================== ANEXOS LÍDERES ====================
 
-export async function getAnexosLideres() {
+export async function getDocumentosLideres() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+  const result = await db.select().from(documentosLideres).where(eq(documentosLideres.ativo, 1));
   return result || [];
 }
 
-export async function getAnexoLiderById(id: number) {
+export async function getDocumentoLiderById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.id, id));
+  const result = await db.select().from(documentosLideres).where(eq(documentosLideres.id, id));
   return result[0] || null;
 }
 
-export async function createAnexoLider(data: InsertAnexoLider) {
+export async function createDocumentoLider(data: InsertDocumentoLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(anexosLideres).values(data);
+  const result = await db.insert(documentosLideres).values(data);
   return result.insertId;
 }
 
-export async function updateAnexoLider(id: number, data: Partial<InsertAnexoLider>) {
+export async function updateDocumentoLider(id: number, data: Partial<InsertDocumentoLider>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(anexosLideres).set(data).where(eq(anexosLideres.id, id));
+  await db.update(documentosLideres).set(data).where(eq(documentosLideres.id, id));
 }
 
-export async function deleteAnexoLider(id: number) {
+export async function deleteDocumentoLider(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(anexosLideres).where(eq(anexosLideres.id, id));
+  await db.delete(documentosLideres).where(eq(documentosLideres.id, id));
 }
 
-export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
+export async function toggleDocumentoLiderVisibility(id: number, ativo: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
+  await db.update(documentosLideres).set({ ativo }).where(eq(documentosLideres.id, id));
 }
