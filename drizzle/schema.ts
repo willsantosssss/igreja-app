@@ -296,13 +296,13 @@ export const documentosLideres = pgTable("documentoslideres", {
   id: serial("id").primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao"),
-  arquivoUrl: varchar("arquivoUrl", { length: 2048 }).notNull(),
-  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
-  tamanhoArquivo: integer("tamanhoArquivo").default(0).notNull(),
+  arquivoUrl: varchar("arquivourl", { length: 2048 }).notNull(),
+  nomeArquivo: varchar("nomearquivo", { length: 255 }).notNull(),
+  tamanhoArquivo: integer("tamanhoarquivo").default(0).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
   ativo: integer("ativo").default(1).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdat").defaultNow().notNull(),
+  updatedAt: timestamp("updatedat").defaultNow().notNull(),
 });
 
 export type DocumentoLider = typeof documentosLideres.$inferSelect;
