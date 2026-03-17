@@ -839,38 +839,38 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 export async function getAnexosLideres() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select().from(anexos).where(eq(anexos.ativo, 1));
+  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
   return result || [];
 }
 
 export async function getAnexoLiderById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(anexos).where(eq(anexos.id, id));
+  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.id, id));
   return result[0] || null;
 }
 
-export async function createAnexoLider(data: InsertAnexo) {
+export async function createAnexoLider(data: InsertAnexoLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(anexos).values(data);
+  const result = await db.insert(anexosLideres).values(data);
   return result.insertId;
 }
 
-export async function updateAnexoLider(id: number, data: Partial<InsertAnexo>) {
+export async function updateAnexoLider(id: number, data: Partial<InsertAnexoLider>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(anexos).set(data).where(eq(anexos.id, id));
+  await db.update(anexosLideres).set(data).where(eq(anexosLideres.id, id));
 }
 
 export async function deleteAnexoLider(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(anexos).where(eq(anexos.id, id));
+  await db.delete(anexosLideres).where(eq(anexosLideres.id, id));
 }
 
 export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(anexos).set({ ativo }).where(eq(anexos.id, id));
+  await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
 }
