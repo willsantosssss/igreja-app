@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { execSync } from "child_process";
+import { createAnexosLideresTable } from "../migrations/create-anexos-lideres";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -29,14 +30,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function runMigrations() {
-  if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
-    try {
-      console.log("[Database] Running migrations...");
-      execSync("pnpm db:push", { stdio: "inherit" });
-      console.log("[Database] Migrations completed successfully");
-    } catch (error) {
-      console.warn("[Database] Migration failed (continuing anyway):", error);
-    }
+  try {
+    console.log("[Database] Running migrations...");
+    await createAnexosLideresTable();
+    console.log("[Database] Migrations completed successfully");
+  } catch (error) {
+    console.warn("[Database] Migration failed (continuing anyway):", error);
   }
 }
 
