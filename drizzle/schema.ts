@@ -292,7 +292,7 @@ export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
 // Anexos Líderes table
-export const documentosLideres = pgTable("documentosLideres", {
+export const documentosLideres = pgTable("documentoslideres", {
   id: serial("id").primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao"),
