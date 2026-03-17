@@ -1,9 +1,15 @@
 import { sql } from "drizzle-orm";
-import { db } from "../db";
+import { getDb } from "../db";
 
 export async function createAnexosLideresTable() {
   try {
     console.log("[Migration] Creating anexosLideres table...");
+    
+    const db = await getDb();
+    if (!db) {
+      console.warn("[Migration] Database not available, skipping migration");
+      return;
+    }
     
     // Create table
     await db.execute(sql`
