@@ -8,7 +8,7 @@ import { registerAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { execSync } from "child_process";
-import { createAnexosLideresTable } from "../migrations/create-anexos-lideres";
+import { initDocumentosLideresTable } from "../migrations/init-documentos-lideres";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -32,7 +32,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function runMigrations() {
   try {
     console.log("[Database] Running migrations...");
-    await createAnexosLideresTable();
+    await initDocumentosLideresTable();
     console.log("[Database] Migrations completed successfully");
   } catch (error) {
     console.warn("[Database] Migration failed (continuing anyway):", error);
