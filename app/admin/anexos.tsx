@@ -117,12 +117,14 @@ export default function AdminAnexosScreen() {
         else if (file.mimeType?.includes('audio')) tipoArquivo = 'Áudio';
 
         setFormData({
-          ...formData,
+          titulo: "",
+          descricao: "",
           nomeArquivo: file.name,
           arquivoBase64: fileContent,
           tipo: tipoArquivo,
         });
-        Alert.alert("Sucesso", `Arquivo ${file.name} selecionado`);
+        setEditingId(null);
+        setModalVisible(true);
       }
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Erro ao selecionar arquivo");
