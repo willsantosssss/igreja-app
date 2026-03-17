@@ -12,7 +12,7 @@ async function createTable() {
     
     // Criar tabela
     await sql`
-      CREATE TABLE IF NOT EXISTS documentosLideres (
+      CREATE TABLE IF NOT EXISTS "documentosLideres" (
         id SERIAL PRIMARY KEY,
         titulo VARCHAR(255) NOT NULL,
         descricao TEXT,
