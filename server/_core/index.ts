@@ -7,6 +7,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+import { execSync } from "child_process";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -27,7 +28,22 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+async function runMigrations() {
+  if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
+    try {
+      console.log("[Database] Running migrations...");
+      execSync("pnpm db:push", { stdio: "inherit" });
+      console.log("[Database] Migrations completed successfully");
+    } catch (error) {
+      console.warn("[Database] Migration failed (continuing anyway):", error);
+    }
+  }
+}
+
 async function startServer() {
+  // Run migrations before starting the server
+  await runMigrations();
+
   const app = express();
   const server = createServer(app);
 
