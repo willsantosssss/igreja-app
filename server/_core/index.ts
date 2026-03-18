@@ -82,7 +82,35 @@ async function startServer() {
     res.json({ ok: true, timestamp: Date.now() });
   });
 
-  // Endpoint REST para upload de documentos
+  // Endpoints REST para documentos-lideres
+  
+  // GET /api/documentos-lideres - Listar todos os documentos
+  app.get("/api/documentos-lideres", async (req, res) => {
+    try {
+      const documentos = await db.getDocumentosLideres();
+      res.json(documentos);
+    } catch (error: any) {
+      console.error("Erro ao listar documentos:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/documentos-lideres/:id - Obter documento por ID
+  app.get("/api/documentos-lideres/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const documento = await db.getDocumentoLiderById(parseInt(id));
+      if (!documento) {
+        return res.status(404).json({ error: "Documento não encontrado" });
+      }
+      res.json(documento);
+    } catch (error: any) {
+      console.error("Erro ao obter documento:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/upload/documentos-lideres - Criar novo documento
   app.post("/api/upload/documentos-lideres", async (req, res) => {
     try {
       const { titulo, descricao, nomeArquivo, arquivoBase64, tipo, ativo } = req.body;
@@ -109,6 +137,38 @@ async function startServer() {
       res.json(resultado);
     } catch (error: any) {
       console.error("Erro ao fazer upload:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/documentos-lideres/:id - Atualizar documento
+  app.put("/api/documentos-lideres/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { titulo, descricao, tipo, ativo } = req.body;
+      
+      const resultado = await db.updateDocumentoLider(parseInt(id), {
+        titulo,
+        descricao,
+        tipo,
+        ativo,
+      });
+      
+      res.json(resultado);
+    } catch (error: any) {
+      console.error("Erro ao atualizar documento:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/documentos-lideres/:id - Deletar documento
+  app.delete("/api/documentos-lideres/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await db.deleteDocumentoLider(parseInt(id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Erro ao deletar documento:", error);
       res.status(500).json({ error: error.message });
     }
   });
