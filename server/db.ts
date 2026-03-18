@@ -18,12 +18,8 @@ export async function getDb() {
     try {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
-      const urlObj = new URL(url);
       const client = postgres(url, {
-        ssl: {
-          rejectUnauthorized: false,
-          servername: urlObj.hostname
-        }
+        ssl: { rejectUnauthorized: false }
       });
       _db = drizzle(client);
       console.log("[Database] Connected successfully");
@@ -843,18 +839,10 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 // ==================== ANEXOS LÍDERES ====================
 
 export async function getDocumentosLideres() {
-  try {
-    const db = await getDb();
-    if (!db) {
-      console.warn("[Database] Database not available for getDocumentosLideres");
-      return [];
-    }
-    const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
-    return result || [];
-  } catch (error) {
-    console.error("[Database] Error in getDocumentosLideres:", error);
-    throw error;
-  }
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
+  return result || [];
 }
 
 export async function getDocumentoLiderById(id: number) {
