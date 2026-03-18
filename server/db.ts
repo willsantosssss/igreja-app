@@ -687,18 +687,31 @@ export async function getInscricoesEventos() {
   const db = await getDb();
   if (!db) return [];
   const inscricoes = await db.select().from(inscricoesEventos);
+  
+  // Buscar titulos e datas dos eventos
+  const eventosMap = new Map();
+  const eventosData = await db.select().from(eventos);
+  eventosData.forEach((e: any) => {
+    eventosMap.set(e.id, { titulo: e.titulo, data: e.data });
+  });
+  
   // Retornar dados conforme esperado pela tela
-  return inscricoes.map(i => ({
-    id: i.id,
-    eventoId: i.eventoId,
-    nome: i.nome,
-    celula: i.celula,
-    telefone: i.telefone,
-    status: i.status,
-    userId: i.userId,
-    createdAt: i.createdAt,
-    updatedAt: i.updatedAt,
-  }));
+  return inscricoes.map((i: any) => {
+    const eventoInfo = eventosMap.get(i.eventoId) || { titulo: 'Evento desconhecido', data: '' };
+    return {
+      id: i.id,
+      eventoId: i.eventoId,
+      eventoTitulo: eventoInfo.titulo,
+      eventoData: eventoInfo.data,
+      nome: i.nome,
+      celula: i.celula,
+      telefone: i.telefone,
+      status: i.status,
+      userId: i.userId,
+      createdAt: i.createdAt,
+      updatedAt: i.updatedAt,
+    };
+  });
 }
 
 export async function getInscricoesEventosByEventoId(eventoId: number) {

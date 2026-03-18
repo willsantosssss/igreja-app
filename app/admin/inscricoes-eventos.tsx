@@ -139,7 +139,7 @@ export default function AdminInscricoesEventosScreen() {
             <Text className="text-xs text-muted text-center">Total Inscrições</Text>
           </View>
           <View className="flex-1 bg-success/10 rounded-2xl p-4 items-center border border-success/20">
-            <Text className="text-2xl font-bold text-success">{eventosEspeciais.length}</Text>
+            <Text className="text-2xl font-bold text-success">{eventosDB.length}</Text>
             <Text className="text-xs text-muted text-center">Eventos Especiais</Text>
           </View>
           <View className="flex-1 bg-warning/10 rounded-2xl p-4 items-center border border-warning/20">
@@ -233,11 +233,11 @@ export default function AdminInscricoesEventosScreen() {
                 {dados.inscritos.map(insc => (
                   <View key={insc.id} className="flex-row items-center justify-between py-1">
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-foreground">{insc.nomeCompleto}</Text>
+                      <Text className="text-sm font-semibold text-foreground">{insc.nome}</Text>
                       <Text className="text-xs text-muted">{insc.celula}{insc.telefone ? ` • ${insc.telefone}` : ''}</Text>
                     </View>
                     <TouchableOpacity
-                      onPress={() => handleRemover(insc.id, insc.nomeCompleto)}
+                      onPress={() => handleRemover(insc.id.toString(), insc.nome)}
                       style={{ padding: 4 }}
                     >
                       <Text className="text-xs text-error">Remover</Text>
