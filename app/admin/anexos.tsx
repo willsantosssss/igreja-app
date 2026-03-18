@@ -162,7 +162,10 @@ export default function AdminAnexosScreen() {
       setModalVisible(false);
       refetch();
     } catch (error: any) {
-      Alert.alert("Erro", error.message || "Erro ao salvar anexo");
+      console.error("[Upload] Erro completo:", error);
+      console.error("[Upload] Stack:", error.stack);
+      const errorMessage = error?.message || error?.data?.message || error?.toString?.() || JSON.stringify(error);
+      Alert.alert("Erro no Upload", errorMessage, [{text: "OK"}]);
     }
   };
 
