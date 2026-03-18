@@ -92,26 +92,7 @@ export const appRouter = router({
 
   // Celulas
   celulas: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getCelulas();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [
-        { id: 1, nome: 'Pr. Will e Pra. Fernanda', lider: 'Célula Alive', telefone: '+55 66 99635-7700', endereco: 'Avenida João Ponce de Arruda, 943 - Centro', latitude: '-16.472484403202994', longitude: '-54.64209482025572', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T09:58:01.000Z'), updatedAt: new Date('2026-02-19T09:58:01.000Z') },
-        { id: 2, nome: 'Wellington e Joice', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99915-1371', endereco: 'Av. Planejada - Jardim Res. Mathias Neves', latitude: '-16.424231125157966', longitude: '-54.672828399850864', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T10:05:12.000Z'), updatedAt: new Date('2026-02-19T10:05:12.000Z') },
-        { id: 3, nome: 'Deisiane', lider: 'Célula Revive', telefone: '+55 66 99907-5601', endereco: 'Rua Otávio Pitaluga, 834 - Centro', latitude: '-16.477029263679597', longitude: '-54.62233561964722', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T14:00:00.000Z'), updatedAt: new Date('2026-02-19T14:00:01.000Z') },
-        { id: 4, nome: 'Jucilene', lider: 'Célula Revive', telefone: '+55 66 99655-5468', endereco: 'Rua Francisco Goulart, 1183 - Vila Goulart, Rondonópolis - MT, 78745-300', latitude: '-16.484105308713357', longitude: '-54.64188841588987', diaReuniao: 'Quinta-feira', horario: '08:00', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 5, nome: 'Adalberto e Julia', lider: 'Célula Alive', telefone: '+55 66 99920-4013', endereco: 'Av. Beija Flor, 310 - Vila Olinda', latitude: '-16.4587771785909', longitude: '-54.6644108686803', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 6, nome: 'Kacio e Nivia', lider: 'Célula Alive', telefone: '+55 66 99646-5281', endereco: 'R. Siriri, 1141 - Jardim Universitario', latitude: '-16.459718658982073', longitude: '-54.674833817798294', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 7, nome: 'Vitor e Rayara', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99974-6835', endereco: 'R. Armando Araújo, 34 - Parque Real', latitude: '-16.48210267263234', longitude: '-54.62124145767126', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 8, nome: 'João Luan e Karine', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99673-4056', endereco: 'R. P, 12 - Rondonópolis, MT, 78716-601', latitude: '-16.421751448780643', longitude: '-54.68680445767126', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 9, nome: 'Guilherme e Maria Eduarda', lider: 'Célula Alive', telefone: '+55 66 99623-4171', endereco: 'Rua Aparecida Domingos, 50, Cidade Viva, Pedra Preta  - MT', latitude: '-16.620039392896935', longitude: '-54.48304575430169', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
-        { id: 10, nome: 'Vitor Indiano e Mariani', lider: 'Célula Alive ADL', telefone: '+55 66 99679-3805', endereco: 'Av. São Luís, 208 - Vila Mamed', latitude: '-16.47982066271921', longitude: '-54.65373331811754', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') }
-      ];
-    }),
+    list: publicProcedure.query(() => db.getCelulas()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getCelulaById(input)),
     create: protectedProcedure
       .input(z.object({
@@ -251,18 +232,7 @@ export const appRouter = router({
 
   // Pedidos de Oracao
   oracao: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getPedidosOracao();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [
-        { id: 60001, nome: 'Pelo batismo', descricao: 'Para que as pessoas possam tomar a decisão de nascer de novo', categoria: 'espiritual', contadorOrando: 20, respondido: 1, testemunho: 'Graças a Deus. 3 pessoas se batizaram. Deus sempre nos surpreende!', createdAt: new Date('2026-02-20T00:29:36.000Z'), updatedAt: new Date('2026-03-06T00:50:44.000Z') },
-        { id: 1, nome: 'Vó Luzia', descricao: 'Pedido de Cura\n\nPeço oração pela vó Luiza, para que ela tenha plena recuperação cerebral e motora, pós AVC..', categoria: 'saude', contadorOrando: 19, respondido: 0, testemunho: null, createdAt: new Date('2026-02-19T09:58:01.000Z'), updatedAt: new Date('2026-03-07T05:56:58.000Z') }
-      ];
-    }),
+    list: publicProcedure.query(() => db.getPedidosOracao()),
     getById: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getPedidoOracaoById(input)),
@@ -356,22 +326,7 @@ export const appRouter = router({
     return { success: true, message: 'Test endpoint works' };
   }),
   eventos: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getEventos();
-        if (result && result.length > 0) {
-          return result;
-        }
-      } catch (e) {
-        // fallback
-      }
-      // Fallback: return hardcoded data if database query fails
-      return [
-        { id: 120002, titulo: 'DIA DA VISAO 2026', descricao: 'Evento de visao', data: '2026-03-18', horario: '10:00', local: 'Igreja', tipo: 'evento', requireInscricao: 0, createdAt: new Date(), updatedAt: new Date() },
-        { id: 120001, titulo: 'CEIA DO SENHOR', descricao: 'Ceia', data: '2026-03-19', horario: '14:00', local: 'Igreja', tipo: 'evento', requireInscricao: 1, createdAt: new Date(), updatedAt: new Date() },
-        { id: 2, titulo: 'TEMPO DE MESA', descricao: 'Tempo de mesa', data: '2026-03-20', horario: '18:00', local: 'Igreja', tipo: 'evento', requireInscricao: 0, createdAt: new Date(), updatedAt: new Date() }
-      ];
-    }),
+    list: publicProcedure.query(() => db.getEventos()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getEventoById(input)),
     create: protectedProcedure
       .input(z.object({
@@ -408,15 +363,7 @@ export const appRouter = router({
 
   // Notícias
   noticias: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getNoticias();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [{ id: 1, titulo: 'ENCONTRO COM DEUS KIDS', conteudo: 'Está chegando nosso Encontro com Deus Kids. As vagas estão se esgostando.', data: new Date('2026-03-14T00:00:00'), imagemUrl: null, destaque: 1, createdAt: new Date('2026-02-19T14:00:00.000Z'), updatedAt: new Date('2026-02-20T07:02:46.000Z') }];
-    }),
+    list: publicProcedure.query(() => db.getNoticias()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getNoticiaById(input)),
     create: protectedProcedure
       .input(z.object({
@@ -481,19 +428,7 @@ export const appRouter = router({
 
   // Líderes
   lideres: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getLideres();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [
-        { id: 150002, userId: 0, nome: 'Guilherme', celula: 'Guilherme e Maria Eduarda', telefone: 'BSWEF4UY', email: 'oguicaiofilmmaker@gmail.com', ativo: 1, createdAt: new Date('2026-02-24T09:12:46.000Z'), updatedAt: new Date('2026-02-24T09:12:46.000Z') },
-        { id: 150003, userId: 0, nome: 'Pra. Fernanda', celula: 'Pr. Will e Pra. Fernanda', telefone: '121722', email: 'fernandaborgeslima@gmail.com', ativo: 1, createdAt: new Date('2026-02-24T09:44:19.000Z'), updatedAt: new Date('2026-02-24T09:44:19.000Z') },
-        { id: 1, userId: 0, nome: 'Pr. Will', celula: 'Pr. Will e Pra. Fernanda', telefone: '250866', email: '2ieqroo@gmail.com', ativo: 1, createdAt: new Date('2026-03-13T17:20:03.471Z'), updatedAt: new Date('2026-03-13T17:20:03.471Z') }
-      ];
-    }),
+    list: publicProcedure.query(() => db.getLideres()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
     getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
     getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getLiderByCelula(input)),
@@ -524,15 +459,7 @@ export const appRouter = router({
 
   // Relatórios
   relatorios: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getRelatorios();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [{ id: 1, liderId: 1, celula: 'Pr. Will e Pra. Fernanda', tipo: 'semanal', periodo: '12/03/2026', presentes: 26, novosVisitantes: 4, conversoes: 0, observacoes: null, createdAt: new Date('2026-03-16T17:34:06.669Z'), updatedAt: new Date('2026-03-16T17:34:06.669Z') }];
-    }),
+    list: publicProcedure.query(() => db.getRelatorios()),
     getByLiderId: publicProcedure.input(z.number()).query(({ input }) => db.getRelatoriosByLiderId(input)),
     getByLiderIdWithFilters: publicProcedure
       .input(z.object({
@@ -577,15 +504,7 @@ export const appRouter = router({
 
   // Dados de Contribuição
   contribuicao: router({
-    get: publicProcedure.query(async () => {
-      try {
-        const result = await db.getDadosContribuicao();
-        if (result) return result;
-      } catch (e) {
-        // fallback
-      }
-      return { id: 1, pixKey: '62.955.505/3071-30', pixType: 'cnpj', bank: 'Mercado Pago', agency: '0001', account: '22124669645', cnpj: '62.955.505/3071-30', titular: '2ª IEQ Rondonópolis', mensagemMotivacional: 'Cada um contribua segundo propôs no seu coração', versiculoRef: '2 Coríntios 9:7', mensagemAgradecimento: 'Sua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.', createdAt: new Date('2026-02-19T16:39:08.000Z'), updatedAt: new Date('2026-02-19T16:39:08.000Z') };
-    }),
+    get: publicProcedure.query(() => db.getDadosContribuicao()),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -607,15 +526,7 @@ export const appRouter = router({
 
   // Inscrições em Eventos
   inscricoesEventos: router({
-    list: publicProcedure.query(async () => {
-      try {
-        const result = await db.getInscricoesEventos();
-        if (result && result.length > 0) return result;
-      } catch (e) {
-        // fallback
-      }
-      return [{ id: 150001, eventoId: 120002, userId: 30598, nome: 'will', telefone: '+5566996357700', celula: 'Pr. Will e Pra. Fernanda', status: 'confirmado', createdAt: new Date('2026-03-08T02:02:57.000Z'), updatedAt: new Date('2026-03-08T02:02:57.000Z') }];
-    }),
+    list: publicProcedure.query(() => db.getInscricoesEventos()),
     getByEvento: publicProcedure.input(z.number()).query(({ input }) => db.getInscricoesEventosByEventoId(input)),
     create: publicProcedure
       .input(z.object({

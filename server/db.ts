@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import * as schema from "../drizzle/schema";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
@@ -12,26 +12,24 @@ import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _sqlClient: ReturnType<typeof postgres> | null = null;
+let _poolConnection: ReturnType<typeof mysql.createPool> | null = null;
 
-// Get or create a reusable postgres-js client
+// Get or create a reusable MySQL connection pool
 export function getSqlClient() {
-  if (!_sqlClient && process.env.DATABASE_URL) {
-    console.log('[getSqlClient] Creating new postgres client');
-    _sqlClient = postgres(process.env.DATABASE_URL, { ssl: { rejectUnauthorized: false } });
+  if (!_poolConnection && process.env.DATABASE_URL) {
+    console.log('[getSqlClient] Creating new MySQL pool');
+    _poolConnection = mysql.createPool(process.env.DATABASE_URL);
   }
-  console.log('[getSqlClient] Returning client:', _sqlClient ? 'exists' : 'null');
-  return _sqlClient;
+  console.log('[getSqlClient] Returning pool:', _poolConnection ? 'exists' : 'null');
+  return _poolConnection;
 }
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const client = postgres(process.env.DATABASE_URL, {
-        ssl: 'require'
-      });
-      _db = drizzle(client, { schema });
+      const pool = mysql.createPool(process.env.DATABASE_URL);
+      _db = drizzle(pool, { schema, mode: 'default' });
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
