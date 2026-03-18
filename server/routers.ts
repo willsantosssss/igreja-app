@@ -342,8 +342,8 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.updateEvento(input.id, input.data);
       }),
-    delete: publicProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      return db.deleteEvento(input);
+    delete: publicProcedure.input(z.object({ id: z.number() })).mutation(({ input, ctx }) => {
+      return db.deleteEvento(input.id);
     }),
   }),
 
