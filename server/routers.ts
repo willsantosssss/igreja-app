@@ -595,23 +595,25 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         try {
-          const hash = crypto.randomBytes(8).toString('hex');
-          const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
-          const caminhoArquivo = path.join(UPLOAD_DIR, nomeArquivoLocal);
+          console.log('Iniciando upload de arquivo:', input.nomeArquivo);
           const buffer = Buffer.from(input.arquivoBase64, 'base64');
-          await fs.writeFile(caminhoArquivo, buffer);
-          const stats = await fs.stat(caminhoArquivo);
-          const arquivoUrl = `/uploads/${nomeArquivoLocal}`;
-          return db.createDocumentoLider({
+          const tamanhoArquivo = buffer.length;
+          const arquivoUrl = `data:application/octet-stream;base64,${input.arquivoBase64}`;
+          console.log('Tamanho do arquivo:', tamanhoArquivo);
+          const resultado = await db.createDocumentoLider({
             titulo: input.titulo,
             descricao: input.descricao,
             arquivoUrl,
             nomeArquivo: input.nomeArquivo,
-            tamanhoArquivo: stats.size,
+            tamanhoArquivo,
             tipo: input.tipo,
             ativo: input.ativo,
+            arquivoBase64: input.arquivoBase64,
           });
+          console.log('Upload concluído com sucesso:', resultado.id);
+          return resultado;
         } catch (error: any) {
+          console.error('Erro ao fazer upload:', error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: `Erro ao fazer upload: ${error.message}`,
