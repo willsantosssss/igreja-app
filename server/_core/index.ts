@@ -4,13 +4,9 @@ import { createServer } from "http";
 import net from "net";
 import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerAuthRoutes } from "./oauth";
+import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { execSync } from "child_process";
-import { initDocumentosLideresTable } from "../migrations/init-documentos-lideres";
-import * as db from "../db";
-import { runMigrations } from "../migrations";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -31,20 +27,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
-async function runMigrations() {
-  try {
-    console.log("[Database] Running migrations...");
-    await initDocumentosLideresTable();
-    console.log("[Database] Migrations completed successfully");
-  } catch (error) {
-    console.warn("[Database] Migration failed (continuing anyway):", error);
-  }
-}
-
 async function startServer() {
-  // Run migrations before starting the server
-  await runMigrations();
-
   const app = express();
   const server = createServer(app);
 
@@ -72,7 +55,7 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  registerAuthRoutes(app);
+  registerOAuthRoutes(app);
 
   // Servir arquivos estáticos da pasta uploads
   const uploadsDir = path.join(process.cwd(), "uploads");
@@ -80,114 +63,6 @@ async function startServer() {
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
-  });
-
-  // Endpoints REST para documentos-lideres
-  
-  // GET /api/documentos-lideres - Listar todos os documentos
-  app.get("/api/documentos-lideres", async (req, res) => {
-    try {
-      const documentos = await db.getDocumentosLideres();
-      res.json(documentos);
-    } catch (error: any) {
-      console.error("Erro ao listar documentos:", error);
-      // Retornar array vazio em vez de erro para permitir testes
-      res.json([]);
-    }
-  });
-
-  // GET /api/documentos-lideres/:id - Obter documento por ID
-  app.get("/api/documentos-lideres/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const documento = await db.getDocumentoLiderById(parseInt(id));
-      if (!documento) {
-        return res.status(404).json({ error: "Documento não encontrado" });
-      }
-      res.json(documento);
-    } catch (error: any) {
-      console.error("Erro ao obter documento:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // POST /api/upload/documentos-lideres - Criar novo documento
-  app.post("/api/upload/documentos-lideres", async (req, res) => {
-    try {
-      const { titulo, descricao, nomeArquivo, arquivoBase64, tipo, ativo } = req.body;
-      
-      if (!titulo || !nomeArquivo || !arquivoBase64 || !tipo) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const buffer = Buffer.from(arquivoBase64, "base64");
-      const tamanhoArquivo = buffer.length;
-      const arquivoUrl = `data:application/octet-stream;base64,${arquivoBase64}`;
-
-      try {
-        const resultado = await db.createDocumentoLider({
-          titulo,
-          descricao,
-          arquivoUrl,
-          nomeArquivo,
-          tamanhoArquivo,
-          tipo,
-          ativo: ativo ?? 1,
-          arquivoBase64,
-        });
-        res.json(resultado);
-      } catch (dbError) {
-        console.warn("Erro ao salvar no banco, retornando resposta mock:", dbError);
-        res.json({
-          id: Math.floor(Math.random() * 10000),
-          titulo,
-          descricao,
-          arquivoUrl,
-          nomeArquivo,
-          tamanhoArquivo,
-          tipo,
-          ativo: ativo ?? 1,
-          arquivoBase64,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }
-    } catch (error: any) {
-      console.error("Erro ao fazer upload:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // PUT /api/documentos-lideres/:id - Atualizar documento
-  app.put("/api/documentos-lideres/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { titulo, descricao, tipo, ativo } = req.body;
-      
-      const resultado = await db.updateDocumentoLider(parseInt(id), {
-        titulo,
-        descricao,
-        tipo,
-        ativo,
-      });
-      
-      res.json(resultado);
-    } catch (error: any) {
-      console.error("Erro ao atualizar documento:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // DELETE /api/documentos-lideres/:id - Deletar documento
-  app.delete("/api/documentos-lideres/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      await db.deleteDocumentoLider(parseInt(id));
-      res.json({ success: true });
-    } catch (error: any) {
-      console.error("Erro ao deletar documento:", error);
-      res.status(500).json({ error: error.message });
-    }
   });
 
   app.use(

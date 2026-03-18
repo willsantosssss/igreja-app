@@ -5,11 +5,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
-// import { trpc } from "@/lib/trpc"; // Usar apenas endpoint REST
+import { trpc } from "@/lib/trpc";
 import { BackButton } from "@/components/back-button";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
@@ -32,113 +31,55 @@ export default function AnexosLiderScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const itemsPerPage = 10;
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<any>(null);
-  const apiUrl = "https://igreja-app-production-9432.up.railway.app";
-
-  const carregarAnexos = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
-      if (!response.ok) throw new Error('Erro ao carregar anexos');
-      const data = await response.json();
-      
-      // Filtrar apenas anexos ativos
-      const anexosAtivos = (data as Anexo[]).filter((a) => a.ativo === 1);
-      // Paginacao: mostrar apenas os primeiros itemsPerPage
-      const paginados = anexosAtivos.slice(0, itemsPerPage);
-      setAnexos(paginados);
-      setHasMore(anexosAtivos.length > itemsPerPage);
-      setIsError(false);
-    } catch (err) {
-      setError(err);
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: anexosData, isLoading } = trpc.anexosLideres.list.useQuery();
 
   useEffect(() => {
-    carregarAnexos();
-  }, []);
-
-  const handleLoadMore = async () => {
-    if (loadingMore || !hasMore) return;
-    
-    setLoadingMore(true);
-    try {
-      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
-      if (!response.ok) throw new Error('Erro ao carregar anexos');
-      const data = await response.json();
-      
-      const anexosAtivos = (data as Anexo[]).filter((a) => a.ativo === 1);
-      const novaPage = page + 1;
-      const inicio = 0;
-      const fim = novaPage * itemsPerPage;
-      const novoAnexos = anexosAtivos.slice(inicio, fim);
-      
-      setAnexos(novoAnexos);
-      setPage(novaPage);
-      setHasMore(fim < anexosAtivos.length);
-    } catch (err) {
-      console.error('Erro ao carregar mais anexos:', err);
-    } finally {
-      setLoadingMore(false);
+    if (anexosData) {
+      // Filtrar apenas anexos ativos
+      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
+      setAnexos(anexosAtivos);
+      setLoading(false);
     }
-  };
+  }, [anexosData]);
 
-  const getFileIcon = (tipo: string) => {
-    if (tipo.includes('pdf')) return '📄';
-    if (tipo.includes('word') || tipo.includes('document')) return '📝';
-    if (tipo.includes('excel') || tipo.includes('spreadsheet')) return '📊';
-    if (tipo.includes('image')) return '🖼️';
-    if (tipo.includes('video')) return '🎥';
-    if (tipo.includes('audio')) return '🎵';
-    if (tipo.includes('zip') || tipo.includes('rar')) return '📦';
-    return '📎';
-  };
-
-  const getMimeType = (tipo: string) => {
-    if (tipo.includes('pdf')) return 'application/pdf';
-    if (tipo.includes('word') || tipo.includes('document')) return 'application/msword';
-    if (tipo.includes('excel') || tipo.includes('spreadsheet')) return 'application/vnd.ms-excel';
-    if (tipo.includes('image')) return 'image/*';
-    if (tipo.includes('video')) return 'video/*';
-    if (tipo.includes('audio')) return 'audio/*';
-    return 'application/octet-stream';
-  };
-
-  const handleDownloadFile = async (anexo: Anexo) => {
+  const handleDownloadPDF = async (anexo: Anexo) => {
     try {
       setDownloading(anexo.id);
 
-      const fileName = anexo.nomeArquivo || "documento";
+      // Construir URL completa usando a API do servidor
+      const apiUrl = "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
+      const fullUrl = anexo.arquivoUrl.startsWith("http")
+        ? anexo.arquivoUrl
+        : `${apiUrl}${anexo.arquivoUrl}`;
+
+      console.log("Tentando baixar de:", fullUrl);
+
+      // Baixar arquivo
+      const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-      // Se for uma URL HTTP, fazer download normal
-      const downloadResult = await FileSystem.downloadAsync(anexo.arquivoUrl, fileUri);
-      if (downloadResult.status !== 200) {
-        throw new Error(`Falha no download (Status: ${downloadResult.status})`);
-      }
+      const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
 
-      // Compartilhar arquivo para abrir/salvar
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: getMimeType(anexo.tipo),
-          dialogTitle: `Abrir ${anexo.tipo}`,
-        });
+      console.log("Status do download:", downloadResult.status);
+
+      if (downloadResult.status === 200) {
+        // Compartilhar arquivo para abrir/salvar
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: "application/pdf",
+            dialogTitle: "Abrir PDF",
+          });
+        } else {
+          Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
+        }
       } else {
-        Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
+        Alert.alert("Erro", `Não foi possível baixar o arquivo (Status: ${downloadResult.status})`);
       }
     } catch (error: any) {
-      console.error("Erro ao baixar arquivo:", error);
+      console.error("Erro ao baixar PDF:", error);
       Alert.alert("Erro", error.message || "Não foi possível baixar o arquivo");
     } finally {
       setDownloading(null);
@@ -167,35 +108,23 @@ export default function AnexosLiderScreen() {
       </View>
 
       <TouchableOpacity
-        onPress={() => handleDownloadFile(item)}
+        onPress={() => handleDownloadPDF(item)}
         disabled={downloading === item.id}
         className="bg-primary rounded-lg p-3 items-center active:opacity-80"
       >
         {downloading === item.id ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          <Text className="text-white font-semibold">⬇️ Baixar {item.tipo.toUpperCase()}</Text>
+          <Text className="text-white font-semibold">⬇️ Baixar PDF</Text>
         )}
       </TouchableOpacity>
     </View>
   );
 
-  if (isLoading) {
+  if (loading || isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
-      </ScreenContainer>
-    );
-  }
-
-  if (isError) {
-    return (
-      <ScreenContainer className="items-center justify-center p-4">
-        <Text className="text-lg font-bold text-error mb-4">Erro ao carregar anexos</Text>
-        <Text className="text-sm text-muted text-center mb-6">
-          {error?.message || "Não foi possível carregar a lista de anexos"}
-        </Text>
-        <BackButton />
       </ScreenContainer>
     );
   }
@@ -219,32 +148,12 @@ export default function AnexosLiderScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          <FlatList
-            data={anexos}
-            renderItem={renderAnexo}
-            keyExtractor={(item) => item.id.toString()}
-            scrollEnabled={false}
-          />
-          {hasMore && (
-            <TouchableOpacity
-              onPress={handleLoadMore}
-              disabled={loadingMore}
-              className="bg-primary rounded-lg p-3 items-center mt-4 active:opacity-80"
-            >
-              {loadingMore ? (
-                <ActivityIndicator color={colors.background} />
-              ) : (
-                <Text className="text-white font-semibold">Carregar Mais</Text>
-              )}
-            </TouchableOpacity>
-          )}
-          {anexos.length > 0 && (
-            <Text className="text-xs text-muted text-center mt-4">
-              Mostrando {anexos.length} anexos
-            </Text>
-          )}
-        </ScrollView>
+        <FlatList
+          data={anexos}
+          renderItem={renderAnexo}
+          keyExtractor={(item) => item.id.toString()}
+          scrollEnabled={false}
+        />
       )}
     </ScreenContainer>
   );

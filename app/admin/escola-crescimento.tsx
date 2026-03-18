@@ -11,8 +11,11 @@ const CURSOS = ["Conecte", "Lidere 1", "Lidere 2", "Avance"] as const;
 export default function AdminEscolaCrescimentoScreen() {
   const colors = useColors();
   const router = useRouter();
+  const [inscricoes, setInscricoes] = useState<any[]>([]);
   const [filtroCurso, setFiltroCurso] = useState<string>('todos');
   const [filtroCelula, setFiltroCelula] = useState<string>('todas');
+  const [carregando, setCarregando] = useState(true);
+  const [config, setConfig] = useState<any>(null);
   const [novaData, setNovaData] = useState("");
   const [editandoConfig, setEditandoConfig] = useState(false);
 
@@ -33,14 +36,22 @@ export default function AdminEscolaCrescimentoScreen() {
   // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
   const updateConfigMutation = trpc.escolaCrescimento.updateConfig.useMutation();
 
-  // Usar os dados diretamente do tRPC sem duplicar em estado local
-  // Isso evita loops infinitos de atualização
-  const inscricoesParaExibir = inscricoesData || [];
-  const configParaExibir = configData || null;
+  useFocusEffect(
+    useCallback(() => {
+      if (inscricoesData) {
+        setInscricoes(inscricoesData);
+      }
+      if (configData) {
+        setConfig(configData);
+        setNovaData(configData.dataInicio || "");
+      }
+      setCarregando(carregandoInscricoes);
+    }, [inscricoesData, carregandoInscricoes, configData])
+  );
 
   // Filtrar inscrições
   const inscricoesFiltradas = useMemo(() => {
-    let resultado = inscricoesParaExibir;
+    let resultado = inscricoes;
     if (filtroCurso !== 'todos') {
       resultado = resultado.filter(i => i.curso === filtroCurso);
     }
@@ -48,21 +59,21 @@ export default function AdminEscolaCrescimentoScreen() {
       resultado = resultado.filter(i => i.celula === filtroCelula);
     }
     return resultado.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [inscricoesParaExibir, filtroCurso, filtroCelula]);
+  }, [inscricoes, filtroCurso, filtroCelula]);
 
   // Células únicas
   const celulasUnicas = useMemo(() => {
-    return [...new Set(inscricoesParaExibir.map(i => i.celula))].sort();
-  }, [inscricoesParaExibir]);
+    return [...new Set(inscricoes.map(i => i.celula))].sort();
+  }, [inscricoes]);
 
   // Estatísticas por curso
   const estatisticasPorCurso = useMemo(() => {
     const stats: Record<string, number> = {};
     CURSOS.forEach(c => {
-      stats[c] = inscricoesParaExibir.filter(i => i.curso === c).length;
+      stats[c] = inscricoes.filter(i => i.curso === c).length;
     });
     return stats;
-  }, [inscricoesParaExibir]);
+  }, [inscricoes]);
 
   const handleAtualizarData = async () => {
     if (!novaData.trim()) {
@@ -126,7 +137,7 @@ export default function AdminEscolaCrescimentoScreen() {
           <View className="gap-2">
             <View className="flex-row items-center justify-between">
               <Text className="text-muted">Total de inscrições:</Text>
-              <Text className="text-lg font-bold text-primary">{inscricoesParaExibir.length}</Text>
+              <Text className="text-lg font-bold text-primary">{inscricoes.length}</Text>
             </View>
             {CURSOS.map(curso => (
               <View key={curso} className="flex-row items-center justify-between">
@@ -142,7 +153,7 @@ export default function AdminEscolaCrescimentoScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
               <Text className="text-lg font-bold text-white">Data de Início</Text>
-              <Text className="text-sm text-white opacity-80 mt-1">{configParaExibir?.dataInicio || "Não configurado"}</Text>
+              <Text className="text-sm text-white opacity-80 mt-1">{config?.dataInicio || "Não configurado"}</Text>
             </View>
             <TouchableOpacity
               onPress={() => setEditandoConfig(!editandoConfig)}
@@ -253,7 +264,7 @@ export default function AdminEscolaCrescimentoScreen() {
             Inscrições ({inscricoesFiltradas.length})
           </Text>
 
-          {carregandoInscricoes ? (
+          {carregando ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : inscricoesFiltradas.length === 0 ? (
             <View className="items-center py-10 gap-2">

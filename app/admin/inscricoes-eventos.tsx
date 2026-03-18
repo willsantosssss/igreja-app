@@ -62,7 +62,7 @@ export default function AdminInscricoesEventosScreen() {
   const inscricoesFiltradas = useMemo(() => {
     let resultado = inscricoes;
     if (filtroEvento !== 'todos') {
-      resultado = resultado.filter(i => i.eventoId.toString() === filtroEvento);
+      resultado = resultado.filter(i => i.eventoId === filtroEvento);
     }
     if (filtroCelula !== 'todas') {
       resultado = resultado.filter(i => i.celula === filtroCelula);
@@ -233,11 +233,11 @@ export default function AdminInscricoesEventosScreen() {
                 {dados.inscritos.map(insc => (
                   <View key={insc.id} className="flex-row items-center justify-between py-1">
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-foreground">{insc.nome}</Text>
+                      <Text className="text-sm font-semibold text-foreground">{insc.nomeCompleto}</Text>
                       <Text className="text-xs text-muted">{insc.celula}{insc.telefone ? ` • ${insc.telefone}` : ''}</Text>
                     </View>
                     <TouchableOpacity
-                      onPress={() => handleRemover(insc.id, insc.nome)}
+                      onPress={() => handleRemover(insc.id, insc.nomeCompleto)}
                       style={{ padding: 4 }}
                     >
                       <Text className="text-xs text-error">Remover</Text>

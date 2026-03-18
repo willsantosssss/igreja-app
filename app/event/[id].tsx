@@ -130,13 +130,12 @@ export default function EventDetailScreen() {
 
     try {
       // Salvar no banco de dados via tRPC
-      const result = await criarInscricaoMutation.mutateAsync({
+      await criarInscricaoMutation.mutateAsync({
         eventoId: Number(event.id),
         nome: nome.trim(),
         telefone: telefone.trim(),
         celula: celula.trim(),
       });
-      console.log('[Event] Inscrição criada com sucesso:', result);
 
       // Também salvar no AsyncStorage para compatibilidade com relatórios locais
       await criarInscricao({
@@ -302,12 +301,15 @@ export default function EventDetailScreen() {
                   <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
                 </TouchableOpacity>
                 {mostrarSeletorCelulas && (
-                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300, overflow: 'scroll' }}>
+                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
                     {celulas && celulas.length > 0 ? (
-                      <ScrollView scrollEnabled={true}>
-                        {celulas.map((cel) => (
+                      <FlatList
+                        data={celulas}
+                        keyExtractor={(cel) => cel.id?.toString() || cel.name || ""}
+                        scrollEnabled={true}
+                        nestedScrollEnabled={true}
+                        renderItem={({ item: cel }) => (
                           <TouchableOpacity
-                            key={cel.id?.toString() || cel.name || ""}
                             className="px-4 py-3 border-b border-border"
                             style={{ borderBottomColor: colors.border }}
                             onPress={() => {
@@ -317,8 +319,8 @@ export default function EventDetailScreen() {
                           >
                             <Text className="text-foreground">{cel.nome || cel.name}</Text>
                           </TouchableOpacity>
-                        ))}
-                      </ScrollView>
+                        )}
+                      />
                     ) : (
                       <View className="px-4 py-3">
                         <Text className="text-muted text-center">Nenhuma célula disponível</Text>

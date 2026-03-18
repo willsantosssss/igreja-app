@@ -58,7 +58,7 @@ describe("Relatório Debug - Fluxo Completo", () => {
       
       // Verificar se foi salvo
       const relatorios = await db.getRelatorios();
-      const criado = relatorios.find(r => (r as any).id === relatorioId);
+      const criado = relatorios.find(r => r.id === relatorioId);
       
       console.log(`\n=== VERIFICAÇÃO ===`);
       console.log(`Relatório encontrado: ${criado ? "SIM" : "NÃO"}`);

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
-// import { trpc } from "@/lib/trpc"; // Usar apenas endpoint REST
+import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
 import * as DocumentPicker from "expo-document-picker";
@@ -33,6 +33,7 @@ interface Anexo {
 export default function AdminAnexosScreen() {
   const colors = useColors();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -40,35 +41,22 @@ export default function AdminAnexosScreen() {
     titulo: "",
     descricao: "",
     nomeArquivo: "",
+    arquivoBase64: "",
     tipo: "manual",
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<any>(null);
-  const apiUrl = "https://igreja-app-production-9432.up.railway.app";
-
-  const refetch = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
-      if (!response.ok) throw new Error('Erro ao carregar anexos');
-      const data = await response.json();
-      setAnexos(data);
-      setIsError(false);
-    } catch (err) {
-      setError(err);
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: anexosData, isLoading, refetch } = trpc.anexosLideres.list.useQuery();
+  const createMutation = trpc.anexosLideres.create.useMutation();
+  const updateMutation = trpc.anexosLideres.update.useMutation();
+  const deleteMutation = trpc.anexosLideres.delete.useMutation();
+  const toggleMutation = trpc.anexosLideres.toggleVisibility.useMutation();
 
   useEffect(() => {
-    refetch();
-  }, []);
-
-
+    if (anexosData) {
+      setAnexos(anexosData as Anexo[]);
+      setLoading(false);
+    }
+  }, [anexosData]);
 
   const handleOpenModal = (anexo?: Anexo) => {
     if (anexo) {
@@ -77,6 +65,7 @@ export default function AdminAnexosScreen() {
         titulo: anexo.titulo,
         descricao: anexo.descricao || "",
         nomeArquivo: anexo.nomeArquivo,
+        arquivoBase64: "",
         tipo: anexo.tipo,
       });
     } else {
@@ -85,6 +74,7 @@ export default function AdminAnexosScreen() {
         titulo: "",
         descricao: "",
         nomeArquivo: "",
+        arquivoBase64: "",
         tipo: "manual",
       });
     }
@@ -95,16 +85,7 @@ export default function AdminAnexosScreen() {
     try {
       setUploadingFile(true);
       const result = await DocumentPicker.getDocumentAsync({
-        type: [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/vnd.ms-excel",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "image/*",
-          "video/*",
-          "audio/*",
-        ],
+        type: "application/pdf",
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -115,23 +96,13 @@ export default function AdminAnexosScreen() {
           encoding: FileSystem.EncodingType.Base64,
         });
 
-        // Detectar tipo de arquivo
-        let tipoArquivo = "arquivo";
-        if (file.mimeType?.includes('pdf')) tipoArquivo = 'PDF';
-        else if (file.mimeType?.includes('word') || file.mimeType?.includes('document')) tipoArquivo = 'Word';
-        else if (file.mimeType?.includes('excel') || file.mimeType?.includes('spreadsheet')) tipoArquivo = 'Excel';
-        else if (file.mimeType?.includes('image')) tipoArquivo = 'Imagem';
-        else if (file.mimeType?.includes('video')) tipoArquivo = 'Vídeo';
-        else if (file.mimeType?.includes('audio')) tipoArquivo = 'Áudio';
-
         setFormData({
-          titulo: "",
-          descricao: "",
+          ...formData,
           nomeArquivo: file.name,
-          tipo: tipoArquivo,
+          arquivoBase64: fileContent,
         });
-        setEditingId(null);
-        setModalVisible(true);
+
+        Alert.alert("Sucesso", `Arquivo ${file.name} selecionado`);
       }
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Erro ao selecionar arquivo");
@@ -141,49 +112,35 @@ export default function AdminAnexosScreen() {
   };
 
   const handleSave = async () => {
-    if (!formData.titulo.trim() || !formData.nomeArquivo.trim()) {
-      Alert.alert("Erro", "Preencha o título e selecione um arquivo");
+    if (!formData.titulo.trim() || !formData.nomeArquivo.trim() || !formData.arquivoBase64.trim()) {
+      Alert.alert("Erro", "Preencha o título e selecione um arquivo PDF");
       return;
     }
 
     try {
       if (editingId) {
-        const response = await fetch(`${apiUrl}/api/documentos-lideres/${editingId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            titulo: formData.titulo,
-            descricao: formData.descricao,
-            tipo: formData.tipo,
-          }),
+        await updateMutation.mutateAsync({
+          id: editingId,
+          titulo: formData.titulo,
+          descricao: formData.descricao,
+          tipo: formData.tipo,
         });
-        if (!response.ok) throw new Error('Erro ao atualizar');
         Alert.alert("Sucesso", "Anexo atualizado");
       } else {
-        const response = await fetch(`${apiUrl}/api/upload/documentos-lideres`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            titulo: formData.titulo,
-            descricao: formData.descricao,
-            nomeArquivo: formData.nomeArquivo,
-            tipo: formData.tipo,
-            ativo: 1,
-          }),
+        await createMutation.mutateAsync({
+          titulo: formData.titulo,
+          descricao: formData.descricao,
+          nomeArquivo: formData.nomeArquivo,
+          arquivoBase64: formData.arquivoBase64,
+          tipo: formData.tipo,
+          ativo: 1,
         });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP ${response.status}`);
-        }
         Alert.alert("Sucesso", "Anexo criado e enviado");
       }
       setModalVisible(false);
       refetch();
     } catch (error: any) {
-      console.error("[Upload] Erro completo:", error);
-      console.error("[Upload] Stack:", error.stack);
-      const errorMessage = error?.message || error?.data?.message || error?.toString?.() || JSON.stringify(error);
-      Alert.alert("Erro no Upload", errorMessage, [{text: "OK"}]);
+      Alert.alert("Erro", error.message || "Erro ao salvar anexo");
     }
   };
 
@@ -195,10 +152,7 @@ export default function AdminAnexosScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            const response = await fetch(`${apiUrl}/api/documentos-lideres/${id}`, {
-              method: "DELETE",
-            });
-            if (!response.ok) throw new Error('Erro ao deletar');
+            await deleteMutation.mutateAsync(id);
             Alert.alert("Sucesso", "Anexo deletado");
             refetch();
           } catch (error: any) {
@@ -211,12 +165,10 @@ export default function AdminAnexosScreen() {
 
   const handleToggleVisibility = async (id: number, ativo: number) => {
     try {
-      const response = await fetch(`${apiUrl}/api/documentos-lideres/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ativo: ativo === 1 ? 0 : 1 }),
+      await toggleMutation.mutateAsync({
+        id,
+        ativo: ativo === 1 ? 0 : 1,
       });
-      if (!response.ok) throw new Error('Erro ao atualizar');
       refetch();
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Erro ao atualizar visibilidade");
@@ -273,27 +225,10 @@ export default function AdminAnexosScreen() {
     </View>
   );
 
-  if (isLoading) {
+  if (loading || isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
-      </ScreenContainer>
-    );
-  }
-
-  if (isError) {
-    return (
-      <ScreenContainer className="items-center justify-center p-4">
-        <Text className="text-lg font-bold text-error mb-4">Erro ao carregar anexos</Text>
-        <Text className="text-sm text-muted text-center mb-6">
-          {error?.message || "Nao foi possivel carregar a lista de anexos"}
-        </Text>
-        <TouchableOpacity
-          onPress={() => refetch()}
-          className="bg-primary rounded-lg p-3 items-center active:opacity-80"
-        >
-          <Text className="text-white font-semibold">Tentar Novamente</Text>
-        </TouchableOpacity>
       </ScreenContainer>
     );
   }
@@ -308,15 +243,12 @@ export default function AdminAnexosScreen() {
           </Text>
         </View>
         <View className="flex-row gap-2">
-      <TouchableOpacity
-        onPress={() => handlePickFile()}
-        className="bg-primary rounded-lg p-3 items-center active:opacity-80 mb-4"
-      >
-        <Text className="text-white font-semibold">Selecionar Arquivo</Text>
-      </TouchableOpacity>
-      <Text className="text-xs text-muted text-center mb-4">
-        Formatos suportados: PDF, Word, Excel, Imagens, Vídeos, Áudio
-      </Text>
+          <TouchableOpacity
+            onPress={() => handleOpenModal()}
+            className="bg-primary rounded-lg p-3 active:opacity-80"
+          >
+            <Text className="text-white font-semibold">+ Novo</Text>
+          </TouchableOpacity>
           <BackButton />
         </View>
       </View>

@@ -28,25 +28,11 @@ export const API_BASE_URL = env.apiBaseUrl;
  * Get the API base URL, deriving from current hostname if not set.
  * Metro runs on 8081, API server runs on 3000.
  * URL pattern: https://PORT-sandboxid.region.domain
- * 
- * Em produção (Railway), usa a URL do servidor de produção.
  */
 export function getApiBaseUrl(): string {
   // If API_BASE_URL is set, use it
   if (API_BASE_URL) {
     return API_BASE_URL.replace(/\/$/, "");
-  }
-
-  // Em produção (Railway), usa a URL do servidor
-  if (typeof window !== "undefined" && window.location) {
-    const hostname = window.location.hostname;
-    
-    // Se estiver em produção (Railway), retorna a URL do servidor
-    if (hostname.includes("railway.app") || hostname.includes("igreja-app")) {
-      // Substitui a porta 8081 (Metro) pela porta 3000 (API)
-      const apiHostname = hostname.replace(/^8081-/, "3000-");
-      return `${window.location.protocol}//${apiHostname}`;
-    }
   }
 
   // On web, derive from current hostname by replacing port 8081 with 3000

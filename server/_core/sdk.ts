@@ -19,8 +19,7 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
 export type SessionPayload = {
-  openId?: string;
-  email?: string;
+  openId: string;
   appId: string;
   name: string;
 };
@@ -142,17 +141,17 @@ class SDKServer {
   }
 
   /**
-   * Create a session token for a user (openId or email)
+   * Create a session token for a Manus user openId
+   * @example
+   * const sessionToken = await sdk.createSessionToken(userInfo.openId);
    */
   async createSessionToken(
-    identifier: string,
+    openId: string,
     options: { expiresInMs?: number; name?: string } = {},
   ): Promise<string> {
-    const isEmail = identifier.includes("@");
     return this.signSession(
       {
-        openId: isEmail ? undefined : identifier,
-        email: isEmail ? identifier : undefined,
+        openId,
         appId: ENV.appId,
         name: options.name || "",
       },
@@ -171,7 +170,6 @@ class SDKServer {
 
     return new SignJWT({
       openId: payload.openId,
-      email: payload.email,
       appId: payload.appId,
       name: payload.name,
     })
@@ -182,15 +180,13 @@ class SDKServer {
 
   async verifySession(
     cookieValue: string | undefined | null,
-  ): Promise<{ openId?: string; email?: string; appId: string; name: string } | null> {
-    console.log("[VERIFY_SESSION_START] 2026-03-11-new-version");
+  ): Promise<{ openId: string; appId: string; name: string } | null> {
     if (!cookieValue) {
       console.warn("[Auth] Missing session cookie");
       return null;
     }
 
     try {
-      console.log("[SDK_VERSION] 2026-03-11-fix-appid");
       console.log("[Auth] verifySession: token received:", cookieValue ? `${cookieValue.substring(0, 50)}...` : "missing");
       const secretKey = this.getSessionSecret();
       console.log("[Auth] verifySession: secret key length:", secretKey.byteLength);
@@ -198,22 +194,17 @@ class SDKServer {
         algorithms: ["HS256"],
       });
       console.log("[Auth] verifySession: payload:", payload);
-      const { openId, email, appId, name } = payload as Record<string, unknown>;
-      console.log("[Auth] verifySession: extracted fields:", { openId, email, appId, name });
+      const { openId, appId, name } = payload as Record<string, unknown>;
+      console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
-      const hasOpenId = isNonEmptyString(openId);
-      const hasEmail = isNonEmptyString(email);
-      
-      if (!hasOpenId && !hasEmail) {
-        console.error("[Auth] CRITICAL: neither openId nor email is a string:", { openId, email });
+      if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
+        console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
         return null;
       }
 
-      console.log("[Auth] verifySession: SUCCESS - token verified", { openId, email });
       return {
-        openId: hasOpenId ? String(openId) : undefined,
-        email: hasEmail ? String(email) : undefined,
-        appId: typeof appId === 'string' ? appId : '',
+        openId,
+        appId,
         name: typeof name === 'string' ? name : '',
       };
     } catch (error) {
@@ -269,18 +260,13 @@ class SDKServer {
     }
 
     console.log("[Auth] authenticateRequest: session verified, proceeding to fetch user");
+    const sessionUserId = session.openId;
     const signedInAt = new Date();
-    let user: any = null;
+    console.log("[Auth] authenticateRequest: looking up user in DB, openId:", sessionUserId);
+    let user = await db.getUserByOpenId(sessionUserId);
 
-    if (session.openId) {
-      console.log("[Auth] authenticateRequest: looking up user in DB, openId:", session.openId);
-      user = await db.getUserByOpenId(session.openId);
-    } else if (session.email) {
-      console.log("[Auth] authenticateRequest: looking up user in DB, email:", session.email);
-      user = await db.getUserByEmail(session.email);
-    }
-
-    if (!user && session.openId) {
+    // If user not in DB, sync from OAuth server automatically
+    if (!user) {
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
@@ -301,12 +287,10 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    if (user.openId) {
-      await db.upsertUser({
-        openId: user.openId,
-        lastSignedIn: signedInAt,
-      });
-    }
+    await db.upsertUser({
+      openId: user.openId,
+      lastSignedIn: signedInAt,
+    });
 
     return user;
   }

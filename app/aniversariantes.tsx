@@ -55,12 +55,10 @@ export default function AniversariantesScreen() {
   };
 
   const getDayOfWeek = (birthDate: string) => {
-    const { day, month } = parseDateString(birthDate);
-    // Usar o ano atual para calcular o dia da semana do aniversário deste ano
-    const currentYear = new Date().getFullYear();
-    const date = new Date(Date.UTC(currentYear, month - 1, day));
+    const { day, month, year } = parseDateString(birthDate);
+    const date = new Date(year, month - 1, day);
     const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    return days[date.getUTCDay()];
+    return days[date.getDay()];
   };
 
   const formatDate = (birthDate: string) => {

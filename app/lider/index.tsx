@@ -25,7 +25,6 @@ export default function LiderScreen() {
   const [lider, setLider] = useState<LiderCelula | null>(null);
   const [senhaInput, setSenhaInput] = useState('');
   const [celulaInput, setCelulaInput] = useState('');
-  const [nomeInput, setNomeInput] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [autenticando, setAutenticando] = useState(false);
   const [stats, setStats] = useState({
@@ -48,8 +47,6 @@ export default function LiderScreen() {
   const { data: lideresDB = [] } = trpc.lideres.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
-
-
 
   // Buscar inscrições em eventos
   const { data: inscricoesEventosDB = [] } = trpc.inscricoesEventos.list.useQuery(undefined, {
@@ -76,12 +73,13 @@ export default function LiderScreen() {
     verificarSessao();
   }, []);
 
-  // Carregar estatísticas quando o lider muda
-  useEffect(() => {
-    if (lider && membrosDB.length > 0) {
-      carregarEstatisticas(lider.celula);
-    }
-  }, [lider?.id, lider?.celula]);
+  useFocusEffect(
+    useCallback(() => {
+      if (lider && membrosDB.length > 0) {
+        carregarEstatisticas(lider.celula);
+      }
+    }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB])
+  );
 
   const verificarSessao = async () => {
     const sessao = await obterSessaoLider();
@@ -133,10 +131,6 @@ export default function LiderScreen() {
       Alert.alert('Atenção', 'Selecione uma célula.');
       return;
     }
-    if (!nomeInput.trim()) {
-      Alert.alert('Atenção', 'Selecione seu nome.');
-      return;
-    }
     if (!senhaInput.trim()) {
       Alert.alert('Atenção', 'Digite a senha de acesso.');
       return;
@@ -144,11 +138,11 @@ export default function LiderScreen() {
 
     setAutenticando(true);
     try {
-      // Buscar líder do array carregado por Nome + Célula
-      const liderBanco = lideresDB.find(l => l.celula === celulaInput && l.nome === nomeInput);
+      // Buscar líder do banco pela célula
+      const liderBanco = lideresDB.find((l: any) => l.celula === celulaInput);
       
       if (!liderBanco) {
-        Alert.alert('Erro', 'Líder não encontrado. Verifique e tente novamente.');
+        Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');
         setAutenticando(false);
         return;
       }
@@ -255,7 +249,7 @@ export default function LiderScreen() {
               </View>
               <Text className="text-lg font-bold text-foreground">Autenticação</Text>
               <Text className="text-sm text-muted text-center">
-                Selecione sua célula, seu nome e digite a senha
+                Selecione sua célula e digite a senha
               </Text>
             </View>
 
@@ -273,82 +267,34 @@ export default function LiderScreen() {
                 }}
               >
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {Array.from(new Set(lideresDB.map((l: any) => l.celula))).map((celula: string) => (
+                  {lideresDB.map((l: any) => (
                     <TouchableOpacity
-                      key={celula}
-                      onPress={() => {
-                        setCelulaInput(celula);
-                        setNomeInput('');
-                      }}
+                      key={l.id}
+                      onPress={() => setCelulaInput(l.celula)}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 8,
                         marginRight: 8,
                         borderRadius: 8,
-                        backgroundColor: celulaInput === celula ? colors.primary : colors.surface,
+                        backgroundColor: celulaInput === l.celula ? colors.primary : colors.surface,
                         borderWidth: 1,
-                        borderColor: celulaInput === celula ? colors.primary : colors.border,
+                        borderColor: celulaInput === l.celula ? colors.primary : colors.border,
                       }}
                     >
                       <Text
                         style={{
-                          color: celulaInput === celula ? '#fff' : colors.foreground,
+                          color: celulaInput === l.celula ? '#fff' : colors.foreground,
                           fontSize: 12,
                           fontWeight: '600',
                         }}
                       >
-                        {celula}
+                        {l.celula}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
             </View>
-
-            {/* Seletor de Nome do Líder */}
-            {celulaInput && (
-              <View>
-                <Text className="text-foreground font-semibold mb-2">Nome do Líder *</Text>
-                <View
-                  style={{
-                    backgroundColor: colors.background,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    borderRadius: 12,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                  }}
-                >
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {lideresDB.filter((l: any) => l.celula === celulaInput).map((l: any) => (
-                      <TouchableOpacity
-                        key={l.id}
-                        onPress={() => setNomeInput(l.nome)}
-                        style={{
-                          paddingHorizontal: 12,
-                          paddingVertical: 8,
-                          marginRight: 8,
-                          borderRadius: 8,
-                          backgroundColor: nomeInput === l.nome ? colors.primary : colors.surface,
-                          borderWidth: 1,
-                          borderColor: nomeInput === l.nome ? colors.primary : colors.border,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: nomeInput === l.nome ? '#fff' : colors.foreground,
-                            fontSize: 12,
-                            fontWeight: '600',
-                          }}
-                        >
-                          {l.nome}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-              </View>
-            )}
 
             {/* Senha */}
             <View>
@@ -376,9 +322,9 @@ export default function LiderScreen() {
             {/* Botão Login */}
             <TouchableOpacity
               onPress={handleLogin}
-              disabled={autenticando || !celulaInput || !nomeInput}
+              disabled={autenticando || !celulaInput}
               style={{
-                backgroundColor: autenticando || !celulaInput || !nomeInput ? colors.muted : colors.primary,
+                backgroundColor: autenticando || !celulaInput ? colors.muted : colors.primary,
                 borderRadius: 24,
                 padding: 14,
                 alignItems: 'center',
@@ -599,66 +545,6 @@ export default function LiderScreen() {
             <View className="flex-1">
               <Text className="text-foreground font-semibold">Escola de Crescimento</Text>
               <Text className="text-xs text-muted">Ver inscritos dos cursos</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/lider/mudar-senha')}
-            style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.warning + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="lock.fill" size={24} color={colors.warning} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Mudar Senha</Text>
-              <Text className="text-xs text-muted">Altere sua senha de acesso</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={{
-              backgroundColor: colors.error + '10',
-              borderWidth: 1,
-              borderColor: colors.error + '20',
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.error + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="arrow.right.square.fill" size={24} color={colors.error} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Sair</Text>
-              <Text className="text-xs text-muted">Encerrar sessão</Text>
             </View>
           </TouchableOpacity>
         </View>

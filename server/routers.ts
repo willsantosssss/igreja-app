@@ -1,4 +1,3 @@
-// Force rebuild
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -95,7 +94,7 @@ export const appRouter = router({
   celulas: router({
     list: publicProcedure.query(() => db.getCelulas()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getCelulaById(input)),
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         nome: z.string().min(1),
         lider: z.string().min(1),
@@ -107,7 +106,7 @@ export const appRouter = router({
         horario: z.string().min(1),
       }))
       .mutation(({ input }) => db.createCelula(input)),
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -122,7 +121,7 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateCelula(input.id, input.data)),
-    delete: publicProcedure
+    delete: protectedProcedure
       .input(z.number())
       .mutation(({ input }) => db.deleteCelula(input)),
   }),
@@ -309,7 +308,7 @@ export const appRouter = router({
   eventos: router({
     list: publicProcedure.query(() => db.getEventos()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getEventoById(input)),
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
         descricao: z.string().min(1),
@@ -322,7 +321,7 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.createEvento(input);
       }),
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -337,7 +336,7 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.updateEvento(input.id, input.data);
       }),
-    delete: publicProcedure.input(z.number()).mutation(({ input, ctx }) => {
+    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
       return db.deleteEvento(input);
     }),
   }),
@@ -413,7 +412,7 @@ export const appRouter = router({
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
     getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
     getByCelula: publicProcedure.input(z.string()).query(({ input }) => db.getLiderByCelula(input)),
-    create: publicProcedure
+    create: protectedProcedure
       .input(z.object({
         userId: z.number(),
         nome: z.string().min(1),
@@ -423,7 +422,7 @@ export const appRouter = router({
         ativo: z.number().default(1),
       }))
       .mutation(({ input }) => db.createLider(input)),
-    update: publicProcedure
+    update: protectedProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -435,24 +434,7 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateLider(input.id, input.data)),
-    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
-    updatePassword: publicProcedure
-      .input(z.object({
-        liderId: z.number(),
-        senhaAtual: z.string().min(1),
-        novaSenha: z.string().min(6),
-      }))
-      .mutation(async ({ input }) => {
-        const lider = await db.getLiderById(input.liderId);
-        if (!lider) throw new Error('Lider nao encontrado');
-        // Validar senha atual (armazenada no campo telefone)
-        if (lider.telefone !== input.senhaAtual) {
-          throw new Error('Senha atual incorreta');
-        }
-        // Atualizar a senha (armazenada no campo telefone)
-        await db.updateLider(input.liderId, { telefone: input.novaSenha });
-        return { success: true, message: 'Senha alterada com sucesso' };
-      }),
+    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteLider(input)),
   }),
 
   // Relatórios
@@ -558,7 +540,7 @@ export const appRouter = router({
         userId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const userId = ctx.user?.id || input.userId || 0; // Use 0 as default if no userId
+        const userId = ctx.user?.id || input.userId;
         return db.createInscricaoEscolaCrescimento({
           nome: input.nome,
           celula: input.celula,
@@ -581,10 +563,10 @@ export const appRouter = router({
    }),
   
   // Anexos Líderes
-  documentoslideres: router({
-    list: publicProcedure.query(() => db.getDocumentosLideres()),
-    getById: publicProcedure.input(z.number()).query(({ input }) => db.getDocumentoLiderById(input)),
-    create: publicProcedure
+  anexosLideres: router({
+    list: publicProcedure.query(() => db.getAnexosLideres()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getAnexoLiderById(input)),
+    create: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
         descricao: z.string().optional(),
@@ -595,26 +577,23 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         try {
-          console.log('[documentoslideres.create] Input recebido:', JSON.stringify(input).substring(0, 100));
-          console.log('Iniciando upload de arquivo:', input.nomeArquivo);
+          const hash = crypto.randomBytes(8).toString('hex');
+          const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
+          const caminhoArquivo = path.join(UPLOAD_DIR, nomeArquivoLocal);
           const buffer = Buffer.from(input.arquivoBase64, 'base64');
-          const tamanhoArquivo = buffer.length;
-          const arquivoUrl = `data:application/octet-stream;base64,${input.arquivoBase64}`;
-          console.log('Tamanho do arquivo:', tamanhoArquivo);
-          const resultado = await db.createDocumentoLider({
+          await fs.writeFile(caminhoArquivo, buffer);
+          const stats = await fs.stat(caminhoArquivo);
+          const arquivoUrl = `/uploads/${nomeArquivoLocal}`;
+          return db.createAnexoLider({
             titulo: input.titulo,
             descricao: input.descricao,
             arquivoUrl,
             nomeArquivo: input.nomeArquivo,
-            tamanhoArquivo,
+            tamanhoArquivo: stats.size,
             tipo: input.tipo,
             ativo: input.ativo,
-            arquivoBase64: input.arquivoBase64,
           });
-          console.log('Upload concluído com sucesso:', resultado.id);
-          return resultado;
         } catch (error: any) {
-          console.error('Erro ao fazer upload:', error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: `Erro ao fazer upload: ${error.message}`,
@@ -631,15 +610,15 @@ export const appRouter = router({
         ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {
-        return db.updateDocumentoLider(input.id, input);
+        return db.updateAnexoLider(input.id, input);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      return db.deleteDocumentoLider(input);
+      return db.deleteAnexoLider(input);
     }),
     toggleVisibility: protectedProcedure
       .input(z.object({ id: z.number(), ativo: z.number() }))
       .mutation(({ input, ctx }) => {
-        return db.toggleDocumentoLiderVisibility(input.id, input.ativo);
+        return db.toggleAnexoLiderVisibility(input.id, input.ativo);
       }),
   }),
 });

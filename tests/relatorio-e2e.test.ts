@@ -25,9 +25,8 @@ describe("Relatório E2E - Envio e Recuperação", () => {
     };
 
     try {
-      const result = await createRelatorio(data);
-      reportId = typeof result === 'object' && result !== null && 'insertId' in result ? (result as any).insertId : 0;
-      expect(reportId).toBeGreaterThanOrEqual(0);
+      reportId = await createRelatorio(data);
+      expect(reportId).toBeGreaterThan(0);
       console.log("✅ Relatório criado com ID:", reportId);
     } catch (error) {
       console.error("❌ Erro ao criar relatório:", error);
@@ -95,15 +94,14 @@ describe("Relatório E2E - Envio e Recuperação", () => {
       expect(id).toBeGreaterThan(0);
       
       const relatorios = await getRelatorios();
-      const found = relatorios.find((r: any) => r.id === id);
+      const found = relatorios.find((r) => r.id === id);
       expect(found).toBeDefined();
-      expect((found as any)?.observacoes).toBeNull();
+      expect(found?.observacoes).toBeNull();
       
       console.log("✅ Relatório com observacoes=undefined criado com sucesso");
       
       // Cleanup
-      const idToDelete = typeof id === 'object' && id !== null && 'insertId' in id ? (id as any).insertId : id;
-      await deleteRelatorio(idToDelete as number);
+      await deleteRelatorio(id);
     } catch (error) {
       console.error("❌ Erro ao criar relatório com observacoes=undefined:", error);
       throw error;

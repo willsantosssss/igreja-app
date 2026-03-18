@@ -1,11 +1,11 @@
-import mysql from "mysql2/promise";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, documentoslideres,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertDocumentoLider
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -16,16 +16,10 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const url = process.env.DATABASE_URL;
-      console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
-      const connection = await mysql.createConnection({
-        uri: url,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        enableKeepAlive: true,
+      const client = postgres(process.env.DATABASE_URL, {
+        ssl: { rejectUnauthorized: false }
       });
-      _db = drizzle(connection);
+      _db = drizzle(client);
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
@@ -92,13 +86,6 @@ export async function getUserById(id: number) {
   const db = await getDb();
   if (!db) return null;
   const result = await db.select().from(users).where(eq(users.id, id));
-  return result[0] || null;
-}
-
-export async function getUserByEmail(email: string) {
-  const db = await getDb();
-  if (!db) return null;
-  const result = await db.select().from(users).where(eq(users.email, email));
   return result[0] || null;
 }
 
@@ -581,12 +568,33 @@ export async function getRelatoriosByLiderIdWithFilters(
 }
 
 export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'createdAt' | 'updatedAt'>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
   
   try {
-    const result = await db.insert(relatorios).values(data);
-    return result;
+    const pool = mysql.createPool(process.env.DATABASE_URL);
+    const connection = await pool.getConnection();
+    
+    const query = `INSERT INTO relatorios (liderId, celula, tipo, periodo, presentes, novosVisitantes, conversoes, observacoes) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    const [result] = await connection.execute(query, [
+      data.liderId,
+      data.celula,
+      data.tipo,
+      data.periodo,
+      data.presentes,
+      data.novosVisitantes ?? 0,
+      data.conversoes ?? 0,
+      data.observacoes || null,
+    ]);
+    
+    const insertResult = result as any;
+    const insertId = insertResult?.insertId || 0;
+    
+    await connection.release();
+    await pool.end();
+    
+    return insertId;
   } catch (error) {
     console.error('[Database] Error creating relatorio:', error);
     throw error;
@@ -842,51 +850,40 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 
 // ==================== ANEXOS LÍDERES ====================
 
-export async function getDocumentosLideres() {
-  try {
-    const db = await getDb();
-    if (!db) {
-      console.warn("[Database] Database not available for getDocumentosLideres");
-      return [];
-    }
-    const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
-    return result || [];
-  } catch (error) {
-    console.error("[Database] Error in getDocumentosLideres:", error);
-    throw error;
-  }
+export async function getAnexosLideres() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
 }
 
-export async function getDocumentoLiderById(id: number) {
+export async function getAnexoLiderById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(documentoslideres).where(eq(documentoslideres.id, id));
+  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.id, id));
   return result[0] || null;
 }
 
-export async function createDocumentoLider(data: InsertDocumentoLider) {
+export async function createAnexoLider(data: InsertAnexoLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(documentoslideres).values(data);
-  // Retornar o documento que foi inserido
-  const inserted = await db.select().from(documentoslideres).orderBy(desc(documentoslideres.id)).limit(1);
-  return inserted[0];
+  const result = await db.insert(anexosLideres).values(data);
+  return result.insertId;
 }
 
-export async function updateDocumentoLider(id: number, data: Partial<InsertDocumentoLider>) {
+export async function updateAnexoLider(id: number, data: Partial<InsertAnexoLider>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(documentoslideres).set(data).where(eq(documentoslideres.id, id));
+  await db.update(anexosLideres).set(data).where(eq(anexosLideres.id, id));
 }
 
-export async function deleteDocumentoLider(id: number) {
+export async function deleteAnexoLider(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(documentoslideres).where(eq(documentoslideres.id, id));
+  await db.delete(anexosLideres).where(eq(anexosLideres.id, id));
 }
 
-export async function toggleDocumentoLiderVisibility(id: number, ativo: number) {
+export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(documentoslideres).set({ ativo }).where(eq(documentoslideres.id, id));
+  await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
 }
