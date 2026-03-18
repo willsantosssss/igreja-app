@@ -19,7 +19,7 @@ export async function getDb() {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
       const client = postgres(url, {
-        ssl: { rejectUnauthorized: false }
+        ssl: true
       });
       _db = drizzle(client);
       console.log("[Database] Connected successfully");
