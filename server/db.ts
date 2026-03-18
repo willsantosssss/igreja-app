@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
@@ -18,14 +18,14 @@ export async function getDb() {
     try {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
-      const urlObj = new URL(url);
-      const client = postgres(url, {
+      const connection = await mysql.createConnection({
+        uri: url,
         ssl: {
           rejectUnauthorized: false,
-          servername: urlObj.hostname
-        }
+        },
+        enableKeepAlive: true,
       });
-      _db = drizzle(client);
+      _db = drizzle(connection);
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
