@@ -15,11 +15,6 @@ import {
  */
 
 // Enums for MySQL
-export const roleEnum = mysqlEnum("role", ["user", "admin"]);
-export const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
-export const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
-export const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", "cancelado"]);
-export const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -28,7 +23,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }).unique(),
   passwordHash: text("passwordHash"),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: roleEnum("role").default("user").notNull(),
+  role: varchar("role", { length: 50 }).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -63,7 +58,7 @@ export const inscricoesBatismo = mysqlTable("inscricoesBatismo", {
   celula: varchar("celula", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   motivacao: text("motivacao").notNull(),
-  status: statusBatismoEnum("status").default("pendente").notNull(),
+  status: varchar("status", { length: 50 }).default("pendente").notNull(),
   dataProcessamento: timestamp("dataProcessamento"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -103,11 +98,11 @@ export type PedidoOracao = typeof pedidosOracao.$inferSelect;
 export type InsertPedidoOracao = typeof pedidosOracao.$inferInsert;
 
 // Anotações de Devocional table
-export const anotacoesDevocional = pgTable("anotacoesDevocional", {
-  id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+export const anotacoesDevocional = mysqlTable("anotacoesDevocional", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
   livro: varchar("livro", { length: 100 }).notNull(),
-  capitulo: integer("capitulo").notNull(),
+  capitulo: int("capitulo").notNull(),
   texto: text("texto").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -117,15 +112,15 @@ export type AnotacaoDevocional = typeof anotacoesDevocional.$inferSelect;
 export type InsertAnotacaoDevocional = typeof anotacoesDevocional.$inferInsert;
 
 // Eventos table
-export const eventos = pgTable("eventos", {
-  id: serial("id").primaryKey(),
+export const eventos = mysqlTable("eventos", {
+  id: int("id").autoincrement().primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao").notNull(),
   data: varchar("data", { length: 50 }).notNull(),
   horario: varchar("horario", { length: 20 }).notNull(),
   local: varchar("local", { length: 255 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
-  requireInscricao: integer("requireInscricao").default(0).notNull(),
+  requireInscricao: int("requireInscricao").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -134,13 +129,13 @@ export type Evento = typeof eventos.$inferSelect;
 export type InsertEvento = typeof eventos.$inferInsert;
 
 // Noticias table
-export const noticias = pgTable("noticias", {
-  id: serial("id").primaryKey(),
+export const noticias = mysqlTable("noticias", {
+  id: int("id").autoincrement().primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   conteudo: text("conteudo").notNull(),
   data: varchar("data", { length: 50 }).notNull(),
   imagemUrl: varchar("imagemUrl", { length: 500 }),
-  destaque: integer("destaque").default(0).notNull(),
+  destaque: int("destaque").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -149,11 +144,11 @@ export type Noticia = typeof noticias.$inferSelect;
 export type InsertNoticia = typeof noticias.$inferInsert;
 
 // Aviso Importante table
-export const avisoImportante = pgTable("avisoImportante", {
-  id: serial("id").primaryKey(),
+export const avisoImportante = mysqlTable("avisoImportante", {
+  id: int("id").autoincrement().primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   mensagem: text("mensagem").notNull(),
-  ativo: integer("ativo").default(1).notNull(),
+  ativo: int("ativo").default(1).notNull(),
   dataExpiracao: varchar("dataExpiracao", { length: 50 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -163,8 +158,8 @@ export type AvisoImportante = typeof avisoImportante.$inferSelect;
 export type InsertAvisoImportante = typeof avisoImportante.$inferInsert;
 
 // Contatos Igreja table
-export const contatosIgreja = pgTable("contatosIgreja", {
-  id: serial("id").primaryKey(),
+export const contatosIgreja = mysqlTable("contatosIgreja", {
+  id: int("id").autoincrement().primaryKey(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   whatsapp: varchar("whatsapp", { length: 20 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -176,8 +171,8 @@ export type ContatoIgreja = typeof contatosIgreja.$inferSelect;
 export type InsertContatoIgreja = typeof contatosIgreja.$inferInsert;
 
 // Aniversariantes table
-export const aniversariantes = pgTable("aniversariantes", {
-  id: serial("id").primaryKey(),
+export const aniversariantes = mysqlTable("aniversariantes", {
+  id: int("id").autoincrement().primaryKey(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(), // Formato: DD/MM/YYYY
   celula: varchar("celula", { length: 255 }),
@@ -190,15 +185,15 @@ export type Aniversariante = typeof aniversariantes.$inferSelect;
 export type InsertAniversariante = typeof aniversariantes.$inferInsert;
 
 // Contribuições table
-export const contribuicoes = pgTable("contribuicoes", {
-  id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+export const contribuicoes = mysqlTable("contribuicoes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   valor: varchar("valor", { length: 20 }).notNull(), // Formato: "R$ 100,00"
   tipo: varchar("tipo", { length: 50 }).notNull(), // dizimo, oferta, missoes
   data: varchar("data", { length: 50 }).notNull(),
   comprovanteUrl: varchar("comprovanteUrl", { length: 500 }),
-  status: statusContribuicaoEnum("status").default("pendente").notNull(),
+  status: varchar("status", { length: 50 }).default("pendente").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -207,14 +202,14 @@ export type Contribuicao = typeof contribuicoes.$inferSelect;
 export type InsertContribuicao = typeof contribuicoes.$inferInsert;
 
 // Inscrições em Eventos table
-export const inscricoesEventos = pgTable("inscricoesEventos", {
-  id: serial("id").primaryKey(),
-  eventoId: integer("eventoId").notNull(),
-  userId: integer("userId").notNull(),
+export const inscricoesEventos = mysqlTable("inscricoesEventos", {
+  id: int("id").autoincrement().primaryKey(),
+  eventoId: int("eventoId").notNull(),
+  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
-  status: statusInscricaoEnum("status").default("confirmado").notNull(),
+  status: varchar("status", { length: 50 }).default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -223,14 +218,14 @@ export type InscricaoEvento = typeof inscricoesEventos.$inferSelect;
 export type InsertInscricaoEvento = typeof inscricoesEventos.$inferInsert;
 
 // Líderes table
-export const lideres = pgTable("lideres", {
-  id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+export const lideres = mysqlTable("lideres", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   email: varchar("email", { length: 255 }),
-  ativo: integer("ativo").default(1).notNull(), // 1 = ativo, 0 = inativo
+  ativo: int("ativo").default(1).notNull(), // 1 = ativo, 0 = inativo
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -239,15 +234,15 @@ export type Lider = typeof lideres.$inferSelect;
 export type InsertLider = typeof lideres.$inferInsert;
 
 // Relatórios table
-export const relatorios = pgTable("relatorios", {
-  id: serial("id").primaryKey(),
-  liderId: integer("liderId").notNull(),
+export const relatorios = mysqlTable("relatorios", {
+  id: int("id").autoincrement().primaryKey(),
+  liderId: int("liderId").notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(), // semanal, mensal, trimestral
   periodo: varchar("periodo", { length: 100 }).notNull(), // Ex: "Janeiro 2026"
-  presentes: integer("presentes").notNull(),
-  novosVisitantes: integer("novosVisitantes").default(0).notNull(),
-  conversoes: integer("conversoes").default(0).notNull(),
+  presentes: int("presentes").notNull(),
+  novosVisitantes: int("novosVisitantes").default(0).notNull(),
+  conversoes: int("conversoes").default(0).notNull(),
   observacoes: text("observacoes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -257,10 +252,10 @@ export type Relatorio = typeof relatorios.$inferSelect;
 export type InsertRelatorio = typeof relatorios.$inferInsert;
 
 // Dados de Contribuição table (configurações gerais de PIX e banco)
-export const dadosContribuicao = pgTable("dadosContribuicao", {
-  id: serial("id").primaryKey(),
+export const dadosContribuicao = mysqlTable("dadosContribuicao", {
+  id: int("id").autoincrement().primaryKey(),
   pixKey: varchar("pixKey", { length: 255 }).notNull(),
-  pixType: pixTypeEnum("pixType").notNull(),
+  pixType: varchar("pixType", { length: 50 }).notNull(),
   bank: varchar("bank", { length: 255 }).notNull(),
   agency: varchar("agency", { length: 50 }).notNull(),
   account: varchar("account", { length: 50 }).notNull(),
@@ -277,9 +272,9 @@ export type DadosContribuicao = typeof dadosContribuicao.$inferSelect;
 export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;
 
 // Anexos table
-export const anexos = pgTable("anexos", {
-  id: serial("id").primaryKey(),
-  relatorioId: integer("relatorioId").notNull(),
+export const anexos = mysqlTable("anexos", {
+  id: int("id").autoincrement().primaryKey(),
+  relatorioId: int("relatorioId").notNull(),
   nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
   urlArquivo: varchar("urlArquivo", { length: 500 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(), // pdf, imagem, etc
@@ -291,15 +286,15 @@ export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
 // Anexos Líderes table
-export const documentoslideres = pgTable("documentoslideres", {
-  id: serial("id").primaryKey(),
+export const documentoslideres = mysqlTable("documentoslideres", {
+  id: int("id").autoincrement().primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao"),
   arquivoUrl: varchar("arquivo_url", { length: 2048 }).notNull(),
   nomeArquivo: varchar("nome_arquivo", { length: 255 }).notNull(),
-  tamanhoArquivo: integer("tamanho_arquivo").default(0).notNull(),
+  tamanhoArquivo: int("tamanho_arquivo").default(0).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
-  ativo: integer("ativo").default(1).notNull(),
+  ativo: int("ativo").default(1).notNull(),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -309,13 +304,13 @@ export type DocumentoLider = typeof documentoslideres.$inferSelect;
 export type InsertDocumentoLider = typeof documentoslideres.$inferInsert;
 
 // Inscrições em Escola de Crescimento table
-export const inscricoesEscolaCrescimento = pgTable("inscricoesEscolaCrescimento", {
-  id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimento", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
   curso: varchar("curso", { length: 100 }).notNull(), // Conecte, Lidere 1, Lidere 2, Avance
-  status: statusInscricaoEnum("status").default("confirmado").notNull(),
+  status: varchar("status", { length: 50 }).default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
