@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
@@ -18,13 +18,17 @@ export async function getDb() {
     try {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
-      
-      const pool = mysql.createPool(url);
-      _db = drizzle(pool);
-      console.log("[Database] Pool created successfully");
-    } catch (error: any) {
-      console.error("[Database] Failed to connect:", error.message);
-      console.error("[Database] Full error:", error);
+      const urlObj = new URL(url);
+      const client = postgres(url, {
+        ssl: {
+          rejectUnauthorized: false,
+          servername: urlObj.hostname
+        }
+      });
+      _db = drizzle(client);
+      console.log("[Database] Connected successfully");
+    } catch (error) {
+      console.error("[Database] Failed to connect:", error);
       _db = null;
     }
   }
@@ -839,10 +843,18 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 // ==================== ANEXOS LÍDERES ====================
 
 export async function getDocumentosLideres() {
-  const db = await getDb();
-  if (!db) return [];
-  const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
-  return result || [];
+  try {
+    const db = await getDb();
+    if (!db) {
+      console.warn("[Database] Database not available for getDocumentosLideres");
+      return [];
+    }
+    const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
+    return result || [];
+  } catch (error) {
+    console.error("[Database] Error in getDocumentosLideres:", error);
+    throw error;
+  }
 }
 
 export async function getDocumentoLiderById(id: number) {

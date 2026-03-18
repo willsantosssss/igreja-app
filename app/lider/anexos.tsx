@@ -15,7 +15,6 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/use-colors";
-import { DropboxUpload } from "@/components/dropbox-upload";
 
 interface Anexo {
   id: number;
@@ -226,18 +225,6 @@ export default function AnexosLiderScreen() {
           </Text>
         </View>
         <BackButton />
-      </View>
-
-      <View className="mb-4">
-        <DropboxUpload
-          onUploadSuccess={(fileName) => {
-            Alert.alert("Sucesso", `${fileName} foi enviado com sucesso`);
-            carregarAnexos();
-          }}
-          onUploadError={(error) => {
-            Alert.alert("Erro", `Falha ao enviar: ${error}`);
-          }}
-        />
       </View>
 
       {anexos.length === 0 ? (
