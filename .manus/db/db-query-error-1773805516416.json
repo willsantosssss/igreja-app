@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO documentoslideres (titulo, descricao, tipo, nomeArquivo, tamanhoArquivo, arquivoBase64, createdat, updatedat) \nVALUES ('Teste Upload', 'Arquivo de teste para validar download', 'arquivo', 'teste.txt', 18, 'VGVzdGUgZGUgYXJxdWl2byBkZSB0ZXN0ZQ==', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO documentoslideres (titulo, descricao, tipo, nomeArquivo, tamanhoArquivo, arquivoBase64, createdat, updatedat) \nVALUES ('Teste Upload', 'Arquivo de teste para validar download', 'arquivo', 'teste.txt', 18, 'VGVzdGUgZGUgYXJxdWl2byBkZSB0ZXN0ZQ==', NOW(), NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'clukbfbszfcyg9rnrxmep2.documentoslideres' doesn't exist"
+  ]
+}
