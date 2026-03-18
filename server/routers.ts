@@ -584,7 +584,7 @@ export const appRouter = router({
   documentosLideres: router({
     list: publicProcedure.query(() => db.getDocumentosLideres()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getDocumentoLiderById(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         titulo: z.string().min(1),
         descricao: z.string().optional(),
