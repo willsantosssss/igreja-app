@@ -174,8 +174,10 @@ export default function AdminEventosScreen() {
       setModalVisivel(false);
       setForm(FORM_VAZIO);
       setEditandoId(null);
-    } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o evento.');
+    } catch (error) {
+      console.error('Erro ao salvar evento:', error);
+      const mensagem = error instanceof Error ? error.message : 'Não foi possível salvar o evento.';
+      Alert.alert('Erro', mensagem);
     } finally {
       setSalvando(false);
     }
