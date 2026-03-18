@@ -11,8 +11,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const envPath = path.resolve(process.cwd(), ".env");
+const envLocalPath = path.resolve(process.cwd(), ".env.local");
 
-if (fs.existsSync(envPath)) {
+// Load .env.local first (higher priority), then .env
+const envPaths = [envPath, envLocalPath].filter(p => fs.existsSync(p));
+
+envPaths.forEach(envPath => {
   const envContent = fs.readFileSync(envPath, "utf8");
   const lines = envContent.split("\n");
 
@@ -31,7 +35,7 @@ if (fs.existsSync(envPath)) {
       }
     }
   });
-}
+});
 
 // Map system variables to Expo public variables
 const mappings = {

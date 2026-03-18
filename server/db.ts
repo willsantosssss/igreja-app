@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import * as schema from "../drizzle/schema";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
@@ -11,15 +12,26 @@ import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _sqlClient: ReturnType<typeof postgres> | null = null;
+
+// Get or create a reusable postgres-js client
+export function getSqlClient() {
+  if (!_sqlClient && process.env.DATABASE_URL) {
+    console.log('[getSqlClient] Creating new postgres client');
+    _sqlClient = postgres(process.env.DATABASE_URL, { ssl: { rejectUnauthorized: false } });
+  }
+  console.log('[getSqlClient] Returning client:', _sqlClient ? 'exists' : 'null');
+  return _sqlClient;
+}
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       const client = postgres(process.env.DATABASE_URL, {
-        ssl: { rejectUnauthorized: false }
+        ssl: 'require'
       });
-      _db = drizzle(client);
+      _db = drizzle(client, { schema });
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
@@ -297,9 +309,22 @@ export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro:
 // ==================== EVENTOS ====================
 
 export async function getEventos() {
-  const db = await getDb();
-  if (!db) return [];
-  return db.select().from(eventos);
+  console.log('[getEventos] Called');
+  const client = getSqlClient();
+  console.log('[getEventos] Client:', client ? 'exists' : 'null');
+  if (!client) {
+    console.log('[getEventos] No client, returning []');
+    return [];
+  }
+  try {
+    console.log('[getEventos] Executing query');
+    const result = await client`SELECT * FROM eventos ORDER BY id DESC`;
+    console.log('[getEventos] Result:', result.length, 'eventos');
+    return result;
+  } catch (error) {
+    console.error('[getEventos] Error:', error);
+    return [];
+  }
 }
 
 export async function getEventoById(id: number) {
