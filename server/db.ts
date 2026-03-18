@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
