@@ -149,14 +149,28 @@ export default function AdminAnexosScreen() {
         });
         Alert.alert("Sucesso", "Anexo atualizado");
       } else {
-        await createMutation.mutateAsync({
-          titulo: formData.titulo,
-          descricao: formData.descricao,
-          nomeArquivo: formData.nomeArquivo,
-          arquivoBase64: formData.arquivoBase64,
-          tipo: formData.tipo,
-          ativo: 1,
+        // Usar endpoint REST em vez do tRPC
+        const apiUrl = "https://igreja-app-production-9432.up.railway.app";
+        const response = await fetch(`${apiUrl}/api/upload/documentos-lideres`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            titulo: formData.titulo,
+            descricao: formData.descricao,
+            nomeArquivo: formData.nomeArquivo,
+            arquivoBase64: formData.arquivoBase64,
+            tipo: formData.tipo,
+            ativo: 1,
+          }),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
         Alert.alert("Sucesso", "Anexo criado e enviado");
       }
       setModalVisible(false);
