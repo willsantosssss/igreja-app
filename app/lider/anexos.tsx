@@ -122,21 +122,10 @@ export default function AnexosLiderScreen() {
       const fileName = anexo.nomeArquivo || "documento";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-      // Verificar se é um data URI em base64
-      if (anexo.arquivoUrl.startsWith("data:")) {
-        // Extrair base64 do data URI
-          throw new Error("Formato de arquivo inválido");
-        }
-
-        // Escrever arquivo a partir do base64
-          encoding: FileSystem.EncodingType.Base64,
-        });
-      } else {
-        // Se for uma URL HTTP, fazer download normal
-        const downloadResult = await FileSystem.downloadAsync(anexo.arquivoUrl, fileUri);
-        if (downloadResult.status !== 200) {
-          throw new Error(`Falha no download (Status: ${downloadResult.status})`);
-        }
+      // Se for uma URL HTTP, fazer download normal
+      const downloadResult = await FileSystem.downloadAsync(anexo.arquivoUrl, fileUri);
+      if (downloadResult.status !== 200) {
+        throw new Error(`Falha no download (Status: ${downloadResult.status})`);
       }
 
       // Compartilhar arquivo para abrir/salvar
@@ -252,7 +241,7 @@ export default function AnexosLiderScreen() {
           )}
           {anexos.length > 0 && (
             <Text className="text-xs text-muted text-center mt-4">
-              Mostrando {anexos.length} de {(anexosData as Anexo[])?.filter((a) => a.ativo === 1).length || 0} anexos
+              Mostrando {anexos.length} anexos
             </Text>
           )}
         </ScrollView>

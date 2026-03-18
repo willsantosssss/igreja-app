@@ -141,7 +141,8 @@ export default function AdminAnexosScreen() {
   };
 
   const handleSave = async () => {
-      Alert.alert("Erro", "Preencha o título e selecione um arquivo PDF");
+    if (!formData.titulo.trim() || !formData.nomeArquivo.trim()) {
+      Alert.alert("Erro", "Preencha o título e selecione um arquivo");
       return;
     }
 
