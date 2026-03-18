@@ -1,0 +1,8 @@
+{
+  "query": "SELECT \"id\", \"titulo\", \"descricao\", \"arquivo_url\", \"nome_arquivo\", \"tamanho_arquivo\", \"tipo\", \"ativo\", \"arquivo_base64\", \"created_at\", \"updated_at\" FROM \"documentoslideres\" WHERE \"documentoslideres\".\"ativo\" = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT \"id\", \"titulo\", \"descricao\", \"arquivo_url\", \"nome_arquivo\", \"tamanho_arquivo\", \"tipo\", \"ativo\", \"arquivo_base64\", \"created_at\", \"updated_at\" FROM \"documentoslideres\" WHERE \"documentoslideres\".\"ativo\" = 1;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 172 near \"\"documentoslideres\" WHERE \"documentoslideres\".\"ativo\" = 1\""
+  ]
+}

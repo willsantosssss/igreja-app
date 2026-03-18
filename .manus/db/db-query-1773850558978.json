@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS documentoslideres (\n  id SERIAL PRIMARY KEY,\n  titulo VARCHAR(255) NOT NULL,\n  descricao TEXT,\n  arquivo_url VARCHAR(2048) NOT NULL,\n  nome_arquivo VARCHAR(255) NOT NULL,\n  tamanho_arquivo INTEGER DEFAULT 0 NOT NULL,\n  tipo VARCHAR(50) NOT NULL,\n  ativo INTEGER DEFAULT 1 NOT NULL,\n  arquivo_base64 TEXT,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute CREATE TABLE IF NOT EXISTS documentoslideres (\n  id SERIAL PRIMARY KEY,\n  titulo VARCHAR(255) NOT NULL,\n  descricao TEXT,\n  arquivo_url VARCHAR(2048) NOT NULL,\n  nome_arquivo VARCHAR(255) NOT NULL,\n  tamanho_arquivo INTEGER DEFAULT 0 NOT NULL,\n  tipo VARCHAR(50) NOT NULL,\n  ativo INTEGER DEFAULT 1 NOT NULL,\n  arquivo_base64 TEXT,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 60
+}
