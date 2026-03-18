@@ -16,10 +16,12 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const client = postgres(process.env.DATABASE_URL, {
+      const url = process.env.DATABASE_URL;
+      console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
+      const client = postgres(url, {
         ssl: { rejectUnauthorized: false }
       });
-      _db = drizzle(client);
+      _db = drizzle(client, { casing: "snake_case" });
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
