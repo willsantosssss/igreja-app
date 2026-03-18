@@ -1,8 +1,0 @@
-{
-  "query": "SELECT id, nome, email, telefone, status FROM lideres ORDER BY id;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, nome, email, telefone, status FROM lideres ORDER BY id;",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1054 (42S22) at line 1: Unknown column 'status' in 'field list'"
-  ]
-}
