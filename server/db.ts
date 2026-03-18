@@ -1,5 +1,5 @@
-import { Pool } from "pg";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
@@ -19,17 +19,7 @@ export async function getDb() {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
       
-      // Usar rejectUnauthorized: false para Railway
-      const sslConfig = { rejectUnauthorized: false };
-      
-      const pool = new Pool({
-        connectionString: url,
-        ssl: sslConfig,
-        connect_timeout: 30,
-        statement_timeout: 30000,
-        idleTimeoutMillis: 30000,
-      });
-      
+      const pool = mysql.createPool(url);
       _db = drizzle(pool);
       console.log("[Database] Pool created successfully");
     } catch (error: any) {
