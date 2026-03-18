@@ -331,7 +331,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
-        descricao: z.string().min(1),
+        descricao: z.string().optional().default(''),
         data: z.string().min(1),
         horario: z.string().min(1),
         local: z.string().min(1),
