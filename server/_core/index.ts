@@ -9,6 +9,8 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { execSync } from "child_process";
 import { initDocumentosLideresTable } from "../migrations/init-documentos-lideres";
+import * as db from "../db";
+import { runMigrations } from "../migrations";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -78,6 +80,37 @@ async function startServer() {
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
+  });
+
+  // Endpoint REST para upload de documentos
+  app.post("/api/upload/documentos-lideres", async (req, res) => {
+    try {
+      const { titulo, descricao, nomeArquivo, arquivoBase64, tipo, ativo } = req.body;
+      
+      if (!titulo || !nomeArquivo || !arquivoBase64 || !tipo) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const buffer = Buffer.from(arquivoBase64, "base64");
+      const tamanhoArquivo = buffer.length;
+      const arquivoUrl = `data:application/octet-stream;base64,${arquivoBase64}`;
+
+      const resultado = await db.createDocumentoLider({
+        titulo,
+        descricao,
+        arquivoUrl,
+        nomeArquivo,
+        tamanhoArquivo,
+        tipo,
+        ativo: ativo ?? 1,
+        arquivoBase64,
+      });
+
+      res.json(resultado);
+    } catch (error: any) {
+      console.error("Erro ao fazer upload:", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.use(
