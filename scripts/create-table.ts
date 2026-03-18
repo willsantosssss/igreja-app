@@ -12,7 +12,7 @@ async function createTable() {
     
     // Criar tabela
     await sql`
-      CREATE TABLE IF NOT EXISTS "documentosLideres" (
+      CREATE TABLE IF NOT EXISTS "documentoslideres" (
         id SERIAL PRIMARY KEY,
         titulo VARCHAR(255) NOT NULL,
         descricao TEXT,
@@ -26,10 +26,10 @@ async function createTable() {
       )
     `;
 
-    console.log("✅ Tabela documentosLideres criada com sucesso!");
+    console.log("✅ Tabela documentoslideres criada com sucesso!");
     
     // Verificar se a tabela foi criada
-    const result = await sql`SELECT * FROM documentosLideres LIMIT 1`;
+    const result = await sql`SELECT * FROM documentoslideres LIMIT 1`;
     console.log("✅ Tabela está funcionando corretamente!");
     
   } catch (error) {

@@ -44,11 +44,11 @@ export default function AdminAnexosScreen() {
     tipo: "manual",
   });
 
-  const { data: anexosData, isLoading, isError, error, refetch } = trpc.documentosLideres.list.useQuery();
-  const createMutation = trpc.documentosLideres.create.useMutation();
-  const updateMutation = trpc.documentosLideres.update.useMutation();
-  const deleteMutation = trpc.documentosLideres.delete.useMutation();
-  const toggleMutation = trpc.documentosLideres.toggleVisibility.useMutation();
+  const { data: anexosData, isLoading, isError, error, refetch } = trpc.documentoslideres.list.useQuery();
+  const createMutation = trpc.documentoslideres.create.useMutation();
+  const updateMutation = trpc.documentoslideres.update.useMutation();
+  const deleteMutation = trpc.documentoslideres.delete.useMutation();
+  const toggleMutation = trpc.documentoslideres.toggleVisibility.useMutation();
 
   useEffect(() => {
     if (!isLoading) {

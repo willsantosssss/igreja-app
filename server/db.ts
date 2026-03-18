@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, documentosLideres,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, documentoslideres,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
   InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertDocumentoLider
 } from "../drizzle/schema";
@@ -839,38 +839,40 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 export async function getDocumentosLideres() {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.select().from(documentosLideres).where(eq(documentosLideres.ativo, 1));
+  const result = await db.select().from(documentoslideres).where(eq(documentoslideres.ativo, 1));
   return result || [];
 }
 
 export async function getDocumentoLiderById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(documentosLideres).where(eq(documentosLideres.id, id));
+  const result = await db.select().from(documentoslideres).where(eq(documentoslideres.id, id));
   return result[0] || null;
 }
 
 export async function createDocumentoLider(data: InsertDocumentoLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(documentosLideres).values(data);
-  return result.insertId;
+  await db.insert(documentoslideres).values(data);
+  // Retornar o documento que foi inserido
+  const inserted = await db.select().from(documentoslideres).orderBy(desc(documentoslideres.id)).limit(1);
+  return inserted[0];
 }
 
 export async function updateDocumentoLider(id: number, data: Partial<InsertDocumentoLider>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(documentosLideres).set(data).where(eq(documentosLideres.id, id));
+  await db.update(documentoslideres).set(data).where(eq(documentoslideres.id, id));
 }
 
 export async function deleteDocumentoLider(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(documentosLideres).where(eq(documentosLideres.id, id));
+  await db.delete(documentoslideres).where(eq(documentoslideres.id, id));
 }
 
 export async function toggleDocumentoLiderVisibility(id: number, ativo: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(documentosLideres).set({ ativo }).where(eq(documentosLideres.id, id));
+  await db.update(documentoslideres).set({ ativo }).where(eq(documentoslideres.id, id));
 }

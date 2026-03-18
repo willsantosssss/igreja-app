@@ -292,7 +292,7 @@ export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
 // Anexos Líderes table
-export const documentosLideres = pgTable("documentoslideres", {
+export const documentoslideres = pgTable("documentoslideres", {
   id: serial("id").primaryKey(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao"),
@@ -306,8 +306,8 @@ export const documentosLideres = pgTable("documentoslideres", {
   updatedAt: timestamp("updatedat").defaultNow().notNull(),
 });
 
-export type DocumentoLider = typeof documentosLideres.$inferSelect;
-export type InsertDocumentoLider = typeof documentosLideres.$inferInsert;
+export type DocumentoLider = typeof documentoslideres.$inferSelect;
+export type InsertDocumentoLider = typeof documentoslideres.$inferInsert;
 
 // Inscrições em Escola de Crescimento table
 export const inscricoesEscolaCrescimento = pgTable("inscricoesEscolaCrescimento", {

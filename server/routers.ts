@@ -581,7 +581,7 @@ export const appRouter = router({
    }),
   
   // Anexos Líderes
-  documentosLideres: router({
+  documentoslideres: router({
     list: publicProcedure.query(() => db.getDocumentosLideres()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getDocumentoLiderById(input)),
     create: publicProcedure
@@ -595,6 +595,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         try {
+          console.log('[documentoslideres.create] Input recebido:', JSON.stringify(input).substring(0, 100));
           console.log('Iniciando upload de arquivo:', input.nomeArquivo);
           const buffer = Buffer.from(input.arquivoBase64, 'base64');
           const tamanhoArquivo = buffer.length;
