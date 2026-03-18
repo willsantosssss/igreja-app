@@ -301,32 +301,27 @@ export default function EventDetailScreen() {
                   <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
                 </TouchableOpacity>
                 {mostrarSeletorCelulas && (
-                  <View className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
+                  <ScrollView className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
                     {celulas && celulas.length > 0 ? (
-                      <FlatList
-                        data={celulas}
-                        keyExtractor={(cel) => cel.id?.toString() || cel.name || ""}
-                        scrollEnabled={true}
-                        nestedScrollEnabled={true}
-                        renderItem={({ item: cel }) => (
-                          <TouchableOpacity
-                            className="px-4 py-3 border-b border-border"
-                            style={{ borderBottomColor: colors.border }}
-                            onPress={() => {
-                              setCelula(cel.nome || cel.name || "");
-                              setMostrarSeletorCelulas(false);
-                            }}
-                          >
-                            <Text className="text-foreground">{cel.nome || cel.name}</Text>
-                          </TouchableOpacity>
-                        )}
-                      />
+                      celulas.map((cel, index) => (
+                        <TouchableOpacity
+                          key={cel.id?.toString() || cel.name || index}
+                          className="px-4 py-3 border-b border-border"
+                          style={{ borderBottomColor: colors.border }}
+                          onPress={() => {
+                            setCelula(cel.nome || cel.name || "");
+                            setMostrarSeletorCelulas(false);
+                          }}
+                        >
+                          <Text className="text-foreground">{cel.nome || cel.name}</Text>
+                        </TouchableOpacity>
+                      ))
                     ) : (
                       <View className="px-4 py-3">
                         <Text className="text-muted text-center">Nenhuma célula disponível</Text>
                       </View>
                     )}
-                  </View>
+                  </ScrollView>
                 )}
               </View>
 
