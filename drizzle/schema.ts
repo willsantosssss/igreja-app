@@ -1,13 +1,12 @@
-import { 
-  pgTable, 
-  pgEnum,
-  serial, 
+import {
+  mysqlTable, 
+  mysqlEnum,
+  int, 
   text, 
   timestamp, 
   varchar,
-  integer,
   boolean
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -15,15 +14,15 @@ import {
  * Columns use camelCase to match both database fields and generated types.
  */
 
-// Enums for PostgreSQL
-export const roleEnum = pgEnum("role", ["user", "admin"]);
-export const statusBatismoEnum = pgEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
-export const statusContribuicaoEnum = pgEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
-export const statusInscricaoEnum = pgEnum("status_inscricao", ["confirmado", "cancelado"]);
-export const pixTypeEnum = pgEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
+// Enums for MySQL
+export const roleEnum = mysqlEnum("role", ["user", "admin"]);
+export const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
+export const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
+export const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", "cancelado"]);
+export const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = mysqlTable("users", {
+  id: int("id").autoincrement().primaryKey(),
   openId: varchar("openId", { length: 64 }).unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }).unique(),
@@ -39,8 +38,8 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 // Celulas table
-export const celulas = pgTable("celulas", {
-  id: serial("id").primaryKey(),
+export const celulas = mysqlTable("celulas", {
+  id: int("id").autoincrement().primaryKey(),
   nome: varchar("nome", { length: 255 }).notNull(),
   lider: varchar("lider", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
@@ -57,8 +56,8 @@ export type Celula = typeof celulas.$inferSelect;
 export type InsertCelula = typeof celulas.$inferInsert;
 
 // Inscricoes de Batismo table
-export const inscricoesBatismo = pgTable("inscricoesBatismo", {
-  id: serial("id").primaryKey(),
+export const inscricoesBatismo = mysqlTable("inscricoesBatismo", {
+  id: int("id").autoincrement().primaryKey(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
@@ -74,9 +73,9 @@ export type InscricaoBatismo = typeof inscricoesBatismo.$inferSelect;
 export type InsertInscricaoBatismo = typeof inscricoesBatismo.$inferInsert;
 
 // Usuarios Cadastrados (Membros) table
-export const usuariosCadastrados = pgTable("usuariosCadastrados", {
-  id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }),
   celula: varchar("celula", { length: 255 }).notNull(),
@@ -88,13 +87,13 @@ export type UsuarioCadastrado = typeof usuariosCadastrados.$inferSelect;
 export type InsertUsuarioCadastrado = typeof usuariosCadastrados.$inferInsert;
 
 // Pedidos de Oracao table
-export const pedidosOracao = pgTable("pedidosOracao", {
-  id: serial("id").primaryKey(),
+export const pedidosOracao = mysqlTable("pedidosOracao", {
+  id: int("id").autoincrement().primaryKey(),
   nome: varchar("nome", { length: 255 }).notNull(),
   descricao: text("descricao").notNull(),
   categoria: varchar("categoria", { length: 50 }).notNull(),
-  contadorOrando: integer("contadorOrando").default(0).notNull(),
-  respondido: integer("respondido").default(0).notNull(), // 0 = ativo, 1 = respondido
+  contadorOrando: int("contadorOrando").default(0).notNull(),
+  respondido: int("respondido").default(0).notNull(), // 0 = ativo, 1 = respondido
   testemunho: text("testemunho"), // Testemunho de como Deus respondeu (opcional)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
