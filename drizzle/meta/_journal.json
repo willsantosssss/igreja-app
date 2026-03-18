@@ -8,6 +8,34 @@
       "when": 1773154490082,
       "tag": "0000_abandoned_killmonger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773669330844,
+      "tag": "0001_special_naoko",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773805575442,
+      "tag": "0002_fluffy_tusk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773859862286,
+      "tag": "0003_windy_molten_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773864250468,
+      "tag": "0004_mute_edwin_jarvis",
+      "breakpoints": true
     }
   ]
 }
