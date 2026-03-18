@@ -99,7 +99,18 @@ export const appRouter = router({
       } catch (e) {
         // fallback
       }
-      return [{ id: 1, nome: 'Pr. Will e Pra. Fernanda', lider: 'Célula Alive', telefone: '+55 66 99635-7700', endereco: 'Avenida João Ponce de Arruda, 943 - Centro', latitude: '-16.472484403202994', longitude: '-54.64209482025572', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T09:58:01.000Z'), updatedAt: new Date('2026-02-19T09:58:01.000Z') }];
+      return [
+        { id: 1, nome: 'Pr. Will e Pra. Fernanda', lider: 'Célula Alive', telefone: '+55 66 99635-7700', endereco: 'Avenida João Ponce de Arruda, 943 - Centro', latitude: '-16.472484403202994', longitude: '-54.64209482025572', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T09:58:01.000Z'), updatedAt: new Date('2026-02-19T09:58:01.000Z') },
+        { id: 2, nome: 'Wellington e Joice', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99915-1371', endereco: 'Av. Planejada - Jardim Res. Mathias Neves', latitude: '-16.424231125157966', longitude: '-54.672828399850864', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T10:05:12.000Z'), updatedAt: new Date('2026-02-19T10:05:12.000Z') },
+        { id: 3, nome: 'Deisiane', lider: 'Célula Revive', telefone: '+55 66 99907-5601', endereco: 'Rua Otávio Pitaluga, 834 - Centro', latitude: '-16.477029263679597', longitude: '-54.62233561964722', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-19T14:00:00.000Z'), updatedAt: new Date('2026-02-19T14:00:01.000Z') },
+        { id: 4, nome: 'Jucilene', lider: 'Célula Revive', telefone: '+55 66 99655-5468', endereco: 'Rua Francisco Goulart, 1183 - Vila Goulart, Rondonópolis - MT, 78745-300', latitude: '-16.484105308713357', longitude: '-54.64188841588987', diaReuniao: 'Quinta-feira', horario: '08:00', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 5, nome: 'Adalberto e Julia', lider: 'Célula Alive', telefone: '+55 66 99920-4013', endereco: 'Av. Beija Flor, 310 - Vila Olinda', latitude: '-16.4587771785909', longitude: '-54.6644108686803', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 6, nome: 'Kacio e Nivia', lider: 'Célula Alive', telefone: '+55 66 99646-5281', endereco: 'R. Siriri, 1141 - Jardim Universitario', latitude: '-16.459718658982073', longitude: '-54.674833817798294', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 7, nome: 'Vitor e Rayara', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99974-6835', endereco: 'R. Armando Araújo, 34 - Parque Real', latitude: '-16.48210267263234', longitude: '-54.62124145767126', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 8, nome: 'João Luan e Karine', lider: 'Célula Vencendo em Cristo', telefone: '+55 66 99673-4056', endereco: 'R. P, 12 - Rondonópolis, MT, 78716-601', latitude: '-16.421751448780643', longitude: '-54.68680445767126', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 9, nome: 'Guilherme e Maria Eduarda', lider: 'Célula Alive', telefone: '+55 66 99623-4171', endereco: 'Rua Aparecida Domingos, 50, Cidade Viva, Pedra Preta  - MT', latitude: '-16.620039392896935', longitude: '-54.48304575430169', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') },
+        { id: 10, nome: 'Vitor Indiano e Mariani', lider: 'Célula Alive ADL', telefone: '+55 66 99679-3805', endereco: 'Av. São Luís, 208 - Vila Mamed', latitude: '-16.47982066271921', longitude: '-54.65373331811754', diaReuniao: 'Quinta-feira', horario: '19:30', createdAt: new Date('2026-02-23T14:00:00.000Z'), updatedAt: new Date('2026-02-23T14:00:00.000Z') }
+      ];
     }),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getCelulaById(input)),
     create: protectedProcedure
@@ -458,7 +469,11 @@ export const appRouter = router({
       } catch (e) {
         // fallback
       }
-      return [{ id: 150002, userId: 0, nome: 'Guilherme', celula: 'Guilherme e Maria Eduarda', telefone: 'BSWEF4UY', email: 'oguicaiofilmmaker@gmail.com', ativo: 1, createdAt: new Date('2026-02-24T09:12:46.000Z'), updatedAt: new Date('2026-02-24T09:12:46.000Z') }];
+      return [
+        { id: 150002, userId: 0, nome: 'Guilherme', celula: 'Guilherme e Maria Eduarda', telefone: 'BSWEF4UY', email: 'oguicaiofilmmaker@gmail.com', ativo: 1, createdAt: new Date('2026-02-24T09:12:46.000Z'), updatedAt: new Date('2026-02-24T09:12:46.000Z') },
+        { id: 150003, userId: 0, nome: 'Pra. Fernanda', celula: 'Pr. Will e Pra. Fernanda', telefone: '121722', email: 'fernandaborgeslima@gmail.com', ativo: 1, createdAt: new Date('2026-02-24T09:44:19.000Z'), updatedAt: new Date('2026-02-24T09:44:19.000Z') },
+        { id: 1, userId: 0, nome: 'Pr. Will', celula: 'Pr. Will e Pra. Fernanda', telefone: '250866', email: '2ieqroo@gmail.com', ativo: 1, createdAt: new Date('2026-03-13T17:20:03.471Z'), updatedAt: new Date('2026-03-13T17:20:03.471Z') }
+      ];
     }),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getLiderById(input)),
     getByUserId: publicProcedure.input(z.number()).query(({ input }) => db.getLiderByUserId(input)),
