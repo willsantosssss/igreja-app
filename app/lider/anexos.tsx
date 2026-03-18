@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
-import { trpc } from "@/lib/trpc";
+// import { trpc } from "@/lib/trpc"; // Usar apenas endpoint REST
 import { BackButton } from "@/components/back-button";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
@@ -38,30 +38,47 @@ export default function AnexosLiderScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const itemsPerPage = 10;
 
-  const { data: anexosData, isLoading, isError, error } = trpc.documentoslideres.list.useQuery();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<any>(null);
+  const apiUrl = "https://igreja-app-production-9432.up.railway.app";
+
+  const carregarAnexos = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
+      if (!response.ok) throw new Error('Erro ao carregar anexos');
+      const data = await response.json();
+      
+      // Filtrar apenas anexos ativos
+      const anexosAtivos = (data as Anexo[]).filter((a) => a.ativo === 1);
+      // Paginacao: mostrar apenas os primeiros itemsPerPage
+      const paginados = anexosAtivos.slice(0, itemsPerPage);
+      setAnexos(paginados);
+      setHasMore(anexosAtivos.length > itemsPerPage);
+      setIsError(false);
+    } catch (err) {
+      setError(err);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!isLoading) {
-      if (anexosData) {
-        // Filtrar apenas anexos ativos
-        const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
-        // Paginacao: mostrar apenas os primeiros itemsPerPage
-        const paginados = anexosAtivos.slice(0, itemsPerPage);
-        setAnexos(paginados);
-        setHasMore(anexosAtivos.length > itemsPerPage);
-      } else {
-        setAnexos([]);
-        setHasMore(false);
-      }
-    }
-  }, [anexosData, isLoading]);
+    carregarAnexos();
+  }, []);
 
-  const handleLoadMore = () => {
-    if (loadingMore || !hasMore || !anexosData) return;
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
     
     setLoadingMore(true);
-    setTimeout(() => {
-      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
+    try {
+      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
+      if (!response.ok) throw new Error('Erro ao carregar anexos');
+      const data = await response.json();
+      
+      const anexosAtivos = (data as Anexo[]).filter((a) => a.ativo === 1);
       const novaPage = page + 1;
       const inicio = 0;
       const fim = novaPage * itemsPerPage;
@@ -70,8 +87,11 @@ export default function AnexosLiderScreen() {
       setAnexos(novoAnexos);
       setPage(novaPage);
       setHasMore(fim < anexosAtivos.length);
+    } catch (err) {
+      console.error('Erro ao carregar mais anexos:', err);
+    } finally {
       setLoadingMore(false);
-    }, 300);
+    }
   };
 
   const getFileIcon = (tipo: string) => {
