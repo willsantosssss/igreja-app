@@ -3,7 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { signupUser, loginUser } from "./auth-simple";
 import * as fs from "fs/promises";
@@ -130,7 +130,7 @@ export const appRouter = router({
   // Inscricoes de Batismo
   batismo: router({
     list: publicProcedure.query(() => db.getInscricoesBatismo()),
-    listPendentes: protectedProcedure.query(() => db.getInscricoesBatismoPendentes()),
+    listPendentes: publicProcedure.query(() => db.getInscricoesBatismoPendentes()),
     create: publicProcedure
       .input(z.object({
         nome: z.string().min(1),
@@ -140,13 +140,13 @@ export const appRouter = router({
         motivacao: z.string().min(1),
       }))
       .mutation(({ input }) => db.createInscricaoBatismo({ ...input, status: "pendente" })),
-    updateStatus: protectedProcedure
+    updateStatus: publicProcedure
       .input(z.object({
         id: z.number(),
         status: z.enum(["pendente", "aprovado", "rejeitado"]),
       }))
       .mutation(({ input }) => db.updateInscricaoBatismo(input.id, { status: input.status, dataProcessamento: new Date() })),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.number())
       .mutation(({ input }) => db.deleteInscricaoBatismo(input)),
   }),
@@ -154,21 +154,21 @@ export const appRouter = router({
   // Usuarios Cadastrados
   usuarios: router({
     list: publicProcedure.query(() => db.getAllUsuariosCadastrados()),
-    getByUserId: protectedProcedure.query(({ ctx }) => db.getUsuarioCadastrado(ctx.user.id)),
+    getByUserId: publicProcedure.query(({ ctx }) => db.getUsuarioCadastrado(ctx.user.id)),
     getAniversariantes: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getAniversariantesMes(input)),
     getMembrosPorCelula: publicProcedure
       .input(z.string())
       .query(({ input }) => db.getMembrosPorCelula(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         nome: z.string().min(1),
         dataNascimento: z.string().optional(),
         celula: z.string().min(1),
       }))
       .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id })),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -178,11 +178,11 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.upsertUsuarioCadastrado({ ...input.data, userId: input.id })),
-    getMeuPerfil: protectedProcedure.query(async ({ ctx }) => {
+    getMeuPerfil: publicProcedure.query(async ({ ctx }) => {
       if (!ctx.user) throw new Error("Not authenticated");
       return db.getUsuarioCadastrado(ctx.user.id);
     }),
-    updateMeuPerfil: protectedProcedure
+    updateMeuPerfil: publicProcedure
       .input(z.object({
         nome: z.string().min(1),
         dataNascimento: z.string().optional(),
@@ -192,25 +192,25 @@ export const appRouter = router({
         if (!ctx.user) throw new Error("Not authenticated");
         return db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id });
       }),
-    deleteUser: protectedProcedure
+    deleteUser: publicProcedure
       .input(z.number())
       .mutation(async ({ input: userId, ctx }) => {
         // Permitir deleção para usuários autenticados (painel admin web já tem autenticação por senha)
         return db.deleteUserCompletely(userId);
       }),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.number())
       .mutation(async ({ input: usuarioId, ctx }) => {
         // Permitir delecao para usuarios autenticados (painel admin web ja tem autenticacao por senha)
         return db.deleteUserCompletely(usuarioId);
       }),
-    deleteAccount: protectedProcedure
+    deleteAccount: publicProcedure
       .mutation(async ({ ctx }) => {
         if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
         // Deletar a conta do usuario autenticado
         return db.deleteUserCompletely(ctx.user.id);
       }),
-    get: protectedProcedure
+    get: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getUsuarioCadastrado(input)),
   }),
@@ -231,7 +231,7 @@ export const appRouter = router({
     incrementarContador: publicProcedure
       .input(z.number())
       .mutation(({ input }) => db.incrementarContadorOracao(input)),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -243,19 +243,19 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updatePedidoOracao(input.id, input.data)),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.number())
       .mutation(({ input }) => db.deletePedidoOracao(input)),
   }),
 
   // Anotações de Devocional
   anotacoesDevocional: router({
-    listByUser: protectedProcedure
+    listByUser: publicProcedure
       .query(({ ctx }) => {
         if (!ctx.user?.id) throw new Error("User not authenticated");
         return db.getAnotacoesDevocionalByUserId(ctx.user.id);
       }),
-    getByCapitulo: protectedProcedure
+    getByCapitulo: publicProcedure
       .input(z.object({
         livro: z.string().min(1),
         capitulo: z.number().min(1),
@@ -264,7 +264,7 @@ export const appRouter = router({
         if (!ctx.user?.id) throw new Error("User not authenticated");
         return db.getAnotacaoDevocionalByCapitulo(ctx.user.id, input.livro, input.capitulo);
       }),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         livro: z.string().min(1),
         capitulo: z.number().min(1),
@@ -279,7 +279,7 @@ export const appRouter = router({
           texto: input.texto,
         });
       }),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         texto: z.string().min(1),
@@ -288,13 +288,13 @@ export const appRouter = router({
         if (!ctx.user?.id) throw new Error("User not authenticated");
         return db.updateAnotacaoDevocional(input.id, { texto: input.texto });
       }),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.number())
       .mutation(({ ctx, input }) => {
         if (!ctx.user?.id) throw new Error("User not authenticated");
         return db.deleteAnotacaoDevocional(input);
       }),
-    deleteByCapitulo: protectedProcedure
+    deleteByCapitulo: publicProcedure
       .input(z.object({
         livro: z.string().min(1),
         capitulo: z.number().min(1),
@@ -346,7 +346,7 @@ export const appRouter = router({
   noticias: router({
     list: publicProcedure.query(() => db.getNoticias()),
     getById: publicProcedure.input(z.number()).query(({ input }) => db.getNoticiaById(input)),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         titulo: z.string().min(1),
         conteudo: z.string().min(1),
@@ -355,7 +355,7 @@ export const appRouter = router({
         destaque: z.number().default(0),
       }))
       .mutation(({ input }) => db.createNoticia(input)),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -367,13 +367,13 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateNoticia(input.id, input.data)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteNoticia(input)),
+    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteNoticia(input)),
   }),
 
   // Aviso Importante
   avisoImportante: router({
     get: publicProcedure.query(() => db.getAvisoImportante()),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         titulo: z.string().min(1),
         mensagem: z.string().min(1),
@@ -381,7 +381,7 @@ export const appRouter = router({
         dataExpiracao: z.string().optional(),
       }))
       .mutation(({ input }) => db.createAvisoImportante(input)),
-    save: protectedProcedure
+    save: publicProcedure
       .input(z.object({
         titulo: z.string().min(1),
         mensagem: z.string().min(1),
@@ -389,7 +389,7 @@ export const appRouter = router({
         dataExpiracao: z.string().optional(),
       }))
       .mutation(({ input }) => db.saveAvisoImportante(input)),
-    desativar: protectedProcedure.mutation(() => db.desativarAvisoImportante()),
+    desativar: publicProcedure.mutation(() => db.desativarAvisoImportante()),
   }),
 
   // Contatos Igreja
@@ -398,7 +398,7 @@ export const appRouter = router({
       const contatos = await db.getContatosIgreja();
       return contatos?.[0] || null;
     }),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         telefone: z.string().min(1),
         whatsapp: z.string().min(1),
@@ -486,7 +486,7 @@ export const appRouter = router({
         observacoes: z.string().optional(),
       }))
       .mutation(({ input }) => db.createRelatorio(input)),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -497,13 +497,13 @@ export const appRouter = router({
         }),
       }))
       .mutation(({ input }) => db.updateRelatorio(input.id, input.data)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteRelatorio(input)),
+    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteRelatorio(input)),
   }),
 
   // Dados de Contribuição
   contribuicao: router({
     get: publicProcedure.query(() => db.getDadosContribuicao()),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         data: z.object({
@@ -546,7 +546,7 @@ export const appRouter = router({
           status: 'confirmado',
         });
       }),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEvento(input)),
+    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEvento(input)),
   }),
   escolaCrescimento: router({
     list: publicProcedure.query(() => db.getInscricoesEscolaCrescimento()),
@@ -567,9 +567,9 @@ export const appRouter = router({
           status: 'confirmado',
         });
       }),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEscolaCrescimento(input)),
+    delete: publicProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEscolaCrescimento(input)),
     getConfig: publicProcedure.query(() => db.getConfigEscolaCrescimento()),
-    updateConfig: protectedProcedure
+    updateConfig: publicProcedure
       .input(z.object({
         dataInicio: z.string().optional(),
         descricaoConecte: z.string().optional(),
@@ -621,7 +621,7 @@ export const appRouter = router({
           });
         }
       }),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         titulo: z.string().optional(),
@@ -633,10 +633,10 @@ export const appRouter = router({
       .mutation(({ input, ctx }) => {
         return db.updateDocumentoLider(input.id, input);
       }),
-    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
+    delete: publicProcedure.input(z.number()).mutation(({ input, ctx }) => {
       return db.deleteDocumentoLider(input);
     }),
-    toggleVisibility: protectedProcedure
+    toggleVisibility: publicProcedure
       .input(z.object({ id: z.number(), ativo: z.number() }))
       .mutation(({ input, ctx }) => {
         return db.toggleDocumentoLiderVisibility(input.id, input.ativo);
