@@ -99,37 +99,41 @@ export default function AnexosLiderScreen() {
     try {
       setDownloading(anexo.id);
 
-      // Construir URL completa usando a API do servidor
-      const apiUrl = "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
-      const fullUrl = anexo.arquivoUrl.startsWith("http")
-        ? anexo.arquivoUrl
-        : `${apiUrl}${anexo.arquivoUrl}`;
-
-      console.log("Tentando baixar de:", fullUrl);
-
-      // Baixar arquivo
-      const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
+      const fileName = anexo.nomeArquivo || "documento";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-      const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
-
-      console.log("Status do download:", downloadResult.status);
-
-      if (downloadResult.status === 200) {
-        // Compartilhar arquivo para abrir/salvar
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(fileUri, {
-            mimeType: getMimeType(anexo.tipo),
-            dialogTitle: `Abrir ${anexo.tipo}`,
-          });
-        } else {
-          Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
+      // Verificar se é um data URI em base64
+      if (anexo.arquivoUrl.startsWith("data:")) {
+        // Extrair base64 do data URI
+        const base64Match = anexo.arquivoUrl.match(/base64,(.+)$/);
+        if (!base64Match) {
+          throw new Error("Formato de arquivo inválido");
         }
+        const base64Data = base64Match[1];
+
+        // Escrever arquivo a partir do base64
+        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
       } else {
-        Alert.alert("Erro", `Não foi possível baixar o arquivo (Status: ${downloadResult.status})`);
+        // Se for uma URL HTTP, fazer download normal
+        const downloadResult = await FileSystem.downloadAsync(anexo.arquivoUrl, fileUri);
+        if (downloadResult.status !== 200) {
+          throw new Error(`Falha no download (Status: ${downloadResult.status})`);
+        }
+      }
+
+      // Compartilhar arquivo para abrir/salvar
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: getMimeType(anexo.tipo),
+          dialogTitle: `Abrir ${anexo.tipo}`,
+        });
+      } else {
+        Alert.alert("Sucesso", `Arquivo salvo em: ${fileUri}`);
       }
     } catch (error: any) {
-      console.error("Erro ao baixar PDF:", error);
+      console.error("Erro ao baixar arquivo:", error);
       Alert.alert("Erro", error.message || "Não foi possível baixar o arquivo");
     } finally {
       setDownloading(null);
