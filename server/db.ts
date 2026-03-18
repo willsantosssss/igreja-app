@@ -308,15 +308,14 @@ export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro:
 
 export async function getEventos() {
   console.log('[getEventos] Called');
-  const client = getSqlClient();
-  console.log('[getEventos] Client:', client ? 'exists' : 'null');
-  if (!client) {
-    console.log('[getEventos] No client, returning []');
+  const db = await getDb();
+  if (!db) {
+    console.log('[getEventos] No database, returning []');
     return [];
   }
   try {
     console.log('[getEventos] Executing query');
-    const result = await client`SELECT * FROM eventos ORDER BY id DESC`;
+    const result = await db.select().from(eventos).orderBy(desc(eventos.id));
     console.log('[getEventos] Result:', result.length, 'eventos');
     return result;
   } catch (error) {
