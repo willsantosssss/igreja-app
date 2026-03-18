@@ -300,21 +300,6 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Botão de Login para Admin/Líder */}
-        <View className="bg-primary/10 rounded-2xl p-5 gap-3 border border-primary/20">
-          <View className="flex-row items-center gap-2">
-            <IconSymbol name="lock.fill" size={24} color={colors.primary} />
-            <Text className="text-base font-bold text-foreground">Área Restrita</Text>
-          </View>
-          <Text className="text-sm text-muted">Faça login para acessar o painel de gerenciamento</Text>
-          <TouchableOpacity 
-            className="bg-primary rounded-full px-6 py-3 items-center"
-            onPress={() => router.push("/(auth)/login" as any)}
-          >
-            <Text className="text-white font-semibold">Entrar</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Redes Sociais */}
         <View className="bg-surface rounded-2xl p-5 gap-4 border border-border">
           <View className="flex-row items-center gap-2">
