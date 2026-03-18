@@ -471,7 +471,9 @@ export async function deleteContatoIgreja(id: number) {
 export async function getLideres() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(lideres);
+  const result = await db.select().from(lideres);
+  console.log('[DB] getLideres retornou', result.length, 'líderes');
+  return result;
 }
 
 export async function getLiderByUserId(userId: number) {
