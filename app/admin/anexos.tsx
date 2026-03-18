@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
-import { trpc } from "@/lib/trpc";
+// import { trpc } from "@/lib/trpc"; // Usar apenas endpoint REST
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
 import * as DocumentPicker from "expo-document-picker";
@@ -44,21 +44,32 @@ export default function AdminAnexosScreen() {
     tipo: "manual",
   });
 
-  const { data: anexosData, isLoading, isError, error, refetch } = trpc.documentoslideres.list.useQuery();
-  const createMutation = trpc.documentoslideres.create.useMutation();
-  const updateMutation = trpc.documentoslideres.update.useMutation();
-  const deleteMutation = trpc.documentoslideres.delete.useMutation();
-  const toggleMutation = trpc.documentoslideres.toggleVisibility.useMutation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<any>(null);
+  const apiUrl = "https://igreja-app-production-9432.up.railway.app";
+
+  const refetch = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${apiUrl}/api/documentos-lideres`);
+      if (!response.ok) throw new Error('Erro ao carregar anexos');
+      const data = await response.json();
+      setAnexos(data);
+      setIsError(false);
+    } catch (err) {
+      setError(err);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!isLoading) {
-      if (anexosData) {
-        setAnexos(anexosData as Anexo[]);
-      } else {
-        setAnexos([]);
-      }
-    }
-  }, [anexosData, isLoading]);
+    refetch();
+  }, []);
+
+
 
   const handleOpenModal = (anexo?: Anexo) => {
     if (anexo) {
@@ -141,21 +152,21 @@ export default function AdminAnexosScreen() {
 
     try {
       if (editingId) {
-        await updateMutation.mutateAsync({
-          id: editingId,
-          titulo: formData.titulo,
-          descricao: formData.descricao,
-          tipo: formData.tipo,
+        const response = await fetch(`${apiUrl}/api/documentos-lideres/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            titulo: formData.titulo,
+            descricao: formData.descricao,
+            tipo: formData.tipo,
+          }),
         });
+        if (!response.ok) throw new Error('Erro ao atualizar');
         Alert.alert("Sucesso", "Anexo atualizado");
       } else {
-        // Usar endpoint REST em vez do tRPC
-        const apiUrl = "https://igreja-app-production-9432.up.railway.app";
         const response = await fetch(`${apiUrl}/api/upload/documentos-lideres`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             titulo: formData.titulo,
             descricao: formData.descricao,
@@ -165,12 +176,10 @@ export default function AdminAnexosScreen() {
             ativo: 1,
           }),
         });
-
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `HTTP ${response.status}`);
         }
-
         Alert.alert("Sucesso", "Anexo criado e enviado");
       }
       setModalVisible(false);
@@ -191,7 +200,10 @@ export default function AdminAnexosScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deleteMutation.mutateAsync(id);
+            const response = await fetch(`${apiUrl}/api/documentos-lideres/${id}`, {
+              method: "DELETE",
+            });
+            if (!response.ok) throw new Error('Erro ao deletar');
             Alert.alert("Sucesso", "Anexo deletado");
             refetch();
           } catch (error: any) {
@@ -204,10 +216,12 @@ export default function AdminAnexosScreen() {
 
   const handleToggleVisibility = async (id: number, ativo: number) => {
     try {
-      await toggleMutation.mutateAsync({
-        id,
-        ativo: ativo === 1 ? 0 : 1,
+      const response = await fetch(`${apiUrl}/api/documentos-lideres/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ativo: ativo === 1 ? 0 : 1 }),
       });
+      if (!response.ok) throw new Error('Erro ao atualizar');
       refetch();
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Erro ao atualizar visibilidade");
