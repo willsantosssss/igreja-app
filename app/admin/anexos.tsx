@@ -40,7 +40,6 @@ export default function AdminAnexosScreen() {
     titulo: "",
     descricao: "",
     nomeArquivo: "",
-    arquivoBase64: "",
     tipo: "manual",
   });
 
@@ -78,7 +77,6 @@ export default function AdminAnexosScreen() {
         titulo: anexo.titulo,
         descricao: anexo.descricao || "",
         nomeArquivo: anexo.nomeArquivo,
-        arquivoBase64: "",
         tipo: anexo.tipo,
       });
     } else {
@@ -87,7 +85,6 @@ export default function AdminAnexosScreen() {
         titulo: "",
         descricao: "",
         nomeArquivo: "",
-        arquivoBase64: "",
         tipo: "manual",
       });
     }
@@ -131,7 +128,6 @@ export default function AdminAnexosScreen() {
           titulo: "",
           descricao: "",
           nomeArquivo: file.name,
-          arquivoBase64: fileContent,
           tipo: tipoArquivo,
         });
         setEditingId(null);
@@ -145,7 +141,6 @@ export default function AdminAnexosScreen() {
   };
 
   const handleSave = async () => {
-    if (!formData.titulo.trim() || !formData.nomeArquivo.trim() || !formData.arquivoBase64.trim()) {
       Alert.alert("Erro", "Preencha o título e selecione um arquivo PDF");
       return;
     }
@@ -171,7 +166,6 @@ export default function AdminAnexosScreen() {
             titulo: formData.titulo,
             descricao: formData.descricao,
             nomeArquivo: formData.nomeArquivo,
-            arquivoBase64: formData.arquivoBase64,
             tipo: formData.tipo,
             ativo: 1,
           }),

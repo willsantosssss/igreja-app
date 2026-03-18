@@ -301,7 +301,7 @@ export const documentoslideres = pgTable("documentoslideres", {
   tamanhoArquivo: integer("tamanho_arquivo").default(0).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
   ativo: integer("ativo").default(1).notNull(),
-  arquivoBase64: text("arquivo_base64"),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

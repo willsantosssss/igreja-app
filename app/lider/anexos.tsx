@@ -125,14 +125,10 @@ export default function AnexosLiderScreen() {
       // Verificar se é um data URI em base64
       if (anexo.arquivoUrl.startsWith("data:")) {
         // Extrair base64 do data URI
-        const base64Match = anexo.arquivoUrl.match(/base64,(.+)$/);
-        if (!base64Match) {
           throw new Error("Formato de arquivo inválido");
         }
-        const base64Data = base64Match[1];
 
         // Escrever arquivo a partir do base64
-        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
           encoding: FileSystem.EncodingType.Base64,
         });
       } else {
