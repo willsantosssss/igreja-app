@@ -255,7 +255,7 @@ export default function AdminEscolaCrescimentoScreen() {
             Inscrições ({inscricoesFiltradas.length})
           </Text>
 
-          {carregando ? (
+          {carregandoInscricoes ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : inscricoesFiltradas.length === 0 ? (
             <View className="items-center py-10 gap-2">
