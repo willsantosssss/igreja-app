@@ -1,5 +1,5 @@
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
@@ -18,13 +18,23 @@ export async function getDb() {
     try {
       const url = process.env.DATABASE_URL;
       console.log("[Database] Connecting to:", url.replace(/:[^@]*@/, ":***@"));
-      const client = postgres(url, {
-        ssl: { rejectUnauthorized: false }
+      
+      // Usar rejectUnauthorized: false para Railway
+      const sslConfig = { rejectUnauthorized: false };
+      
+      const pool = new Pool({
+        connectionString: url,
+        ssl: sslConfig,
+        connect_timeout: 30,
+        statement_timeout: 30000,
+        idleTimeoutMillis: 30000,
       });
-      _db = drizzle(client);
-      console.log("[Database] Connected successfully");
-    } catch (error) {
-      console.error("[Database] Failed to connect:", error);
+      
+      _db = drizzle(pool);
+      console.log("[Database] Pool created successfully");
+    } catch (error: any) {
+      console.error("[Database] Failed to connect:", error.message);
+      console.error("[Database] Full error:", error);
       _db = null;
     }
   }

@@ -88,11 +88,10 @@ async function startServer() {
   app.get("/api/documentos-lideres", async (req, res) => {
     try {
       const documentos = await db.getDocumentosLideres();
-      res.json(documentos);
+      res.json(documentos || []);
     } catch (error: any) {
       console.error("Erro ao listar documentos:", error);
-      // Retornar array vazio em vez de erro para permitir testes
-      res.json([]);
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -138,18 +137,7 @@ async function startServer() {
       res.json(resultado);
     } catch (error: any) {
       console.error("Erro ao fazer upload:", error);
-      // Retornar sucesso mesmo quando banco falha, para permitir testes
-      res.json({
-        id: Math.floor(Math.random() * 10000),
-        titulo: req.body.titulo,
-        descricao: req.body.descricao,
-        nomeArquivo: req.body.nomeArquivo,
-        tamanhoArquivo: Buffer.from(req.body.arquivoBase64, "base64").length,
-        tipo: req.body.tipo,
-        ativo: req.body.ativo ?? 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      res.status(500).json({ error: error.message });
     }
   });
 
