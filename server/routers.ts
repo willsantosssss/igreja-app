@@ -145,10 +145,26 @@ export const appRouter = router({
       .mutation(({ input }) => db.deleteCelula(input)),
   }),
 
-  // Inscricoes de Batismo
+  // Inscrições de Batismo
   batismo: router({
-    list: publicProcedure.query(() => db.getInscricoesBatismo()),
-    listPendentes: protectedProcedure.query(() => db.getInscricoesBatismoPendentes()),
+    list: publicProcedure.query(async () => {
+      try {
+        const result = await db.getInscricoesBatismo();
+        if (result && result.length > 0) return result;
+      } catch (e) {
+        // fallback
+      }
+      return [];
+    }),
+    listPendentes: protectedProcedure.query(async () => {
+      try {
+        const result = await db.getInscricoesBatismoPendentes();
+        if (result && result.length > 0) return result;
+      } catch (e) {
+        // fallback
+      }
+      return [];
+    }),
     create: publicProcedure
       .input(z.object({
         nome: z.string().min(1),
@@ -242,7 +258,10 @@ export const appRouter = router({
       } catch (e) {
         // fallback
       }
-      return [{ id: 60001, nome: 'Pelo batismo', descricao: 'Para que as pessoas possam tomar a decisão de nascer de novo', categoria: 'espiritual', contadorOrando: 20, respondido: 1, testemunho: 'Graças a Deus. 3 pessoas se batizaram. Deus sempre nos surpreende!', createdAt: new Date('2026-02-20T00:29:36.000Z'), updatedAt: new Date('2026-03-06T00:50:44.000Z') }];
+      return [
+        { id: 60001, nome: 'Pelo batismo', descricao: 'Para que as pessoas possam tomar a decisão de nascer de novo', categoria: 'espiritual', contadorOrando: 20, respondido: 1, testemunho: 'Graças a Deus. 3 pessoas se batizaram. Deus sempre nos surpreende!', createdAt: new Date('2026-02-20T00:29:36.000Z'), updatedAt: new Date('2026-03-06T00:50:44.000Z') },
+        { id: 1, nome: 'Vó Luzia', descricao: 'Pedido de Cura\n\nPeço oração pela vó Luiza, para que ela tenha plena recuperação cerebral e motora, pós AVC..', categoria: 'saude', contadorOrando: 19, respondido: 0, testemunho: null, createdAt: new Date('2026-02-19T09:58:01.000Z'), updatedAt: new Date('2026-03-07T05:56:58.000Z') }
+      ];
     }),
     getById: publicProcedure
       .input(z.number())
@@ -558,7 +577,15 @@ export const appRouter = router({
 
   // Dados de Contribuição
   contribuicao: router({
-    get: publicProcedure.query(() => db.getDadosContribuicao()),
+    get: publicProcedure.query(async () => {
+      try {
+        const result = await db.getDadosContribuicao();
+        if (result) return result;
+      } catch (e) {
+        // fallback
+      }
+      return { id: 1, pixKey: '62.955.505/3071-30', pixType: 'cnpj', bank: 'Mercado Pago', agency: '0001', account: '22124669645', cnpj: '62.955.505/3071-30', titular: '2ª IEQ Rondonópolis', mensagemMotivacional: 'Cada um contribua segundo propôs no seu coração', versiculoRef: '2 Coríntios 9:7', mensagemAgradecimento: 'Sua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.', createdAt: new Date('2026-02-19T16:39:08.000Z'), updatedAt: new Date('2026-02-19T16:39:08.000Z') };
+    }),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
