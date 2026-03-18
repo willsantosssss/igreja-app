@@ -21,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
 import { AuthProvider } from "@/lib/auth-context";
 import { useAuthEmail } from "@/hooks/use-auth-email";
+import { getApiBaseUrl } from "@/constants/oauth";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -138,11 +139,11 @@ export default function RootLayout() {
         },
       }),
   );
-  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || getApiBaseUrl();
   const [trpcClient] = useState(() => createTRPCClient(apiBaseUrl));
 
   const content = (
-    <AuthProvider apiBaseUrl={process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000"}>
+    <AuthProvider apiBaseUrl={apiBaseUrl}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
           <RootLayoutContent />
