@@ -21,7 +21,7 @@ export async function getDb() {
       const client = postgres(url, {
         ssl: { rejectUnauthorized: false }
       });
-      _db = drizzle(client, { casing: "snake_case" });
+      _db = drizzle(client);
       console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);

@@ -12,5 +12,4 @@ export default defineConfig({
   dbCredentials: {
     url: connectionString,
   },
-  casing: "snake_case",
 });
