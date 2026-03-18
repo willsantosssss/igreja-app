@@ -1,0 +1,20 @@
+{
+  "query": "INSERT INTO \"documentoslideres\" (\n  \"titulo\",\n  \"descricao\",\n  \"arquivo_url\",\n  \"nome_arquivo\",\n  \"tamanho_arquivo\",\n  \"tipo\",\n  \"ativo\",\n  \"arquivo_base64\"\n) VALUES (\n  'Documento de Teste',\n  'Este é um documento de teste inserido diretamente no banco de dados',\n  'data:text/plain;base64,RXN0ZSDDqSB1bSBhcnF1aXZvIGRlIHRlc3RlIHBhcmEgZGVtb25zdHJhciBjb21vIGluc2VyaXIgZG9jdW1lbnRvcyBubyBiYW5jbyBkZSBkYWRvcy4KClZvY8OqIHBvZGUgdXNhciBlc3RlIG3DqXRvZG8gcGFyYSBhZGljaW9uYXIgcXVhbHF1ZXIgdGlwbyBkZSBhcnF1aXZvIChQREYsIFdvcmQsIEV4Y2VsLCBldGMuKQpzZW0gcHJlY2lzYXIgZmF6ZXIgdXBsb2FkIHBlbG8gYXBsaWNhdGl2by4K',\n  'teste.txt',\n  185,\n  'text/plain',\n  1,\n  'RXN0ZSDDqSB1bSBhcnF1aXZvIGRlIHRlc3RlIHBhcmEgZGVtb25zdHJhciBjb21vIGluc2VyaXIgZG9jdW1lbnRvcyBubyBiYW5jbyBkZSBkYWRvcy4KClZvY8OqIHBvZGUgdXNhciBlc3RlIG3DqXRvZG8gcGFyYSBhZGljaW9uYXIgcXVhbHF1ZXIgdGlwbyBkZSBhcnF1aXZvIChQREYsIFdvcmQsIEV4Y2VsLCBldGMuKQpzZW0gcHJlY2lzYXIgZmF6ZXIgdXBsb2FkIHBlbG8gYXBsaWNhdGl2by4K'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO \"documentoslideres\" (\n  \"titulo\",\n  \"descricao\",\n  \"arquivo_url\",\n  \"nome_arquivo\",\n  \"tamanho_arquivo\",\n  \"tipo\",\n  \"ativo\",\n  \"arquivo_base64\"\n) VALUES (\n  'Documento de Teste',\n  'Este é um documento de teste inserido diretamente no banco de dados',\n  'data:text/plain;base64,RXN0ZSDDqSB1bSBhcnF1aXZvIGRlIHRlc3RlIHBhcmEgZGVtb25zdHJhciBjb21vIGluc2VyaXIgZG9jdW1lbnRvcyBubyBiYW5jbyBkZSBkYWRvcy4KClZvY8OqIHBvZGUgdXNhciBlc3RlIG3DqXRvZG8gcGFyYSBhZGljaW9uYXIgcXVhbHF1ZXIgdGlwbyBkZSBhcnF1aXZvIChQREYsIFdvcmQsIEV4Y2VsLCBldGMuKQpzZW0gcHJlY2lzYXIgZmF6ZXIgdXBsb2FkIHBlbG8gYXBsaWNhdGl2by4K',\n  'teste.txt',\n  185,\n  'text/plain',\n  1,\n  'RXN0ZSDDqSB1bSBhcnF1aXZvIGRlIHRlc3RlIHBhcmEgZGVtb25zdHJhciBjb21vIGluc2VyaXIgZG9jdW1lbnRvcyBubyBiYW5jbyBkZSBkYWRvcy4KClZvY8OqIHBvZGUgdXNhciBlc3RlIG3DqXRvZG8gcGFyYSBhZGljaW9uYXIgcXVhbHF1ZXIgdGlwbyBkZSBhcnF1aXZvIChQREYsIFdvcmQsIEV4Y2VsLCBldGMuKQpzZW0gcHJlY2lzYXIgZmF6ZXIgdXBsb2FkIHBlbG8gYXBsaWNhdGl2by4K'\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 31 near \"\"documentoslideres\" (",
+    "  \"titulo\",",
+    "  \"descricao\",",
+    "  \"arquivo_url\",",
+    "  \"nome_arquivo\",",
+    "  \"tamanho_arquivo\",",
+    "  \"tipo\",",
+    "  \"ativo\",",
+    "  \"arquivo_base64\"",
+    ") VALUES (",
+    "  'Documento de Teste',",
+    "  'Este é um documento de teste inserido diretamente no banco de dados',",
+    "  'data:text/plain;base64,RXN0ZSDDqSB1bSBhcnF1aXZvIGRlIHRlc3RlIHBhcmEgZGVtb25zdHJhciBjb21vIGluc2VyaXIgZG9jdW1lbnR"
+  ]
+}

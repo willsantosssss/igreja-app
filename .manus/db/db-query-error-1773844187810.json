@@ -1,0 +1,18 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS \"documentoslideres\" (\n  \"id\" serial PRIMARY KEY NOT NULL,\n  \"titulo\" varchar(255) NOT NULL,\n  \"descricao\" text,\n  \"arquivo_url\" varchar(2048) NOT NULL,\n  \"nome_arquivo\" varchar(255) NOT NULL,\n  \"tamanho_arquivo\" integer DEFAULT 0 NOT NULL,\n  \"tipo\" varchar(50) NOT NULL,\n  \"ativo\" integer DEFAULT 1 NOT NULL,\n  \"arquivo_base64\" text,\n  \"created_at\" timestamp DEFAULT now() NOT NULL,\n  \"updated_at\" timestamp DEFAULT now() NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute CREATE TABLE IF NOT EXISTS \"documentoslideres\" (\n  \"id\" serial PRIMARY KEY NOT NULL,\n  \"titulo\" varchar(255) NOT NULL,\n  \"descricao\" text,\n  \"arquivo_url\" varchar(2048) NOT NULL,\n  \"nome_arquivo\" varchar(255) NOT NULL,\n  \"tamanho_arquivo\" integer DEFAULT 0 NOT NULL,\n  \"tipo\" varchar(50) NOT NULL,\n  \"ativo\" integer DEFAULT 1 NOT NULL,\n  \"arquivo_base64\" text,\n  \"created_at\" timestamp DEFAULT now() NOT NULL,\n  \"updated_at\" timestamp DEFAULT now() NOT NULL\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 46 near \"\"documentoslideres\" (",
+    "  \"id\" serial PRIMARY KEY NOT NULL,",
+    "  \"titulo\" varchar(255) NOT NULL,",
+    "  \"descricao\" text,",
+    "  \"arquivo_url\" varchar(2048) NOT NULL,",
+    "  \"nome_arquivo\" varchar(255) NOT NULL,",
+    "  \"tamanho_arquivo\" integer DEFAULT 0 NOT NULL,",
+    "  \"tipo\" varchar(50) NOT NULL,",
+    "  \"ativo\" integer DEFAULT 1 NOT NULL,",
+    "  \"arquivo_base64\" text,",
+    "  \"created_at\" timestamp DEFAULT"
+  ]
+}
