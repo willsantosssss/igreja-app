@@ -921,3 +921,14 @@
 - [x] Corrigir funções faltando no backend (getPedidoOracaoById, updatePedidoOracao, getAnotacoesDevocionalByUserId)
 - [x] Fazer novo deploy no Railway
 - [x] Obter URL permanente e atualizar app.config.ts
+
+## Correção do Fluxo de Autenticação do Líder
+- [x] Investigar estrutura de múltiplos líderes por célula
+- [x] Implementar seleção de célula → seleção de líder → entrada de senha
+- [x] Adicionar estado liderSelecionadoId para rastrear líder selecionado
+- [x] Criar lista de células únicas (sem duplicatas)
+- [x] Adicionar seletor de líderes que aparece após selecionar célula
+- [x] Permitir que cada líder tenha sua própria senha
+- [x] Limpar senha ao trocar de célula ou líder
+- [x] Criar testes unitários para validar fluxo de autenticação (9 testes)
+- [x] Todos os testes passando com sucesso

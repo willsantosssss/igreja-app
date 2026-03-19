@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, passwordHash FROM users LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, name, passwordHash FROM users LIMIT 5",
+  "rows": [
+    {
+      "id": "30598",
+      "name": "Igreja",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    },
+    {
+      "id": "90002",
+      "name": "Guilherme Caio",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    },
+    {
+      "id": "90003",
+      "name": "Fernanda Borges",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    },
+    {
+      "id": "180001",
+      "name": "WilllliR",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    },
+    {
+      "id": "210001",
+      "name": "williR",
+      "passwordHash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tpasswordHash\n30598\tIgreja\t8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\n90002\tGuilherme Caio\t8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\n90003\tFernanda Borges\t8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\n180001\tWilllliR\t8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\n210001\twilliR\t8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\n",
+  "stderr": "",
+  "execution_time_ms": 214
+}

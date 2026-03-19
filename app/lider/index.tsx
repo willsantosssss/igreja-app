@@ -25,6 +25,7 @@ export default function LiderScreen() {
   const [lider, setLider] = useState<LiderCelula | null>(null);
   const [senhaInput, setSenhaInput] = useState('');
   const [celulaInput, setCelulaInput] = useState('');
+  const [liderSelecionadoId, setLiderSelecionadoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [autenticando, setAutenticando] = useState(false);
   const [stats, setStats] = useState({
@@ -126,9 +127,21 @@ export default function LiderScreen() {
     });
   };
 
+  // Obter lista única de células
+  const celulasUnicas = Array.from(new Set(lideresDB.map((l: any) => l.celula))).sort();
+
+  // Obter líderes da célula selecionada
+  const lideresDaCelula = celulaInput
+    ? lideresDB.filter((l: any) => l.celula === celulaInput)
+    : [];
+
   const handleLogin = async () => {
     if (!celulaInput.trim()) {
       Alert.alert('Atenção', 'Selecione uma célula.');
+      return;
+    }
+    if (liderSelecionadoId === null) {
+      Alert.alert('Atenção', 'Selecione seu nome.');
       return;
     }
     if (!senhaInput.trim()) {
@@ -138,11 +151,11 @@ export default function LiderScreen() {
 
     setAutenticando(true);
     try {
-      // Buscar líder do banco pela célula
-      const liderBanco = lideresDB.find((l: any) => l.celula === celulaInput);
+      // Buscar líder específico do banco
+      const liderBanco = lideresDB.find((l: any) => l.id === liderSelecionadoId);
       
       if (!liderBanco) {
-        Alert.alert('Erro', 'Célula não encontrada. Verifique e tente novamente.');
+        Alert.alert('Erro', 'Líder não encontrado. Verifique e tente novamente.');
         setAutenticando(false);
         return;
       }
@@ -179,6 +192,7 @@ export default function LiderScreen() {
       await carregarEstatisticas(resultado.celula);
       setSenhaInput('');
       setCelulaInput('');
+      setLiderSelecionadoId(null);
 
       if (Platform.OS !== 'web') {
         const config = await obterConfigLembrete();
@@ -207,6 +221,7 @@ export default function LiderScreen() {
           setLider(null);
           setSenhaInput('');
           setCelulaInput('');
+          setLiderSelecionadoId(null);
           setLembreteAtivo(false);
         },
       },
@@ -267,34 +282,86 @@ export default function LiderScreen() {
                 }}
               >
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {lideresDB.map((l: any) => (
+                  {celulasUnicas.map((celula: string) => (
                     <TouchableOpacity
-                      key={l.id}
-                      onPress={() => setCelulaInput(l.celula)}
+                      key={celula}
+                      onPress={() => {
+                        setCelulaInput(celula);
+                        setLiderSelecionadoId(null); // Resetar seleção de líder
+                        setSenhaInput(''); // Limpar senha
+                      }}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 8,
                         marginRight: 8,
                         borderRadius: 8,
-                        backgroundColor: celulaInput === l.celula ? colors.primary : colors.surface,
+                        backgroundColor: celulaInput === celula ? colors.primary : colors.surface,
                         borderWidth: 1,
-                        borderColor: celulaInput === l.celula ? colors.primary : colors.border,
+                        borderColor: celulaInput === celula ? colors.primary : colors.border,
                       }}
                     >
                       <Text
                         style={{
-                          color: celulaInput === l.celula ? '#fff' : colors.foreground,
+                          color: celulaInput === celula ? '#fff' : colors.foreground,
                           fontSize: 12,
                           fontWeight: '600',
                         }}
                       >
-                        {l.celula}
+                        {celula}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
             </View>
+
+            {/* Seletor de Líder (aparece após selecionar célula) */}
+            {celulaInput && lideresDaCelula.length > 0 && (
+              <View>
+                <Text className="text-foreground font-semibold mb-2">Seu Nome *</Text>
+                <View
+                  style={{
+                    backgroundColor: colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 12,
+                    paddingHorizontal: 14,
+                    paddingVertical: 12,
+                  }}
+                >
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {lideresDaCelula.map((l: any) => (
+                      <TouchableOpacity
+                        key={l.id}
+                        onPress={() => {
+                          setLiderSelecionadoId(l.id);
+                          setSenhaInput(''); // Limpar senha ao trocar líder
+                        }}
+                        style={{
+                          paddingHorizontal: 12,
+                          paddingVertical: 8,
+                          marginRight: 8,
+                          borderRadius: 8,
+                          backgroundColor: liderSelecionadoId === l.id ? colors.primary : colors.surface,
+                          borderWidth: 1,
+                          borderColor: liderSelecionadoId === l.id ? colors.primary : colors.border,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: liderSelecionadoId === l.id ? '#fff' : colors.foreground,
+                            fontSize: 12,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {l.nome}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            )}
 
             {/* Senha */}
             <View>
@@ -322,9 +389,9 @@ export default function LiderScreen() {
             {/* Botão Login */}
             <TouchableOpacity
               onPress={handleLogin}
-              disabled={autenticando || !celulaInput}
+              disabled={autenticando || !celulaInput || liderSelecionadoId === null}
               style={{
-                backgroundColor: autenticando || !celulaInput ? colors.muted : colors.primary,
+                backgroundColor: autenticando || !celulaInput || liderSelecionadoId === null ? colors.muted : colors.primary,
                 borderRadius: 24,
                 padding: 14,
                 alignItems: 'center',
@@ -350,8 +417,7 @@ export default function LiderScreen() {
               Como obter acesso?
             </Text>
             <Text className="text-xs text-muted leading-relaxed">
-              Cada líder de célula possui uma senha exclusiva criada pelo administrador da igreja.
-              Se você é líder e ainda não tem acesso, entre em contato com a liderança.
+              Cada líder de célula possui uma senha exclusiva criada pelo administrador da igreja. Se você é líder e ainda não tem acesso, entre em contato com a liderança.
             </Text>
           </View>
         </ScrollView>
@@ -359,193 +425,176 @@ export default function LiderScreen() {
     );
   }
 
-  // Dashboard do Líder
-  const meses = [
-    '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-  ];
-  const mesAtual = meses[new Date().getMonth() + 1];
-
+  // Tela do Dashboard do Líder (quando logado)
   return (
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 100 }}>
-        {/* Header */}
+        {/* Header com Logout */}
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-2xl font-bold text-foreground">Olá, {lider.nome}!</Text>
-            <Text className="text-sm text-muted">Líder da célula "{lider.celula}"</Text>
+            <Text className="text-3xl font-bold text-foreground">Bem-vindo, {lider.nome}</Text>
+            <Text className="text-base text-muted mt-1">{lider.celula}</Text>
           </View>
-          <BackButton />
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={{
+              backgroundColor: colors.error + '20',
+              width: 44, height: 44, borderRadius: 22,
+              alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <IconSymbol name="power" size={20} color={colors.error} />
+          </TouchableOpacity>
         </View>
 
-        {/* Estatísticas */}
-        <View className="flex-row gap-2">
+        {/* Cards de Estatísticas */}
+        <View className="gap-3">
+          <View className="flex-row gap-3">
+            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
+              <Text className="text-xs text-muted mb-1">Membros</Text>
+              <Text className="text-2xl font-bold text-foreground">{stats.totalMembros}</Text>
+            </View>
+            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
+              <Text className="text-xs text-muted mb-1">Aniversariantes</Text>
+              <Text className="text-2xl font-bold text-foreground">{stats.aniversariantesMes}</Text>
+            </View>
+          </View>
+          <View className="flex-row gap-3">
+            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
+              <Text className="text-xs text-muted mb-1">Inscritos</Text>
+              <Text className="text-2xl font-bold text-foreground">{stats.inscritosEventos}</Text>
+            </View>
+            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
+              <Text className="text-xs text-muted mb-1">Relatórios</Text>
+              <Text className="text-2xl font-bold text-foreground">{stats.totalRelatorios}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Menu de Ações */}
+        <View className="gap-3 mt-4">
           <TouchableOpacity
             onPress={() => router.push('/lider/membros-view')}
-            className="flex-1 rounded-2xl p-4 items-center"
             style={{
-              backgroundColor: colors.primary + '10',
+              backgroundColor: colors.surface,
               borderWidth: 1,
-              borderColor: colors.primary + '20',
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            <Text style={{ color: colors.primary, fontSize: 28, fontWeight: '800' }}>
-              {stats.totalMembros}
-            </Text>
-            <Text className="text-xs text-muted text-center">Membros</Text>
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="person.2" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">Membros</Text>
+                <Text className="text-xs text-muted">Ver lista de membros</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => router.push('/lider/aniversariantes-view')}
-            className="flex-1 rounded-2xl p-4 items-center"
             style={{
-              backgroundColor: colors.warning + '10',
+              backgroundColor: colors.surface,
               borderWidth: 1,
-              borderColor: colors.warning + '20',
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            <Text style={{ color: colors.warning, fontSize: 28, fontWeight: '800' }}>
-              {stats.aniversariantesMes}
-            </Text>
-            <Text className="text-xs text-muted text-center">Anivers. {mesAtual}</Text>
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="birthday.cake" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">Aniversariantes</Text>
+                <Text className="text-xs text-muted">Aniversários do mês</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => router.push('/lider/eventos-view')}
-            className="flex-1 rounded-2xl p-4 items-center"
             style={{
-              backgroundColor: colors.success + '10',
+              backgroundColor: colors.surface,
               borderWidth: 1,
-              borderColor: colors.success + '20',
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            <Text style={{ color: colors.success, fontSize: 28, fontWeight: '800' }}>
-              {stats.inscritosEventos}
-            </Text>
-            <Text className="text-xs text-muted text-center">Eventos</Text>
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="calendar" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">Eventos</Text>
+                <Text className="text-xs text-muted">Inscrições em eventos</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
-        </View>
 
-        {/* Ações Principais */}
-        <View className="gap-3">
-          <Text className="text-sm font-semibold text-muted uppercase">Ações</Text>
           <TouchableOpacity
             onPress={() => router.push('/lider/relatorio')}
             style={{
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.border,
-              borderRadius: 16,
+              borderRadius: 12,
               padding: 16,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 12,
+              justifyContent: 'space-between',
             }}
           >
-            <View
-              style={{
-                backgroundColor: colors.primary + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="paperplane.fill" size={24} color={colors.primary} />
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="doc.text" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">Relatórios</Text>
+                <Text className="text-xs text-muted">Relatórios da célula</Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Novo Relatório</Text>
-              <Text className="text-xs text-muted">Registre os dados da célula</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/lider/historico')}
-            style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.success + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="doc.text.fill" size={24} color={colors.success} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Histórico</Text>
-              <Text className="text-xs text-muted">Veja relatórios anteriores</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/lider/anexos')}
-            style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.warning + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="paperclip" size={24} color={colors.warning} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Anexos</Text>
-              <Text className="text-xs text-muted">Baixe documentos e materiais</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/lider/escola-crescimento-view')}
-            style={{
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: colors.primary + '20',
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <IconSymbol name="book.fill" size={24} color={colors.primary} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-foreground font-semibold">Escola de Crescimento</Text>
-              <Text className="text-xs text-muted">Ver inscritos dos cursos</Text>
-            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
         </View>
       </ScrollView>
