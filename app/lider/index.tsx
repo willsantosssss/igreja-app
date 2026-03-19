@@ -75,6 +75,9 @@ export default function LiderScreen() {
     }
   );
 
+  // Mutation para atualizar líder (senha)
+  const atualizarLiderMutation = trpc.lideres.update.useMutation();
+
   useEffect(() => {
     verificarSessao();
   }, []);
@@ -285,7 +288,7 @@ export default function LiderScreen() {
       const liderId = parseInt(lider!.id);
       
       // Chamar endpoint tRPC para atualizar a senha no banco de dados
-      await trpc.lideres.update.mutate({
+      await atualizarLiderMutation.mutateAsync({
         id: liderId,
         data: {
           telefone: novaSenha, // A senha é armazenada no campo telefone
