@@ -42,11 +42,10 @@ export default function AdminInscricoesEventosScreen() {
     }
   }, [inscricoesDB]);
 
-  // Sincronizar eventos especiais
+  // Sincronizar eventos especiais - usar TODOS os eventos para filtro
   useEffect(() => {
     if (eventosDB && eventosDB.length > 0) {
-      const eventosEspeciais = eventosDB.filter((e: any) => e.tipo === 'evento-especial' || e.tipo === 'retiro' || e.tipo === 'conferencia');
-      setEventosEspeciais(eventosEspeciais.map((e: any) => ({
+      setEventosEspeciais(eventosDB.map((e: any) => ({
         id: e.id?.toString() || '',
         title: e.titulo || '',
         description: e.descricao || '',
