@@ -958,3 +958,12 @@
 - [x] Criar tela de histórico de relatórios
 - [x] Implementar listagem de relatórios ordenados por data (mais recentes primeiro)
 - [x] Adicionar botão de voltar na tela de relatórios
+
+
+## Cadastro de Novo Relatório no Painel do Líder
+
+- [x] Analisar estrutura do formulário de relatório existente
+- [x] Criar modal/tela para novo relatório
+- [x] Implementar integração com banco de dados
+- [x] Adicionar botão de novo relatório no painel
+- [x] Testar e validar

@@ -622,6 +622,37 @@ export default function LiderScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            onPress={() => router.push('/lider/relatorio')}
+            style={{
+              backgroundColor: colors.primary + '10',
+              borderWidth: 2,
+              borderColor: colors.primary,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '30',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="doc.badge.plus" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-primary">Novo Relatório</Text>
+                <Text className="text-xs text-muted">Registrar relatório da célula</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.primary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => router.push('/lider/historico')}
             style={{
               backgroundColor: colors.surface,
@@ -645,8 +676,8 @@ export default function LiderScreen() {
                 <IconSymbol name="doc.text" size={20} color={colors.primary} />
               </View>
               <View className="flex-1">
-                <Text className="text-base font-semibold text-foreground">Relatórios</Text>
-                <Text className="text-xs text-muted">Histórico de relatórios</Text>
+                <Text className="text-base font-semibold text-foreground">Histórico</Text>
+                <Text className="text-xs text-muted">Ver relatórios anteriores</Text>
               </View>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
