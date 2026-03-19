@@ -195,7 +195,6 @@ export default function LiderScreen() {
 
       await salvarSessaoLider(resultado);
       setLider(resultado);
-      await carregarEstatisticas(resultado.celula);
       setSenhaInput('');
       setCelulaInput('');
       setLiderSelecionadoId(null);
