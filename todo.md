@@ -967,3 +967,12 @@
 - [x] Implementar integração com banco de dados
 - [x] Adicionar botão de novo relatório no painel
 - [x] Testar e validar
+
+
+## Correção de Armazenamento de Senha do Líder
+
+- [x] Verificar schema do banco de dados para campo de senha
+- [x] Adicionar coluna de senha na tabela lideres
+- [x] Atualizar endpoint tRPC para salvar senha corretamente
+- [x] Atualizar modal de mudar senha para chamar endpoint correto
+- [x] Testar e validar

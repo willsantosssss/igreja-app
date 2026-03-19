@@ -281,14 +281,26 @@ export default function LiderScreen() {
         return;
       }
 
-      // Aqui você precisaria de um endpoint tRPC para atualizar a senha
-      // Por enquanto, vamos simular atualizando a sessão local
+      // Atualizar senha no banco de dados via tRPC
+      const liderId = parseInt(lider!.id);
+      
+      // Chamar endpoint tRPC para atualizar a senha no banco de dados
+      await trpc.lideres.update.mutate({
+        id: liderId,
+        data: {
+          telefone: novaSenha, // A senha é armazenada no campo telefone
+        },
+      });
+
+      // Atualizar sessão local com a nova senha
       const liderAtualizado: LiderCelula = {
         ...lider,
         senha: novaSenha,
       };
       await salvarSessaoLider(liderAtualizado);
       setLider(liderAtualizado);
+      
+      console.log('[MudarSenha] Senha atualizada com sucesso no banco de dados');
 
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
