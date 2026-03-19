@@ -61,7 +61,8 @@ export default function AdminInscricoesEventosScreen() {
   const inscricoesFiltradas = useMemo(() => {
     let resultado = inscricoes;
     if (filtroEvento !== 'todos') {
-      resultado = resultado.filter(i => i.eventoId === filtroEvento);
+      const eventoIdNum = parseInt(filtroEvento, 10);
+      resultado = resultado.filter(i => i.eventoId === eventoIdNum);
     }
     if (filtroCelula !== 'todas') {
       resultado = resultado.filter(i => i.celula === filtroCelula);
