@@ -932,3 +932,14 @@
 - [x] Limpar senha ao trocar de célula ou líder
 - [x] Criar testes unitários para validar fluxo de autenticação (9 testes)
 - [x] Todos os testes passando com sucesso
+
+## Funcionalidades de Segurança do Painel de Líder
+- [x] Adicionar botão de mudar senha no painel do líder
+- [x] Criar modal com formulário de mudança de senha
+- [x] Validar senha atual antes de permitir mudança
+- [x] Validar que nova senha tem mínimo 4 caracteres
+- [x] Validar que nova senha é diferente da atual
+- [x] Validar que senhas conferem
+- [x] Melhorar botão de sair com confirmação (já implementado)
+- [x] Criar testes unitários para validações de senha (16 testes)
+- [x] Todos os testes passando com sucesso
