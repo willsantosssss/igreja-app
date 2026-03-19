@@ -976,3 +976,12 @@
 - [x] Atualizar endpoint tRPC para salvar senha corretamente
 - [x] Atualizar modal de mudar senha para chamar endpoint correto
 - [x] Testar e validar
+
+
+## Correção de Anexos no Novo Banco de Dados
+
+- [x] Investigar erro de anexosLideres não definido
+- [x] Verificar schema e rotas tRPC para anexos
+- [x] Implementar ou corrigir endpoint de anexos
+- [x] Atualizar componente de anexos
+- [x] Testar e validar
