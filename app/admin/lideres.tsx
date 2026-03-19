@@ -87,10 +87,10 @@ export default function AdminLideresScreen() {
       return;
     }
 
-    // Verificar se já existe líder para essa célula
-    const existente = lideresDB.find((l: any) => l.celula === novaCelula);
-    if (existente) {
-      Alert.alert('Atenção', `Já existe um líder cadastrado para a célula "${novaCelula}". Remova-o primeiro se deseja substituir.`);
+    // Verificar se já existem 2 líderes para essa célula
+    const lideresNaCelula = lideresDB.filter((l: any) => l.celula === novaCelula);
+    if (lideresNaCelula.length >= 2) {
+      Alert.alert('Atenção', `A célula "${novaCelula}" já possui 2 líderes. Remova um deles se deseja adicionar outro.`);
       return;
     }
 
