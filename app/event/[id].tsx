@@ -5,7 +5,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { categoryLabels, categoryColors, type Event } from "@/lib/data/events";
 import { eventoPermiteInscricao, criarInscricao, verificarInscricao } from "@/lib/data/inscricoes-eventos";
 import * as Haptics from "expo-haptics";
-import { Platform, FlatList, ScrollView, View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import { Platform, FlatList, ScrollView, View, Text, TouchableOpacity, TextInput, Alert, Linking } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCelulas, type Celula } from "@/lib/data/celulas";
@@ -168,11 +168,37 @@ export default function EventDetailScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    Alert.alert(
-      "Compartilhar",
-      `Compartilhar "${event.title}" com amigos`,
-      [{ text: "OK" }]
-    );
+
+    // Formatar mensagem para WhatsApp
+    const mensagem = `🎉 *${event.title}*\n\n📅 *Data:* ${formatDate(event.date)}\n🕐 *Horário:* ${event.time}\n📍 *Local:* ${event.location}\n\n${event.description}\n\n👉 Inscreva-se no nosso app!`;
+
+    // Codificar mensagem para URL
+    const mensagemCodificada = encodeURIComponent(mensagem);
+
+    // URL do WhatsApp
+    const whatsappUrl = `https://wa.me/?text=${mensagemCodificada}`;
+
+    // Tentar abrir WhatsApp
+    Linking.canOpenURL(whatsappUrl)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(whatsappUrl);
+        } else {
+          // Se WhatsApp não estiver instalado, mostrar alerta
+          Alert.alert(
+            "WhatsApp não instalado",
+            "Instale o WhatsApp para compartilhar este evento.",
+            [{ text: "OK" }]
+          );
+        }
+      })
+      .catch(() => {
+        Alert.alert(
+          "Erro",
+          "Não foi possível abrir o WhatsApp. Tente novamente.",
+          [{ text: "OK" }]
+        );
+      });
   };
 
   return (
