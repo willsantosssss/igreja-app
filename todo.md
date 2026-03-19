@@ -943,3 +943,10 @@
 - [x] Melhorar botão de sair com confirmação (já implementado)
 - [x] Criar testes unitários para validações de senha (16 testes)
 - [x] Todos os testes passando com sucesso
+
+## Correção de Erro no Painel do Líder
+- [x] Diagnosticar erro "Maximum update depth exceeded"
+- [x] Refatorar usando useMemo para calcular stats
+- [x] Separar lógica em dois useEffect (cálculo + atualização)
+- [x] Remover função duplicada carregarEstatisticas
+- [x] Validar que erro foi corrigido

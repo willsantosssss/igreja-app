@@ -79,27 +79,20 @@ export default function LiderScreen() {
     verificarSessao();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (lider && membrosDB.length > 0) {
-        carregarEstatisticas(lider.celula);
-      }
-    }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB])
-  );
-
-  const verificarSessao = async () => {
-    const sessao = await obterSessaoLider();
-    if (sessao) {
-      setLider(sessao);
-      await carregarEstatisticas(sessao.celula);
-      const status = await verificarLembreteAgendado();
-      setLembreteAtivo(status);
+  // Usar useMemo para evitar recalcular stats desnecessariamente
+  const statsCalculadas = useMemo(() => {
+    if (!lider || membrosDB.length === 0) {
+      return {
+        totalMembros: 0,
+        aniversariantesMes: 0,
+        inscritosEventos: 0,
+        totalRelatorios: 0,
+        mediaPresenca: 0,
+        mediaVisitantes: 0,
+      };
     }
-    setCarregando(false);
-  };
 
-  const carregarEstatisticas = async (celulaNome: string) => {
-    const membrosDaCelula = membrosDB.filter((m: any) => m.celula === celulaNome);
+    const membrosDaCelula = membrosDB.filter((m: any) => m.celula === lider.celula);
     const mesAtual = new Date().getMonth() + 1;
     const aniversariantes = membrosDaCelula.filter((m: any) => {
       if (!m.dataNascimento) return false;
@@ -107,10 +100,8 @@ export default function LiderScreen() {
       return dataNasc.getMonth() + 1 === mesAtual;
     });
 
-    // Contar inscrições em eventos da célula
-    const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === celulaNome);
+    const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === lider.celula);
 
-    // Calcular médias de relatórios
     let mediaPresenca = 0;
     let mediaVisitantes = 0;
     if (relatoriosDB.length > 0) {
@@ -122,14 +113,29 @@ export default function LiderScreen() {
       );
     }
 
-    setStats({
+    return {
       totalMembros: membrosDaCelula.length,
       aniversariantesMes: aniversariantes.length,
       inscritosEventos: inscricoesEventosDaCelula.length,
       totalRelatorios: relatoriosDB.length,
       mediaPresenca,
       mediaVisitantes,
-    });
+    };
+  }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB]);
+
+  // Atualizar stats quando statsCalculadas mudar
+  useEffect(() => {
+    setStats(statsCalculadas);
+  }, [statsCalculadas]);
+
+  const verificarSessao = async () => {
+    const sessao = await obterSessaoLider();
+    if (sessao) {
+      setLider(sessao);
+      const status = await verificarLembreteAgendado();
+      setLembreteAtivo(status);
+    }
+    setCarregando(false);
   };
 
   // Obter lista única de células
