@@ -985,3 +985,12 @@
 - [x] Implementar ou corrigir endpoint de anexos
 - [x] Atualizar componente de anexos
 - [x] Testar e validar
+
+
+## Botão de Acesso a Anexos no Painel do Líder
+
+- [x] Criar tela de visualização de anexos
+- [x] Implementar listagem de anexos do banco de dados
+- [x] Adicionar funcionalidade de download
+- [x] Adicionar botão "Anexos" no painel do líder
+- [x] Testar e validar
