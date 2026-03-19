@@ -950,3 +950,11 @@
 - [x] Separar lógica em dois useEffect (cálculo + atualização)
 - [x] Remover função duplicada carregarEstatisticas
 - [x] Validar que erro foi corrigido
+
+
+## Melhorias no Painel do Líder
+
+- [x] Remover quadrados de stats (Membros, Aniversários, Inscritos, Relatórios)
+- [x] Criar tela de histórico de relatórios
+- [x] Implementar listagem de relatórios ordenados por data (mais recentes primeiro)
+- [x] Adicionar botão de voltar na tela de relatórios

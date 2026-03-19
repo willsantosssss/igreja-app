@@ -526,31 +526,6 @@ export default function LiderScreen() {
           </TouchableOpacity>
         </View>
 
-          {/* Cards de Estatísticas */}
-        <View className="gap-3">
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
-              <Text className="text-xs text-muted mb-1">Membros</Text>
-              <Text className="text-2xl font-bold text-foreground">{statsCalculadas.totalMembros}</Text>
-            </View>
-            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
-              <Text className="text-xs text-muted mb-1">Aniversários</Text>
-              <Text className="text-2xl font-bold text-foreground">{statsCalculadas.aniversariantesMes}</Text>
-            </View>
-          </View>
-
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
-              <Text className="text-xs text-muted mb-1">Inscritos</Text>
-              <Text className="text-2xl font-bold text-foreground">{statsCalculadas.inscritosEventos}</Text>
-            </View>
-            <View className="flex-1 bg-surface rounded-xl p-4 border border-border">
-              <Text className="text-xs text-muted mb-1">Relatórios</Text>
-              <Text className="text-2xl font-bold text-foreground">{statsCalculadas.totalRelatorios}</Text>
-            </View>
-          </View>
-        </View>
-
         {/* Menu de Ações */}
         <View className="gap-3 mt-4">
           <TouchableOpacity
@@ -647,7 +622,7 @@ export default function LiderScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.push('/lider/relatorio')}
+            onPress={() => router.push('/lider/historico')}
             style={{
               backgroundColor: colors.surface,
               borderWidth: 1,
@@ -671,7 +646,7 @@ export default function LiderScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-base font-semibold text-foreground">Relatórios</Text>
-                <Text className="text-xs text-muted">Relatórios da célula</Text>
+                <Text className="text-xs text-muted">Histórico de relatórios</Text>
               </View>
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
