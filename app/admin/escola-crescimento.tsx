@@ -1,11 +1,12 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, FlatList, TextInput } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { trpc } from '@/lib/trpc';
 import { useState, useCallback, useMemo } from 'react';
-import { Share } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import * as Haptics from 'expo-haptics';
 
 const CURSOS = ["Conecte", "Lidere 1", "Lidere 2", "Avance"] as const;
@@ -30,12 +31,22 @@ const exportarParaExcel = async (inscricoes: any[]) => {
 
     const dataAtual = new Date().toISOString().split('T')[0];
     const nomeArquivo = `escola_crescimento_${dataAtual}.csv`;
+    const caminhoArquivo = `${FileSystem.documentDirectory}${nomeArquivo}`;
 
-    await Share.share({
-      message: csv,
-      title: nomeArquivo,
-      url: `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`,
+    // Escrever arquivo no sistema de arquivos
+    await FileSystem.writeAsStringAsync(caminhoArquivo, csv, {
+      encoding: FileSystem.EncodingType.UTF8,
     });
+
+    // Compartilhar arquivo
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(caminhoArquivo, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Exportar Inscrições',
+      });
+    } else {
+      Alert.alert("Atenção", "Compartilhamento não disponível neste dispositivo");
+    }
 
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   } catch (error) {
