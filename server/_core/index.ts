@@ -31,18 +31,29 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // Enable CORS for all routes - reflect the request origin to support credentials
+  // CORS whitelist - only allow requests from authorized origins
+  // Update this list with your production domains
+  const ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8081",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8081",
+    "https://igrejaapp-clukbfbs.manus.space",
+  ];
+
+  // CORS middleware - check origin against whitelist
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin) {
+    
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
+      res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+      );
+      res.header("Access-Control-Allow-Credentials", "true");
     }
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    );
-    res.header("Access-Control-Allow-Credentials", "true");
 
     // Handle preflight requests
     if (req.method === "OPTIONS") {
@@ -52,19 +63,23 @@ async function startServer() {
     next();
   });
 
+  // Parse JSON and URL-encoded request bodies
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+  // Register OAuth routes
   registerOAuthRoutes(app);
 
-  // Servir arquivos estáticos da pasta uploads
+  // Serve static files from uploads folder
   const uploadsDir = path.join(process.cwd(), "uploads");
   app.use("/uploads", express.static(uploadsDir));
 
+  // Health check endpoint for monitoring
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
   });
 
+  // Register tRPC API endpoint
   app.use(
     "/api/trpc",
     createExpressMiddleware({
@@ -73,16 +88,22 @@ async function startServer() {
     }),
   );
 
+  // Find available port for server
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
 
-  if (port !== preferredPort) {
+  if (port !== preferredPort && process.env.NODE_ENV !== 'production') {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
   server.listen(port, () => {
-    console.log(`[api] server listening on port ${port}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[api] server listening on port ${port}`);
+    }
   });
 }
 
-startServer().catch(console.error);
+startServer().catch((err) => {
+  console.error('[Server Error]', err);
+  process.exit(1);
+});
