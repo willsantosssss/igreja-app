@@ -5,8 +5,44 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColors } from '@/hooks/use-colors';
 import { trpc } from '@/lib/trpc';
 import { useState, useCallback, useMemo } from 'react';
+import { Share } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 const CURSOS = ["Conecte", "Lidere 1", "Lidere 2", "Avance"] as const;
+
+const exportarParaExcel = async (inscricoes: any[]) => {
+  if (inscricoes.length === 0) {
+    Alert.alert("Atenção", "Nenhuma inscrição para exportar");
+    return;
+  }
+
+  try {
+    const BOM = '\uFEFF';
+    let csv = BOM + 'Nome;Curso;Célula;Data de Inscrição\n';
+
+    inscricoes.forEach(inscricao => {
+      const nome = (inscricao.nome || '').replace(/"/g, '""');
+      const curso = (inscricao.curso || '').replace(/"/g, '""');
+      const celula = (inscricao.celula || '').replace(/"/g, '""');
+      const data = new Date(inscricao.createdAt).toLocaleDateString('pt-BR');
+      csv += `"${nome}";"${curso}";"${celula}";"${data}"\n`;
+    });
+
+    const dataAtual = new Date().toISOString().split('T')[0];
+    const nomeArquivo = `escola_crescimento_${dataAtual}.csv`;
+
+    await Share.share({
+      message: csv,
+      title: nomeArquivo,
+      url: `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`,
+    });
+
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  } catch (error) {
+    console.error('Erro ao exportar:', error);
+    Alert.alert("Erro", "Não foi possível exportar os dados");
+  }
+};
 
 export default function AdminEscolaCrescimentoScreen() {
   const colors = useColors();
@@ -248,6 +284,16 @@ export default function AdminEscolaCrescimentoScreen() {
             </ScrollView>
           </View>
         </View>
+
+        {/* Botão de Exportar */}
+        {inscricoesFiltradas.length > 0 && (
+          <TouchableOpacity
+            className="bg-primary rounded-lg py-3 px-4 flex-row items-center justify-center gap-2"
+            onPress={() => exportarParaExcel(inscricoesFiltradas)}
+          >
+            <Text className="text-white font-semibold">📊 Exportar para Excel</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Lista de inscrições */}
         <View className="gap-3">
