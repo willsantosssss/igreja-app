@@ -1,4 +1,5 @@
 /**
+ * Logger centralizado para controlar console.logs em produção
  * 
  * Em desenvolvimento: todos os logs aparecem
  * Em produção: apenas erros aparecem
@@ -11,6 +12,7 @@ const isDev = process.env.NODE_ENV !== 'production';
  */
 export const logDebug = (tag: string, data?: any) => {
   if (isDev) {
+    console.log(`[${tag}]`, data);
   }
 };
 
@@ -19,6 +21,7 @@ export const logDebug = (tag: string, data?: any) => {
  */
 export const logInfo = (tag: string, msg: string) => {
   if (isDev) {
+    console.log(`[INFO ${tag}]`, msg);
   }
 };
 
