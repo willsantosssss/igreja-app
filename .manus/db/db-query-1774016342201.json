@@ -1,0 +1,28 @@
+{
+  "query": "SELECT \n  ie.id,\n  ie.nome,\n  ie.telefone,\n  e.titulo as eventoTitulo\nFROM inscricoesEventos ie\nINNER JOIN eventos e ON ie.eventoId = e.id\nORDER BY ie.createdAt DESC\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT \n  ie.id,\n  ie.nome,\n  ie.telefone,\n  e.titulo as eventoTitulo\nFROM inscricoesEventos ie\nINNER JOIN eventos e ON ie.eventoId = e.id\nORDER BY ie.createdAt DESC\nLIMIT 10;",
+  "rows": [
+    {
+      "id": "300005",
+      "nome": "teste testes",
+      "telefone": "+5566996357700",
+      "eventoTitulo": "Evento teste"
+    },
+    {
+      "id": "300004",
+      "nome": "Teste vb",
+      "telefone": "+5566996357700",
+      "eventoTitulo": "Evento teste"
+    },
+    {
+      "id": "300003",
+      "nome": "Novo teste",
+      "telefone": "+5566996357700",
+      "eventoTitulo": "Evento teste"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\ttelefone\teventoTitulo\n300005\tteste testes\t+5566996357700\tEvento teste\n300004\tTeste vb\t+5566996357700\tEvento teste\n300003\tNovo teste\t+5566996357700\tEvento teste\n",
+  "stderr": "",
+  "execution_time_ms": 104
+}

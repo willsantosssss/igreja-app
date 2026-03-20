@@ -1,0 +1,61 @@
+{
+  "query": "SELECT \n  ie.id,\n  ie.eventoId,\n  ie.userId,\n  ie.nome,\n  ie.telefone,\n  ie.celula,\n  ie.status,\n  ie.createdAt,\n  ie.updatedAt,\n  COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,\n  ie.dataPagamento,\n  ie.observacoes,\n  e.titulo as eventoTitulo,\n  e.data as eventoData,\n  e.tipo as eventoTipo\nFROM inscricoesEventos ie\nINNER JOIN eventos e ON ie.eventoId = e.id\nORDER BY ie.createdAt DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT \n  ie.id,\n  ie.eventoId,\n  ie.userId,\n  ie.nome,\n  ie.telefone,\n  ie.celula,\n  ie.status,\n  ie.createdAt,\n  ie.updatedAt,\n  COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,\n  ie.dataPagamento,\n  ie.observacoes,\n  e.titulo as eventoTitulo,\n  e.data as eventoData,\n  e.tipo as eventoTipo\nFROM inscricoesEventos ie\nINNER JOIN eventos e ON ie.eventoId = e.id\nORDER BY ie.createdAt DESC;",
+  "rows": [
+    {
+      "id": "300005",
+      "eventoId": "240001",
+      "userId": "30598",
+      "nome": "teste testes",
+      "telefone": "+5566996357700",
+      "celula": "Pr. Will e Pra. Fernanda",
+      "status": "confirmado",
+      "createdAt": "2026-03-20 13:41:06",
+      "updatedAt": "2026-03-20 14:07:52",
+      "statusPagamento": "nao-pago",
+      "dataPagamento": "NULL",
+      "observacoes": "NULL",
+      "eventoTitulo": "Evento teste",
+      "eventoData": "2026-03-22T00:00:00",
+      "eventoTipo": "evento-especial"
+    },
+    {
+      "id": "300004",
+      "eventoId": "240001",
+      "userId": "30598",
+      "nome": "Teste vb",
+      "telefone": "+5566996357700",
+      "celula": "Pr. Will e Pra. Fernanda",
+      "status": "confirmado",
+      "createdAt": "2026-03-20 13:18:08",
+      "updatedAt": "2026-03-20 13:18:08",
+      "statusPagamento": "nao-pago",
+      "dataPagamento": "NULL",
+      "observacoes": "NULL",
+      "eventoTitulo": "Evento teste",
+      "eventoData": "2026-03-22T00:00:00",
+      "eventoTipo": "evento-especial"
+    },
+    {
+      "id": "300003",
+      "eventoId": "240001",
+      "userId": "30598",
+      "nome": "Novo teste",
+      "telefone": "+5566996357700",
+      "celula": "Pr. Will e Pra. Fernanda",
+      "status": "confirmado",
+      "createdAt": "2026-03-20 13:00:12",
+      "updatedAt": "2026-03-20 13:00:12",
+      "statusPagamento": "nao-pago",
+      "dataPagamento": "NULL",
+      "observacoes": "NULL",
+      "eventoTitulo": "Evento teste",
+      "eventoData": "2026-03-22T00:00:00",
+      "eventoTipo": "evento-especial"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\teventoId\tuserId\tnome\ttelefone\tcelula\tstatus\tcreatedAt\tupdatedAt\tstatusPagamento\tdataPagamento\tobservacoes\teventoTitulo\teventoData\teventoTipo\n300005\t240001\t30598\tteste testes\t+5566996357700\tPr. Will e Pra. Fernanda\tconfirmado\t2026-03-20 13:41:06\t2026-03-20 14:07:52\tnao-pago\tNULL\tNULL\tEvento teste\t2026-03-22T00:00:00\tevento-especial\n300004\t240001\t30598\tTeste vb\t+5566996357700\tPr. Will e Pra. Fernanda\tconfirmado\t2026-03-20 13:18:08\t2026-03-20 13:18:08\tnao-pago\tNULL\tNULL\tEvento teste\t2026-03-22T00:00:00\tevento-especial\n300003\t240001\t30598\tNovo teste\t+5566996357700\tPr. Will e Pra. Fernanda\tconfirmado\t2026-03-20 13:00:12\t2026-03-20 13:00:12\tnao-pago\tNULL\tNULL\tEvento teste\t2026-03-22T00:00:00\tevento-especial\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
