@@ -1010,31 +1010,46 @@ export async function getInscricoesEventosPagas() {
       SELECT 
         ie.id,
         ie.eventoId,
+        ie.userId,
         ie.nome,
-        ie.email,
         ie.telefone,
         ie.celula,
         ie.status,
         ie.createdAt,
         ie.updatedAt,
         e.titulo as eventoTitulo,
-        e.data as eventoData
+        e.data as eventoData,
+        e.tipo as eventoTipo
       FROM inscricoesEventos ie
-      LEFT JOIN eventos e ON ie.eventoId = e.id
-      WHERE e.tipo IN ('evento-especial', 'special')
+      INNER JOIN eventos e ON ie.eventoId = e.id
       ORDER BY ie.createdAt DESC
     `);
     connection.release();
     
-    console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições`);
+    console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições de eventos`);
+    (rows || []).forEach((row: any) => {
+      console.log(`  - ${row.nome} (${row.eventoTitulo})`);
+    });
     return (rows || []).map((row: any) => ({
-      ...row,
+      id: row.id,
+      eventoId: row.eventoId,
+      userId: row.userId,
+      nome: row.nome,
+      telefone: row.telefone,
+      celula: row.celula,
+      status: row.status,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      eventoTitulo: row.eventoTitulo,
+      eventoData: row.eventoData,
+      eventoTipo: row.eventoTipo,
       statusPagamento: 'nao-pago',
       dataPagamento: null,
       observacoes: null,
     }));
   } catch (error) {
     console.error('[getInscricoesEventosPagas] Error:', error);
+    console.error('[getInscricoesEventosPagas] Stack:', (error as any).stack);
     return [];
   }
 }
