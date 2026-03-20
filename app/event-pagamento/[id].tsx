@@ -46,10 +46,15 @@ export default function EventPagamentoScreen() {
     }
 
     try {
-      const { Clipboard } = await import("expo-clipboard");
-      await Clipboard.setStringAsync(pagamento.chavePix);
+      if (Platform.OS === "web") {
+        await navigator.clipboard.writeText(pagamento.chavePix);
+      } else {
+        const { Clipboard } = await import("expo-clipboard");
+        await Clipboard.setStringAsync(pagamento.chavePix);
+      }
       Alert.alert("Sucesso", "Chave PIX copiada para a área de transferência!");
     } catch (error) {
+      console.error("Erro ao copiar:", error);
       Alert.alert("Erro", "Não foi possível copiar a chave PIX.");
     }
   };
