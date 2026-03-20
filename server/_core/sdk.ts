@@ -187,15 +187,11 @@ class SDKServer {
     }
 
     try {
-      console.log("[Auth] verifySession: token received:", cookieValue ? `${cookieValue.substring(0, 50)}...` : "missing");
       const secretKey = this.getSessionSecret();
-      console.log("[Auth] verifySession: secret key length:", secretKey.byteLength);
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
-      console.log("[Auth] verifySession: payload:", payload);
       const { openId, appId, name } = payload as Record<string, unknown>;
-      console.log("[Auth] verifySession: extracted fields:", { openId, appId, name });
 
       if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
         console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
@@ -237,25 +233,17 @@ class SDKServer {
 
   async authenticateRequest(req: Request): Promise<User> {
     // Regular authentication flow
-    console.log("[Auth] authenticateRequest: request headers:", Object.keys(req.headers).join(", "));
     const authHeader = req.headers.authorization || req.headers.Authorization;
-    console.log("[Auth] authenticateRequest: Authorization header:", authHeader ? (typeof authHeader === 'string' ? authHeader.substring(0, 50) + "..." : "array") : "missing");
     let token: string | undefined;
     if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
       token = authHeader.slice("Bearer ".length).trim();
     }
-    console.log("[Auth] authenticateRequest: Bearer token extracted:", token ? `${token.substring(0, 50)}...` : "missing");
 
     const cookies = this.parseCookies(req.headers.cookie);
-    console.log("[Auth] authenticateRequest: cookies parsed from header:", cookies && cookies.size > 0 ? `${cookies.size} found` : "none");
     const sessionCookie = token || cookies.get(COOKIE_NAME);
-    console.log("[Auth] authenticateRequest: sessionCookie source:", token ? "Bearer token" : "from cookies");
-    console.log("[Auth] authenticateRequest: sessionCookie:", sessionCookie ? `${sessionCookie.substring(0, 50)}...` : "missing");
     const session = await this.verifySession(sessionCookie);
-    console.log("[Auth] authenticateRequest: verifySession completed, result:", session ? `valid (openId: ${session.openId})` : "invalid");
 
     if (!session) {
-      console.log("[Auth] authenticateRequest: session is null/undefined, throwing ForbiddenError");
       throw ForbiddenError("Invalid session cookie");
     }
 

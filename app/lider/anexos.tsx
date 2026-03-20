@@ -14,6 +14,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/use-colors";
+import { getApiBaseUrl } from "@/constants/oauth";
 
 interface Anexo {
   id: number;
@@ -50,12 +51,12 @@ export default function AnexosLiderScreen() {
       setDownloading(anexo.id);
 
       // Construir URL completa usando a API do servidor
-      const apiUrl = "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer";
+      const apiUrl = getApiBaseUrl();
       const fullUrl = anexo.arquivoUrl.startsWith("http")
         ? anexo.arquivoUrl
         : `${apiUrl}${anexo.arquivoUrl}`;
 
-      console.log("Tentando baixar de:", fullUrl);
+      // Log removido para produção
 
       // Baixar arquivo
       const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
@@ -63,7 +64,7 @@ export default function AnexosLiderScreen() {
 
       const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
 
-      console.log("Status do download:", downloadResult.status);
+      // Log removido para produção
 
       if (downloadResult.status === 200) {
         // Compartilhar arquivo para abrir/salvar

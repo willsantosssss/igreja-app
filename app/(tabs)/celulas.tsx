@@ -22,7 +22,7 @@ export default function CelulasScreen() {
 
   useEffect(() => {
     if (celulasData) {
-      setCelulas(celulasData.map((c: any) => ({
+      setCelulas((celulasData as any[]).map((c: any) => ({
         id: c.id.toString(),
         name: c.nome,
         leader: { name: c.lider, phone: c.telefone },

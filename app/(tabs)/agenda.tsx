@@ -15,7 +15,6 @@ function EscolaCrescimentoSection() {
   const [config, setConfig] = useState<any>(null);
   const [carregando, setCarregando] = useState(true);
 
-  // @ts-expect-error - Endpoint foi adicionado mas tipos não foram regenerados
   const { data: configData } = trpc.escolaCrescimento.getConfig.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
@@ -56,7 +55,6 @@ export default function AgendaScreen() {
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [eventos, setEventos] = useState<Event[]>([]);
 
-  // @ts-expect-error - Endpoint eventos existe mas tipos não foram regenerados ainda
   const { data: eventosData, isLoading, refetch, dataUpdatedAt } = trpc.eventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000, // Atualizar a cada 30 segundos
@@ -67,8 +65,7 @@ export default function AgendaScreen() {
   useEffect(() => {
     if (eventosData) {
       // Adaptar formato do banco para formato do app
-      // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
-      setEventos(eventosData.map(e => ({
+      setEventos((eventosData as any[]).map(e => ({
         id: e.id.toString(),
         title: e.titulo,
         description: e.descricao,
