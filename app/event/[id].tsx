@@ -374,7 +374,7 @@ export default function EventDetailScreen() {
               </View>
 
               <View className="gap-2">
-                <Text className="text-sm font-semibold text-foreground">Telefone (Opcional)</Text>
+                <Text className="text-sm font-semibold text-foreground">Telefone *</Text>
                 <TextInput
                   className="bg-background rounded-xl px-4 py-3 text-foreground border"
                   style={{ borderColor: colors.border }}

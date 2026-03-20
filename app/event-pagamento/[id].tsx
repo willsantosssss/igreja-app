@@ -38,7 +38,7 @@ export default function EventPagamentoScreen() {
     }
   }, [pagamentoData, isLoading, eventoId]);
 
-  const handleCopiarChavePix = async () => {
+  const handleCopiarChavePix = () => {
     if (!pagamento) return;
     
     if (Platform.OS !== "web") {
@@ -46,13 +46,15 @@ export default function EventPagamentoScreen() {
     }
 
     try {
-      if (Platform.OS === "web") {
-        await navigator.clipboard.writeText(pagamento.chavePix);
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        navigator.clipboard.writeText(pagamento.chavePix).then(() => {
+          Alert.alert("Sucesso", "Chave PIX copiada para a área de transferência!");
+        }).catch(() => {
+          Alert.alert("Erro", "Não foi possível copiar a chave PIX.");
+        });
       } else {
-        const { Clipboard } = await import("expo-clipboard");
-        await Clipboard.setStringAsync(pagamento.chavePix);
+        Alert.alert("Erro", "Clipboard não disponível neste navegador.");
       }
-      Alert.alert("Sucesso", "Chave PIX copiada para a área de transferência!");
     } catch (error) {
       console.error("Erro ao copiar:", error);
       Alert.alert("Erro", "Não foi possível copiar a chave PIX.");
@@ -138,7 +140,7 @@ export default function EventPagamentoScreen() {
             <Text className="text-lg font-bold text-foreground">Escaneie o QR Code</Text>
             <View className="bg-white rounded-2xl p-4 items-center justify-center border border-border">
               <Image
-                source={{ uri: pagamento.qrCodeUrl }}
+                source={require("@/assets/images/qrcode-pix.jpg")}
                 style={{
                   width: 250,
                   height: 250,
