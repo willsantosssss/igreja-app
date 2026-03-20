@@ -1017,6 +1017,9 @@ export async function getInscricoesEventosPagas() {
         ie.status,
         ie.createdAt,
         ie.updatedAt,
+        COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,
+        ie.dataPagamento,
+        ie.observacoes,
         e.titulo as eventoTitulo,
         e.data as eventoData,
         e.tipo as eventoTipo
@@ -1043,9 +1046,9 @@ export async function getInscricoesEventosPagas() {
       eventoTitulo: row.eventoTitulo,
       eventoData: row.eventoData,
       eventoTipo: row.eventoTipo,
-      statusPagamento: 'nao-pago',
-      dataPagamento: null,
-      observacoes: null,
+      statusPagamento: row.statusPagamento || 'nao-pago',
+      dataPagamento: row.dataPagamento,
+      observacoes: row.observacoes,
     }));
   } catch (error) {
     console.error('[getInscricoesEventosPagas] Error:', error);
@@ -1061,12 +1064,32 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
   try {
     const connection = await pool.getConnection();
     
-    // Atualizar apenas o campo updatedAt que sabemos que existe
+    // Tentar adicionar colunas se não existirem (primeira execução)
+    try {
+      await connection.query(`
+        ALTER TABLE inscricoesEventos 
+        ADD COLUMN IF NOT EXISTS statusPagamento VARCHAR(20) DEFAULT 'nao-pago'
+      `);
+      await connection.query(`
+        ALTER TABLE inscricoesEventos 
+        ADD COLUMN IF NOT EXISTS dataPagamento TIMESTAMP NULL
+      `);
+      await connection.query(`
+        ALTER TABLE inscricoesEventos 
+        ADD COLUMN IF NOT EXISTS observacoes TEXT NULL
+      `);
+    } catch (e) {
+      // Colunas podem já existir, ignorar erro
+      console.log('[updateInscricaoEventoStatus] Colunas já existem ou erro ao criar');
+    }
+    
+    // Atualizar status de pagamento
+    const dataPagamento = statusPagamento === 'pago' ? new Date() : null;
     await connection.query(`
       UPDATE inscricoesEventos 
-      SET updatedAt = NOW()
+      SET statusPagamento = ?, dataPagamento = ?, observacoes = ?, updatedAt = NOW()
       WHERE id = ?
-    `, [inscricaoId]);
+    `, [statusPagamento, dataPagamento, observacoes || null, inscricaoId]);
     
     connection.release();
     console.log(`[updateInscricaoEventoStatus] Inscricao ${inscricaoId} marcada como ${statusPagamento}`);
