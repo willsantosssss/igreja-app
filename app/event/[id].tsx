@@ -154,31 +154,25 @@ export default function EventDetailScreen() {
       setJaInscrito(true);
       setMostrarFormulario(false);
 
-      // Se for evento especial (pago), redirecionar para página de pagamento
+      // Se for evento especial (pago), redirecionar automaticamente para página de pagamento
       if (event?.category === 'special' || eventoData?.tipo === 'special') {
         Alert.alert(
           "Inscrição Confirmada!",
-          `Você foi inscrito no evento "${event.title}". Agora realize o pagamento para confirmar sua participação.`,
-          [
-            {
-              text: "Ir para Pagamento",
-              onPress: () => {
-                router.push({
-                  pathname: "/event-pagamento/[id]",
-                  params: {
-                    id: event.id,
-                    eventoId: event.id,
-                    eventoTitulo: event.title,
-                  },
-                });
-              },
-            },
-            {
-              text: "Depois",
-              style: "cancel",
-            },
-          ]
+          `Você foi inscrito no evento "${event?.title || eventoData?.titulo}". Redirecionando para pagamento...`,
+          [{ text: "OK" }]
         );
+        
+        // Redirecionar automaticamente após 1 segundo
+        setTimeout(() => {
+          router.push({
+            pathname: "/event-pagamento/[id]",
+            params: {
+              id: event?.id || eventoData?.id?.toString(),
+              eventoId: event?.id || eventoData?.id?.toString(),
+              eventoTitulo: event?.title || eventoData?.titulo,
+            },
+          });
+        }, 1000);
       } else {
         Alert.alert(
           "Inscrição Confirmada!",
