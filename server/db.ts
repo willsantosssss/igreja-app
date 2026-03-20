@@ -926,33 +926,74 @@ export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
 
 // Pagamentos de Eventos
 export async function getPagamentosEventos() {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.select().from(pagamentosEventos);
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query('SELECT * FROM pagamentos_eventos ORDER BY id DESC');
+    return rows;
+  } finally {
+    conn.release();
+  }
 }
 
 export async function getPagamentoEventoByEventoId(eventoId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.select().from(pagamentosEventos).where(eq(pagamentosEventos.eventoId, eventoId));
-  return result[0] || null;
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query('SELECT * FROM pagamentos_eventos WHERE eventoId = ? LIMIT 1', [eventoId]);
+    return (rows as any[])[0] || null;
+  } finally {
+    conn.release();
+  }
 }
 
 export async function createPagamentoEvento(data: InsertPagamentoEvento) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(pagamentosEventos).values(data);
-  return result.insertId;
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  const conn = await pool.getConnection();
+  try {
+    const [result] = await conn.query(
+      'INSERT INTO pagamentos_eventos (eventoId, valor, qrCodeUrl, chavePix, nomeRecebedor, ativo) VALUES (?, ?, ?, ?, ?, ?)',
+      [data.eventoId, data.valor, data.qrCodeUrl, data.chavePix, data.nomeRecebedor, data.ativo || 1]
+    );
+    return (result as any).insertId;
+  } finally {
+    conn.release();
+  }
 }
 
 export async function updatePagamentoEvento(id: number, data: Partial<InsertPagamentoEvento>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(pagamentosEventos).set(data).where(eq(pagamentosEventos.id, id));
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  const conn = await pool.getConnection();
+  try {
+    const updates: string[] = [];
+    const values: any[] = [];
+    
+    if (data.valor !== undefined) { updates.push('valor = ?'); values.push(data.valor); }
+    if (data.qrCodeUrl !== undefined) { updates.push('qrCodeUrl = ?'); values.push(data.qrCodeUrl); }
+    if (data.chavePix !== undefined) { updates.push('chavePix = ?'); values.push(data.chavePix); }
+    if (data.nomeRecebedor !== undefined) { updates.push('nomeRecebedor = ?'); values.push(data.nomeRecebedor); }
+    if (data.ativo !== undefined) { updates.push('ativo = ?'); values.push(data.ativo); }
+    
+    if (updates.length === 0) return;
+    
+    values.push(id);
+    await conn.query(`UPDATE pagamentos_eventos SET ${updates.join(', ')} WHERE id = ?`, values);
+  } finally {
+    conn.release();
+  }
 }
 
 export async function deletePagamentoEvento(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.delete(pagamentosEventos).where(eq(pagamentosEventos.id, id));
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  const conn = await pool.getConnection();
+  try {
+    await conn.query('DELETE FROM pagamentos_eventos WHERE id = ?', [id]);
+  } finally {
+    conn.release();
+  }
 }
