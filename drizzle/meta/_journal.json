@@ -50,6 +50,13 @@
       "when": 1773979474686,
       "tag": "0006_boring_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1774012176237,
+      "tag": "0007_familiar_spitfire",
+      "breakpoints": true
     }
   ]
 }

@@ -690,5 +690,19 @@ export const appRouter = router({
       return db.deletePagamentoEvento(input);
     }),
   }),
+
+  // Inscrições Pagas (com status de pagamento)
+  inscricoes: router({
+    list: publicProcedure.query(() => db.getInscricoesEventosPagas()),
+    updateStatus: protectedProcedure
+      .input(z.object({
+        inscricaoId: z.number(),
+        statusPagamento: z.string(),
+        observacoes: z.string().optional(),
+      }))
+      .mutation(({ input, ctx }) => {
+        return db.updateInscricaoEventoStatus(input.inscricaoId, input.statusPagamento, input.observacoes);
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

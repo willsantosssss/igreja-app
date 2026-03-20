@@ -242,20 +242,28 @@ export default function AdminPagamentosEventosScreen() {
             <Text className="text-2xl font-bold text-foreground">Pagamentos de Eventos</Text>
             <Text className="text-muted text-sm">Total: {pagamentosData.length} configurações</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              setEditando(null);
-              setEventoSelecionado('');
-              setValor('');
-              setChavePix('');
-              setNomeRecebedor('');
-              setQrCodeUrl('');
-              setMostrarForm(!mostrarForm);
-            }}
-            className="bg-primary rounded-full p-3"
-          >
-            <IconSymbol name="plus" size={24} color="#fff" />
-          </TouchableOpacity>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={() => router.push('/admin/inscricoes-pagas')}
+              className="bg-success/20 rounded-full p-3"
+            >
+              <Text className="text-lg">💳</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setEditando(null);
+                setEventoSelecionado('');
+                setValor('');
+                setChavePix('');
+                setNomeRecebedor('');
+                setQrCodeUrl('');
+                setMostrarForm(!mostrarForm);
+              }}
+              className="bg-primary rounded-full p-3"
+            >
+              <IconSymbol name="plus" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Formulário */}

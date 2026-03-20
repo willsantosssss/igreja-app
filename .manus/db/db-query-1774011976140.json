@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS inscricoes_eventos (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  evento_id INT NOT NULL,\n  nome_completo VARCHAR(255) NOT NULL,\n  celula VARCHAR(255) NOT NULL,\n  telefone VARCHAR(20),\n  status_pagamento VARCHAR(20) DEFAULT 'nao_pago' COMMENT 'Status: nao_pago, pago',\n  data_inscricao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  data_pagamento TIMESTAMP NULL,\n  UNIQUE KEY unique_inscricao (evento_id, nome_completo)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute CREATE TABLE IF NOT EXISTS inscricoes_eventos (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  evento_id INT NOT NULL,\n  nome_completo VARCHAR(255) NOT NULL,\n  celula VARCHAR(255) NOT NULL,\n  telefone VARCHAR(20),\n  status_pagamento VARCHAR(20) DEFAULT 'nao_pago' COMMENT 'Status: nao_pago, pago',\n  data_inscricao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  data_pagamento TIMESTAMP NULL,\n  UNIQUE KEY unique_inscricao (evento_id, nome_completo)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 355
+}

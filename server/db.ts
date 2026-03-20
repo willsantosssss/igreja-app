@@ -997,3 +997,62 @@ export async function deletePagamentoEvento(id: number) {
     conn.release();
   }
 }
+
+// ==================== INSCRIÇÕES EVENTOS COM STATUS DE PAGAMENTO ====================
+
+export async function getInscricoesEventosPagas() {
+  const pool = getSqlClient();
+  if (!pool) return [];
+  
+  try {
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query(`
+      SELECT 
+        ie.id,
+        ie.eventoId,
+        ie.nome,
+        ie.email,
+        ie.telefone,
+        ie.celula,
+        ie.status,
+        COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,
+        ie.dataPagamento,
+        ie.observacoes,
+        ie.createdAt,
+        ie.updatedAt,
+        e.titulo as eventoTitulo,
+        e.data as eventoData
+      FROM inscricoesEventos ie
+      LEFT JOIN eventos e ON ie.eventoId = e.id
+      WHERE e.tipo = 'evento-especial'
+      ORDER BY ie.createdAt DESC
+    `);
+    connection.release();
+    return rows || [];
+  } catch (error) {
+    console.error('[getInscricoesEventosPagas] Error:', error);
+    return [];
+  }
+}
+
+export async function updateInscricaoEventoStatus(inscricaoId: number, statusPagamento: string, observacoes?: string) {
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  
+  try {
+    const connection = await pool.getConnection();
+    const dataPagamento = statusPagamento === 'pago' ? new Date() : null;
+    
+    await connection.query(`
+      UPDATE inscricoesEventos 
+      SET statusPagamento = ?, dataPagamento = ?, observacoes = ?, updatedAt = NOW()
+      WHERE id = ?
+    `, [statusPagamento, dataPagamento, observacoes || null, inscricaoId]);
+    
+    connection.release();
+    return { success: true };
+  } catch (error) {
+    console.error('[updateInscricaoEventoStatus] Error:', error);
+    throw error;
+  }
+}

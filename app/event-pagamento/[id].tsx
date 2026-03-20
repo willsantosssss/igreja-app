@@ -1,9 +1,10 @@
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalSearchParams, router } from "expo-router";
-import { View, Text, TouchableOpacity, ScrollView, Image, Alert, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image, Alert, Platform, Modal, TextInput } from "react-native";
 import { useState, useEffect } from "react";
 import * as Haptics from "expo-haptics";
+import * as Clipboard from "expo-clipboard";
 import { trpc } from "@/lib/trpc";
 
 interface PagamentoEvento {
@@ -21,6 +22,8 @@ export default function EventPagamentoScreen() {
   const { id, eventoId, eventoTitulo } = useLocalSearchParams();
   const [pagamento, setPagamento] = useState<PagamentoEvento | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [mostrarModalPix, setMostrarModalPix] = useState(false);
+  const [copiouPix, setCopiouPix] = useState(false);
 
   // Buscar configuração de pagamento do evento
   // @ts-expect-error - Endpoint será criado
@@ -40,24 +43,24 @@ export default function EventPagamentoScreen() {
 
   const handleCopiarChavePix = () => {
     if (!pagamento) return;
-    
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    setMostrarModalPix(true);
+  };
 
+  const copiarChavePixParaClipboard = async () => {
+    if (!pagamento) return;
+    
     try {
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
-        navigator.clipboard.writeText(pagamento.chavePix).then(() => {
-          Alert.alert("Sucesso", "Chave PIX copiada para a área de transferência!");
-        }).catch(() => {
-          Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
-        });
-      } else {
-        Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
+      if (Platform.OS !== "web") {
+        await Clipboard.setStringAsync(pagamento.chavePix);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(pagamento.chavePix);
       }
+      setCopiouPix(true);
+      setTimeout(() => setCopiouPix(false), 2000);
     } catch (error) {
       console.error("Erro ao copiar:", error);
-      Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
+      Alert.alert("Erro", "Não foi possível copiar a chave PIX");
     }
   };
 
@@ -161,17 +164,12 @@ export default function EventPagamentoScreen() {
               <View className="h-px bg-border my-2" />
 
               <Text className="text-sm text-muted">Chave PIX (Copia e Cola)</Text>
-              <View className="bg-background rounded-lg p-3 flex-row items-center justify-between gap-3">
-                <Text className="text-xs text-foreground flex-1 font-mono">
-                  {pagamento.chavePix.substring(0, 30)}...
-                </Text>
-                <TouchableOpacity
-                  onPress={handleCopiarChavePix}
-                  className="bg-primary px-4 py-2 rounded-lg"
-                >
-                  <Text className="text-white text-xs font-semibold">Copiar</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={handleCopiarChavePix}
+                className="bg-primary/10 border border-primary rounded-lg p-4 items-center"
+              >
+                <Text className="text-primary font-semibold text-sm">📋 Visualizar e Copiar Chave PIX</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -205,6 +203,67 @@ export default function EventPagamentoScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal de Chave PIX */}
+      <Modal
+        visible={mostrarModalPix}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMostrarModalPix(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-background rounded-t-3xl p-6 gap-4">
+            {/* Header */}
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-xl font-bold text-foreground">Chave PIX</Text>
+              <TouchableOpacity
+                onPress={() => setMostrarModalPix(false)}
+                className="w-8 h-8 items-center justify-center rounded-full bg-surface"
+              >
+                <Text className="text-lg">✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Chave PIX Copiável */}
+            <View className="bg-surface rounded-xl p-4 border border-border gap-3">
+              <Text className="text-xs text-muted">Chave PIX (Copia e Cola):</Text>
+              <TextInput
+                value={pagamento.chavePix}
+                editable={false}
+                multiline
+                className="bg-background rounded-lg p-3 text-foreground text-sm font-mono border border-border"
+                style={{ minHeight: 80 }}
+              />
+              <TouchableOpacity
+                onPress={copiarChavePixParaClipboard}
+                className={`py-3 rounded-lg items-center justify-center ${
+                  copiouPix ? "bg-success" : "bg-primary"
+                }`}
+              >
+                <Text className="text-white font-semibold">
+                  {copiouPix ? "✓ Copiado!" : "📋 Copiar Chave PIX"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Instruções */}
+            <View className="bg-warning/10 rounded-xl p-4 border border-warning/20 gap-2">
+              <Text className="text-sm font-semibold text-foreground">Como usar:</Text>
+              <Text className="text-xs text-foreground leading-relaxed">
+                1. Copie a chave PIX acima\n2. Abra seu banco ou app de pagamento\n3. Cole a chave no campo de transferência PIX\n4. Confirme o pagamento
+              </Text>
+            </View>
+
+            {/* Botão Fechar */}
+            <TouchableOpacity
+              onPress={() => setMostrarModalPix(false)}
+              className="bg-surface border border-border rounded-lg py-3 items-center"
+            >
+              <Text className="text-foreground font-semibold">Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
