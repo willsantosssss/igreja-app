@@ -16,6 +16,7 @@ export default function AdminLayout() {
       <Stack.Screen name="aviso-importante" />
       <Stack.Screen name="noticias" />
       <Stack.Screen name="anexos" />
+      <Stack.Screen name="pagamentos-eventos" />
     </Stack>
   );
 }

@@ -376,6 +376,13 @@ export default function AdminScreen() {
           >
             <Text className="text-white font-bold">📚 Escola de Crescimento</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
+            style={{ backgroundColor: '#059669' }}
+            onPress={() => router.push("/admin/pagamentos-eventos" as any)}
+          >
+            <Text className="text-white font-bold">💳 Pagamentos de Eventos</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </ScreenContainer>

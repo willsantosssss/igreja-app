@@ -4,9 +4,9 @@ import * as schema from "../drizzle/schema";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, anexosLideres,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, anexosLideres, pagamentosEventos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertAnexoLider
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertAnexoLider, InsertPagamentoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -921,4 +921,38 @@ export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
+}
+
+
+// Pagamentos de Eventos
+export async function getPagamentosEventos() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select().from(pagamentosEventos);
+}
+
+export async function getPagamentoEventoByEventoId(eventoId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.select().from(pagamentosEventos).where(eq(pagamentosEventos.eventoId, eventoId));
+  return result[0] || null;
+}
+
+export async function createPagamentoEvento(data: InsertPagamentoEvento) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(pagamentosEventos).values(data);
+  return result.insertId;
+}
+
+export async function updatePagamentoEvento(id: number, data: Partial<InsertPagamentoEvento>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(pagamentosEventos).set(data).where(eq(pagamentosEventos.id, id));
+}
+
+export async function deletePagamentoEvento(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(pagamentosEventos).where(eq(pagamentosEventos.id, id));
 }

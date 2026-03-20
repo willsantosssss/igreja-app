@@ -657,5 +657,38 @@ export const appRouter = router({
         return db.toggleAnexoLiderVisibility(input.id, input.ativo);
       }),
   }),
+
+  // Pagamentos de Eventos
+  pagamentosEventos: router({
+    list: publicProcedure.query(() => db.getPagamentosEventos()),
+    getByEventoId: publicProcedure.input(z.number()).query(({ input }) => db.getPagamentoEventoByEventoId(input)),
+    create: protectedProcedure
+      .input(z.object({
+        eventoId: z.number(),
+        valor: z.string(),
+        qrCodeUrl: z.string(),
+        chavePix: z.string(),
+        nomeRecebedor: z.string(),
+        ativo: z.number(),
+      }))
+      .mutation(({ input, ctx }) => {
+        return db.createPagamentoEvento(input);
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        valor: z.string().optional(),
+        qrCodeUrl: z.string().optional(),
+        chavePix: z.string().optional(),
+        nomeRecebedor: z.string().optional(),
+        ativo: z.number().optional(),
+      }))
+      .mutation(({ input, ctx }) => {
+        return db.updatePagamentoEvento(input.id, input);
+      }),
+    delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
+      return db.deletePagamentoEvento(input);
+    }),
+  }),
 });
 export type AppRouter = typeof appRouter;
