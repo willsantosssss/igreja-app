@@ -242,29 +242,33 @@ export default function AdminPagamentosEventosScreen() {
             <Text className="text-2xl font-bold text-foreground">Pagamentos de Eventos</Text>
             <Text className="text-muted text-sm">Total: {pagamentosData.length} configurações</Text>
           </View>
-          <View className="flex-row gap-2">
-            <TouchableOpacity
-              onPress={() => router.push('/admin/inscricoes-pagas')}
-              className="bg-success/20 rounded-full p-3"
-            >
-              <Text className="text-lg">💳</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setEditando(null);
-                setEventoSelecionado('');
-                setValor('');
-                setChavePix('');
-                setNomeRecebedor('');
-                setQrCodeUrl('');
-                setMostrarForm(!mostrarForm);
-              }}
-              className="bg-primary rounded-full p-3"
-            >
-              <IconSymbol name="plus" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => {
+              setEditando(null);
+              setEventoSelecionado('');
+              setValor('');
+              setChavePix('');
+              setNomeRecebedor('');
+              setQrCodeUrl('');
+              setMostrarForm(!mostrarForm);
+            }}
+            className="bg-primary rounded-full p-3"
+          >
+            <IconSymbol name="plus" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
+
+        {/* Botão de Inscrições Pagas */}
+        <TouchableOpacity
+          onPress={() => router.push('/admin/inscricoes-pagas')}
+          className="bg-success/10 border border-success rounded-xl p-4 mb-6 flex-row items-center justify-between"
+        >
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-success">💳 Gerenciar Inscrições Pagas</Text>
+            <Text className="text-xs text-muted mt-1">Ver e marcar pagamentos de inscritos</Text>
+          </View>
+          <Text className="text-xl">→</Text>
+        </TouchableOpacity>
 
         {/* Formulário */}
         {mostrarForm && (
