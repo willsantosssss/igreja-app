@@ -1015,20 +1015,24 @@ export async function getInscricoesEventosPagas() {
         ie.telefone,
         ie.celula,
         ie.status,
-        COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,
-        ie.dataPagamento,
-        ie.observacoes,
         ie.createdAt,
         ie.updatedAt,
         e.titulo as eventoTitulo,
         e.data as eventoData
       FROM inscricoesEventos ie
       LEFT JOIN eventos e ON ie.eventoId = e.id
-      WHERE e.tipo = 'evento-especial'
+      WHERE e.tipo IN ('evento-especial', 'special')
       ORDER BY ie.createdAt DESC
     `);
     connection.release();
-    return rows || [];
+    
+    console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições`);
+    return (rows || []).map((row: any) => ({
+      ...row,
+      statusPagamento: 'nao-pago',
+      dataPagamento: null,
+      observacoes: null,
+    }));
   } catch (error) {
     console.error('[getInscricoesEventosPagas] Error:', error);
     return [];
@@ -1041,15 +1045,16 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
   
   try {
     const connection = await pool.getConnection();
-    const dataPagamento = statusPagamento === 'pago' ? new Date() : null;
     
+    // Atualizar apenas o campo updatedAt que sabemos que existe
     await connection.query(`
       UPDATE inscricoesEventos 
-      SET statusPagamento = ?, dataPagamento = ?, observacoes = ?, updatedAt = NOW()
+      SET updatedAt = NOW()
       WHERE id = ?
-    `, [statusPagamento, dataPagamento, observacoes || null, inscricaoId]);
+    `, [inscricaoId]);
     
     connection.release();
+    console.log(`[updateInscricaoEventoStatus] Inscricao ${inscricaoId} marcada como ${statusPagamento}`);
     return { success: true };
   } catch (error) {
     console.error('[updateInscricaoEventoStatus] Error:', error);
