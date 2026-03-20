@@ -11,6 +11,9 @@ import {
   type InscricaoEvento,
 } from '@/lib/data/inscricoes-eventos';
 import { CATEGORIAS_COM_INSCRICAO } from '@/lib/data/inscricoes-eventos';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import * as Haptics from 'expo-haptics';
 
 export default function AdminInscricoesEventosScreen() {
   const colors = useColors();
@@ -87,6 +90,10 @@ export default function AdminInscricoesEventosScreen() {
     return Object.entries(mapa).sort((a, b) => new Date(b[1].data).getTime() - new Date(a[1].data).getTime());
   }, [inscricoesFiltradas]);
 
+  const carregarDados = async () => {
+    // Função para recarregar dados
+  };
+
   const handleRemover = (id: string, nome: string) => {
     Alert.alert(
       "Remover Inscrição",
@@ -103,6 +110,42 @@ export default function AdminInscricoesEventosScreen() {
         },
       ]
     );
+  };
+
+  const exportarParaExcel = async () => {
+    try {
+      const BOM = '\uFEFF';
+      let csv = BOM + "Nome;Célula;Evento;Data\n";
+      
+      inscricoesFiltradas.forEach((inscricao) => {
+        const nome = inscricao.nome.replace(/"/g, '""');
+        const celula = inscricao.celula.replace(/"/g, '""');
+        const evento = inscricao.eventoTitulo.replace(/"/g, '""');
+        const data = inscricao.eventoData;
+        csv += `"${nome}";"${celula}";"${evento}";"${data}"\n`;
+      });
+      
+      const fileName = `inscritos_eventos_${new Date().toISOString().split('T')[0]}.csv`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      
+      await FileSystem.writeAsStringAsync(filePath, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(filePath, {
+          mimeType: "text/csv",
+          dialogTitle: "Exportar Inscritos em Eventos",
+        });
+      } else {
+        alert("Compartilhamento não disponível");
+      }
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      alert("Erro ao exportar dados");
+    }
   };
 
   if (carregando || carregandoEventos) {
@@ -216,6 +259,16 @@ export default function AdminInscricoesEventosScreen() {
               ))}
             </ScrollView>
           </View>
+        )}
+
+        {/* Botão de Exportar */}
+        {inscricoesFiltradas.length > 0 && (
+          <TouchableOpacity
+            className="bg-primary rounded-lg py-3 px-4 flex-row items-center justify-center gap-2"
+            onPress={exportarParaExcel}
+          >
+            <Text className="text-white font-semibold">📊 Exportar para Excel</Text>
+          </TouchableOpacity>
         )}
 
         {/* Lista agrupada por evento */}
