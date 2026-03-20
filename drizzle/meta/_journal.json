@@ -43,6 +43,13 @@
       "when": 1773945667019,
       "tag": "0005_real_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773979474686,
+      "tag": "0006_boring_snowbird",
+      "breakpoints": true
     }
   ]
 }

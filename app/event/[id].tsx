@@ -153,11 +153,39 @@ export default function EventDetailScreen() {
 
       setJaInscrito(true);
       setMostrarFormulario(false);
-      Alert.alert(
-        "Inscrição Confirmada!",
-        `Você foi inscrito no evento "${event.title}". Em breve você receberá mais informações.`,
-        [{ text: "OK" }]
-      );
+
+      // Se for evento especial (pago), redirecionar para página de pagamento
+      if (event.category === 'special') {
+        Alert.alert(
+          "Inscrição Confirmada!",
+          `Você foi inscrito no evento "${event.title}". Agora realize o pagamento para confirmar sua participação.`,
+          [
+            {
+              text: "Ir para Pagamento",
+              onPress: () => {
+                router.push({
+                  pathname: "/event-pagamento/[id]",
+                  params: {
+                    id: event.id,
+                    eventoId: event.id,
+                    eventoTitulo: event.title,
+                  },
+                });
+              },
+            },
+            {
+              text: "Depois",
+              style: "cancel",
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Inscrição Confirmada!",
+          `Você foi inscrito no evento "${event.title}". Em breve você receberá mais informações.`,
+          [{ text: "OK" }]
+        );
+      }
     } catch (error) {
       console.error("Erro ao inscrever:", error);
       Alert.alert("Erro", "Não foi possível realizar a inscrição. Tente novamente.");

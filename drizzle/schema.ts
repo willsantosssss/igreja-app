@@ -322,3 +322,19 @@ export const anexosLideres = pgTable("anexosLideres", {
 
 export type AnexoLider = typeof anexosLideres.$inferSelect;
 export type InsertAnexoLider = typeof anexosLideres.$inferInsert;
+
+// Configuração de Pagamentos PIX para Eventos table
+export const pagamentosEventos = pgTable("pagamentosEventos", {
+  id: serial("id").primaryKey(),
+  eventoId: integer("eventoId").notNull(),
+  valor: varchar("valor", { length: 20 }).notNull(), // Formato: "R$ 180,00"
+  qrCodeUrl: varchar("qrCodeUrl", { length: 500 }).notNull(), // URL ou caminho da imagem QR Code
+  chavePix: text("chavePix").notNull(), // Chave PIX completa
+  nomeRecebedor: varchar("nomeRecebedor", { length: 255 }).notNull(), // Nome do beneficiário
+  ativo: integer("ativo").default(1).notNull(), // 1 = ativo, 0 = inativo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type PagamentoEvento = typeof pagamentosEventos.$inferSelect;
+export type InsertPagamentoEvento = typeof pagamentosEventos.$inferInsert;
