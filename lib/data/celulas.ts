@@ -1,15 +1,14 @@
 import { trpc } from '@/lib/trpc';
 
 export interface Celula {
-  id: number;
-  nome: string;
-  lider: string;
-  telefone: string;
-  endereco: string;
-  latitude: string;
-  longitude: string;
-  diaReuniao: string;
-  horario: string;
+  id: string;
+  name: string;
+  leader: { name: string; phone: string };
+  schedule: { day: string; time: string };
+  address: { street: string; neighborhood: string; city: string };
+  description: string;
+  latitude?: string;
+  longitude?: string;
 }
 
 /**

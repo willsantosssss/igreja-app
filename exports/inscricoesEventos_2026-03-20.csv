@@ -1,0 +1,7 @@
+id,eventoId,userId,nome,telefone,status,createdAt,updatedAt,celula,statusPagamento,dataPagamento,observacoes
+300003,240001,30598,Novo teste,+5566996357700,confirmado,2026-03-20 13:00:12,2026-03-20 14:26:21,Pr. Will e Pra. Fernanda,pago,2026-03-20 10:26:21,
+300004,240001,30598,Teste vb,+5566996357700,confirmado,2026-03-20 13:18:08,2026-03-20 14:26:24,Pr. Will e Pra. Fernanda,nao-pago,,
+300005,240001,30598,teste testes,+5566996357700,confirmado,2026-03-20 13:41:06,2026-03-20 14:26:08,Pr. Will e Pra. Fernanda,pago,2026-03-20 10:26:08,
+300006,240001,30598,Agora sim,+5566996357700,confirmado,2026-03-20 14:27:57,2026-03-20 14:28:48,Wellington e Joice,pago,2026-03-20 10:28:48,
+300007,240001,30598,teste kkkk,+5566996357700,confirmado,2026-03-20 14:46:00,2026-03-20 14:46:42,Pr. Will e Pra. Fernanda,pago,2026-03-20 10:46:42,
+330001,120002,30598,Teste falso,+5566996357700,confirmado,2026-03-20 16:02:02,2026-03-20 16:04:53,Jucilene,pago,2026-03-20 12:04:53,

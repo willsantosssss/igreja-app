@@ -34,12 +34,18 @@ async function startServer() {
   // CORS whitelist - only allow requests from authorized origins
   // Update this list with your production domains
   const ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:8081",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8081",
     "https://igrejaapp-clukbfbs.manus.space",
   ];
+  
+  // Allow localhost only in development
+  if (process.env.NODE_ENV === "development") {
+    ALLOWED_ORIGINS.push(
+      "http://localhost:3000",
+      "http://localhost:8081",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:8081"
+    );
+  }
 
   // CORS middleware - check origin against whitelist
   app.use((req, res, next) => {

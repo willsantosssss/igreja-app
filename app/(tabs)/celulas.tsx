@@ -29,6 +29,8 @@ export default function CelulasScreen() {
         schedule: { day: c.diaReuniao, time: c.horario },
         address: { street: c.endereco, neighborhood: '', city: '' },
         description: '',
+        latitude: c.latitude,
+        longitude: c.longitude,
       })));
     }
   }, [celulasData]);
@@ -61,7 +63,7 @@ export default function CelulasScreen() {
     );
   };
 
-  const handleNavigate = (latitude: string, longitude: string, address: string) => {
+  const handleNavigate = (latitude: string | undefined, longitude: string | undefined, address: string) => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }

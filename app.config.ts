@@ -91,7 +91,6 @@ const config: ExpoConfig = {
         category: ["BROWSABLE", "DEFAULT"],
       },
     ],
-    screenOrientation: "portrait",
   },
   web: {
     bundler: "metro",

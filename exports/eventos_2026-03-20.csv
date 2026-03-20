@@ -1,0 +1,5 @@
+id,titulo,descricao,data,horario,local,tipo,requireInscricao,createdAt,updatedAt
+120001,CEIA DO SENHOR,O convite para estarmos à mesa de Jesus se extende a todos os que nele é confiam suas vidas a Ele. Vamos juntos!,2026-04-05T00:00:00,19:00,2IEQ,culto,0,2026-02-24 22:14:18,2026-02-24 22:14:18
+120002,DIA DA VISÃO 2026,"A visão está muito clara, o propósito está diante de nós. Chame toda sua célula e vamos juntos. Será maravilhoso!",2026-03-07T00:00:00,16:00,2IEQ,evento-especial,0,2026-02-24 22:17:00,2026-02-24 22:17:00
+150001,CULTO DA FAMILIA,Vamos celebrar junto ao nosso Rei.,2026-03-22T00:00:00,19:00,2IEQ,culto,0,2026-03-18 23:25:14,2026-03-19 18:29:54
+240001,Evento teste,Encontro,2026-03-22T00:00:00,19:00,2IEQ,evento-especial,0,2026-03-20 04:12:08,2026-03-20 04:12:08

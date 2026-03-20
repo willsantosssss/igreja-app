@@ -51,7 +51,7 @@ export default function HomeScreen() {
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   const mesAtual = new Date().getMonth() + 1;
-  const { data: aniversariantesData } = trpc.usuarios.getAniversariantes.useQuery(mesAtual, {
+  const { data: aniversariantesData } = trpc.usuarios.getAniversariantes.useQuery(mesAtual as any, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
@@ -70,21 +70,21 @@ export default function HomeScreen() {
       const diaHoje = hoje.getDate();
       const mesHoje = hoje.getMonth() + 1;
 
-      const aniversariantes = aniversariantesData.filter((user) => {
+      const aniversariantes = (aniversariantesData as any[]).filter((user) => {
         // Suportar ambos formatos: YYYY-MM-DD e DD/MM/YYYY
         let dia, mes;
-        if (user.dataNascimento.includes("-")) {
-          const [ano, m, d] = user.dataNascimento.split("-");
+        if ((user.dataNascimento as string).includes("-")) {
+          const [ano, m, d] = (user.dataNascimento as string).split("-");
           dia = parseInt(d);
           mes = parseInt(m);
         } else {
-          const [d, m] = user.dataNascimento.split("/");
+          const [d, m] = (user.dataNascimento as string).split("/");
           dia = parseInt(d);
           mes = parseInt(m);
         }
         return dia === diaHoje && mes === mesHoje;
       });
-      setAniversariantesHoje(aniversariantes);
+      setAniversariantesHoje(aniversariantes as Usuario[]);
     }
   };
 
@@ -99,7 +99,7 @@ export default function HomeScreen() {
       hoje.setHours(0, 0, 0, 0);
 
       // Filtrar eventos futuros e ordenar por data
-      const eventosFuturos = eventosData
+      const eventosFuturos = (eventosData as any[])
         .filter((e: any) => {
           const dataEvento = new Date(e.data);
           dataEvento.setHours(0, 0, 0, 0);
@@ -109,15 +109,15 @@ export default function HomeScreen() {
 
       if (eventosFuturos.length > 0) {
         const evento = eventosFuturos[0];
-        const data = new Date(evento.data);
+        const data = new Date(evento.data as string);
         const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const diaSemana = diasSemana[data.getDay()];
         
         setProximoEvento({
-          nome: evento.titulo,
+          nome: evento.titulo as string,
           data: `${diaSemana}, ${data.getDate()}/${data.getMonth() + 1}`,
-          hora: evento.horario,
-          local: evento.local
+          hora: evento.horario as string,
+          local: evento.local as string
         });
       } else {
         setProximoEvento(null);
@@ -128,9 +128,9 @@ export default function HomeScreen() {
   useEffect(() => {
     if (avisoData) {
       setAviso({
-        titulo: avisoData.titulo,
-        mensagem: avisoData.mensagem,
-        ativo: avisoData.ativo,
+        titulo: (avisoData as any)?.titulo || "Aviso Importante",
+        mensagem: (avisoData as any)?.mensagem || "",
+        ativo: (avisoData as any)?.ativo ?? true,
       });
     }
   }, [avisoData]);
