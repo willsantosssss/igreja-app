@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO pagamentos_eventos (eventoId, valor, qrCodeUrl, chavePix, nomeRecebedor, ativo) VALUES (240001, 'R$ 180,00', 'assets/images/qrcode-pix.jpg', '00020101021126790014BR.GOV.BCB.PIX2557pix-qr.mercadopago.com/instore/ol/v2/rYX57hYoVJLBJJ6auaG35204000053039865802BR5925CRUZADA NACIONAL DE EVANG6009SAO PAULO62080504mpis630462C4', 'Cruzada Nacional de Evangelização', 1);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO pagamentos_eventos (eventoId, valor, qrCodeUrl, chavePix, nomeRecebedor, ativo) VALUES (240001, 'R$ 180,00', 'assets/images/qrcode-pix.jpg', '00020101021126790014BR.GOV.BCB.PIX2557pix-qr.mercadopago.com/instore/ol/v2/rYX57hYoVJLBJJ6auaG35204000053039865802BR5925CRUZADA NACIONAL DE EVANG6009SAO PAULO62080504mpis630462C4', 'Cruzada Nacional de Evangelização', 1);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 82
+}

@@ -48,7 +48,7 @@ export default function AdminPagamentosEventosScreen() {
     refetchInterval: 30000,
   });
 
-  const eventosEspeciais = eventosData.filter((e: any) => e.tipo === 'special');
+  const eventosEspeciais = eventosData.filter((e: any) => e.tipo === 'special' || e.tipo === 'evento-especial');
 
   // Buscar pagamentos
   // @ts-expect-error - Endpoint será criado
