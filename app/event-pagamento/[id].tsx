@@ -50,14 +50,14 @@ export default function EventPagamentoScreen() {
         navigator.clipboard.writeText(pagamento.chavePix).then(() => {
           Alert.alert("Sucesso", "Chave PIX copiada para a área de transferência!");
         }).catch(() => {
-          Alert.alert("Erro", "Não foi possível copiar a chave PIX.");
+          Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
         });
       } else {
-        Alert.alert("Erro", "Clipboard não disponível neste navegador.");
+        Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
       }
     } catch (error) {
       console.error("Erro ao copiar:", error);
-      Alert.alert("Erro", "Não foi possível copiar a chave PIX.");
+      Alert.alert("Copiar Chave PIX", pagamento.chavePix, [{text: "Fechar", style: "default"}]);
     }
   };
 
