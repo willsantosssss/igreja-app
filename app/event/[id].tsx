@@ -155,7 +155,7 @@ export default function EventDetailScreen() {
       setMostrarFormulario(false);
 
       // Se for evento especial (pago), redirecionar para página de pagamento
-      if (event.category === 'special') {
+      if (event?.category === 'special' || eventoData?.tipo === 'special') {
         Alert.alert(
           "Inscrição Confirmada!",
           `Você foi inscrito no evento "${event.title}". Agora realize o pagamento para confirmar sua participação.`,
