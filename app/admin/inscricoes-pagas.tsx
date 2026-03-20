@@ -6,6 +6,9 @@ import { useState, useEffect } from "react";
 import * as Haptics from "expo-haptics";
 import { trpc } from "@/lib/trpc";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
+import * as DocumentPicker from "expo-document-picker";
 
 interface Inscricao {
   id: number;
@@ -76,6 +79,45 @@ export default function InscricoesPagasScreen() {
       });
     } catch (error) {
       console.error("Erro ao marcar como não pago:", error);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  const exportarParaExcel = async () => {
+    try {
+      setCarregando(true);
+      
+      // Criar CSV com os dados
+      let csv = "Nome,Célula,Status de Pagamento\n";
+      
+      inscricoesFiltradas.forEach((inscricao) => {
+        const status = inscricao.statusPagamento === "pago" ? "Pago" : "Não Pago";
+        csv += `"${inscricao.nome}","${inscricao.celula}","${status}"\n`;
+      });
+      
+      // Salvar arquivo
+      const fileName = `inscricoes_${new Date().toISOString().split('T')[0]}.csv`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      
+      await FileSystem.writeAsStringAsync(filePath, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      // Compartilhar arquivo
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(filePath, {
+          mimeType: "text/csv",
+          dialogTitle: "Exportar Inscrições",
+        });
+      } else {
+        alert("Compartilhamento não disponível neste dispositivo");
+      }
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      alert("Erro ao exportar dados");
     } finally {
       setCarregando(false);
     }
@@ -267,6 +309,17 @@ export default function InscricoesPagasScreen() {
             </View>
           </View>
         </View>
+
+        {/* Botão de Exportar */}
+        {inscricoesFiltradas.length > 0 && (
+          <TouchableOpacity
+            className="bg-primary rounded-lg py-3 px-4 mb-6 flex-row items-center justify-center gap-2"
+            onPress={exportarParaExcel}
+            disabled={carregando}
+          >
+            <Text className="text-white font-semibold">📊 Exportar para Excel</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Lista de Inscrições */}
         {isLoading ? (
