@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -6,6 +6,9 @@ import { useColors } from '@/hooks/use-colors';
 import { useState, useEffect } from 'react';
 import { obterSessaoLider } from '@/lib/data/lideres';
 import { getInscricoesPorCelula } from '@/lib/data/inscricoes-eventos';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import * as Haptics from 'expo-haptics';
 
 interface Inscricao {
   eventoId: string;
@@ -60,6 +63,50 @@ export default function LiderInscritosEventosScreen() {
     return agrupado;
   };
 
+  const exportarParaExcel = async () => {
+    try {
+      setCarregando(true);
+      
+      // Criar CSV com BOM (Byte Order Mark) para UTF-8 e separador ponto-e-vírgula
+      const BOM = '\uFEFF';
+      let csv = BOM + "Nome;Célula;Evento;Data\n";
+      
+      inscritos.forEach((inscricao) => {
+        // Escapar aspas duplas e usar ponto-e-vírgula como separador
+        const nome = inscricao.nomeCompleto.replace(/"/g, '""');
+        const celula = inscricao.celula.replace(/"/g, '""');
+        const evento = inscricao.eventoTitulo.replace(/"/g, '""');
+        const data = formatarData(inscricao.eventoData);
+        csv += `"${nome}";"${celula}";"${evento}";"${data}"\n`;
+      });
+      
+      // Salvar arquivo
+      const fileName = `inscritos_eventos_${new Date().toISOString().split('T')[0]}.csv`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      
+      await FileSystem.writeAsStringAsync(filePath, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      // Compartilhar arquivo
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(filePath, {
+          mimeType: "text/csv",
+          dialogTitle: "Exportar Inscritos em Eventos",
+        });
+      } else {
+        alert("Compartilhamento não disponível neste dispositivo");
+      }
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      alert("Erro ao exportar dados");
+    } finally {
+      setCarregando(false);
+    }
+  };
+
   return (
     <ScreenContainer>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 100 }}>
@@ -79,7 +126,7 @@ export default function LiderInscritosEventosScreen() {
 
         {carregando ? (
           <View className="items-center justify-center py-10">
-            <Text className="text-muted">Carregando...</Text>
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : inscritos.length === 0 ? (
           <View className="items-center justify-center py-10 gap-2">
@@ -87,28 +134,40 @@ export default function LiderInscritosEventosScreen() {
             <Text className="text-muted text-center">Nenhum membro da célula inscrito em eventos especiais</Text>
           </View>
         ) : (
-          Object.entries(agruparPorEvento()).map(([evento, membros]) => (
-            <View key={evento} className="bg-surface rounded-2xl p-4 border border-border gap-3">
-              <View className="gap-1">
-                <Text className="text-lg font-bold text-foreground">{evento}</Text>
-                <Text className="text-sm text-muted">{membros.length} membro(s) inscrito(s)</Text>
-              </View>
+          <>
+            {/* Botão de Exportar */}
+            <TouchableOpacity
+              className="bg-primary rounded-lg py-3 px-4 flex-row items-center justify-center gap-2"
+              onPress={exportarParaExcel}
+              disabled={carregando}
+            >
+              <Text className="text-white font-semibold">📊 Exportar para Excel</Text>
+            </TouchableOpacity>
 
-              <View className="gap-2 pt-2 border-t border-border">
-                {membros.map((inscricao, idx) => (
-                  <View key={idx} className="bg-background rounded-xl p-3 gap-1">
-                    <Text className="text-base font-semibold text-foreground">{inscricao.nomeCompleto}</Text>
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-xs text-muted">📅 {formatarData(inscricao.eventoData)}</Text>
-                      {inscricao.telefone && (
-                        <Text className="text-xs text-muted">📞 {inscricao.telefone}</Text>
-                      )}
+            {/* Lista de Inscritos por Evento */}
+            {Object.entries(agruparPorEvento()).map(([evento, membros]) => (
+              <View key={evento} className="bg-surface rounded-2xl p-4 border border-border gap-3">
+                <View className="gap-1">
+                  <Text className="text-lg font-bold text-foreground">{evento}</Text>
+                  <Text className="text-sm text-muted">{membros.length} membro(s) inscrito(s)</Text>
+                </View>
+
+                <View className="gap-2 pt-2 border-t border-border">
+                  {membros.map((inscricao, idx) => (
+                    <View key={idx} className="bg-background rounded-xl p-3 gap-1">
+                      <Text className="text-base font-semibold text-foreground">{inscricao.nomeCompleto}</Text>
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-xs text-muted">📅 {formatarData(inscricao.eventoData)}</Text>
+                        {inscricao.telefone && (
+                          <Text className="text-xs text-muted">📞 {inscricao.telefone}</Text>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
-          ))
+            ))}
+          </>
         )}
       </ScrollView>
     </ScreenContainer>
