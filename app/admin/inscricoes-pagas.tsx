@@ -88,12 +88,17 @@ export default function InscricoesPagasScreen() {
     try {
       setCarregando(true);
       
-      // Criar CSV com os dados
-      let csv = "Nome,Célula,Status de Pagamento\n";
+      // Criar CSV com BOM (Byte Order Mark) para UTF-8 e separador ponto-e-vírgula
+      // BOM garante que Excel reconheça corretamente os caracteres acentuados
+      const BOM = '\uFEFF';
+      let csv = BOM + "Nome;Célula;Status de Pagamento\n";
       
       inscricoesFiltradas.forEach((inscricao) => {
         const status = inscricao.statusPagamento === "pago" ? "Pago" : "Não Pago";
-        csv += `"${inscricao.nome}","${inscricao.celula}","${status}"\n`;
+        // Escapar aspas duplas e usar ponto-e-vírgula como separador
+        const nome = inscricao.nome.replace(/"/g, '""');
+        const celula = inscricao.celula.replace(/"/g, '""');
+        csv += `"${nome}";"${celula}";"${status}"\n`;
       });
       
       // Salvar arquivo
