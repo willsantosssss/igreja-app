@@ -1,0 +1,24 @@
+{
+  "query": "SELECT * FROM contribuicao;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT * FROM contribuicao;",
+  "rows": [
+    {
+      "id": "1",
+      "pixKey": "00020126580014br.gov.bcb.pix0136550e8c-4639-4053-a1c1-3c1f1d1e1d1e52040000530398654061051.005802BR5913SEGUNDA IGREJA6009RONDONOPOLIS62410503***63047D5D",
+      "titular": "Segunda Igreja Quadrangular de Rondonópolis",
+      "bank": "Banco do Brasil",
+      "agency": "0001",
+      "account": "123456-7",
+      "cnpj": "12.345.678/0001-90",
+      "mensagemMotivacional": "Sua generosidade transforma vidas e expande o reino de Deus. Cada contribuição é uma demonstração de fé e compromisso com a missão da Igreja.",
+      "versiculoRef": "Provérbios 3:9-10",
+      "mensagemAgradecimento": "Sua contribuição é essencial para o crescimento espiritual de nossa comunidade. Que Deus abençoe sua generosidade abundantemente!",
+      "createdAt": "2026-03-23 21:56:08",
+      "updatedAt": "2026-03-23 21:56:08"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpixKey\ttitular\tbank\tagency\taccount\tcnpj\tmensagemMotivacional\tversiculoRef\tmensagemAgradecimento\tcreatedAt\tupdatedAt\n1\t00020126580014br.gov.bcb.pix0136550e8c-4639-4053-a1c1-3c1f1d1e1d1e52040000530398654061051.005802BR5913SEGUNDA IGREJA6009RONDONOPOLIS62410503***63047D5D\tSegunda Igreja Quadrangular de Rondonópolis\tBanco do Brasil\t0001\t123456-7\t12.345.678/0001-90\tSua generosidade transforma vidas e expande o reino de Deus. Cada contribuição é uma demonstração de fé e compromisso com a missão da Igreja.\tProvérbios 3:9-10\tSua contribuição é essencial para o crescimento espiritual de nossa comunidade. Que Deus abençoe sua generosidade abundantemente!\t2026-03-23 21:56:08\t2026-03-23 21:56:08\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

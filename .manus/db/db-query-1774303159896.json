@@ -1,0 +1,24 @@
+{
+  "query": "SELECT * FROM contribuicao;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT * FROM contribuicao;",
+  "rows": [
+    {
+      "id": "2",
+      "pixKey": "62.955.505/3071-30",
+      "titular": "2ª IEQ Rondonópolis",
+      "bank": "Mercado Pago",
+      "agency": "0001",
+      "account": "22124669645",
+      "cnpj": "62.955.505/3071-30",
+      "mensagemMotivacional": "\"Cada um contribua segundo propôs no seu coração\"",
+      "versiculoRef": "2 Coríntios 9:7",
+      "mensagemAgradecimento": "Sua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.",
+      "createdAt": "2026-03-23 21:59:13",
+      "updatedAt": "2026-03-23 21:59:13"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpixKey\ttitular\tbank\tagency\taccount\tcnpj\tmensagemMotivacional\tversiculoRef\tmensagemAgradecimento\tcreatedAt\tupdatedAt\n2\t62.955.505/3071-30\t2ª IEQ Rondonópolis\tMercado Pago\t0001\t22124669645\t62.955.505/3071-30\t\"Cada um contribua segundo propôs no seu coração\"\t2 Coríntios 9:7\tSua contribuição ajuda a manter o trabalho da igreja e impactar vidas para o Reino de Deus.\t2026-03-23 21:59:13\t2026-03-23 21:59:13\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}
