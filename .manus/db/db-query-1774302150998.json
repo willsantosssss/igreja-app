@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando, respondido, testemunho, createdAt, updatedAt) VALUES\n('Pelo batismo', 'Para que as pessoas possam tomar a decisão de se batizar', 'Saúde', 0, 0, NULL, NOW(), NOW()),\n('Cura para a vó Luzia', 'Temos orado para que o Senhor cure ela completamente', 'Família', 0, 0, NULL, NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO pedidosOracao (nome, descricao, categoria, contadorOrando, respondido, testemunho, createdAt, updatedAt) VALUES\n('Pelo batismo', 'Para que as pessoas possam tomar a decisão de se batizar', 'Saúde', 0, 0, NULL, NOW(), NOW()),\n('Cura para a vó Luzia', 'Temos orado para que o Senhor cure ela completamente', 'Família', 0, 0, NULL, NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 139
+}
