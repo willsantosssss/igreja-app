@@ -210,13 +210,13 @@ export type InsertContribuicao = typeof contribuicoes.$inferInsert;
 export const inscricoesEventos = mysqlTable("inscricoesEventos", {
   id: int("id").primaryKey().autoincrement(),
   eventoId: int("eventoId").notNull(),
-  userId: int("userId").notNull(),
-  nome: varchar("nome", { length: 255 }).notNull(),
-  telefone: varchar("telefone", { length: 20 }).notNull(),
-  celula: varchar("celula", { length: 255 }).notNull(),
-  status: statusInscricaoEnum.default("confirmado").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  nomeInscrito: varchar("nomeInscrito", { length: 255 }).notNull(),
+  emailInscrito: varchar("emailInscrito", { length: 255 }),
+  telefoneinscrito: varchar("telefoneinscrito", { length: 20 }),
+  celulaInscrito: varchar("celulaInscrito", { length: 100 }),
+  dataInscricao: timestamp("dataInscricao").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export type InscricaoEvento = typeof inscricoesEventos.$inferSelect;
@@ -280,11 +280,12 @@ export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;
 export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimento", {
   id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
-  telefone: varchar("telefone", { length: 20 }).notNull(),
-  celula: varchar("celula", { length: 255 }).notNull(),
-  status: statusInscricaoEnum.default("confirmado").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  email: varchar("email", { length: 255 }),
+  celula: varchar("celula", { length: 100 }),
+  curso: varchar("curso", { length: 100 }),
+  dataInscricao: timestamp("dataInscricao").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export type InscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferSelect;
