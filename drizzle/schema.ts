@@ -1,4 +1,4 @@
-import {
+import { 
   mysqlTable, 
   mysqlEnum,
   int, 
@@ -22,7 +22,7 @@ export const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", 
 export const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
 
 export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   openId: varchar("openId", { length: 64 }).unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }).unique(),
@@ -39,7 +39,7 @@ export type InsertUser = typeof users.$inferInsert;
 
 // Celulas table
 export const celulas = mysqlTable("celulas", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
   lider: varchar("lider", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
@@ -57,7 +57,7 @@ export type InsertCelula = typeof celulas.$inferInsert;
 
 // Inscricoes de Batismo table
 export const inscricoesBatismo = mysqlTable("inscricoesBatismo", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
@@ -74,7 +74,7 @@ export type InsertInscricaoBatismo = typeof inscricoesBatismo.$inferInsert;
 
 // Usuarios Cadastrados (Membros) table
 export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }),
@@ -88,7 +88,7 @@ export type InsertUsuarioCadastrado = typeof usuariosCadastrados.$inferInsert;
 
 // Pedidos de Oracao table
 export const pedidosOracao = mysqlTable("pedidosOracao", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
   descricao: text("descricao").notNull(),
   categoria: varchar("categoria", { length: 50 }).notNull(),
@@ -104,7 +104,7 @@ export type InsertPedidoOracao = typeof pedidosOracao.$inferInsert;
 
 // Anotações de Devocional table
 export const anotacoesDevocional = mysqlTable("anotacoesDevocional", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   userId: int("userId").notNull(),
   livro: varchar("livro", { length: 100 }).notNull(),
   capitulo: int("capitulo").notNull(),
@@ -118,7 +118,7 @@ export type InsertAnotacaoDevocional = typeof anotacoesDevocional.$inferInsert;
 
 // Eventos table
 export const eventos = mysqlTable("eventos", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   descricao: text("descricao").notNull(),
   data: varchar("data", { length: 50 }).notNull(),
@@ -135,7 +135,7 @@ export type InsertEvento = typeof eventos.$inferInsert;
 
 // Noticias table
 export const noticias = mysqlTable("noticias", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   conteudo: text("conteudo").notNull(),
   data: varchar("data", { length: 50 }).notNull(),
@@ -150,7 +150,7 @@ export type InsertNoticia = typeof noticias.$inferInsert;
 
 // Aviso Importante table
 export const avisoImportante = mysqlTable("avisoImportante", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   mensagem: text("mensagem").notNull(),
   ativo: int("ativo").default(1).notNull(),
@@ -164,7 +164,7 @@ export type InsertAvisoImportante = typeof avisoImportante.$inferInsert;
 
 // Contatos Igreja table
 export const contatosIgreja = mysqlTable("contatosIgreja", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   whatsapp: varchar("whatsapp", { length: 20 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -177,7 +177,7 @@ export type InsertContatoIgreja = typeof contatosIgreja.$inferInsert;
 
 // Aniversariantes table
 export const aniversariantes = mysqlTable("aniversariantes", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
   dataNascimento: varchar("dataNascimento", { length: 10 }).notNull(), // Formato: DD/MM/YYYY
   celula: varchar("celula", { length: 255 }),
@@ -191,7 +191,7 @@ export type InsertAniversariante = typeof aniversariantes.$inferInsert;
 
 // Contribuições table
 export const contribuicoes = mysqlTable("contribuicoes", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   valor: varchar("valor", { length: 20 }).notNull(), // Formato: "R$ 100,00"
@@ -208,7 +208,7 @@ export type InsertContribuicao = typeof contribuicoes.$inferInsert;
 
 // Inscrições em Eventos table
 export const inscricoesEventos = mysqlTable("inscricoesEventos", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   eventoId: int("eventoId").notNull(),
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
@@ -224,7 +224,7 @@ export type InsertInscricaoEvento = typeof inscricoesEventos.$inferInsert;
 
 // Líderes table
 export const lideres = mysqlTable("lideres", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
@@ -240,7 +240,7 @@ export type InsertLider = typeof lideres.$inferInsert;
 
 // Relatórios table
 export const relatorios = mysqlTable("relatorios", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   liderId: int("liderId").notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(), // semanal, mensal, trimestral
@@ -258,7 +258,7 @@ export type InsertRelatorio = typeof relatorios.$inferInsert;
 
 // Dados de Contribuição table (configurações gerais de PIX e banco)
 export const dadosContribuicao = mysqlTable("dadosContribuicao", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   pixKey: varchar("pixKey", { length: 255 }).notNull(),
   pixType: pixTypeEnum("pixType").notNull(),
   bank: varchar("bank", { length: 255 }).notNull(),
@@ -277,10 +277,11 @@ export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;
 
 // Inscrições em Escola de Crescimento table
 export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimento", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   nome: varchar("nome", { length: 255 }).notNull(),
+  telefone: varchar("telefone", { length: 20 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
-  curso: varchar("curso", { length: 50 }).notNull(), // Conecte, Lidere 1, Lidere 2, Avance
+  status: statusInscricaoEnum("status").default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -288,13 +289,28 @@ export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimen
 export type InscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferSelect;
 export type InsertInscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferInsert;
 
+// Pagamentos de Eventos table
+export const pagamentosEventos = mysqlTable("pagamentosEventos", {
+  id: int("id").primaryKey().autoincrement(),
+  inscricaoId: int("inscricaoId").notNull(),
+  valor: varchar("valor", { length: 20 }).notNull(),
+  metodo: varchar("metodo", { length: 50 }).notNull(), // pix, dinheiro, cartao
+  status: varchar("status", { length: 50 }).default("pendente").notNull(),
+  comprovante: varchar("comprovante", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type PagamentoEvento = typeof pagamentosEventos.$inferSelect;
+export type InsertPagamentoEvento = typeof pagamentosEventos.$inferInsert;
+
 // Anexos table
 export const anexos = mysqlTable("anexos", {
-  id: int("id").autoincrement().primaryKey(),
-  nome: varchar("nome", { length: 255 }).notNull(),
-  url: varchar("url", { length: 500 }).notNull(),
+  id: int("id").primaryKey().autoincrement(),
+  relatorioId: int("relatorioId").notNull(),
+  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
+  urlArquivo: varchar("urlArquivo", { length: 500 }).notNull(),
   tipo: varchar("tipo", { length: 50 }).notNull(),
-  tamanho: int("tamanho").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -304,26 +320,14 @@ export type InsertAnexo = typeof anexos.$inferInsert;
 
 // Anexos Líderes table
 export const anexosLideres = mysqlTable("anexosLideres", {
-  id: int("id").autoincrement().primaryKey(),
+  id: int("id").primaryKey().autoincrement(),
   liderId: int("liderId").notNull(),
-  anexoId: int("anexoId").notNull(),
+  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
+  urlArquivo: varchar("urlArquivo", { length: 500 }).notNull(),
+  tipo: varchar("tipo", { length: 50 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type AnexoLider = typeof anexosLideres.$inferSelect;
 export type InsertAnexoLider = typeof anexosLideres.$inferInsert;
-
-// Pagamentos de Eventos table
-export const pagamentosEventos = mysqlTable("pagamentosEventos", {
-  id: int("id").autoincrement().primaryKey(),
-  inscricaoId: int("inscricaoId").notNull(),
-  valor: varchar("valor", { length: 20 }).notNull(),
-  status: varchar("status", { length: 50 }).notNull(), // pendente, confirmado, cancelado
-  dataConfirmacao: timestamp("dataConfirmacao"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
-
-export type PagamentoEvento = typeof pagamentosEventos.$inferSelect;
-export type InsertPagamentoEvento = typeof pagamentosEventos.$inferInsert;
