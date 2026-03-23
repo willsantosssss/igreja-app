@@ -15,11 +15,11 @@ import {
  */
 
 // Enums for MySQL
-export const roleEnum = mysqlEnum("role", ["user", "admin"]);
-export const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
-export const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
-export const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", "cancelado"]);
-export const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
+const roleEnum = mysqlEnum("role", ["user", "admin"]);
+const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
+const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
+const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", "cancelado"]);
+const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(),
@@ -28,7 +28,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }).unique(),
   passwordHash: text("passwordHash"),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: roleEnum("role").default("user").notNull(),
+  role: roleEnum.default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -63,7 +63,7 @@ export const inscricoesBatismo = mysqlTable("inscricoesBatismo", {
   celula: varchar("celula", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   motivacao: text("motivacao").notNull(),
-  status: statusBatismoEnum("status").default("pendente").notNull(),
+  status: statusBatismoEnum.default("pendente").notNull(),
   dataProcessamento: timestamp("dataProcessamento"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
@@ -198,7 +198,7 @@ export const contribuicoes = mysqlTable("contribuicoes", {
   tipo: varchar("tipo", { length: 50 }).notNull(), // dizimo, oferta, missoes
   data: varchar("data", { length: 50 }).notNull(),
   comprovanteUrl: varchar("comprovanteUrl", { length: 500 }),
-  status: statusContribuicaoEnum("status").default("pendente").notNull(),
+  status: statusContribuicaoEnum.default("pendente").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -214,7 +214,7 @@ export const inscricoesEventos = mysqlTable("inscricoesEventos", {
   nome: varchar("nome", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
-  status: statusInscricaoEnum("status").default("confirmado").notNull(),
+  status: statusInscricaoEnum.default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -260,7 +260,7 @@ export type InsertRelatorio = typeof relatorios.$inferInsert;
 export const dadosContribuicao = mysqlTable("dadosContribuicao", {
   id: int("id").primaryKey().autoincrement(),
   pixKey: varchar("pixKey", { length: 255 }).notNull(),
-  pixType: pixTypeEnum("pixType").notNull(),
+  pixType: pixTypeEnum.notNull(),
   bank: varchar("bank", { length: 255 }).notNull(),
   agency: varchar("agency", { length: 50 }).notNull(),
   account: varchar("account", { length: 50 }).notNull(),
@@ -281,7 +281,7 @@ export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimen
   nome: varchar("nome", { length: 255 }).notNull(),
   telefone: varchar("telefone", { length: 20 }).notNull(),
   celula: varchar("celula", { length: 255 }).notNull(),
-  status: statusInscricaoEnum("status").default("confirmado").notNull(),
+  status: statusInscricaoEnum.default("confirmado").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

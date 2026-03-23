@@ -21,6 +21,7 @@ export default function CelulasScreen() {
 
 
   useEffect(() => {
+    console.log('[CelulasScreen] celulasData:', celulasData);
     if (celulasData) {
       setCelulas((celulasData as any[]).map((c: any) => ({
         id: c.id.toString(),
@@ -122,7 +123,7 @@ export default function CelulasScreen() {
                   {celula.name}
                 </Text>
                 <View className="flex-row items-center gap-2">
-                  <IconSymbol name="calendar" size={16} color={colors.muted} />
+                  <IconSymbol name="clock.fill" size={16} color={colors.muted} />
                   <Text className="text-sm text-muted">
                     {celula.schedule.day} às {celula.schedule.time}
                   </Text>

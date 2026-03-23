@@ -31,27 +31,20 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // CORS whitelist - only allow requests from authorized origins
-  // Update this list with your production domains
-  const ALLOWED_ORIGINS = [
-    "https://igrejaapp-clukbfbs.manus.space",
-  ];
-  
-  // Allow localhost only in development
-  if (process.env.NODE_ENV === "development") {
-    ALLOWED_ORIGINS.push(
-      "http://localhost:3000",
-      "http://localhost:8081",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:8081"
-    );
-  }
-
-  // CORS middleware - check origin against whitelist
+  // CORS middleware - allow all Manus domains and localhost
   app.use((req, res, next) => {
     const origin = req.headers.origin;
     
-    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    // Allow all Manus domains (*.manus.computer, *.manus.space)
+    // and localhost for development
+    const isManusDomain = origin && (
+      origin.includes(".manus.computer") ||
+      origin.includes(".manus.space") ||
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1")
+    );
+    
+    if (isManusDomain) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
       res.header(

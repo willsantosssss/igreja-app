@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as total, GROUP_CONCAT(nome) as nomes FROM celulas;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT COUNT(*) as total, GROUP_CONCAT(nome) as nomes FROM celulas;",
+  "rows": [
+    {
+      "total": "10",
+      "nomes": "Pr. Will e Pra. Fernanda,Wellington e Joice,Deisiane,Jucilene,Adalberto e Julia,Kacio e Nivia,Vitor e Rayara,João Luan e Karine,Guilherme e Maria Eduarda,Vitor Indiano e Mariani"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tnomes\n10\tPr. Will e Pra. Fernanda,Wellington e Joice,Deisiane,Jucilene,Adalberto e Julia,Kacio e Nivia,Vitor e Rayara,João Luan e Karine,Guilherme e Maria Eduarda,Vitor Indiano e Mariani\n",
+  "stderr": "",
+  "execution_time_ms": 149
+}
