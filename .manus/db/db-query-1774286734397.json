@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario) VALUES\n('Célula Centro', 'Guilherme', '65999999999', 'Rua Principal, 100', '-15.7942', '-54.7063', 'Segunda', '19:30'),\n('Célula Norte', 'Pra. Fernanda', '65988888888', 'Avenida Norte, 200', '-15.7900', '-54.7000', 'Terça', '20:00'),\n('Célula Sul', 'Pr. Will', '65977777777', 'Rua Sul, 300', '-15.8000', '-54.7100', 'Quarta', '19:30'),\n('Célula Leste', 'Wellington', '65966666666', 'Avenida Leste, 400', '-15.7950', '-54.6950', 'Quinta', '20:00'),\n('Célula Oeste', 'Joice', '65955555555', 'Rua Oeste, 500', '-15.7900', '-54.7200', 'Sexta', '19:30'),\n('Célula Zona Rural', 'Deisiane', '65944444444', 'Estrada Rural, 600', '-15.8100', '-54.7300', 'Sábado', '14:00');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute INSERT INTO celulas (nome, lider, telefone, endereco, latitude, longitude, diaReuniao, horario) VALUES\n('Célula Centro', 'Guilherme', '65999999999', 'Rua Principal, 100', '-15.7942', '-54.7063', 'Segunda', '19:30'),\n('Célula Norte', 'Pra. Fernanda', '65988888888', 'Avenida Norte, 200', '-15.7900', '-54.7000', 'Terça', '20:00'),\n('Célula Sul', 'Pr. Will', '65977777777', 'Rua Sul, 300', '-15.8000', '-54.7100', 'Quarta', '19:30'),\n('Célula Leste', 'Wellington', '65966666666', 'Avenida Leste, 400', '-15.7950', '-54.6950', 'Quinta', '20:00'),\n('Célula Oeste', 'Joice', '65955555555', 'Rua Oeste, 500', '-15.7900', '-54.7200', 'Sexta', '19:30'),\n('Célula Zona Rural', 'Deisiane', '65944444444', 'Estrada Rural, 600', '-15.8100', '-54.7300', 'Sábado', '14:00');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 177
+}
