@@ -133,7 +133,7 @@ export async function getUsuarioCadastrado(userId: number) {
 export async function getAllUsuariosCadastrados() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(usuariosCadastrados);
+  return await db.select().from(usuariosCadastrados);
 }
 
 // ==================== CÉLULAS ====================
@@ -141,7 +141,7 @@ export async function getAllUsuariosCadastrados() {
 export async function getCelulas() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(celulas);
+  return await db.select().from(celulas);
 }
 
 export async function getCelulaById(id: number) {
@@ -174,13 +174,13 @@ export async function deleteCelula(id: number) {
 export async function getInscricoesBatismo() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inscricoesBatismo);
+  return await db.select().from(inscricoesBatismo);
 }
 
 export async function getInscricoesBatismoPendentes() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inscricoesBatismo).where(eq(inscricoesBatismo.status, "pendente"));
+  return await db.select().from(inscricoesBatismo).where(eq(inscricoesBatismo.status, "pendente"));
 }
 
 export async function createInscricaoBatismo(data: InsertInscricaoBatismo) {
@@ -206,7 +206,7 @@ export async function deleteInscricaoBatismo(id: number) {
 export async function getPedidosOracao() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(pedidosOracao);
+  return await db.select().from(pedidosOracao);
 }
 
 export async function getPedidoOracaoById(id: number) {
@@ -334,7 +334,7 @@ export async function getEventoById(id: number) {
 export async function getEventosEspeciais() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(eventos).where(eq(eventos.especial, true));
+  return await db.select().from(eventos).where(eq(eventos.especial, true));
 }
 
 export async function createEvento(data: InsertEvento) {
@@ -360,7 +360,7 @@ export async function deleteEvento(id: number) {
 export async function getNoticias() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(noticias);
+  return await db.select().from(noticias);
 }
 
 export async function getNoticiaById(id: number) {
@@ -393,7 +393,7 @@ export async function deleteNoticia(id: number) {
 export async function getAvisosImportantes() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(avisoImportante);
+  return await db.select().from(avisoImportante);
 }
 
 export async function getAvisoImportante() {
@@ -454,7 +454,7 @@ export async function saveAvisoImportante(data: InsertAvisoImportante) {
 export async function getContatosIgreja() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(contatosIgreja);
+  return await db.select().from(contatosIgreja);
 }
 
 export async function createContatoIgreja(data: InsertContatoIgreja) {
@@ -480,7 +480,7 @@ export async function deleteContatoIgreja(id: number) {
 export async function getLideres() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(lideres);
+  return await db.select().from(lideres);
 }
 
 export async function getLiderByUserId(userId: number) {
@@ -530,19 +530,19 @@ export async function deleteLider(id: number) {
 export async function getRelatorios() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(relatorios);
+  return await db.select().from(relatorios);
 }
 
 export async function getRelatoriosByCelula(celula: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(relatorios).where(eq(relatorios.celula, celula));
+  return await db.select().from(relatorios).where(eq(relatorios.celula, celula));
 }
 
 export async function getRelatoriosByLiderId(liderId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
+  return await db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
 }
 
 export async function getRelatoriosByLiderIdWithFilters(
@@ -660,13 +660,13 @@ export async function updateDadosContribuicao(data: Partial<InsertDadosContribui
 export async function getContribuicoes() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(contribuicoes);
+  return await db.select().from(contribuicoes);
 }
 
 export async function getContribuicoesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(contribuicoes).where(eq(contribuicoes.userId, userId));
+  return await db.select().from(contribuicoes).where(eq(contribuicoes.userId, userId));
 }
 
 export async function createContribuicao(data: any) {
@@ -717,7 +717,7 @@ export async function getInscricoesEventos() {
 export async function getInscricoesEventosByEventoId(eventoId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inscricoesEventos).where(eq(inscricoesEventos.eventoId, eventoId));
+  return await db.select().from(inscricoesEventos).where(eq(inscricoesEventos.eventoId, eventoId));
 }
 
 export async function createInscricaoEvento(data: InsertInscricaoEvento) {
@@ -738,7 +738,7 @@ export async function deleteInscricaoEvento(id: number) {
 export async function getInscricoesEscolaCrescimento() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(inscricoesEscolaCrescimento);
+  return await db.select().from(inscricoesEscolaCrescimento);
 }
 
 export async function createInscricaoEscolaCrescimento(data: InsertInscricaoEscolaCrescimento) {
@@ -888,7 +888,7 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 export async function getAnexosLideres() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+  return await db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
 }
 
 export async function getAnexoLiderById(id: number) {
