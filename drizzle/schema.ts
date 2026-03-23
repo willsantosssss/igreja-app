@@ -19,7 +19,7 @@ const roleEnum = mysqlEnum("role", ["user", "admin"]);
 const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
 const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
 const statusInscricaoEnum = mysqlEnum("status_inscricao", ["confirmado", "cancelado"]);
-const pixTypeEnum = mysqlEnum("pix_type", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
+const pixTypeEnum = mysqlEnum("pixType", ["email", "cpf", "cnpj", "telefone", "aleatoria"]);
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(),
@@ -268,6 +268,7 @@ export const dadosContribuicao = mysqlTable("dadosContribuicao", {
   titular: varchar("titular", { length: 255 }).notNull(),
   mensagemMotivacional: text("mensagemMotivacional").notNull(),
   versiculoRef: varchar("versiculoRef", { length: 255 }).notNull(),
+  mensagemAgradecimento: text("mensagemAgradecimento").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
