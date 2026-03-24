@@ -215,9 +215,9 @@ export const inscricoesEventos = mysqlTable("inscricoesEventos", {
   email: varchar("emailInscrito", { length: 255 }),
   telefone: varchar("telefoneinscrito", { length: 20 }),
   celula: varchar("celulaInscrito", { length: 100 }),
-  dataInscricao: timestamp("dataInscricao").defaultNow(),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
+  dataInscricao: timestamp("dataInscricao"),
+  createdAt: timestamp("createdAt"),
+  updatedAt: timestamp("updatedAt"),
 });
 
 export type InscricaoEvento = typeof inscricoesEventos.$inferSelect;
@@ -286,9 +286,9 @@ export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimen
   celula: varchar("celula", { length: 100 }),
   curso: varchar("curso", { length: 100 }),
   status: varchar("status", { length: 50 }).default("confirmado"),
-  dataInscricao: timestamp("dataInscricao").defaultNow(),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
+  dataInscricao: timestamp("dataInscricao"),
+  createdAt: timestamp("createdAt"),
+  updatedAt: timestamp("updatedAt"),
 });
 
 export type InscricaoEscolaCrescimento = typeof inscricoesEscolaCrescimento.$inferSelect;
