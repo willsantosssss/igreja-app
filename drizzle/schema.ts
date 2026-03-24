@@ -210,10 +210,11 @@ export type InsertContribuicao = typeof contribuicoes.$inferInsert;
 export const inscricoesEventos = mysqlTable("inscricoesEventos", {
   id: int("id").primaryKey().autoincrement(),
   eventoId: int("eventoId").notNull(),
-  nomeInscrito: varchar("nomeInscrito", { length: 255 }).notNull(),
-  emailInscrito: varchar("emailInscrito", { length: 255 }),
-  telefoneinscrito: varchar("telefoneinscrito", { length: 20 }),
-  celulaInscrito: varchar("celulaInscrito", { length: 100 }),
+  userId: int("userId"),
+  nome: varchar("nomeInscrito", { length: 255 }).notNull(),
+  email: varchar("emailInscrito", { length: 255 }),
+  telefone: varchar("telefoneinscrito", { length: 20 }),
+  celula: varchar("celulaInscrito", { length: 100 }),
   dataInscricao: timestamp("dataInscricao").defaultNow(),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
@@ -279,10 +280,12 @@ export type InsertDadosContribuicao = typeof dadosContribuicao.$inferInsert;
 // Inscrições em Escola de Crescimento table
 export const inscricoesEscolaCrescimento = mysqlTable("inscricoesEscolaCrescimento", {
   id: int("id").primaryKey().autoincrement(),
+  userId: int("userId"),
   nome: varchar("nome", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }),
   celula: varchar("celula", { length: 100 }),
   curso: varchar("curso", { length: 100 }),
+  status: varchar("status", { length: 50 }).default("confirmado"),
   dataInscricao: timestamp("dataInscricao").defaultNow(),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),

@@ -45,7 +45,7 @@ export default function EscolaCrescimentoScreen() {
       await criarInscricaoMutation.mutateAsync({
         nome: nome.trim(),
         celula: celula.trim(),
-        curso,
+        curso: curso,
       });
 
       if (Platform.OS !== "web") {
