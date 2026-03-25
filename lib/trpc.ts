@@ -23,6 +23,7 @@ export function createTRPCClient() {
   const apiBaseUrl = getApiBaseUrl();
   const trpcUrl = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : `/api/trpc`;
   console.log('[tRPC] Using URL:', trpcUrl);
+  console.log('[tRPC] API Base URL:', apiBaseUrl);
   
   return trpc.createClient({
     links: [
@@ -30,16 +31,30 @@ export function createTRPCClient() {
         url: trpcUrl,
         // tRPC v11: transformer MUST be inside httpBatchLink, not at root
         transformer: superjson,
+        // Use GET for queries to avoid POST issues
+        methodOverride: 'GET',
         async headers() {
           const token = await Auth.getSessionToken();
           return token ? { Authorization: `Bearer ${token}` } : {};
         },
         // Custom fetch to include credentials for cookie-based auth
-        fetch(url, options) {
-          return fetch(url, {
-            ...options,
-            credentials: "include",
-          });
+        async fetch(url, options) {
+          try {
+            console.log('[tRPC] Fetching from:', url);
+            const response = await fetch(url, {
+              ...options,
+              credentials: "include",
+            });
+            
+            if (!response.ok) {
+              console.error('[tRPC] Response not OK:', response.status, response.statusText);
+            }
+            
+            return response;
+          } catch (error) {
+            console.error('[tRPC] Fetch error:', error);
+            throw error;
+          }
         },
       }),
     ],

@@ -28,6 +28,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Debug: Log environment variables
+  console.log('[Server] Environment variables:');
+  console.log('[Server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+  console.log('[Server] NODE_ENV:', process.env.NODE_ENV);
+  console.log('[Server] PORT:', process.env.PORT);
+  
   const app = express();
   const server = createServer(app);
 
