@@ -22,6 +22,8 @@ export function createTRPCClient() {
   // Get API base URL - on web, this converts 8081 (Metro) to 3000 (API Server)
   const apiBaseUrl = getApiBaseUrl();
   const trpcUrl = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : `/api/trpc`;
+  console.log('[tRPC] Creating client...');
+  console.log('[tRPC] API_BASE_URL env:', process.env.EXPO_PUBLIC_API_BASE_URL);
   console.log('[tRPC] Using URL:', trpcUrl);
   console.log('[tRPC] API Base URL:', apiBaseUrl);
   
@@ -31,8 +33,6 @@ export function createTRPCClient() {
         url: trpcUrl,
         // tRPC v11: transformer MUST be inside httpBatchLink, not at root
         transformer: superjson,
-        // Use GET for queries to avoid POST issues
-        methodOverride: 'GET',
         async headers() {
           const token = await Auth.getSessionToken();
           return token ? { Authorization: `Bearer ${token}` } : {};
@@ -46,8 +46,11 @@ export function createTRPCClient() {
               credentials: "include",
             });
             
+            console.log('[tRPC] Response status:', response.status);
             if (!response.ok) {
               console.error('[tRPC] Response not OK:', response.status, response.statusText);
+              const text = await response.text();
+              console.error('[tRPC] Response body:', text);
             }
             
             return response;
@@ -55,7 +58,7 @@ export function createTRPCClient() {
             console.error('[tRPC] Fetch error:', error);
             throw error;
           }
-        },
+        }
       }),
     ],
   });

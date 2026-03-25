@@ -35,10 +35,21 @@ export function getApiBaseUrl(): string {
     return API_BASE_URL.replace(/\/$/, "");
   }
 
-  // On web, use relative URL to avoid CORS issues with hostname transformation
-  // The Metro dev server will proxy /api requests to localhost:3000
+  // On web, transform hostname from 8081 to 3000
   if (ReactNative.Platform.OS === "web" && typeof window !== "undefined") {
-    return "";
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    
+    // Transform 8081-xxx to 3000-xxx
+    const apiHostname = hostname.replace(/^8081-/, "3000-");
+    
+    // If hostname doesn't start with 8081-, assume it's localhost or similar
+    if (apiHostname === hostname) {
+      // Try localhost:3000 as fallback
+      return `${protocol}//localhost:3000`;
+    }
+    
+    return `${protocol}//${apiHostname}`;
   }
 
   // On native, derive from current hostname by replacing port 8081 with 3000
