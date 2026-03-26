@@ -48,7 +48,14 @@ export async function loginUser(email: string, password: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const userResult = await db.select().from(users).where(eq(users.email, email));
+  let userResult;
+  try {
+    userResult = await db.select().from(users).where(eq(users.email, email));
+  } catch (error: any) {
+    console.error("[Auth] Login query error:", error);
+    throw error;
+  }
+  
   if (userResult.length === 0) {
     throw new Error("Invalid email or password");
   }

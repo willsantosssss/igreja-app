@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total_users FROM users; SELECT * FROM users WHERE email = '2ieqroo@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT COUNT(*) as total_users FROM users; SELECT * FROM users WHERE email = '2ieqroo@gmail.com';",
+  "rows": [
+    {
+      "total_users": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_users\n1\n",
+  "stderr": "",
+  "execution_time_ms": 202
+}

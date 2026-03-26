@@ -30,7 +30,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   // Debug: Log environment variables
   console.log('[Server] Environment variables:');
-  console.log('[Server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+  if (process.env.DATABASE_URL) {
+    const url = new URL(process.env.DATABASE_URL.replace('mysql://', 'http://').replace('mysql2://', 'http://'));
+    console.log('[Server] DATABASE_URL:', `${url.protocol}//${url.hostname}:${url.port}/${url.pathname}`);
+  } else {
+    console.log('[Server] DATABASE_URL: NOT SET');
+  }
   console.log('[Server] NODE_ENV:', process.env.NODE_ENV);
   console.log('[Server] PORT:', process.env.PORT);
   
