@@ -90,7 +90,9 @@ export default function AgendaScreen() {
   );
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Parse date string as local time (YYYY-MM-DD format)
+    // Add T00:00:00 to ensure it's interpreted as midnight in local timezone, not UTC
+    const date = new Date(dateStr + "T00:00:00");
     const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
