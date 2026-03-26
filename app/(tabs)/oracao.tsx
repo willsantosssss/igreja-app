@@ -30,6 +30,14 @@ export default function OracaoScreen() {
 
   const incrementCounterMutation = trpc.oracao.incrementarContador.useMutation({
     onSuccess: () => {
+      // Atualizar os dados locais imediatamente
+      setPedidos(prevPedidos => 
+        prevPedidos.map(p => 
+          p.id === prayingFor.values().next().value?.toString() 
+            ? { ...p, prayingCount: (p.prayingCount || 0) + 1 }
+            : p
+        )
+      );
       refetch();
     },
   });
@@ -88,11 +96,28 @@ export default function OracaoScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       
-      // Incrementar contador no banco apenas quando começar a orar
+      // Atualizar o contador na UI imediatamente
+      setPedidos(prevPedidos => 
+        prevPedidos.map(p => 
+          p.id === id 
+            ? { ...p, prayingCount: (p.prayingCount || 0) + 1 }
+            : p
+        )
+      );
+      
+      // Incrementar contador no banco
       try {
         await incrementCounterMutation.mutateAsync(parseInt(id));
       } catch (error) {
         console.error("Erro ao incrementar contador:", error);
+        // Se falhar, desfazer a atualização local
+        setPedidos(prevPedidos => 
+          prevPedidos.map(p => 
+            p.id === id 
+              ? { ...p, prayingCount: Math.max(0, (p.prayingCount || 1) - 1) }
+              : p
+          )
+        );
       }
     }
     

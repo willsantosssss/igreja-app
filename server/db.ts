@@ -911,21 +911,35 @@ export async function getMembrosPorCelula(celula: string) {
 // ==================== ORAÇÃO - INCREMENTAR CONTADOR ====================
 
 export async function incrementarContadorOracao(pedidoId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
   
   try {
-    // Buscar pedido atual
-    const pedido = await db.select().from(pedidosOracao).where(eq(pedidosOracao.id, pedidoId));
-    if (!pedido || pedido.length === 0) throw new Error("Pedido not found");
-    
-    // Incrementar contador
-    const novoContador = (pedido[0].contadorOrando || 0) + 1;
-    await db.update(pedidosOracao)
-      .set({ contadorOrando: novoContador })
-      .where(eq(pedidosOracao.id, pedidoId));
-    
-    return { success: true, novoContador };
+    const connection = await pool.getConnection();
+    try {
+      // Buscar pedido atual usando raw SQL
+      const [pedidos] = await connection.query(
+        'SELECT contadorOrando FROM pedidosOracao WHERE id = ?',
+        [pedidoId]
+      );
+      
+      if (!pedidos || (Array.isArray(pedidos) && pedidos.length === 0)) {
+        throw new Error("Pedido not found");
+      }
+      
+      const pedido = Array.isArray(pedidos) ? pedidos[0] : pedidos;
+      const novoContador = (pedido.contadorOrando || 0) + 1;
+      
+      // Incrementar contador
+      await connection.query(
+        'UPDATE pedidosOracao SET contadorOrando = ? WHERE id = ?',
+        [novoContador, pedidoId]
+      );
+      
+      return { success: true, novoContador };
+    } finally {
+      connection.release();
+    }
   } catch (error) {
     console.error("[Database] Error incrementing oracao counter:", error);
     throw error;
