@@ -101,15 +101,22 @@ export default function HomeScreen() {
       // Filtrar eventos futuros e ordenar por data
       const eventosFuturos = (eventosData as any[])
         .filter((e: any) => {
-          const dataEvento = new Date(e.data);
+          const dataStr = (e.data as string).includes('T') ? e.data : `${e.data}T00:00:00`;
+          const dataEvento = new Date(dataStr);
           dataEvento.setHours(0, 0, 0, 0);
           return dataEvento >= hoje;
         })
-        .sort((a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime());
+        .sort((a: any, b: any) => {
+          const dataAStr = (a.data as string).includes('T') ? a.data : `${a.data}T00:00:00`;
+          const dataBStr = (b.data as string).includes('T') ? b.data : `${b.data}T00:00:00`;
+          return new Date(dataAStr).getTime() - new Date(dataBStr).getTime();
+        });
 
       if (eventosFuturos.length > 0) {
         const evento = eventosFuturos[0];
-        const data = new Date(evento.data as string);
+        // Adicionar "T00:00:00" para interpretar como meia-noite no fuso horário local
+        const dataStr = (evento.data as string).includes('T') ? evento.data : `${evento.data}T00:00:00`;
+        const data = new Date(dataStr);
         const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
         const diaSemana = diasSemana[data.getDay()];
         
