@@ -137,12 +137,10 @@ export type InsertEvento = typeof eventos.$inferInsert;
 export const noticias = mysqlTable("noticias", {
   id: int("id").primaryKey().autoincrement(),
   titulo: varchar("titulo", { length: 255 }).notNull(),
-  conteudo: text("conteudo").notNull(),
-  data: varchar("data", { length: 50 }).notNull(),
-  imagemUrl: varchar("imagemUrl", { length: 500 }),
-  destaque: int("destaque").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  conteudo: text("conteudo"),
+  data: varchar("data", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export type Noticia = typeof noticias.$inferSelect;
