@@ -1,0 +1,22 @@
+{
+  "query": "SHOW TABLES LIKE 'pedidosOracao'; SELECT * FROM pedidosOracao LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SHOW TABLES LIKE 'pedidosOracao'; SELECT * FROM pedidosOracao LIMIT 10;",
+  "rows": [
+    {
+      "Tables_in_cLUkBFbsZfcYG9rNRXMeP2 (pedidosOracao)": "pedidosOracao"
+    },
+    {
+      "Tables_in_cLUkBFbsZfcYG9rNRXMeP2 (pedidosOracao)": "id\tnome\tdescricao\tcategoria\tcontadorOrando\tcreatedAt\tupdatedAt\trespondido\ttestemunho"
+    },
+    {
+      "Tables_in_cLUkBFbsZfcYG9rNRXMeP2 (pedidosOracao)": "1\tPelo batismo\tPara que as pessoas possam tomar a decisão de se batizar\tSaúde\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:30\t0\tNULL"
+    },
+    {
+      "Tables_in_cLUkBFbsZfcYG9rNRXMeP2 (pedidosOracao)": "2\tCura para a vó Luzia\tTemos orado para que o Senhor cure ela completamente\tFamília\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:31\t0\tNULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_cLUkBFbsZfcYG9rNRXMeP2 (pedidosOracao)\npedidosOracao\nid\tnome\tdescricao\tcategoria\tcontadorOrando\tcreatedAt\tupdatedAt\trespondido\ttestemunho\n1\tPelo batismo\tPara que as pessoas possam tomar a decisão de se batizar\tSaúde\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:30\t0\tNULL\n2\tCura para a vó Luzia\tTemos orado para que o Senhor cure ela completamente\tFamília\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:31\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 6698
+}

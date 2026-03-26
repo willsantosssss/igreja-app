@@ -1,0 +1,32 @@
+{
+  "query": "SELECT * FROM pedidosOracao;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT * FROM pedidosOracao;",
+  "rows": [
+    {
+      "id": "1",
+      "nome": "Pelo batismo",
+      "descricao": "Para que as pessoas possam tomar a decisão de se batizar",
+      "categoria": "Saúde",
+      "contadorOrando": "2",
+      "createdAt": "2026-03-23 21:42:30",
+      "updatedAt": "2026-03-23 21:53:30",
+      "respondido": "0",
+      "testemunho": "NULL"
+    },
+    {
+      "id": "2",
+      "nome": "Cura para a vó Luzia",
+      "descricao": "Temos orado para que o Senhor cure ela completamente",
+      "categoria": "Família",
+      "contadorOrando": "2",
+      "createdAt": "2026-03-23 21:42:30",
+      "updatedAt": "2026-03-23 21:53:31",
+      "respondido": "0",
+      "testemunho": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnome\tdescricao\tcategoria\tcontadorOrando\tcreatedAt\tupdatedAt\trespondido\ttestemunho\n1\tPelo batismo\tPara que as pessoas possam tomar a decisão de se batizar\tSaúde\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:30\t0\tNULL\n2\tCura para a vó Luzia\tTemos orado para que o Senhor cure ela completamente\tFamília\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:31\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
