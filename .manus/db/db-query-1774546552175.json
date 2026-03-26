@@ -1,0 +1,86 @@
+{
+  "query": "DESCRIBE pedidosOracao; SELECT * FROM pedidosOracao;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute DESCRIBE pedidosOracao; SELECT * FROM pedidosOracao;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "nome",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "descricao",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "categoria",
+      "Type": "varchar(50)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "contadorOrando",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "respondido",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "testemunho",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [
+    "id\tnome\tdescricao\tcategoria\tcontadorOrando\tcreatedAt\tupdatedAt\trespondido\ttestemunho",
+    "1\tPelo batismo\tPara que as pessoas possam tomar a decisão de se batizar\tSaúde\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:30\t0\tNULL",
+    "2\tCura para a vó Luzia\tTemos orado para que o Senhor cure ela completamente\tFamília\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:31\t0\tNULL"
+  ],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\nnome\tvarchar(255)\tNO\t\tNULL\t\ndescricao\ttext\tNO\t\tNULL\t\ncategoria\tvarchar(50)\tNO\t\tNULL\t\ncontadorOrando\tint\tNO\t\t0\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\nrespondido\tint\tNO\t\t0\t\ntestemunho\ttext\tYES\t\tNULL\t\nid\tnome\tdescricao\tcategoria\tcontadorOrando\tcreatedAt\tupdatedAt\trespondido\ttestemunho\n1\tPelo batismo\tPara que as pessoas possam tomar a decisão de se batizar\tSaúde\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:30\t0\tNULL\n2\tCura para a vó Luzia\tTemos orado para que o Senhor cure ela completamente\tFamília\t2\t2026-03-23 21:42:30\t2026-03-23 21:53:31\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 143
+}
