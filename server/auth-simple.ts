@@ -21,7 +21,7 @@ export async function signupUser(email: string, password: string, name: string) 
     // Insert user and get the created user
     await db.insert(users).values({
       email,
-      passwordHash,
+      password: passwordHash,
       name,
       loginMethod: "email",
       openId: null,
@@ -56,11 +56,32 @@ export async function loginUser(email: string, password: string) {
   const user = userResult[0];
   const passwordHash = hashPassword(password);
 
-  if (user.passwordHash !== passwordHash) {
+  if (user.password !== passwordHash) {
     throw new Error("Invalid email or password");
   }
 
   await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
 
   return { success: true, userId: user.id, email: user.email, name: user.name };
+}
+
+export async function resetUserPassword(email: string, newPassword: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const userResult = await db.select().from(users).where(eq(users.email, email));
+  if (userResult.length === 0) {
+    throw new Error("User not found");
+  }
+
+  const user = userResult[0];
+  const passwordHash = hashPassword(newPassword);
+
+  try {
+    await db.update(users).set({ password: passwordHash }).where(eq(users.id, user.id));
+    return { success: true, userId: user.id, email: user.email, message: "Password reset successfully" };
+  } catch (error: any) {
+    console.error("[Auth] Reset password error:", error);
+    throw new Error(error.message || "Failed to reset password");
+  }
 }

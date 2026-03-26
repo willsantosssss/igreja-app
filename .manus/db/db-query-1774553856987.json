@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE users SET passwordHash = '5e884898da28047151d0e56f8dc62927538270d735492c612c21dff40161f6628' WHERE id IN (30598, 90002, 90003);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute UPDATE users SET passwordHash = '5e884898da28047151d0e56f8dc62927538270d735492c612c21dff40161f6628' WHERE id IN (30598, 90002, 90003);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 205
+}

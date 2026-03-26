@@ -4,7 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { signupUser, loginUser } from "./auth-simple";
+import { signupUser, loginUser, resetUserPassword } from "./auth-simple";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as crypto from "crypto";
@@ -85,6 +85,19 @@ export const appRouter = router({
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: error.message || "Invalid credentials",
+          });
+        }
+      }),
+    resetPassword: publicProcedure
+      .input(z.object({ email: z.string().email(), newPassword: z.string().min(6) }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await resetUserPassword(input.email, input.newPassword);
+          return result;
+        } catch (error: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message || "Failed to reset password",
           });
         }
       }),
