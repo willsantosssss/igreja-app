@@ -8,7 +8,6 @@ import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
 import { Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-import { type AvisoImportante } from '@/lib/data/aviso-importante';
 import { trpc } from '@/lib/trpc';
 
 
@@ -25,27 +24,14 @@ interface ProximoEvento {
   local: string;
 }
 
-interface AvisoState {
-  titulo: string;
-  mensagem: string;
-  ativo: boolean;
-}
+
 
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
   const [aniversariantesHoje, setAniversariantesHoje] = useState<Usuario[]>([]);
   const [proximoEvento, setProximoEvento] = useState<ProximoEvento | null>(null);
-  const [aviso, setAviso] = useState<AvisoState>({
-    titulo: "Aviso Importante",
-    mensagem: "Inscrições abertas para o retiro espiritual de março! Vagas limitadas.",
-    ativo: true,
-  });
 
-  const { data: avisoData, dataUpdatedAt } = trpc.avisoImportante.get.useQuery(undefined, {
-    refetchOnWindowFocus: true,
-    refetchInterval: 30000,
-  });
 
 
   const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
@@ -132,15 +118,7 @@ export default function HomeScreen() {
     }
   }, [eventosData]);
 
-  useEffect(() => {
-    if (avisoData) {
-      setAviso({
-        titulo: (avisoData as any)?.titulo || "Aviso Importante",
-        mensagem: (avisoData as any)?.mensagem || "",
-        ativo: (avisoData as any)?.ativo ?? true,
-      });
-    }
-  }, [avisoData]);
+
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -260,18 +238,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Avisos Importantes */}
-        {aviso.ativo && (
-          <View className="bg-warning/10 rounded-2xl p-5 gap-2 border border-warning/20">
-            <View className="flex-row items-center gap-2">
-              <Text className="text-2xl">📢</Text>
-              <Text className="text-base font-semibold text-foreground">{aviso.titulo}</Text>
-            </View>
-            <Text className="text-sm text-foreground">
-              {aviso.mensagem}
-            </Text>
-          </View>
-        )}
+
 
         {/* Aniversariantes do Dia */}
         <View className="bg-surface rounded-2xl p-5 gap-3 border border-border">
