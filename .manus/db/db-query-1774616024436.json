@@ -1,0 +1,26 @@
+{
+  "query": "SELECT id, email, name, loginMethod, role, createdAt FROM users ORDER BY id DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jbEC6vu1kEZPhSm.root --database cLUkBFbsZfcYG9rNRXMeP2 --execute SELECT id, email, name, loginMethod, role, createdAt FROM users ORDER BY id DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "30001",
+      "email": "teste@gmail.com",
+      "name": "Usuário Teste",
+      "loginMethod": "email",
+      "role": "user",
+      "createdAt": "2026-03-26 20:01:17"
+    },
+    {
+      "id": "1",
+      "email": "willsantos.adv@gmail.com",
+      "name": "Will Santos",
+      "loginMethod": "google",
+      "role": "user",
+      "createdAt": "2026-03-23 20:52:33"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\tloginMethod\trole\tcreatedAt\n30001\tteste@gmail.com\tUsuário Teste\temail\tuser\t2026-03-26 20:01:17\n1\twillsantos.adv@gmail.com\tWill Santos\tgoogle\tuser\t2026-03-23 20:52:33\n",
+  "stderr": "",
+  "execution_time_ms": 1637
+}

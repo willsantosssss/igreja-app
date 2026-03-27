@@ -114,6 +114,7 @@ export default function CompletarCadastroScreen() {
   // Se o usuário não foi carregado após 3 segundos, continuar mesmo assim
   // Isso evita loop infinito se o cache falhar
   const [showTimeout, setShowTimeout] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -125,16 +126,6 @@ export default function CompletarCadastroScreen() {
     return () => clearTimeout(timer);
   }, [user]);
 
-  if (!user && !showTimeout) {
-    return (
-      <ScreenContainer className="items-center justify-center">
-        <Text className="text-muted">Carregando...</Text>
-      </ScreenContainer>
-    );
-  }
-
-  // Se timeout ocorreu, usar dados do AsyncStorage como fallback
-  const [userEmail, setUserEmail] = useState("");
   useEffect(() => {
     if (!user && showTimeout) {
       AsyncStorage.getItem("@user_email").then((email) => {
@@ -142,6 +133,14 @@ export default function CompletarCadastroScreen() {
       });
     }
   }, [showTimeout]);
+
+  if (!user && !showTimeout) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <Text className="text-muted">Carregando...</Text>
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer>
