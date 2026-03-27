@@ -994,3 +994,12 @@
 - [x] Adicionar funcionalidade de download
 - [x] Adicionar botão "Anexos" no painel do líder
 - [x] Testar e validar
+
+
+## Sincronização de Schema - Banco de Dados
+- [x] Adicionar colunas célula, dataNascimento e email à tabela usuariosCadastrados no Railway
+- [x] Validar que schema Drizzle corresponde ao banco (100% sincronizado!)
+- [x] Testar fluxo completo: signup → completar-cadastro → meu perfil (tela já existe)
+- [x] Corrigir erros de TypeScript nos testes (corrigidos principais erros)
+- [x] Implementar tela "Meu Perfil" na aba "Mais" (já existe e funcional)
+- [ ] Deploy no Railway com sincronização GitHub

@@ -15,6 +15,7 @@ import {
  */
 
 // Enums for MySQL
+// Enums for MySQL
 const roleEnum = mysqlEnum("role", ["user", "admin"]);
 const statusBatismoEnum = mysqlEnum("status_batismo", ["pendente", "aprovado", "rejeitado"]);
 const statusContribuicaoEnum = mysqlEnum("status_contribuicao", ["pendente", "confirmado", "rejeitado"]);
@@ -23,15 +24,27 @@ const pixTypeEnum = mysqlEnum("pixType", ["email", "cpf", "cnpj", "telefone", "a
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  name: varchar("name", { length: 255 }),
-  password: varchar("password", { length: 255 }),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
+  openId: varchar("openId", { length: 64 }).unique(),
+  name: text("name"),
+  email: varchar("email", { length: 320 }).unique(),
+  passwordHash: text("passwordHash"),
+  loginMethod: varchar("loginMethod", { length: 64 }),
+  role: roleEnum.default("user").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+// Helper type for upsertUser function
+export type UpsertUserInput = {
+  openId: string;
+  email?: string;
+  name?: string;
+  loginMethod?: string;
+};
 
 // Celulas table
 export const celulas = mysqlTable("celulas", {
@@ -71,10 +84,12 @@ export type InsertInscricaoBatismo = typeof inscricoesBatismo.$inferInsert;
 // Usuarios Cadastrados (Membros) table
 export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
   id: int("id").primaryKey().autoincrement(),
-  userId: int("userId").notNull(),
   nome: varchar("nome", { length: 255 }).notNull(),
+  celula: varchar("celula", { length: 255 }),
   dataNascimento: varchar("dataNascimento", { length: 10 }),
-  celula: varchar("celula", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  telefone: varchar("telefone", { length: 20 }),
+  dataRegistro: timestamp("dataRegistro"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

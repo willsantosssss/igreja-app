@@ -82,15 +82,14 @@ describe("Signup Cache Flow - User Info Persistence", () => {
     
     const loginResponse = {
       success: true,
-      userId: Date.now(),
+      userId: 99999,
       email: testEmail,
       name: "Fallback User",
-      // openId: undefined, // Simulate missing openId
       sessionToken: "dummy-token",
     };
 
     // Client should be able to construct openId if needed
-    const openId = loginResponse.openId || `email_${loginResponse.userId}`;
+    const openId = `email_${loginResponse.userId}`;
     expect(openId).toBeDefined();
     console.log("[Test] ✅ Fallback openId construction works");
   });

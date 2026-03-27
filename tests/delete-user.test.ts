@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { deleteUserCompletely, createUsuarioCadastrado, getUsuarioCadastradoByUserId } from "../server/db";
+import { deleteUserCompletely, upsertUsuarioCadastrado, getUsuarioCadastrado } from "../server/db";
 import { upsertUser } from "../server/db";
 
 describe("Delete User Completely", () => {
@@ -19,8 +19,7 @@ describe("Delete User Completely", () => {
     const userId = 99999;
 
     // Create associated data
-    await createUsuarioCadastrado({
-      userId,
+    await upsertUsuarioCadastrado({
       nome: "Test Delete User",
       dataNascimento: "1990-01-01",
       celula: "Test Célula",
@@ -29,7 +28,7 @@ describe("Delete User Completely", () => {
     console.log("[Test] Created user with ID:", userId);
 
     // Verify user exists
-    const userBefore = await getUsuarioCadastradoByUserId(userId);
+    const userBefore = await getUsuarioCadastrado(userId);
     expect(userBefore).toBeDefined();
     console.log("[Test] User exists before deletion");
 
@@ -40,7 +39,7 @@ describe("Delete User Completely", () => {
     console.log("[Test] User deleted successfully");
 
     // Verify user is deleted
-    const userAfter = await getUsuarioCadastradoByUserId(userId);
+    const userAfter = await getUsuarioCadastrado(userId);
     expect(userAfter).toBeNull();
     console.log("[Test] User no longer exists after deletion");
   });
@@ -49,8 +48,7 @@ describe("Delete User Completely", () => {
     const userId = 88888;
 
     // Create user
-    await createUsuarioCadastrado({
-      userId,
+    await upsertUsuarioCadastrado({
       nome: "User with Related Data",
       dataNascimento: "1995-05-15",
       celula: "Test Célula",
@@ -64,7 +62,7 @@ describe("Delete User Completely", () => {
     console.log("[Test] User deleted");
 
     // Verify user is deleted
-    const userAfter = await getUsuarioCadastradoByUserId(userId);
+    const userAfter = await getUsuarioCadastrado(userId);
     expect(userAfter).toBeNull();
     console.log("[Test] User and all related data deleted successfully");
   });
@@ -73,8 +71,7 @@ describe("Delete User Completely", () => {
     const userId = 77777;
 
     // Create user
-    await createUsuarioCadastrado({
-      userId,
+    await upsertUsuarioCadastrado({
       nome: "Test User",
       dataNascimento: "2000-01-01",
       celula: "Test Célula",

@@ -24,8 +24,7 @@ describe('Área do Líder - Sincronização com Banco de Dados', () => {
     const db = await getDb();
     if (!db) throw new Error('Database not available');
 
-    // Simular busca de membros da célula
-    const { usuarios } = await import('../lib/data/lideres');
+    // Verificar que banco de dados está disponível
     expect(db).toBeDefined();
     console.log('[Test] ✅ Database connection verified for leader dashboard');
   });

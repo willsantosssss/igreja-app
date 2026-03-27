@@ -15,7 +15,6 @@ describe("Meu Perfil - Navegacao Corrigida", () => {
     console.log("\n=== TESTE 2: Upsert cadastro ===");
     
     await db.upsertUsuarioCadastrado({
-      userId: 99998,
       nome: "Joao Silva",
       dataNascimento: "1990-05-15",
       celula: "Celula Teste",
@@ -33,7 +32,6 @@ describe("Meu Perfil - Navegacao Corrigida", () => {
     console.log("\n=== TESTE 3: Atualizar com upsert ===");
     
     await db.upsertUsuarioCadastrado({
-      userId: 99998,
       nome: "Joao Silva Atualizado",
       dataNascimento: "1990-05-15",
       celula: "Celula Nova",

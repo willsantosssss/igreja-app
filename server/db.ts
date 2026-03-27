@@ -880,6 +880,8 @@ export async function deleteUserCompletely(userId: number) {
   await db.delete(lideres).where(eq(lideres.userId, userId));
   await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
   await db.delete(users).where(eq(users.id, userId));
+  
+  return { success: true, userId };
 }
 
 
