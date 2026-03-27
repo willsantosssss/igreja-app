@@ -1003,3 +1003,11 @@
 - [x] Corrigir erros de TypeScript nos testes (corrigidos principais erros)
 - [x] Implementar tela "Meu Perfil" na aba "Mais" (já existe e funcional)
 - [ ] Deploy no Railway com sincronização GitHub
+
+
+## Bug: Botão "Criar Conta" não funciona
+- [x] Investigar por que o botão "Criar Conta" não responde ao clique (faltavam imports de React Native)
+- [x] Verificar logs do servidor para erros
+- [x] Verificar console do app para erros de JavaScript
+- [x] Corrigir o problema (adicionados imports: Alert, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator)
+- [x] Testar fluxo completo de signup (servidor rodando normalmente)
