@@ -31,7 +31,8 @@ export function getSqlClient() {
         connectionLimit: 5,
         queueLimit: 0,
         enableKeepAlive: true,
-        connectTimeout: 30000, // 30 seconds
+        connectTimeout: 30000,
+        ssl: { rejectUnauthorized: false },
       };
       console.log('[getSqlClient] Pool config:', { host: config.host, port: config.port, user: config.user, database: config.database });
       _poolConnection = mysql.createPool(config);

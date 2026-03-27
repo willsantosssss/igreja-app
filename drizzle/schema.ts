@@ -23,15 +23,11 @@ const pixTypeEnum = mysqlEnum("pixType", ["email", "cpf", "cnpj", "telefone", "a
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(),
-  openId: varchar("openId", { length: 64 }).unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }).unique(),
-  password: text("password"),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: roleEnum.default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  name: varchar("name", { length: 255 }),
+  password: varchar("password", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export type User = typeof users.$inferSelect;

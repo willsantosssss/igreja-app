@@ -18,24 +18,18 @@ export async function signupUser(email: string, password: string, name: string) 
 
   const passwordHash = hashPassword(password);
   try {
-    // Insert user and get the created user
+    // Insert user with all required fields
     await db.insert(users).values({
       email,
       password: passwordHash,
       name,
       loginMethod: "email",
-      openId: null,
-      lastSignedIn: new Date(),
+      role: "user",
     });
+    
     // Fetch the created user to get the ID
     const createdUser = await db.select().from(users).where(eq(users.email, email));
     const userId = createdUser[0]?.id;
-    
-    // Update openId for login method
-    if (userId) {
-      const openId = `email_${userId}`;
-      await db.update(users).set({ openId }).where(eq(users.id, userId));
-    }
     
     return { success: true, userId, email, name };
   } catch (error: any) {
@@ -66,8 +60,6 @@ export async function loginUser(email: string, password: string) {
   if (user.password !== passwordHash) {
     throw new Error("Invalid email or password");
   }
-
-  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
 
   return { success: true, userId: user.id, email: user.email, name: user.name };
 }
