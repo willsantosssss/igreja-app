@@ -5,9 +5,11 @@ import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { setSessionToken, setUserInfo } from "@/lib/_core/auth";
+import { useColors } from "@/hooks/use-colors";
 
 
 export default function LoginScreen() {
+  const colors = useColors();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -186,12 +188,22 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={isSignup ? handleSignup : handleLogin}
             disabled={loading}
-            className="bg-primary rounded-lg p-4 items-center active:opacity-80"
+            style={[
+              {
+                backgroundColor: colors.primary,
+                borderRadius: 8,
+                paddingVertical: 16,
+                paddingHorizontal: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              loading && { opacity: 0.6 },
+            ]}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white font-semibold text-base">
+              <Text style={{ color: '#fff', fontWeight: '600', fontSize: 16 }}>
                 {isSignup ? "Criar Conta" : "Entrar"}
               </Text>
             )}
@@ -203,7 +215,7 @@ export default function LoginScreen() {
               {isSignup ? "Já tem conta?" : "Não tem conta?"}
             </Text>
             <TouchableOpacity onPress={() => setIsSignup(!isSignup)} disabled={loading}>
-              <Text className="text-primary font-semibold text-sm">
+              <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14 }}>
                 {isSignup ? "Faça login" : "Cadastre-se"}
               </Text>
             </TouchableOpacity>
