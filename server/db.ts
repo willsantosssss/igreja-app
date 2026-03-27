@@ -123,6 +123,19 @@ export async function getUserById(id: number) {
   return result[0] || null;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(users).where(eq(users.email, email));
+  return result[0] || null;
+}
+
+export async function updateUserLastSignedIn(userId: number, lastSignedIn: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ lastSignedIn }).where(eq(users.id, userId));
+}
+
 // ==================== USUÁRIOS CADASTRADOS ====================
 
 export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {

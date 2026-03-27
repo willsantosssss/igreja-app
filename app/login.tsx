@@ -43,11 +43,17 @@ export default function LoginScreen() {
       // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
       if (loginResult.sessionToken) {
         try {
+          console.log("[Login] Token recebido:", loginResult.sessionToken.substring(0, 20) + "...");
           await setSessionToken(loginResult.sessionToken);
           console.log("[Login] Session token saved");
+          // Verificar se foi salvo
+          const savedToken = await Auth.getSessionToken();
+          console.log("[Login] Token verificado:", savedToken ? "OK" : "FALHOU");
         } catch (e) {
           console.warn("[Login] Failed to save token", e);
         }
+      } else {
+        console.warn("[Login] Nenhum sessionToken recebido do servidor!");
       }
       
       // Salvar informações do usuário em cache para uso imediato na tela de completar cadastro
@@ -94,11 +100,17 @@ export default function LoginScreen() {
       // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
       if (loginResult.sessionToken) {
         try {
+          console.log("[Login] Saving token:", loginResult.sessionToken.substring(0, 20) + "...");
           await setSessionToken(loginResult.sessionToken);
           console.log("[Login] Session token saved");
+          // Verificar se foi realmente salvo
+          const savedToken = localStorage.getItem('app_session_token');
+          console.log("[Login] Token verificado em localStorage:", savedToken ? "SIM" : "NÃO");
         } catch (e) {
           console.warn("[Login] Failed to save token", e);
         }
+      } else {
+        console.warn("[Login] loginResult.sessionToken é undefined!", loginResult);
       }
       
       // Salvar informações do usuário em cache
@@ -119,9 +131,30 @@ export default function LoginScreen() {
       }
       
       await AsyncStorage.setItem("@is_logged_in", "true");
-      await AsyncStorage.setItem("@cadastro_completo", "true");
       await AsyncStorage.setItem("@user_email", email);
-      router.replace("/(tabs)");
+      
+      // Aguardar um pouco para garantir que o token está disponível no tRPC client
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verificar se o usuário tem cadastro completo (registro em usuariosCadastrados)
+      // Se não tiver, redirecionar para completar-cadastro
+      try {
+        console.log("[Login] Verificando cadastro completo...");
+        const usuarioResponse = await trpc.usuarios.getByUserId.query();
+        console.log("[Login] Resposta do cadastro:", usuarioResponse ? "Existe" : "Não existe");
+        if (usuarioResponse) {
+          await AsyncStorage.setItem("@cadastro_completo", "true");
+          router.replace("/(tabs)");
+        } else {
+          await AsyncStorage.setItem("@cadastro_completo", "false");
+          router.replace("/completar-cadastro");
+        }
+      } catch (e) {
+        // Se houver erro ao verificar, assumir que precisa completar cadastro
+        console.warn("[Login] Erro ao verificar cadastro:", e);
+        await AsyncStorage.setItem("@cadastro_completo", "false");
+        router.replace("/completar-cadastro");
+      }
     } catch (error: any) {
       Alert.alert("Erro", error.message || "Email ou senha incorretos");
     } finally {

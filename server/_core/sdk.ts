@@ -251,7 +251,15 @@ class SDKServer {
     const sessionUserId = session.openId;
     const signedInAt = new Date();
     console.log("[Auth] authenticateRequest: looking up user in DB, openId:", sessionUserId);
+    
+    // Try to find user by openId first (OAuth flow)
     let user = await db.getUserByOpenId(sessionUserId);
+
+    // If user not found by openId, try to find by email (email/password flow)
+    if (!user && session.name && session.name.includes('@')) {
+      console.log("[Auth] User not found by openId, trying email:", session.name);
+      user = await db.getUserByEmail(session.name);
+    }
 
     // If user not in DB, sync from OAuth server automatically
     if (!user) {
@@ -275,10 +283,16 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
+    // Update lastSignedIn for both OAuth and email/password users
+    if (user.openId) {
+      await db.upsertUser({
+        openId: user.openId,
+        lastSignedIn: signedInAt,
+      });
+    } else {
+      // For email/password users, update directly
+      await db.updateUserLastSignedIn(user.id, signedInAt);
+    }
 
     return user;
   }
