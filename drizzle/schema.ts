@@ -24,14 +24,14 @@ const pixTypeEnum = mysqlEnum("pixType", ["email", "cpf", "cnpj", "telefone", "a
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(),
-  openId: varchar("openId", { length: 64 }).unique(),
-  name: text("name"),
   email: varchar("email", { length: 320 }).unique(),
-  passwordHash: text("passwordHash"),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: roleEnum.default("user").notNull(),
+  name: text("name"),
+  password: text("password"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  openId: varchar("openId", { length: 64 }).unique(),
+  loginMethod: varchar("loginMethod", { length: 64 }),
+  role: roleEnum.default("user").notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 

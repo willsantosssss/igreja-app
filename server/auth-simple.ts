@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import * as crypto from "crypto";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
