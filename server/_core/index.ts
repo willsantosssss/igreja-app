@@ -55,8 +55,12 @@ async function startServer() {
       origin.includes("127.0.0.1")
     );
     
-    if (isManusDomain) {
-      res.header("Access-Control-Allow-Origin", origin);
+    if (isManusDomain || !origin) {
+      if (origin) {
+        res.header("Access-Control-Allow-Origin", origin);
+      } else {
+        res.header("Access-Control-Allow-Origin", "*");
+      }
       res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
       res.header(
         "Access-Control-Allow-Headers",

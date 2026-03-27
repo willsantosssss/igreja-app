@@ -94,18 +94,27 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      console.log("[Login] Iniciando login com:", { email });
       const loginResult = await loginMutation.mutateAsync({ email, password });
-      console.log("[Login] Login success");
+      console.log("[Login] Login success, resultado completo:", JSON.stringify(loginResult, null, 2));
+      console.log("[Login] sessionToken existe?", !!loginResult.sessionToken);
+      console.log("[Login] sessionToken valor:", loginResult.sessionToken?.substring(0, 50));
       
       // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
       if (loginResult.sessionToken) {
         try {
           console.log("[Login] Saving token:", loginResult.sessionToken.substring(0, 20) + "...");
-          await setSessionToken(loginResult.sessionToken);
-          console.log("[Login] Session token saved");
+          // Salvar token diretamente em localStorage para web
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem('app_session_token', loginResult.sessionToken);
+            console.log("[Login] Token salvo em localStorage");
+          } else {
+            await setSessionToken(loginResult.sessionToken);
+            console.log("[Login] Token salvo via setSessionToken");
+          }
           // Verificar se foi realmente salvo
-          const savedToken = localStorage.getItem('app_session_token');
-          console.log("[Login] Token verificado em localStorage:", savedToken ? "SIM" : "NÃO");
+          const savedToken = window.localStorage?.getItem('app_session_token');
+          console.log("[Login] Token verificado em localStorage:", savedToken ? "SIM (" + savedToken.length + " chars)" : "NÃO");
         } catch (e) {
           console.warn("[Login] Failed to save token", e);
         }

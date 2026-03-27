@@ -34,7 +34,16 @@ export function createTRPCClient() {
         // tRPC v11: transformer MUST be inside httpBatchLink, not at root
         transformer: superjson,
         async headers() {
+          // On web, read token directly from localStorage for faster access
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const token = window.localStorage.getItem('app_session_token');
+            console.log('[tRPC] Token from localStorage:', token ? `${token.substring(0, 30)}...` : 'none');
+            return token ? { Authorization: `Bearer ${token}` } : {};
+          }
+          
+          // On native, use Auth.getSessionToken()
           const token = await Auth.getSessionToken();
+          console.log('[tRPC] Token from Auth:', token ? `${token.substring(0, 30)}...` : 'none');
           return token ? { Authorization: `Bearer ${token}` } : {};
         },
         // Custom fetch to include credentials for cookie-based auth

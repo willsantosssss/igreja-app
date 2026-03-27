@@ -137,6 +137,12 @@ class SDKServer {
 
   private getSessionSecret() {
     const secret = ENV.cookieSecret;
+    console.log("[Auth] getSessionSecret called");
+    console.log("[Auth] JWT_SECRET exists?", !!secret);
+    console.log("[Auth] JWT_SECRET length:", secret?.length || 0);
+    if (!secret) {
+      console.error("[Auth] ERROR: JWT_SECRET is not defined! Tokens cannot be validated.");
+    }
     return new TextEncoder().encode(secret);
   }
 
@@ -204,7 +210,6 @@ class SDKServer {
         name: typeof name === 'string' ? name : '',
       };
     } catch (error) {
-      console.warn("[Auth] Session verification failed", String(error));
       return null;
     }
   }
@@ -241,23 +246,21 @@ class SDKServer {
 
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = token || cookies.get(COOKIE_NAME);
+    
     const session = await this.verifySession(sessionCookie);
 
     if (!session) {
       throw ForbiddenError("Invalid session cookie");
     }
 
-    console.log("[Auth] authenticateRequest: session verified, proceeding to fetch user");
     const sessionUserId = session.openId;
     const signedInAt = new Date();
-    console.log("[Auth] authenticateRequest: looking up user in DB, openId:", sessionUserId);
     
     // Try to find user by openId first (OAuth flow)
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not found by openId, try to find by email (email/password flow)
     if (!user && session.name && session.name.includes('@')) {
-      console.log("[Auth] User not found by openId, trying email:", session.name);
       user = await db.getUserByEmail(session.name);
     }
 
