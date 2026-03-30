@@ -321,27 +321,14 @@ export type InsertPagamentoEvento = typeof pagamentosEventos.$inferInsert;
 // Anexos table
 export const anexos = mysqlTable("anexos", {
   id: int("id").primaryKey().autoincrement(),
-  relatorioId: int("relatorioId").notNull(),
   nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
   urlArquivo: varchar("urlArquivo", { length: 500 }).notNull(),
-  tipo: varchar("tipo", { length: 50 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  tipo: varchar("tipo", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
-// Anexos Líderes table
-export const anexosLideres = mysqlTable("anexosLideres", {
-  id: int("id").primaryKey().autoincrement(),
-  liderId: int("liderId").notNull(),
-  nomeArquivo: varchar("nomeArquivo", { length: 255 }).notNull(),
-  urlArquivo: varchar("urlArquivo", { length: 500 }).notNull(),
-  tipo: varchar("tipo", { length: 50 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
 
-export type AnexoLider = typeof anexosLideres.$inferSelect;
-export type InsertAnexoLider = typeof anexosLideres.$inferInsert;

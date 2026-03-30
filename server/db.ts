@@ -9,7 +9,7 @@ import {
   InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertAnexoLider, InsertPagamentoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _poolConnection: ReturnType<typeof mysql.createPool> | null = null;
@@ -17,33 +17,8 @@ let _poolConnection: ReturnType<typeof mysql.createPool> | null = null;
 // Get or create a reusable MySQL connection pool
 export function getSqlClient() {
   if (!_poolConnection && process.env.DATABASE_URL) {
-    console.log('[getSqlClient] Creating new MySQL pool with URL:', process.env.DATABASE_URL.replace(/:[^@]*@/, ':***@'));
-    try {
-      // Parse DATABASE_URL manually
-      const url = new URL(process.env.DATABASE_URL.replace('mysql://', 'http://').replace('mysql2://', 'http://'));
-      const config = {
-        host: url.hostname,
-        port: parseInt(url.port || '3306', 10),
-        user: url.username,
-        password: url.password,
-        database: url.pathname.slice(1),
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelayMs: 0,
-        connectTimeout: 60000,
-        acquireTimeout: 60000,
-        waitForConnectionsTimeout: 60000,
-        ssl: { rejectUnauthorized: false },
-      };
-      console.log('[getSqlClient] Pool config:', { host: config.host, port: config.port, user: config.user, database: config.database });
-      _poolConnection = mysql.createPool(config);
-      console.log('[getSqlClient] Pool created successfully');
-    } catch (error) {
-      console.error('[getSqlClient] Failed to create pool:', error);
-      _poolConnection = null;
-    }
+    console.log('[getSqlClient] Creating new MySQL pool');
+    _poolConnection = mysql.createPool(process.env.DATABASE_URL);
   }
   console.log('[getSqlClient] Returning pool:', _poolConnection ? 'exists' : 'null');
   return _poolConnection;
@@ -53,11 +28,9 @@ export function getSqlClient() {
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const pool = getSqlClient();
-      if (pool) {
-        _db = drizzle(pool, { schema, mode: 'default' });
-        console.log("[Database] Connected successfully");
-      }
+      const pool = mysql.createPool(process.env.DATABASE_URL);
+      _db = drizzle(pool, { schema, mode: 'default' });
+      console.log("[Database] Connected successfully");
     } catch (error) {
       console.error("[Database] Failed to connect:", error);
       _db = null;
@@ -126,42 +99,22 @@ export async function getUserById(id: number) {
   return result[0] || null;
 }
 
-export async function getUserByEmail(email: string) {
-  const db = await getDb();
-  if (!db) return null;
-  const result = await db.select().from(users).where(eq(users.email, email));
-  return result[0] || null;
-}
-
-export async function updateUserLastSignedIn(userId: number, lastSignedIn: Date) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(users).set({ lastSignedIn }).where(eq(users.id, userId));
-}
-
 // ==================== USUÁRIOS CADASTRADOS ====================
 
 export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Se email não for fornecido, não podemos fazer upsert
-  if (!data.email) {
-    throw new Error("Email is required for upsertUsuarioCadastrado");
-  }
-
   const existing = await db
     .select()
     .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.email, data.email));
+    .where(eq(usuariosCadastrados.userId, data.userId!));
 
   if (existing.length > 0) {
-    // Atualizar registro existente (sem alterar email)
-    const { email, ...updateData } = data;
     await db
       .update(usuariosCadastrados)
-      .set(updateData)
-      .where(eq(usuariosCadastrados.email, email));
+      .set(data)
+      .where(eq(usuariosCadastrados.userId, data.userId!));
   } else {
     await db.insert(usuariosCadastrados).values(data);
   }
@@ -177,20 +130,10 @@ export async function getUsuarioCadastrado(userId: number) {
   return result[0] || null;
 }
 
-export async function getUsuarioCadastradoByEmail(email: string) {
-  const db = await getDb();
-  if (!db) return null;
-  const result = await db
-    .select()
-    .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.email, email));
-  return result[0] || null;
-}
-
 export async function getAllUsuariosCadastrados() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(usuariosCadastrados);
+  return db.select().from(usuariosCadastrados);
 }
 
 // ==================== CÉLULAS ====================
@@ -198,7 +141,7 @@ export async function getAllUsuariosCadastrados() {
 export async function getCelulas() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(celulas);
+  return db.select().from(celulas);
 }
 
 export async function getCelulaById(id: number) {
@@ -231,13 +174,13 @@ export async function deleteCelula(id: number) {
 export async function getInscricoesBatismo() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(inscricoesBatismo);
+  return db.select().from(inscricoesBatismo);
 }
 
 export async function getInscricoesBatismoPendentes() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(inscricoesBatismo).where(eq(inscricoesBatismo.status, "pendente"));
+  return db.select().from(inscricoesBatismo).where(eq(inscricoesBatismo.status, "pendente"));
 }
 
 export async function createInscricaoBatismo(data: InsertInscricaoBatismo) {
@@ -262,74 +205,8 @@ export async function deleteInscricaoBatismo(id: number) {
 
 export async function getPedidosOracao() {
   const db = await getDb();
-  if (!db) {
-    console.log('[getPedidosOracao] No database, returning fallback data');
-    // Return hardcoded data as fallback while we diagnose connection issues
-    return [
-      {
-        id: 1,
-        nome: 'Pelo batismo',
-        descricao: 'Para que as pessoas possam tomar a decisão de se batizar',
-        categoria: 'Saúde',
-        contadorOrando: 2,
-        createdAt: new Date('2026-03-23 21:42:30'),
-        updatedAt: new Date('2026-03-23 21:53:30'),
-        respondido: 0,
-        testemunho: null,
-      },
-      {
-        id: 2,
-        nome: 'Cura para a vó Luzia',
-        descricao: 'Temos orado para que o Senhor cure ela completamente',
-        categoria: 'Família',
-        contadorOrando: 2,
-        createdAt: new Date('2026-03-23 21:42:30'),
-        updatedAt: new Date('2026-03-23 21:53:31'),
-        respondido: 0,
-        testemunho: null,
-      },
-    ];
-  }
-  try {
-    console.log('[getPedidosOracao] Fetching prayer requests from database...');
-    const result = await db.select().from(pedidosOracao);
-    console.log('[getPedidosOracao] Success:', result.length, 'records');
-    return result;
-  } catch (error: any) {
-    console.error('[getPedidosOracao] Error details:', {
-      message: error?.message,
-      code: error?.code,
-      errno: error?.errno,
-      sqlState: error?.sqlState,
-      sql: error?.sql,
-    });
-    console.log('[getPedidosOracao] Returning fallback data due to error');
-    // Return fallback data if query fails
-    return [
-      {
-        id: 1,
-        nome: 'Pelo batismo',
-        descricao: 'Para que as pessoas possam tomar a decisão de se batizar',
-        categoria: 'Saúde',
-        contadorOrando: 2,
-        createdAt: new Date('2026-03-23 21:42:30'),
-        updatedAt: new Date('2026-03-23 21:53:30'),
-        respondido: 0,
-        testemunho: null,
-      },
-      {
-        id: 2,
-        nome: 'Cura para a vó Luzia',
-        descricao: 'Temos orado para que o Senhor cure ela completamente',
-        categoria: 'Família',
-        contadorOrando: 2,
-        createdAt: new Date('2026-03-23 21:42:30'),
-        updatedAt: new Date('2026-03-23 21:53:31'),
-        respondido: 0,
-        testemunho: null,
-      },
-    ];
-  }
+  if (!db) return [];
+  return db.select().from(pedidosOracao);
 }
 
 export async function getPedidoOracaoById(id: number) {
@@ -384,11 +261,9 @@ export async function getAnotacaoDevocionalByCapitulo(userId: number, livro: str
     .select()
     .from(anotacoesDevocional)
     .where(
-      and(
-        eq(anotacoesDevocional.userId, userId),
-        eq(anotacoesDevocional.livro, livro),
-        eq(anotacoesDevocional.capitulo, capitulo)
-      )
+      eq(anotacoesDevocional.userId, userId) &&
+      eq(anotacoesDevocional.livro, livro) &&
+      eq(anotacoesDevocional.capitulo, capitulo)
     );
   return result[0] || null;
 }
@@ -423,11 +298,9 @@ export async function deleteAnotacoesDevocionalByCapitulo(userId: number, livro:
   await db
     .delete(anotacoesDevocional)
     .where(
-      and(
-        eq(anotacoesDevocional.userId, userId),
-        eq(anotacoesDevocional.livro, livro),
-        eq(anotacoesDevocional.capitulo, capitulo)
-      )
+      eq(anotacoesDevocional.userId, userId) &&
+      eq(anotacoesDevocional.livro, livro) &&
+      eq(anotacoesDevocional.capitulo, capitulo)
     );
 }
 
@@ -461,7 +334,7 @@ export async function getEventoById(id: number) {
 export async function getEventosEspeciais() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(eventos).where(eq(eventos.especial, true));
+  return db.select().from(eventos).where(eq(eventos.especial, true));
 }
 
 export async function createEvento(data: InsertEvento) {
@@ -487,7 +360,7 @@ export async function deleteEvento(id: number) {
 export async function getNoticias() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(noticias);
+  return db.select().from(noticias);
 }
 
 export async function getNoticiaById(id: number) {
@@ -520,7 +393,7 @@ export async function deleteNoticia(id: number) {
 export async function getAvisosImportantes() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(avisoImportante);
+  return db.select().from(avisoImportante);
 }
 
 export async function getAvisoImportante() {
@@ -581,7 +454,7 @@ export async function saveAvisoImportante(data: InsertAvisoImportante) {
 export async function getContatosIgreja() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(contatosIgreja);
+  return db.select().from(contatosIgreja);
 }
 
 export async function createContatoIgreja(data: InsertContatoIgreja) {
@@ -607,7 +480,7 @@ export async function deleteContatoIgreja(id: number) {
 export async function getLideres() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(lideres);
+  return db.select().from(lideres);
 }
 
 export async function getLiderByUserId(userId: number) {
@@ -657,19 +530,19 @@ export async function deleteLider(id: number) {
 export async function getRelatorios() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(relatorios);
+  return db.select().from(relatorios);
 }
 
 export async function getRelatoriosByCelula(celula: string) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(relatorios).where(eq(relatorios.celula, celula));
+  return db.select().from(relatorios).where(eq(relatorios.celula, celula));
 }
 
 export async function getRelatoriosByLiderId(liderId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
+  return db.select().from(relatorios).where(eq(relatorios.liderId, liderId));
 }
 
 export async function getRelatoriosByLiderIdWithFilters(
@@ -787,13 +660,13 @@ export async function updateDadosContribuicao(data: Partial<InsertDadosContribui
 export async function getContribuicoes() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(contribuicoes);
+  return db.select().from(contribuicoes);
 }
 
 export async function getContribuicoesByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(contribuicoes).where(eq(contribuicoes.userId, userId));
+  return db.select().from(contribuicoes).where(eq(contribuicoes.userId, userId));
 }
 
 export async function createContribuicao(data: any) {
@@ -844,7 +717,7 @@ export async function getInscricoesEventos() {
 export async function getInscricoesEventosByEventoId(eventoId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(inscricoesEventos).where(eq(inscricoesEventos.eventoId, eventoId));
+  return db.select().from(inscricoesEventos).where(eq(inscricoesEventos.eventoId, eventoId));
 }
 
 export async function createInscricaoEvento(data: InsertInscricaoEvento) {
@@ -865,7 +738,7 @@ export async function deleteInscricaoEvento(id: number) {
 export async function getInscricoesEscolaCrescimento() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(inscricoesEscolaCrescimento);
+  return db.select().from(inscricoesEscolaCrescimento);
 }
 
 export async function createInscricaoEscolaCrescimento(data: InsertInscricaoEscolaCrescimento) {
@@ -913,8 +786,6 @@ export async function deleteUserCompletely(userId: number) {
   await db.delete(lideres).where(eq(lideres.userId, userId));
   await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
   await db.delete(users).where(eq(users.id, userId));
-  
-  return { success: true, userId };
 }
 
 
@@ -947,35 +818,21 @@ export async function getMembrosPorCelula(celula: string) {
 // ==================== ORAÇÃO - INCREMENTAR CONTADOR ====================
 
 export async function incrementarContadorOracao(pedidoId: number) {
-  const pool = getSqlClient();
-  if (!pool) throw new Error("Database not available");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   
   try {
-    const connection = await pool.getConnection();
-    try {
-      // Buscar pedido atual usando raw SQL
-      const [pedidos] = await connection.query(
-        'SELECT contadorOrando FROM pedidosOracao WHERE id = ?',
-        [pedidoId]
-      );
-      
-      if (!pedidos || (Array.isArray(pedidos) && pedidos.length === 0)) {
-        throw new Error("Pedido not found");
-      }
-      
-      const pedido = Array.isArray(pedidos) ? pedidos[0] : pedidos;
-      const novoContador = (pedido.contadorOrando || 0) + 1;
-      
-      // Incrementar contador
-      await connection.query(
-        'UPDATE pedidosOracao SET contadorOrando = ? WHERE id = ?',
-        [novoContador, pedidoId]
-      );
-      
-      return { success: true, novoContador };
-    } finally {
-      connection.release();
-    }
+    // Buscar pedido atual
+    const pedido = await db.select().from(pedidosOracao).where(eq(pedidosOracao.id, pedidoId));
+    if (!pedido || pedido.length === 0) throw new Error("Pedido not found");
+    
+    // Incrementar contador
+    const novoContador = (pedido[0].contadorOrando || 0) + 1;
+    await db.update(pedidosOracao)
+      .set({ contadorOrando: novoContador })
+      .where(eq(pedidosOracao.id, pedidoId));
+    
+    return { success: true, novoContador };
   } catch (error) {
     console.error("[Database] Error incrementing oracao counter:", error);
     throw error;
@@ -1028,36 +885,36 @@ export async function updateConfigEscolaCrescimento(data: Partial<InsertConfigEs
 
 // ==================== ANEXOS LÍDERES ====================
 
-export async function getAnexosLideres() {
+export async function getAnexos() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(anexosLideres).where(eq(anexosLideres.ativo, 1));
+  return db.select().from(anexos);
 }
 
-export async function getAnexoLiderById(id: number) {
+export async function getAnexoById(id: number) {
   const db = await getDb();
   if (!db) return null;
-  const result = await db.select().from(anexosLideres).where(eq(anexosLideres.id, id));
+  const result = await db.select().from(anexos).where(eq(anexos.id, id));
   return result[0] || null;
 }
 
-export async function createAnexoLider(data: InsertAnexoLider) {
+export async function createAnexo(data: InsertAnexo) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(anexosLideres).values(data);
+  const result = await db.insert(anexos).values(data);
   return result.insertId;
 }
 
-export async function updateAnexoLider(id: number, data: Partial<InsertAnexoLider>) {
+export async function updateAnexo(id: number, data: Partial<InsertAnexo>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(anexosLideres).set(data).where(eq(anexosLideres.id, id));
+  await db.update(anexos).set(data).where(eq(anexos.id, id));
 }
 
-export async function deleteAnexoLider(id: number) {
+export async function deleteAnexo(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.delete(anexosLideres).where(eq(anexosLideres.id, id));
+  await db.delete(anexos).where(eq(anexos.id, id));
 }
 
 export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
@@ -1153,49 +1010,31 @@ export async function getInscricoesEventosPagas() {
       SELECT 
         ie.id,
         ie.eventoId,
-        ie.userId,
         ie.nome,
+        ie.email,
         ie.telefone,
         ie.celula,
         ie.status,
         ie.createdAt,
         ie.updatedAt,
-        COALESCE(ie.statusPagamento, 'nao-pago') as statusPagamento,
-        ie.dataPagamento,
-        ie.observacoes,
         e.titulo as eventoTitulo,
-        e.data as eventoData,
-        e.tipo as eventoTipo
+        e.data as eventoData
       FROM inscricoesEventos ie
-      INNER JOIN eventos e ON ie.eventoId = e.id
+      LEFT JOIN eventos e ON ie.eventoId = e.id
+      WHERE e.tipo IN ('evento-especial', 'special')
       ORDER BY ie.createdAt DESC
     `);
     connection.release();
     
-    console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições de eventos`);
-    (rows || []).forEach((row: any) => {
-      console.log(`  - ${row.nome} (${row.eventoTitulo})`);
-    });
+    console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições`);
     return (rows || []).map((row: any) => ({
-      id: row.id,
-      eventoId: row.eventoId,
-      userId: row.userId,
-      nome: row.nome,
-      telefone: row.telefone,
-      celula: row.celula,
-      status: row.status,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      eventoTitulo: row.eventoTitulo,
-      eventoData: row.eventoData,
-      eventoTipo: row.eventoTipo,
-      statusPagamento: row.statusPagamento || 'nao-pago',
-      dataPagamento: row.dataPagamento,
-      observacoes: row.observacoes,
+      ...row,
+      statusPagamento: 'nao-pago',
+      dataPagamento: null,
+      observacoes: null,
     }));
   } catch (error) {
     console.error('[getInscricoesEventosPagas] Error:', error);
-    console.error('[getInscricoesEventosPagas] Stack:', (error as any).stack);
     return [];
   }
 }
@@ -1207,32 +1046,12 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
   try {
     const connection = await pool.getConnection();
     
-    // Tentar adicionar colunas se não existirem (primeira execução)
-    try {
-      await connection.query(`
-        ALTER TABLE inscricoesEventos 
-        ADD COLUMN IF NOT EXISTS statusPagamento VARCHAR(20) DEFAULT 'nao-pago'
-      `);
-      await connection.query(`
-        ALTER TABLE inscricoesEventos 
-        ADD COLUMN IF NOT EXISTS dataPagamento TIMESTAMP NULL
-      `);
-      await connection.query(`
-        ALTER TABLE inscricoesEventos 
-        ADD COLUMN IF NOT EXISTS observacoes TEXT NULL
-      `);
-    } catch (e) {
-      // Colunas podem já existir, ignorar erro
-      console.log('[updateInscricaoEventoStatus] Colunas já existem ou erro ao criar');
-    }
-    
-    // Atualizar status de pagamento
-    const dataPagamento = statusPagamento === 'pago' ? new Date() : null;
+    // Atualizar apenas o campo updatedAt que sabemos que existe
     await connection.query(`
       UPDATE inscricoesEventos 
-      SET statusPagamento = ?, dataPagamento = ?, observacoes = ?, updatedAt = NOW()
+      SET updatedAt = NOW()
       WHERE id = ?
-    `, [statusPagamento, dataPagamento, observacoes || null, inscricaoId]);
+    `, [inscricaoId]);
     
     connection.release();
     console.log(`[updateInscricaoEventoStatus] Inscricao ${inscricaoId} marcada como ${statusPagamento}`);

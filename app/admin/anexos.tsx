@@ -8,26 +8,19 @@ import {
   TextInput,
   Modal,
   ScrollView,
-  Platform,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
-import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system/legacy";
 
 interface Anexo {
   id: number;
-  titulo: string;
-  descricao?: string;
-  arquivoUrl: string;
   nomeArquivo: string;
-  tamanhoArquivo: number;
-  tipo: string;
-  ativo: number;
-  createdAt: string;
+  urlArquivo: string;
+  tipo?: string;
+  createdAt?: string;
 }
 
 export default function AdminAnexosScreen() {
@@ -36,20 +29,16 @@ export default function AdminAnexosScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [uploadingFile, setUploadingFile] = useState(false);
   const [formData, setFormData] = useState({
-    titulo: "",
-    descricao: "",
     nomeArquivo: "",
-    arquivoBase64: "",
-    tipo: "manual",
+    urlArquivo: "",
+    tipo: "pdf",
   });
 
-  const { data: anexosData, isLoading, refetch } = trpc.anexosLideres.list.useQuery();
-  const createMutation = trpc.anexosLideres.create.useMutation();
-  const updateMutation = trpc.anexosLideres.update.useMutation();
-  const deleteMutation = trpc.anexosLideres.delete.useMutation();
-  const toggleMutation = trpc.anexosLideres.toggleVisibility.useMutation();
+  const { data: anexosData, isLoading, refetch } = trpc.anexos.list.useQuery();
+  const createMutation = trpc.anexos.create.useMutation();
+  const updateMutation = trpc.anexos.update.useMutation();
+  const deleteMutation = trpc.anexos.delete.useMutation();
 
   useEffect(() => {
     if (anexosData) {
@@ -62,58 +51,24 @@ export default function AdminAnexosScreen() {
     if (anexo) {
       setEditingId(anexo.id);
       setFormData({
-        titulo: anexo.titulo,
-        descricao: anexo.descricao || "",
         nomeArquivo: anexo.nomeArquivo,
-        arquivoBase64: "",
-        tipo: anexo.tipo,
+        urlArquivo: anexo.urlArquivo,
+        tipo: anexo.tipo || "pdf",
       });
     } else {
       setEditingId(null);
       setFormData({
-        titulo: "",
-        descricao: "",
         nomeArquivo: "",
-        arquivoBase64: "",
-        tipo: "manual",
+        urlArquivo: "",
+        tipo: "pdf",
       });
     }
     setModalVisible(true);
   };
 
-  const handlePickFile = async () => {
-    try {
-      setUploadingFile(true);
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "application/pdf",
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const file = result.assets[0];
-        
-        // Ler arquivo e converter para base64
-        const fileContent = await FileSystem.readAsStringAsync(file.uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-
-        setFormData({
-          ...formData,
-          nomeArquivo: file.name,
-          arquivoBase64: fileContent,
-        });
-
-        Alert.alert("Sucesso", `Arquivo ${file.name} selecionado`);
-      }
-    } catch (error: any) {
-      Alert.alert("Erro", error.message || "Erro ao selecionar arquivo");
-    } finally {
-      setUploadingFile(false);
-    }
-  };
-
   const handleSave = async () => {
-    if (!formData.titulo.trim() || !formData.nomeArquivo.trim() || !formData.arquivoBase64.trim()) {
-      Alert.alert("Erro", "Preencha o título e selecione um arquivo PDF");
+    if (!formData.nomeArquivo.trim() || !formData.urlArquivo.trim()) {
+      Alert.alert("Erro", "Preencha o nome do arquivo e a URL");
       return;
     }
 
@@ -121,21 +76,18 @@ export default function AdminAnexosScreen() {
       if (editingId) {
         await updateMutation.mutateAsync({
           id: editingId,
-          titulo: formData.titulo,
-          descricao: formData.descricao,
+          nomeArquivo: formData.nomeArquivo,
+          urlArquivo: formData.urlArquivo,
           tipo: formData.tipo,
         });
         Alert.alert("Sucesso", "Anexo atualizado");
       } else {
         await createMutation.mutateAsync({
-          titulo: formData.titulo,
-          descricao: formData.descricao,
           nomeArquivo: formData.nomeArquivo,
-          arquivoBase64: formData.arquivoBase64,
+          urlArquivo: formData.urlArquivo,
           tipo: formData.tipo,
-          ativo: 1,
         });
-        Alert.alert("Sucesso", "Anexo criado e enviado");
+        Alert.alert("Sucesso", "Anexo criado");
       }
       setModalVisible(false);
       refetch();
@@ -163,37 +115,18 @@ export default function AdminAnexosScreen() {
     ]);
   };
 
-  const handleToggleVisibility = async (id: number, ativo: number) => {
-    try {
-      await toggleMutation.mutateAsync({
-        id,
-        ativo: ativo === 1 ? 0 : 1,
-      });
-      refetch();
-    } catch (error: any) {
-      Alert.alert("Erro", error.message || "Erro ao atualizar visibilidade");
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
-
   const renderAnexo = ({ item }: { item: Anexo }) => (
     <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
       <View className="mb-3">
-        <Text className="text-lg font-bold text-foreground">{item.titulo}</Text>
-        {item.descricao && (
-          <Text className="text-sm text-muted mt-1">{item.descricao}</Text>
-        )}
+        <Text className="text-lg font-bold text-foreground">{item.nomeArquivo}</Text>
         <Text className="text-xs text-muted mt-2">
-          📄 {item.nomeArquivo} ({formatFileSize(item.tamanhoArquivo)})
+          Tipo: {item.tipo || "pdf"}
         </Text>
-        <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
+        {item.createdAt && (
+          <Text className="text-xs text-muted">
+            Criado em: {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+          </Text>
+        )}
       </View>
 
       <View className="flex-row gap-2">
@@ -209,17 +142,6 @@ export default function AdminAnexosScreen() {
           className="flex-1 bg-error rounded-lg p-2 items-center active:opacity-80"
         >
           <Text className="text-white font-semibold text-sm">Deletar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => handleToggleVisibility(item.id, item.ativo)}
-          className={`flex-1 rounded-lg p-2 items-center active:opacity-80 ${
-            item.ativo === 1 ? "bg-success" : "bg-muted"
-          }`}
-        >
-          <Text className="text-white font-semibold text-sm">
-            {item.ativo === 1 ? "Visível" : "Oculto"}
-          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -278,72 +200,49 @@ export default function AdminAnexosScreen() {
 
               <View className="mb-4">
                 <Text className="text-sm font-semibold text-foreground mb-2">
-                  Título
+                  Nome do Arquivo *
                 </Text>
                 <TextInput
                   className="border border-border rounded-lg p-3 text-foreground bg-surface"
-                  placeholder="Ex: Manual do Líder"
-                  value={formData.titulo}
+                  placeholder="Ex: Guia de Liderança.pdf"
+                  value={formData.nomeArquivo}
                   onChangeText={(text) =>
-                    setFormData({ ...formData, titulo: text })
+                    setFormData({ ...formData, nomeArquivo: text })
                   }
                 />
               </View>
 
               <View className="mb-4">
                 <Text className="text-sm font-semibold text-foreground mb-2">
-                  Descrição
+                  URL do Arquivo *
                 </Text>
                 <TextInput
                   className="border border-border rounded-lg p-3 text-foreground bg-surface"
-                  placeholder="Descrição opcional"
-                  value={formData.descricao}
+                  placeholder="https://..."
+                  value={formData.urlArquivo}
                   onChangeText={(text) =>
-                    setFormData({ ...formData, descricao: text })
+                    setFormData({ ...formData, urlArquivo: text })
                   }
                   multiline
-                  numberOfLines={3}
+                  numberOfLines={2}
                 />
+                <Text className="text-xs text-muted mt-1">
+                  Cole a URL do arquivo hospedado (ex: S3, Google Drive, etc)
+                </Text>
               </View>
-
-              {!editingId && (
-                <View className="mb-4">
-                  <Text className="text-sm font-semibold text-foreground mb-2">
-                    Arquivo PDF
-                  </Text>
-                  <TouchableOpacity
-                    onPress={handlePickFile}
-                    disabled={uploadingFile}
-                    className="border-2 border-dashed border-primary rounded-lg p-4 items-center active:opacity-80"
-                  >
-                    {uploadingFile ? (
-                      <ActivityIndicator color={colors.primary} />
-                    ) : (
-                      <>
-                        <Text className="text-primary font-semibold mb-1">
-                          📁 Selecionar PDF
-                        </Text>
-                        <Text className="text-xs text-muted text-center">
-                          {formData.nomeArquivo || "Toque para escolher um arquivo"}
-                        </Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              )}
 
               <View className="mb-6">
                 <Text className="text-sm font-semibold text-foreground mb-2">
-                  Tipo
+                  Tipo de Arquivo
                 </Text>
-                <View className="flex-row gap-2">
-                  {["manual", "guia", "formulario"].map((tipo) => (
+                <View className="flex-row gap-2 flex-wrap">
+                  {["pdf", "doc", "img", "outro"].map((tipo) => (
                     <TouchableOpacity
                       key={tipo}
                       onPress={() =>
                         setFormData({ ...formData, tipo })
                       }
-                      className={`flex-1 rounded-lg p-2 items-center ${
+                      className={`flex-1 min-w-24 rounded-lg p-2 items-center ${
                         formData.tipo === tipo
                           ? "bg-primary"
                           : "bg-surface border border-border"
@@ -356,7 +255,7 @@ export default function AdminAnexosScreen() {
                             : "text-foreground"
                         }`}
                       >
-                        {tipo}
+                        {tipo.toUpperCase()}
                       </Text>
                     </TouchableOpacity>
                   ))}

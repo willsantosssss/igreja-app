@@ -4,7 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { signupUser, loginUser, resetUserPassword } from "./auth-simple";
+import { signupUser, loginUser } from "./auth-simple";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as crypto from "crypto";
@@ -85,19 +85,6 @@ export const appRouter = router({
           throw new TRPCError({
             code: "UNAUTHORIZED",
             message: error.message || "Invalid credentials",
-          });
-        }
-      }),
-    resetPassword: publicProcedure
-      .input(z.object({ email: z.string().email(), newPassword: z.string().min(6) }))
-      .mutation(async ({ input }) => {
-        try {
-          const result = await resetUserPassword(input.email, input.newPassword);
-          return result;
-        } catch (error: any) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: error.message || "Failed to reset password",
           });
         }
       }),
@@ -195,7 +182,7 @@ export const appRouter = router({
         dataNascimento: z.string().optional(),
         celula: z.string().min(1),
       }))
-      .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, email: ctx.user.email })),
+      .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id })),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -205,11 +192,10 @@ export const appRouter = router({
           celula: z.string().optional(),
         }),
       }))
-      .mutation(({ input, ctx }) => db.upsertUsuarioCadastrado({ ...input.data, email: ctx.user.email })),
+      .mutation(({ input }) => db.upsertUsuarioCadastrado({ ...input.data, userId: input.id })),
     getMeuPerfil: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.user) throw new Error("Not authenticated");
-      if (!ctx.user.email) throw new Error("User email not found");
-      return db.getUsuarioCadastradoByEmail(ctx.user.email);
+      return db.getUsuarioCadastrado(ctx.user.id);
     }),
     updateMeuPerfil: protectedProcedure
       .input(z.object({
@@ -219,8 +205,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         if (!ctx.user) throw new Error("Not authenticated");
-        if (!ctx.user.email) throw new Error("User email not found");
-        return db.upsertUsuarioCadastrado({ ...input, email: ctx.user.email });
+        return db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id });
       }),
     deleteUser: protectedProcedure
       .input(z.number())
@@ -605,44 +590,30 @@ export const appRouter = router({
       .mutation(({ input }) => db.updateConfigEscolaCrescimento(input)),
    }),
   
-  // Anexos Líderes
-  anexosLideres: router({
+  // Anexos Global - Acessível por todos os líderes
+  anexos: router({
     list: publicProcedure.query(async () => {
       try {
-        const result = await db.getAnexosLideres();
+        const result = await db.getAnexos();
         if (result && result.length > 0) return result;
       } catch (e) {
         // fallback
       }
       return [];
     }),
-    getById: publicProcedure.input(z.number()).query(({ input }) => db.getAnexoLiderById(input)),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getAnexoById(input)),
     create: protectedProcedure
       .input(z.object({
-        titulo: z.string().min(1),
-        descricao: z.string().optional(),
-        arquivoBase64: z.string().min(1),
         nomeArquivo: z.string().min(1),
-        tipo: z.string().min(1),
-        ativo: z.number().default(1),
+        urlArquivo: z.string().min(1),
+        tipo: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         try {
-          const hash = crypto.randomBytes(8).toString('hex');
-          const nomeArquivoLocal = `${hash}-${input.nomeArquivo}`;
-          const caminhoArquivo = path.join(UPLOAD_DIR, nomeArquivoLocal);
-          const buffer = Buffer.from(input.arquivoBase64, 'base64');
-          await fs.writeFile(caminhoArquivo, buffer);
-          const stats = await fs.stat(caminhoArquivo);
-          const arquivoUrl = `/uploads/${nomeArquivoLocal}`;
-          return db.createAnexoLider({
-            titulo: input.titulo,
-            descricao: input.descricao,
-            arquivoUrl,
+          return await db.createAnexo({
             nomeArquivo: input.nomeArquivo,
-            tamanhoArquivo: stats.size,
-            tipo: input.tipo,
-            ativo: input.ativo,
+            urlArquivo: input.urlArquivo,
+            tipo: input.tipo || 'pdf',
           });
         } catch (error: any) {
           throw new TRPCError({
@@ -654,23 +625,17 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
-        titulo: z.string().optional(),
-        descricao: z.string().optional(),
-        arquivoUrl: z.string().url().optional(),
+        nomeArquivo: z.string().optional(),
+        urlArquivo: z.string().optional(),
         tipo: z.string().optional(),
-        ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {
-        return db.updateAnexoLider(input.id, input);
+        const { id, ...data } = input;
+        return db.updateAnexo(id, data);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      return db.deleteAnexoLider(input);
+      return db.deleteAnexo(input);
     }),
-    toggleVisibility: protectedProcedure
-      .input(z.object({ id: z.number(), ativo: z.number() }))
-      .mutation(({ input, ctx }) => {
-        return db.toggleAnexoLiderVisibility(input.id, input.ativo);
-      }),
   }),
 
   // Pagamentos de Eventos
