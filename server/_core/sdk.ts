@@ -193,11 +193,15 @@ class SDKServer {
     }
 
     try {
+      console.log("[Auth] verifySession: Token provided, length:", cookieValue.length);
       const secretKey = this.getSessionSecret();
+      console.log("[Auth] verifySession: Secret key length:", new TextDecoder().decode(secretKey).length);
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
+      console.log("[Auth] verifySession: Token verified successfully");
       const { openId, appId, name } = payload as Record<string, unknown>;
+      console.log("[Auth] verifySession: Payload extracted", { openId, appId, name });
 
       if (!isNonEmptyString(openId) || !isNonEmptyString(appId)) {
         console.warn("[Auth] Session payload missing required fields", { openId, appId, name });
@@ -210,6 +214,7 @@ class SDKServer {
         name: typeof name === 'string' ? name : '',
       };
     } catch (error) {
+      console.error("[Auth] verifySession: Token verification failed", error instanceof Error ? error.message : String(error));
       return null;
     }
   }
@@ -236,12 +241,17 @@ class SDKServer {
     } as GetUserInfoWithJwtResponse;
   }
 
-  async authenticateRequest(req: Request): Promise<User> {
-    // Regular authentication flow
+  async authenticateRequest(req: any): Promise<Session> {
+    console.log('[Auth] authenticateRequest called');
+    console.log('[Auth] Headers:', Object.keys(req.headers).join(', '));
     const authHeader = req.headers.authorization || req.headers.Authorization;
+    console.log('[Auth] Authorization header:', authHeader ? `${authHeader.substring(0, 50)}...` : 'none');
     let token: string | undefined;
     if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
       token = authHeader.slice("Bearer ".length).trim();
+      console.log('[Auth] Token extracted:', `${token.substring(0, 30)}...`);
+    } else {
+      console.log('[Auth] No Bearer token found');
     }
 
     const cookies = this.parseCookies(req.headers.cookie);
@@ -260,25 +270,28 @@ class SDKServer {
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not found by openId, try to find by email (email/password flow)
-    if (!user && session.name && session.name.includes('@')) {
+    // session.name contains the email for local users
+    if (!user && session.name) {
+      console.log("[Auth] Looking up user by email:", session.name);
       user = await db.getUserByEmail(session.name);
     }
 
-    // If user not in DB, sync from OAuth server automatically
-    if (!user) {
+    // If user not in DB, create a local user entry (don't try OAuth sync for local users)
+    if (!user && session.name) {
+      console.log("[Auth] Creating local user entry for:", session.name);
       try {
-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
-          openId: userInfo.openId,
-          name: userInfo.name || null,
-          email: userInfo.email ?? null,
-          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+          openId: sessionUserId,
+          name: session.name || null,
+          email: session.name, // Use session.name as email for local users
+          loginMethod: 'email',
           lastSignedIn: signedInAt,
         });
-        user = await db.getUserByOpenId(userInfo.openId);
+        user = await db.getUserByOpenId(sessionUserId);
       } catch (error) {
-        console.error("[Auth] Failed to sync user from OAuth:", error);
-        throw ForbiddenError("Failed to sync user info");
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error("[Auth] Failed to create local user:", errorMsg);
+        throw ForbiddenError("Failed to create user");
       }
     }
 

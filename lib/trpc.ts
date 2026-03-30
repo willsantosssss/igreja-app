@@ -38,7 +38,14 @@ export function createTRPCClient() {
           if (typeof window !== 'undefined' && window.localStorage) {
             const token = window.localStorage.getItem('app_session_token');
             console.log('[tRPC] Token from localStorage:', token ? `${token.substring(0, 30)}...` : 'none');
-            return token ? { Authorization: `Bearer ${token}` } : {};
+            console.log('[tRPC] localStorage keys:', Object.keys(window.localStorage).join(', '));
+            if (token) {
+              console.log('[tRPC] Sending Authorization header with token');
+              return { Authorization: `Bearer ${token}` };
+            } else {
+              console.log('[tRPC] No token found in localStorage, sending empty headers');
+              return {};
+            }
           }
           
           // On native, use Auth.getSessionToken()

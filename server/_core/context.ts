@@ -13,9 +13,12 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
   let user: User | null = null;
 
   try {
+    console.log('[Context] createContext called');
     user = await sdk.authenticateRequest(opts.req);
+    console.log('[Context] User authenticated:', user?.email);
   } catch (error) {
     // Authentication is optional for public procedures.
+    console.log('[Context] Authentication failed:', error instanceof Error ? error.message : String(error));
     user = null;
   }
 

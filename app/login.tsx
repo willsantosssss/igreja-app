@@ -4,11 +4,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
-import { setSessionToken, setUserInfo } from "@/lib/_core/auth";
+import { setSessionToken, setUserInfo, Auth } from "@/lib/_core/auth";
 import { useColors } from "@/hooks/use-colors";
 
 
 export default function LoginScreen() {
+  console.log("[LoginScreen] Component rendering");
   const colors = useColors();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
@@ -95,8 +96,12 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       console.log("[Login] Iniciando login com:", { email });
+      console.log("[Login] loginMutation:", typeof loginMutation);
       const loginResult = await loginMutation.mutateAsync({ email, password });
-      console.log("[Login] Login success, resultado completo:", JSON.stringify(loginResult, null, 2));
+      console.log("[Login] Login success!");
+      console.log("[Login] Login result type:", typeof loginResult);
+      console.log("[Login] Login result keys:", loginResult ? Object.keys(loginResult) : 'null');
+      console.log("[Login] Login result completo:", JSON.stringify(loginResult, null, 2));
       console.log("[Login] sessionToken existe?", !!loginResult.sessionToken);
       console.log("[Login] sessionToken valor:", loginResult.sessionToken?.substring(0, 50));
       
@@ -104,22 +109,26 @@ export default function LoginScreen() {
       if (loginResult.sessionToken) {
         try {
           console.log("[Login] Saving token:", loginResult.sessionToken.substring(0, 20) + "...");
+          console.log("[Login] typeof window:", typeof window);
+          console.log("[Login] window.localStorage exists:", !!window.localStorage);
           // Salvar token diretamente em localStorage para web
           if (typeof window !== 'undefined' && window.localStorage) {
+            console.log("[Login] Attempting to save to localStorage...");
             window.localStorage.setItem('app_session_token', loginResult.sessionToken);
             console.log("[Login] Token salvo em localStorage");
+            // Verificar imediatamente
+            const checkToken = window.localStorage.getItem('app_session_token');
+            console.log("[Login] Verificação imediata:", checkToken ? "SIM (" + checkToken.length + " chars)" : "NÃO");
           } else {
+            console.log("[Login] window.localStorage não disponível, usando setSessionToken");
             await setSessionToken(loginResult.sessionToken);
             console.log("[Login] Token salvo via setSessionToken");
           }
-          // Verificar se foi realmente salvo
-          const savedToken = window.localStorage?.getItem('app_session_token');
-          console.log("[Login] Token verificado em localStorage:", savedToken ? "SIM (" + savedToken.length + " chars)" : "NÃO");
         } catch (e) {
-          console.warn("[Login] Failed to save token", e);
+          console.error("[Login] Failed to save token", e);
         }
       } else {
-        console.warn("[Login] loginResult.sessionToken é undefined!", loginResult);
+        console.error("[Login] loginResult.sessionToken é undefined!", loginResult);
       }
       
       // Salvar informações do usuário em cache
@@ -165,6 +174,11 @@ export default function LoginScreen() {
         router.replace("/completar-cadastro");
       }
     } catch (error: any) {
+      console.error("[Login] ERRO CAPTURADO NO CATCH EXTERNO:", error);
+      console.error("[Login] Error message:", error.message);
+      console.error("[Login] Error stack:", error.stack);
+      console.error("[Login] Error type:", typeof error);
+      console.error("[Login] Error keys:", error ? Object.keys(error) : 'null');
       Alert.alert("Erro", error.message || "Email ou senha incorretos");
     } finally {
       setLoading(false);

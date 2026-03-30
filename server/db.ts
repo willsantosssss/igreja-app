@@ -28,10 +28,13 @@ export function getSqlClient() {
         password: url.password,
         database: url.pathname.slice(1),
         waitForConnections: true,
-        connectionLimit: 5,
+        connectionLimit: 10,
         queueLimit: 0,
         enableKeepAlive: true,
-        connectTimeout: 30000,
+        keepAliveInitialDelayMs: 0,
+        connectTimeout: 60000,
+        acquireTimeout: 60000,
+        waitForConnectionsTimeout: 60000,
         ssl: { rejectUnauthorized: false },
       };
       console.log('[getSqlClient] Pool config:', { host: config.host, port: config.port, user: config.user, database: config.database });
@@ -142,16 +145,23 @@ export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Se email não for fornecido, não podemos fazer upsert
+  if (!data.email) {
+    throw new Error("Email is required for upsertUsuarioCadastrado");
+  }
+
   const existing = await db
     .select()
     .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.userId, data.userId!));
+    .where(eq(usuariosCadastrados.email, data.email));
 
   if (existing.length > 0) {
+    // Atualizar registro existente (sem alterar email)
+    const { email, ...updateData } = data;
     await db
       .update(usuariosCadastrados)
-      .set(data)
-      .where(eq(usuariosCadastrados.userId, data.userId!));
+      .set(updateData)
+      .where(eq(usuariosCadastrados.email, email));
   } else {
     await db.insert(usuariosCadastrados).values(data);
   }
@@ -164,6 +174,16 @@ export async function getUsuarioCadastrado(userId: number) {
     .select()
     .from(usuariosCadastrados)
     .where(eq(usuariosCadastrados.userId, userId));
+  return result[0] || null;
+}
+
+export async function getUsuarioCadastradoByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select()
+    .from(usuariosCadastrados)
+    .where(eq(usuariosCadastrados.email, email));
   return result[0] || null;
 }
 

@@ -134,6 +134,7 @@ function RootLayoutContent() {
 }
 
 export default function RootLayout() {
+  console.log("[RootLayout] Rendering...");
   const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
   const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
 

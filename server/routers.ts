@@ -195,7 +195,7 @@ export const appRouter = router({
         dataNascimento: z.string().optional(),
         celula: z.string().min(1),
       }))
-      .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id })),
+      .mutation(({ ctx, input }) => db.upsertUsuarioCadastrado({ ...input, email: ctx.user.email })),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -205,10 +205,11 @@ export const appRouter = router({
           celula: z.string().optional(),
         }),
       }))
-      .mutation(({ input }) => db.upsertUsuarioCadastrado({ ...input.data, userId: input.id })),
+      .mutation(({ input, ctx }) => db.upsertUsuarioCadastrado({ ...input.data, email: ctx.user.email })),
     getMeuPerfil: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.user) throw new Error("Not authenticated");
-      return db.getUsuarioCadastrado(ctx.user.id);
+      if (!ctx.user.email) throw new Error("User email not found");
+      return db.getUsuarioCadastradoByEmail(ctx.user.email);
     }),
     updateMeuPerfil: protectedProcedure
       .input(z.object({
@@ -218,7 +219,8 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         if (!ctx.user) throw new Error("Not authenticated");
-        return db.upsertUsuarioCadastrado({ ...input, userId: ctx.user.id });
+        if (!ctx.user.email) throw new Error("User email not found");
+        return db.upsertUsuarioCadastrado({ ...input, email: ctx.user.email });
       }),
     deleteUser: protectedProcedure
       .input(z.number())

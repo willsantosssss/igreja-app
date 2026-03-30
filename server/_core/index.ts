@@ -1,4 +1,13 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import path from "path";
+// Load .env.local first (for secrets set via webdev_request_secrets), then .env as fallback
+// Use absolute path from current working directory
+const projectRoot = process.cwd();
+dotenv.config({ path: path.join(projectRoot, ".env.local") });
+dotenv.config({ path: path.join(projectRoot, ".env") });
+console.log("[Server] Loading env from:", projectRoot);
+console.log("[Server] CUSTOM_JWT_SECRET length:", process.env.CUSTOM_JWT_SECRET?.length ?? 0);
+console.log("[Server] JWT_SECRET length:", process.env.JWT_SECRET?.length ?? 0);
 import express from "express";
 import { createServer } from "http";
 import net from "net";

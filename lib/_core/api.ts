@@ -30,7 +30,7 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
     }
   } else {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const token = window.localStorage.getItem('@session_token');
+      const token = window.localStorage.getItem('app_session_token');
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
         console.log("[API] Authorization header added from localStorage");

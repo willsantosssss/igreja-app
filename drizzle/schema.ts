@@ -87,7 +87,7 @@ export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
   nome: varchar("nome", { length: 255 }).notNull(),
   celula: varchar("celula", { length: 255 }),
   dataNascimento: varchar("dataNascimento", { length: 10 }),
-  email: varchar("email", { length: 320 }),
+  email: varchar("email", { length: 320 }).unique(),
   telefone: varchar("telefone", { length: 20 }),
   dataRegistro: timestamp("dataRegistro"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
