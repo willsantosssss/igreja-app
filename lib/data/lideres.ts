@@ -121,6 +121,10 @@ export async function obterSessaoLider(): Promise<LiderCelula | null> {
 
 export async function encerrarSessaoLider(): Promise<void> {
   await AsyncStorage.removeItem(LIDER_LOGADO_KEY);
+  // Também limpar localStorage para web
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    localStorage.removeItem(LIDER_LOGADO_KEY);
+  }
 }
 
 // ==================== RELATÓRIOS ====================

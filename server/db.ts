@@ -596,18 +596,31 @@ export async function createRelatorio(data: Omit<InsertRelatorio, 'id' | 'create
     const pool = mysql.createPool(process.env.DATABASE_URL);
     const connection = await pool.getConnection();
     
-    const query = `INSERT INTO relatorios (liderId, celula, tipo, periodo, presentes, novosVisitantes, conversoes, observacoes) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    // Construir título e descrição a partir dos dados
+    const titulo = `Relatório ${data.tipo || 'Semanal'}`;
+    const descricao = `${data.celula || ''} - Presentes: ${data.presentes || 0}, Novos Visitantes: ${data.novosVisitantes || 0}, Conversões: ${data.conversoes || 0}`;
+    
+    // Converter data de DD/MM/YYYY para YYYY-MM-DD
+    let dataFormatada = null;
+    if (data.periodo) {
+      const [dia, mes, ano] = data.periodo.split('/');
+      dataFormatada = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    }
+    
+    const query = `INSERT INTO relatorios (titulo, descricao, observacoes, dataRelatorio, liderId, celula, tipo, presentes, novosVisitantes, conversoes) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     const [result] = await connection.execute(query, [
-      data.liderId,
-      data.celula,
-      data.tipo,
-      data.periodo,
-      data.presentes,
-      data.novosVisitantes ?? 0,
-      data.conversoes ?? 0,
+      titulo,
+      descricao,
       data.observacoes || null,
+      dataFormatada,
+      data.liderId || 0,
+      data.celula || '',
+      data.tipo || 'semanal',
+      data.presentes || 0,
+      data.novosVisitantes || 0,
+      data.conversoes || 0,
     ]);
     
     const insertResult = result as any;

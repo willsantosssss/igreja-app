@@ -62,6 +62,7 @@ export default function MaisScreen() {
   };
 
   const { data: contatosIgreja, isLoading: contatosLoading } = trpc.contatosIgreja.get.useQuery();
+  const [showContatoModal, setShowContatoModal] = useState(false);
 
   const handleContato = () => {
     if (Platform.OS !== "web") {
@@ -73,29 +74,28 @@ export default function MaisScreen() {
       return;
     }
 
-    const buttons = [
-      { text: "Cancelar", style: "cancel" }
-    ];
+    setShowContatoModal(true);
+  };
 
+  const handleContatoWhatsApp = () => {
     if (contatosIgreja?.whatsapp) {
-      buttons.push({
-        text: "WhatsApp",
-        onPress: () => Linking.openURL(`https://wa.me/${contatosIgreja.whatsapp.replace(/\D/g, '')}`)
-      });
+      Linking.openURL(`https://wa.me/${contatosIgreja.whatsapp.replace(/\D/g, '')}`);
+      setShowContatoModal(false);
     }
+  };
 
+  const handleContatoEmail = () => {
     if (contatosIgreja?.email) {
-      buttons.push({
-        text: "Email",
-        onPress: () => Linking.openURL(`mailto:${contatosIgreja.email}`)
-      });
+      Linking.openURL(`mailto:${contatosIgreja.email}`);
+      setShowContatoModal(false);
     }
+  };
 
-    Alert.alert(
-      "Contato da Igreja",
-      "Entre em contato conosco:",
-      buttons
-    );
+  const handleContatoTelefone = () => {
+    if (contatosIgreja?.telefone) {
+      Linking.openURL(`tel:${contatosIgreja.telefone.replace(/\D/g, '')}`);
+      setShowContatoModal(false);
+    }
   };
 
   const handleFeedback = () => {
@@ -442,6 +442,72 @@ export default function MaisScreen() {
               onPress={() => setShowThemeModal(false)}
             >
               <Text className="text-white font-bold text-center">Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de Contato da Igreja */}
+      <Modal
+        visible={showContatoModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowContatoModal(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center">
+          <View className="bg-background rounded-3xl p-6 w-80 gap-4 border border-border">
+            <Text className="text-2xl font-bold text-foreground text-center">📞 Contato da Igreja</Text>
+            <Text className="text-base text-muted text-center">Entre em contato conosco</Text>
+            
+            <View className="gap-3 mt-4">
+              {contatosIgreja?.whatsapp && (
+                <TouchableOpacity
+                  className="rounded-2xl p-4 flex-row items-center gap-3 bg-green-500/10 border border-green-500"
+                  onPress={handleContatoWhatsApp}
+                >
+                  <Text className="text-2xl">💬</Text>
+                  <View className="flex-1">
+                    <Text className="text-lg font-bold text-foreground">WhatsApp</Text>
+                    <Text className="text-sm text-muted">{contatosIgreja.whatsapp}</Text>
+                  </View>
+                  <IconSymbol name="chevron.right" size={20} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+              
+              {contatosIgreja?.telefone && (
+                <TouchableOpacity
+                  className="rounded-2xl p-4 flex-row items-center gap-3 bg-blue-500/10 border border-blue-500"
+                  onPress={handleContatoTelefone}
+                >
+                  <Text className="text-2xl">☎️</Text>
+                  <View className="flex-1">
+                    <Text className="text-lg font-bold text-foreground">Telefone</Text>
+                    <Text className="text-sm text-muted">{contatosIgreja.telefone}</Text>
+                  </View>
+                  <IconSymbol name="chevron.right" size={20} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+              
+              {contatosIgreja?.email && (
+                <TouchableOpacity
+                  className="rounded-2xl p-4 flex-row items-center gap-3 bg-purple-500/10 border border-purple-500"
+                  onPress={handleContatoEmail}
+                >
+                  <Text className="text-2xl">✉️</Text>
+                  <View className="flex-1">
+                    <Text className="text-lg font-bold text-foreground">Email</Text>
+                    <Text className="text-sm text-muted">{contatosIgreja.email}</Text>
+                  </View>
+                  <IconSymbol name="chevron.right" size={20} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <TouchableOpacity
+              className="rounded-2xl p-4 bg-muted/20 mt-4"
+              onPress={() => setShowContatoModal(false)}
+            >
+              <Text className="text-center font-bold text-foreground">Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>

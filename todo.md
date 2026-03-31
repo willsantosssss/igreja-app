@@ -397,7 +397,9 @@
 - [x] Adicionar exemplos práticos
 - [x] Converter para PDF
 
-## Corrigir Exibição de "Próximo Evento" na Home
+- [ ] Corrigir botão "Contato da Igreja" na aba Mais - tabela não existe ou dados não estão mapeados
+
+## Corrigir Exibição de "Próximo Evento" na H...
 - [x] Investigar lógica de busca do próximo evento na home
 - [x] Verificar se está ordenando eventos por data corretamente
 - [x] Corrigir para mostrar sempre o evento mais próximo

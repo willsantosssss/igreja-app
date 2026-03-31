@@ -42,6 +42,7 @@ export default function LiderScreen() {
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [alterandoSenha, setAlterandoSenha] = useState(false);
+  const [mostrarConfirmacaoLogout, setMostrarConfirmacaoLogout] = useState(false);
 
   // Buscar dados do banco de dados
   const { data: membrosDB = [], isLoading: carregandoMembros } = trpc.usuarios.list.useQuery(undefined, {
@@ -219,25 +220,30 @@ export default function LiderScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert('Sair', 'Deseja sair do painel de líder?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        onPress: async () => {
-          await cancelarLembrete();
-          await encerrarSessaoLider();
-          setLider(null);
-          setSenhaInput('');
-          setCelulaInput('');
-          setLiderSelecionadoId(null);
-          setLembreteAtivo(false);
-          setMostrarModalSenha(false);
-          setSenhaAtual('');
-          setNovaSenha('');
-          setConfirmarSenha('');
-        },
-      },
-    ]);
+    setMostrarConfirmacaoLogout(true);
+  };
+
+  const confirmarLogout = async () => {
+    try {
+      await cancelarLembrete();
+      await encerrarSessaoLider();
+      setLider(null);
+      setSenhaInput('');
+      setCelulaInput('');
+      setLiderSelecionadoId(null);
+      setLembreteAtivo(false);
+      setMostrarModalSenha(false);
+      setMostrarConfirmacaoLogout(false);
+      setSenhaAtual('');
+      setNovaSenha('');
+      setConfirmarSenha('');
+      if (Platform.OS === 'web') {
+        window.location.href = '/lider';
+      }
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      Alert.alert('Erro', 'Nao foi possivel fazer logout.');
+    }
   };
 
   const handleMudarSenha = async () => {
@@ -761,6 +767,38 @@ export default function LiderScreen() {
             </View>
             <IconSymbol name="chevron.right" size={20} color={colors.muted} />
           </TouchableOpacity>
+
+          {/* Botão Sair */}
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={{
+              backgroundColor: colors.error + '10',
+              borderWidth: 1,
+              borderColor: colors.error + '30',
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.error + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="power" size={20} color={colors.error} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-error">Sair</Text>
+                <Text className="text-xs text-muted">Fazer logout da sua conta</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -906,6 +944,34 @@ export default function LiderScreen() {
                 </TouchableOpacity>
               </View>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de Confirmação de Logout */}
+      <Modal
+        visible={mostrarConfirmacaoLogout}
+        transparent
+        animationType="fade"
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center">
+          <View className="bg-background rounded-2xl p-6 w-5/6 max-w-sm">
+            <Text className="text-xl font-bold text-foreground mb-2">Sair do Painel</Text>
+            <Text className="text-base text-muted mb-6">Tem certeza que deseja sair? Você precisará fazer login novamente.</Text>
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                className="flex-1 bg-border rounded-lg py-3 items-center"
+                onPress={() => setMostrarConfirmacaoLogout(false)}
+              >
+                <Text className="text-foreground font-semibold">Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-error rounded-lg py-3 items-center"
+                onPress={confirmarLogout}
+              >
+                <Text className="text-white font-semibold">Sair</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
