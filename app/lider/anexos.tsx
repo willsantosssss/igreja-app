@@ -18,14 +18,10 @@ import { getApiBaseUrl } from "@/constants/oauth";
 
 interface Anexo {
   id: number;
-  titulo: string;
-  descricao?: string;
-  arquivoUrl: string;
   nomeArquivo: string;
-  tamanhoArquivo: number;
-  tipo: string;
-  ativo: number;
-  createdAt: string;
+  urlArquivo: string;
+  tipo?: string;
+  createdAt?: string;
 }
 
 export default function AnexosLiderScreen() {
@@ -35,13 +31,11 @@ export default function AnexosLiderScreen() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
 
-  const { data: anexosData, isLoading } = trpc.anexosLideres.list.useQuery();
+  const { data: anexosData, isLoading } = trpc.anexos.list.useQuery();
 
   useEffect(() => {
     if (anexosData) {
-      // Filtrar apenas anexos ativos
-      const anexosAtivos = (anexosData as Anexo[]).filter((a) => a.ativo === 1);
-      setAnexos(anexosAtivos);
+      setAnexos(anexosData as Anexo[]);
       setLoading(false);
     }
   }, [anexosData]);
@@ -50,11 +44,10 @@ export default function AnexosLiderScreen() {
     try {
       setDownloading(anexo.id);
 
-      // Construir URL completa usando a API do servidor
-      const apiUrl = getApiBaseUrl();
-      const fullUrl = anexo.arquivoUrl.startsWith("http")
-        ? anexo.arquivoUrl
-        : `${apiUrl}${anexo.arquivoUrl}`;
+      // Construir URL completa
+      const fullUrl = anexo.urlArquivo.startsWith("http")
+        ? anexo.urlArquivo
+        : `${getApiBaseUrl()}${anexo.urlArquivo}`;
 
       // Log removido para produção
 
@@ -98,14 +91,16 @@ export default function AnexosLiderScreen() {
   const renderAnexo = ({ item }: { item: Anexo }) => (
     <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
       <View className="mb-3">
-        <Text className="text-lg font-bold text-foreground">{item.titulo}</Text>
-        {item.descricao && (
-          <Text className="text-sm text-muted mt-1">{item.descricao}</Text>
-        )}
+        <Text className="text-lg font-bold text-foreground">{item.nomeArquivo}</Text>
         <Text className="text-xs text-muted mt-2">
-          📄 {item.nomeArquivo} ({formatFileSize(item.tamanhoArquivo)})
+          📄 {item.nomeArquivo}
         </Text>
-        <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
+        {item.tipo && (
+          <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
+        )}
+        {item.createdAt && (
+          <Text className="text-xs text-muted">Criado em: {new Date(item.createdAt).toLocaleDateString('pt-BR')}</Text>
+        )}
       </View>
 
       <TouchableOpacity

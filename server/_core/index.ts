@@ -12,10 +12,16 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import path from "path";
+import fs from "fs";
+import { exec } from "child_process";
+import { promisify } from "util";
+import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+
+const execAsync = promisify(exec);
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -95,7 +101,56 @@ async function startServer() {
 
   // Serve static files from uploads folder
   const uploadsDir = path.join(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
   app.use("/uploads", express.static(uploadsDir));
+
+  // Setup multer for file uploads
+  const upload = multer({ dest: uploadsDir });
+
+  // File upload endpoint
+  app.post("/api/upload", (req, res, next) => {
+    upload.single("file")(req, res, (err: any) => {
+      if (err) {
+        return res.status(400).json({ error: err.message || "Upload failed" });
+      }
+      next();
+    });
+  }, async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file provided" });
+      }
+
+      const filePath = req.file.path;
+      const fileName = req.file.originalname;
+
+      console.log(`[Upload] Processing file: ${fileName}`);
+
+      // Use manus-upload-file to upload to S3
+      const { stdout } = await execAsync(`manus-upload-file "${filePath}"`);
+      const url = stdout.trim();
+
+      // Clean up temporary file
+      fs.unlinkSync(filePath);
+
+      console.log(`[Upload] File uploaded successfully: ${url}`);
+
+      res.json({ url, fileName });
+    } catch (error: any) {
+      console.error("[Upload Error]", error.message);
+      // Clean up file on error
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+      res.status(500).json({ error: error.message || "Upload failed" });
+    }
+  });
 
   // Health check endpoint for monitoring
   app.get("/api/health", (_req, res) => {

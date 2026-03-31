@@ -8,6 +8,7 @@ import {
   TextInput,
   Modal,
   ScrollView,
+  Platform,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "@/components/screen-container";
@@ -29,6 +30,7 @@ export default function AdminAnexosScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     nomeArquivo: "",
     urlArquivo: "",
@@ -64,6 +66,58 @@ export default function AdminAnexosScreen() {
       });
     }
     setModalVisible(true);
+  };
+
+  const handleUploadFile = async () => {
+    if (Platform.OS === "web") {
+      // Para web, usar input file nativo
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
+      input.onchange = async (e: any) => {
+        const file = e.target.files[0];
+        if (file) {
+          await uploadToS3(file);
+        }
+      };
+      input.click();
+    } else {
+      Alert.alert("Info", "Upload de arquivo disponível na versão web");
+    }
+  };
+
+  const uploadToS3 = async (file: File) => {
+    try {
+      setUploading(true);
+      const formDataObj = new FormData();
+      formDataObj.append("file", file);
+
+      // Usar endpoint de upload do servidor
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataObj,
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao fazer upload");
+      }
+
+      const data = await response.json();
+      const fileUrl = data.url;
+
+      // Preencher formulário com dados do arquivo
+      setFormData({
+        nomeArquivo: file.name,
+        urlArquivo: fileUrl,
+        tipo: file.name.split(".").pop() || "pdf",
+      });
+
+      Alert.alert("Sucesso", "Arquivo enviado com sucesso!");
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Erro ao fazer upload");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -214,7 +268,25 @@ export default function AdminAnexosScreen() {
 
               <View className="mb-4">
                 <Text className="text-sm font-semibold text-foreground mb-2">
-                  URL do Arquivo *
+                  Upload de Arquivo
+                </Text>
+                <TouchableOpacity
+                  onPress={handleUploadFile}
+                  disabled={uploading}
+                  className="border-2 border-dashed border-primary rounded-lg p-4 items-center active:opacity-80 mb-3"
+                >
+                  {uploading ? (
+                    <ActivityIndicator color={colors.primary} />
+                  ) : (
+                    <>
+                      <Text className="text-primary font-semibold mb-1">📁 Selecionar Arquivo</Text>
+                      <Text className="text-xs text-muted">PDF, DOC, DOCX, JPG, PNG</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                <Text className="text-sm font-semibold text-foreground mb-2 mt-4">
+                  Ou Cole a URL do Arquivo
                 </Text>
                 <TextInput
                   className="border border-border rounded-lg p-3 text-foreground bg-surface"
@@ -225,6 +297,7 @@ export default function AdminAnexosScreen() {
                   }
                   multiline
                   numberOfLines={2}
+                  editable={!uploading}
                 />
                 <Text className="text-xs text-muted mt-1">
                   Cole a URL do arquivo hospedado (ex: S3, Google Drive, etc)
