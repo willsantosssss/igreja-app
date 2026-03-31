@@ -4,9 +4,9 @@ import * as schema from "../drizzle/schema";
 import { 
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
-  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, anexosLideres, pagamentosEventos,
+  contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, pagamentosEventos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertAnexoLider, InsertPagamentoEvento
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertPagamentoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import { eq, desc } from "drizzle-orm";
@@ -928,12 +928,6 @@ export async function deleteAnexo(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(anexos).where(eq(anexos.id, id));
-}
-
-export async function toggleAnexoLiderVisibility(id: number, ativo: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(anexosLideres).set({ ativo }).where(eq(anexosLideres.id, id));
 }
 
 
