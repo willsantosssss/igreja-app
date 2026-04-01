@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
-import { setSessionToken, setUserInfo, Auth } from "@/lib/_core/auth";
+import { setSessionToken, setUserInfo, getSessionToken } from "@/lib/_core/auth";
 import { useColors } from "@/hooks/use-colors";
 
 
@@ -48,7 +48,7 @@ export default function LoginScreen() {
           await setSessionToken(loginResult.sessionToken);
           console.log("[Login] Session token saved");
           // Verificar se foi salvo
-          const savedToken = await Auth.getSessionToken();
+          const savedToken = await getSessionToken();
           console.log("[Login] Token verificado:", savedToken ? "OK" : "FALHOU");
         } catch (e) {
           console.warn("[Login] Failed to save token", e);
