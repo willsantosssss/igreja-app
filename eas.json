@@ -11,7 +11,7 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://3000-iah94pfbk736cnofwa14o-35ca50eb.us2.manus.computer"
+        "EXPO_PUBLIC_API_BASE_URL": "https://igreja-app-production-9432.up.railway.app"
       },
       "ios": {
         "image": "latest"
