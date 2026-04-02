@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Alert, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { setSessionToken, setUserInfo, getSessionToken } from "@/lib/_core/auth";
 import { useColors } from "@/hooks/use-colors";
+import { usePersistentStorage } from "@/lib/hooks/use-persistent-storage";
 
 
 export default function LoginScreen() {
   console.log("[LoginScreen] Component rendering");
   const colors = useColors();
+  const storage = usePersistentStorage();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,10 +75,10 @@ export default function LoginScreen() {
         }
       }
       
-      await AsyncStorage.setItem("@is_logged_in", "true");
-      await AsyncStorage.setItem("@cadastro_completo", "false");
-      await AsyncStorage.setItem("@user_email", email);
-      console.log("[Login] AsyncStorage set, redirecting...");
+      await storage.setItem("@is_logged_in", "true");
+      await storage.setItem("@cadastro_completo", "false");
+      await storage.setItem("@user_email", email);
+      console.log("[Login] Storage set, redirecting...");
       router.replace("/completar-cadastro");
     } catch (error: any) {
       console.error("[Login] Signup error:", error);
@@ -148,8 +149,8 @@ export default function LoginScreen() {
         }
       }
       
-      await AsyncStorage.setItem("@is_logged_in", "true");
-      await AsyncStorage.setItem("@user_email", email);
+      await storage.setItem("@is_logged_in", "true");
+      await storage.setItem("@user_email", email);
       
       // Aguardar um pouco para garantir que o token está disponível no tRPC client
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -161,16 +162,16 @@ export default function LoginScreen() {
         const usuarioResponse = await trpc.usuarios.getByUserId.query();
         console.log("[Login] Resposta do cadastro:", usuarioResponse ? "Existe" : "Não existe");
         if (usuarioResponse) {
-          await AsyncStorage.setItem("@cadastro_completo", "true");
+          await storage.setItem("@cadastro_completo", "true");
           router.replace("/(tabs)");
         } else {
-          await AsyncStorage.setItem("@cadastro_completo", "false");
+          await storage.setItem("@cadastro_completo", "false");
           router.replace("/completar-cadastro");
         }
       } catch (e) {
         // Se houver erro ao verificar, assumir que precisa completar cadastro
         console.warn("[Login] Erro ao verificar cadastro:", e);
-        await AsyncStorage.setItem("@cadastro_completo", "false");
+        await storage.setItem("@cadastro_completo", "false");
         router.replace("/completar-cadastro");
       }
     } catch (error: any) {

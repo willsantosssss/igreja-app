@@ -53,10 +53,11 @@ function RootLayoutContent() {
     return () => subscription.remove();
   }, []);
 
+  const storage = usePersistentStorage();
+
   const checkLoginStatus = async () => {
     try {
       console.log("[Layout] Checking login status...");
-      const storage = usePersistentStorage();
       const loggedIn = await storage.getItem("@is_logged_in");
       const cadastroCompleto = await storage.getItem("@cadastro_completo");
       console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
