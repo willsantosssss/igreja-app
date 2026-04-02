@@ -18,7 +18,8 @@ import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
+import { inicializarNotificacoes, limparBadge } from "@/lib/notifications/devocional-notificacao";
+import * as Notifications from "expo-notifications";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -40,6 +41,16 @@ function RootLayoutContent() {
     initManusRuntime();
     checkLoginStatus();
     inicializarNotificacoes();
+
+    // Limpar badge quando usuario abre a notificacao
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
+        console.log("[Layout] Notificacao aberta, limpando badge");
+        await limparBadge();
+      }
+    );
+
+    return () => subscription.remove();
   }, []);
 
   const checkLoginStatus = async () => {
