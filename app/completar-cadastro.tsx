@@ -4,7 +4,7 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/lib/contexts/auth-context";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";

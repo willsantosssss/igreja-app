@@ -1,126 +1,109 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Platform } from "react-native";
 
-import { Platform, View } from "react-native";
+import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
 import "@/lib/_core/nativewind-pressable";
 import { ThemeProvider } from "@/lib/theme-provider";
-import {
-  SafeAreaFrameContext,
-  SafeAreaInsetsContext,
-  SafeAreaProvider,
-  initialWindowMetrics,
-} from "react-native-safe-area-context";
-import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
-
-import { trpc, createTRPCClient } from "@/lib/trpc";
-import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import { usePersistentStorage } from "@/lib/hooks/use-persistent-storage";
+import { initManusRuntime } from "@/lib/_core/manus-runtime";
 import { inicializarNotificacoes, limparBadge } from "@/lib/notifications/devocional-notificacao";
 import * as Notifications from "expo-notifications";
 
-const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
-const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
-
-// Removed unstable_settings - using explicit routing instead
-
 function RootLayoutContent() {
-  const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
-  const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
-
-  const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
-  const [frame, setFrame] = useState<Rect>(initialFrame);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [needsCadastro, setNeedsCadastro] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [needsCadastro, setNeedsCadastro] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Initialize storage first (before using it in checkLoginStatus)
   const storage = usePersistentStorage();
 
-  // Initialize Manus runtime and check login status
-  useLayoutEffect(() => {
-    console.log("[Layout] useEffect running on mount");
-    console.log("[Layout] storage initialized:", typeof storage, Object.keys(storage || {}));
+  // Initialize on first mount
+  useEffect(() => {
+    console.log("[RootLayout] useEffect mounted");
+
     const initializeApp = async () => {
       try {
-        console.log("[Layout] initializeApp started");
-        initManusRuntime();
-        inicializarNotificacoes();
+        console.log("[RootLayout] Starting app initialization");
+
+        // Initialize Manus runtime
+        try {
+          initManusRuntime();
+          console.log("[RootLayout] Manus runtime initialized");
+        } catch (err) {
+          console.warn("[RootLayout] Manus runtime init failed:", err);
+        }
+
+        // Initialize notifications only on native
+        if (Platform.OS !== "web") {
+          try {
+            inicializarNotificacoes();
+            console.log("[RootLayout] Notifications initialized");
+          } catch (err) {
+            console.warn("[RootLayout] Notifications init failed:", err);
+          }
+        }
 
         // Check login status
-        console.log("[Layout] Checking login status...");
-        console.log("[Layout] storage object:", typeof storage, storage ? "exists" : "null");
-        if (!storage) {
-          throw new Error("Storage is not initialized");
-        }
+        console.log("[RootLayout] Checking login status");
         const loggedIn = await storage.getItem("@is_logged_in");
         const cadastroCompleto = await storage.getItem("@cadastro_completo");
-        console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
-        
-        // Treat null or anything other than "true" as not logged in
+        console.log("[RootLayout] Storage values:", { loggedIn, cadastroCompleto });
+
         const isUserLoggedIn = loggedIn === "true";
         const isCadastroCompleto = cadastroCompleto === "true";
-        
-        console.log("[Layout] Parsed login state:", { isUserLoggedIn, isCadastroCompleto });
+
+        console.log("[RootLayout] Setting auth state:", { isUserLoggedIn, isCadastroCompleto });
         setIsLoggedIn(isUserLoggedIn);
         setNeedsCadastro(isUserLoggedIn && !isCadastroCompleto);
       } catch (error) {
-        console.error("[Layout] Error initializing app:", error);
-        console.error("[Layout] Error stack:", (error as Error).stack);
+        console.error("[RootLayout] Error during initialization:", error);
         setIsLoggedIn(false);
         setNeedsCadastro(false);
       } finally {
-        console.log("[Layout] finally block: setting isLoading to false");
         setIsLoading(false);
-        console.log("[Layout] Login status check completed, isLoading set to false");
+        console.log("[RootLayout] Initialization complete");
       }
     };
 
-    console.log("[Layout] calling initializeApp()");
     initializeApp();
-    console.log("[Layout] initializeApp() called");
 
-    // Limpar badge quando usuario abre a notificacao
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      async (response) => {
-        console.log("[Layout] Notificacao aberta, limpando badge");
-        await limparBadge();
+    // Setup notification listener
+    let subscription: any = null;
+    if (Platform.OS !== "web") {
+      try {
+        subscription = Notifications.addNotificationResponseReceivedListener(
+          async (response) => {
+            console.log("[RootLayout] Notification opened");
+            await limparBadge();
+          }
+        );
+      } catch (err) {
+        console.warn("[RootLayout] Failed to setup notification listener:", err);
       }
-    );
+    }
 
-    return () => subscription.remove();
-  }, []); // Run only once on mount - using useLayoutEffect to ensure it runs before render
+    return () => {
+      console.log("[RootLayout] useEffect cleanup");
+      if (subscription) {
+        subscription.remove();
+      }
+    };
+  }, [storage]);
 
-  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
-    setInsets(metrics.insets);
-    setFrame(metrics.frame);
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
-    return () => unsubscribe();
-  }, [handleSafeAreaUpdate]);
+  console.log("[RootLayout] Rendering with state:", { isLoading, isLoggedIn, needsCadastro });
 
   // Show loading screen while checking login status
-  console.log("[Layout] render: isLoading=", isLoading, "isLoggedIn=", isLoggedIn, "needsCadastro=", needsCadastro);
   if (isLoading) {
-    console.log("[Layout] Still loading, showing login screen");
     return (
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" />
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="splash">
+        <Stack.Screen name="splash" options={{ animationEnabled: false }} />
       </Stack>
     );
   }
-  
-  // console.log("[Layout] Rendering with state:", { isLoggedIn, needsCadastro, isLoading });
 
-  // Explicit routing based on authentication state
-  // Default: Always show login first unless explicitly logged in
+  // User is logged in but needs to complete registration
   if (isLoggedIn && needsCadastro) {
-    // User is logged in but needs to complete registration
-    console.log("[Layout] Case 1: User logged in but needs to complete registration");
     return (
       <Stack screenOptions={{ headerShown: false }} initialRouteName="completar-cadastro">
         <Stack.Screen name="completar-cadastro" options={{ animationEnabled: false }} />
@@ -128,9 +111,8 @@ function RootLayoutContent() {
     );
   }
 
+  // User is fully logged in
   if (isLoggedIn && !needsCadastro) {
-    // User is fully logged in
-    console.log("[Layout] Case 2: User fully logged in, showing tabs");
     return (
       <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
         <Stack.Screen name="(tabs)" options={{ animationEnabled: false }} />
@@ -165,7 +147,6 @@ function RootLayoutContent() {
   }
 
   // Default: User is not logged in - show login screen
-  console.log("[Layout] Default case: User not logged in, showing login screen");
   return (
     <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
       <Stack.Screen name="login" options={{ animationEnabled: false }} />
