@@ -17,7 +17,7 @@ import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { usePersistentStorage } from "@/lib/hooks/use-persistent-storage";
 import { inicializarNotificacoes, limparBadge } from "@/lib/notifications/devocional-notificacao";
 import * as Notifications from "expo-notifications";
 
@@ -56,8 +56,9 @@ function RootLayoutContent() {
   const checkLoginStatus = async () => {
     try {
       console.log("[Layout] Checking login status...");
-      const loggedIn = await AsyncStorage.getItem("@is_logged_in");
-      const cadastroCompleto = await AsyncStorage.getItem("@cadastro_completo");
+      const storage = usePersistentStorage();
+      const loggedIn = await storage.getItem("@is_logged_in");
+      const cadastroCompleto = await storage.getItem("@cadastro_completo");
       console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
       setIsLoggedIn(loggedIn === "true");
       setNeedsCadastro(loggedIn === "true" && cadastroCompleto !== "true");
