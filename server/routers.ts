@@ -2,6 +2,8 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { debugRouter } from "./_core/debugRouter";
+import { logger } from "./_core/logger";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { signupUser, loginUser } from "./auth-simple";
@@ -21,6 +23,7 @@ const COOKIE_NAME = "session";
 
 export const appRouter = router({
   system: systemRouter,
+  debug: debugRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -363,8 +366,28 @@ export const appRouter = router({
 
   // Notícias
   noticias: router({
-    list: publicProcedure.query(() => db.getNoticias()),
-    getById: publicProcedure.input(z.number()).query(({ input }) => db.getNoticiaById(input)),
+    list: publicProcedure.query(async () => {
+      try {
+        logger.info('noticias', 'Listando notícias');
+        const result = await db.getNoticias();
+        logger.info('noticias', 'Notícias listadas com sucesso', { count: result?.length || 0 });
+        return result;
+      } catch (error: any) {
+        logger.error('noticias', 'Erro ao listar notícias', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message });
+      }
+    }),
+    getById: publicProcedure.input(z.number()).query(async ({ input }) => {
+      try {
+        logger.info('noticias', 'Buscando notícia por ID', { id: input });
+        const result = await db.getNoticiaById(input);
+        logger.info('noticias', 'Notícia encontrada', { id: input });
+        return result;
+      } catch (error: any) {
+        logger.error('noticias', 'Erro ao buscar notícia', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message });
+      }
+    }),
     create: protectedProcedure
       .input(z.object({
         titulo: z.string().min(1),
@@ -373,7 +396,17 @@ export const appRouter = router({
         imagemUrl: z.string().optional(),
         destaque: z.number().default(0),
       }))
-      .mutation(({ input }) => db.createNoticia(input)),
+      .mutation(async ({ input, ctx }) => {
+        try {
+          logger.info('noticias', 'Criando nova notícia', { titulo: input.titulo, userId: ctx.user?.id });
+          const result = await db.createNoticia(input);
+          logger.info('noticias', 'Notícia criada com sucesso', { id: result?.id, titulo: input.titulo });
+          return result;
+        } catch (error: any) {
+          logger.error('noticias', 'Erro ao criar notícia', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message });
+        }
+      }),
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
@@ -385,8 +418,28 @@ export const appRouter = router({
           destaque: z.number().optional(),
         }),
       }))
-      .mutation(({ input }) => db.updateNoticia(input.id, input.data)),
-    delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteNoticia(input)),
+      .mutation(async ({ input, ctx }) => {
+        try {
+          logger.info('noticias', 'Atualizando notícia', { id: input.id, userId: ctx.user?.id });
+          const result = await db.updateNoticia(input.id, input.data);
+          logger.info('noticias', 'Notícia atualizada com sucesso', { id: input.id });
+          return result;
+        } catch (error: any) {
+          logger.error('noticias', 'Erro ao atualizar notícia', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message });
+        }
+      }),
+    delete: protectedProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
+      try {
+        logger.info('noticias', 'Deletando notícia', { id: input, userId: ctx.user?.id });
+        const result = await db.deleteNoticia(input);
+        logger.info('noticias', 'Notícia deletada com sucesso', { id: input });
+        return result;
+      } catch (error: any) {
+        logger.error('noticias', 'Erro ao deletar notícia', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: error.message });
+      }
+    }),
   }),
 
   // Aviso Importante

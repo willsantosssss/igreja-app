@@ -1013,3 +1013,14 @@
 - [x] Verificar console do app para erros de JavaScript
 - [x] Corrigir o problema (adicionados imports: Alert, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator)
 - [x] Testar fluxo completo de signup (servidor rodando normalmente)
+
+## Sistema de Logs e Debug (Nova Fase)
+- [x] Criar sistema centralizado de logs (logger.ts)
+- [x] Criar API de debug com endpoints de diagnóstico (debugRouter.ts)
+- [x] Adicionar logs em funções de Notícias (noticias router)
+- [x] Criar exemplos de logs para Eventos, Células, Contribuições, Avisos, Contatos, Anexos
+- [ ] Adicionar logs em todas as funções do painel admin (Eventos, Células, Contribuições, Avisos, Contatos, Anexos, Relatórios, Líderes, Inscrições)
+- [x] Criar tela de debug no app (app/debug.tsx) para visualizar logs em tempo real
+- [ ] Integrar tela de debug no painel admin
+- [ ] Testar sistema de logs com operações do admin
+- [ ] Gerar novo build IPA com sistema de logs
