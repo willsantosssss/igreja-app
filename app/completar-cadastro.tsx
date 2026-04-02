@@ -85,6 +85,8 @@ export default function CompletarCadastroScreen() {
 
     setLoading(true);
     try {
+      console.log("[CompletarCadastro] Iniciando cadastro com dados:", { nome, dataNascimento, celula, userId: user?.id });
+      
       // Converter data para formato YYYY-MM-DD para o banco (opcional)
       let dataFormatada: string | undefined = undefined;
       if (dataNascimento) {
@@ -92,11 +94,15 @@ export default function CompletarCadastroScreen() {
         dataFormatada = `${ano}-${mes}-${dia}`;
       }
 
-      await createUserMutation.mutateAsync({
+      console.log("[CompletarCadastro] Dados formatados:", { nome, dataNascimento: dataFormatada, celula });
+      
+      const resultado = await createUserMutation.mutateAsync({
         nome,
         dataNascimento: dataFormatada,
         celula,
       });
+      
+      console.log("[CompletarCadastro] Cadastro bem-sucedido:", resultado);
 
       // Marcar cadastro como completo
       await AsyncStorage.setItem("@cadastro_completo", "true");
@@ -104,7 +110,8 @@ export default function CompletarCadastroScreen() {
       Alert.alert("Sucesso!", "Cadastro concluído com sucesso!");
       router.replace("/(tabs)");
     } catch (error) {
-      console.error("Erro ao criar cadastro:", error);
+      console.error("[CompletarCadastro] Erro ao criar cadastro:", error);
+      console.error("[CompletarCadastro] Erro detalhado:", JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível concluir o cadastro. Tente novamente.");
     } finally {
       setLoading(false);
