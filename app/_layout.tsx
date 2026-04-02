@@ -31,8 +31,8 @@ function RootLayoutContent() {
 
   const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
   const [frame, setFrame] = useState<Rect>(initialFrame);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [needsCadastro, setNeedsCadastro] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [needsCadastro, setNeedsCadastro] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize Manus runtime for cookie injection from parent container
@@ -81,7 +81,8 @@ function RootLayoutContent() {
   }
 
   // Explicit routing based on authentication state
-  if (isLoggedIn === true && needsCadastro === true) {
+  // Default: Always show login first unless explicitly logged in
+  if (isLoggedIn && needsCadastro) {
     // User is logged in but needs to complete registration
     return (
       <Stack screenOptions={{ headerShown: false }} initialRouteName="completar-cadastro">
@@ -90,7 +91,7 @@ function RootLayoutContent() {
     );
   }
 
-  if (isLoggedIn === true && needsCadastro === false) {
+  if (isLoggedIn && !needsCadastro) {
     // User is fully logged in
     return (
       <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
