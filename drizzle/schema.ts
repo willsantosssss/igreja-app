@@ -84,6 +84,7 @@ export type InsertInscricaoBatismo = typeof inscricoesBatismo.$inferInsert;
 // Usuarios Cadastrados (Membros) table
 export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
   id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull().unique(),
   nome: varchar("nome", { length: 255 }).notNull(),
   celula: varchar("celula", { length: 255 }),
   dataNascimento: varchar("dataNascimento", { length: 10 }),
