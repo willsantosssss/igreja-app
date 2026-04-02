@@ -365,28 +365,6 @@ export default function MaisScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="bg-surface rounded-2xl p-5 flex-row items-center gap-4 border border-border"
-            onPress={() => {
-              if (Platform.OS !== "web") {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }
-              router.push("/debug" as any);
-            }}
-          >
-            <View 
-              className="w-12 h-12 items-center justify-center rounded-full"
-              style={{ backgroundColor: `${colors.primary}20` }}
-            >
-              <Text className="text-2xl">🐛</Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-base font-bold text-foreground">Debug Console</Text>
-              <Text className="text-sm text-muted">Visualizar logs e diagnosticar</Text>
-            </View>
-            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
             className="bg-error/10 rounded-2xl p-5 flex-row items-center gap-4 border border-error"
             onPress={handleLogout}
           >
