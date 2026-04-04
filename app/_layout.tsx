@@ -8,6 +8,7 @@ import "@/lib/_core/nativewind-pressable";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { useColors } from "@/hooks/use-colors";
 import { trpc, createTRPCClient } from "@/lib/trpc";
+import { AuthProvider } from "@/lib/contexts/auth-context";
 
 // Import all route components
 import LoginScreen from "./login";
@@ -87,8 +88,10 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <ThemeProvider>
-            <RootLayoutContent />
-            <StatusBar barStyle="light-content" />
+            <AuthProvider>
+              <RootLayoutContent />
+              <StatusBar barStyle="light-content" />
+            </AuthProvider>
           </ThemeProvider>
         </SafeAreaProvider>
       </QueryClientProvider>

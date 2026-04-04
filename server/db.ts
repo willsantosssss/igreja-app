@@ -112,16 +112,17 @@ export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Use email as the unique identifier instead of userId
   const existing = await db
     .select()
     .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.userId, data.userId!));
+    .where(eq(usuariosCadastrados.email, data.email));
 
   if (existing.length > 0) {
     await db
       .update(usuariosCadastrados)
       .set(data)
-      .where(eq(usuariosCadastrados.userId, data.userId!));
+      .where(eq(usuariosCadastrados.email, data.email));
   } else {
     await db.insert(usuariosCadastrados).values(data);
   }
