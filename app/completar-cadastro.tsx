@@ -9,7 +9,7 @@ import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function CompletarCadastroScreen() {
+export default function CompletarCadastroScreen({ onNavigate }: { onNavigate?: (route: string) => void } = {}) {
   const colors = useColors();
   const { user } = useAuth();
   const createUserMutation = trpc.usuarios.create.useMutation();
@@ -30,7 +30,11 @@ export default function CompletarCadastroScreen() {
   useEffect(() => {
     // Se usuário já tem cadastro, redirecionar para home
     if (usuarioExistente) {
-      router.replace("/(tabs)");
+      if (onNavigate) {
+        onNavigate("tabs");
+      } else {
+        router.replace("/(tabs)");
+      }
     }
   }, [usuarioExistente]);
 
@@ -108,7 +112,11 @@ export default function CompletarCadastroScreen() {
       await AsyncStorage.setItem("@cadastro_completo", "true");
 
       Alert.alert("Sucesso!", "Cadastro concluído com sucesso!");
-      router.replace("/(tabs)");
+      if (onNavigate) {
+        onNavigate("tabs");
+      } else {
+        router.replace("/(tabs)");
+      }
     } catch (error) {
       console.error("[CompletarCadastro] Erro ao criar cadastro:", error);
       console.error("[CompletarCadastro] Erro detalhado:", JSON.stringify(error, null, 2));

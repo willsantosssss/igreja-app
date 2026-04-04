@@ -1,16 +1,39 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
+import { useAppInit } from "@/lib/contexts/initialize-app";
 
-export default function TabLayout() {
+export default function TabLayout({ onNavigate }: { onNavigate?: (route: string) => void } = {}) {
   const colors = useColors();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === "web" ? 12 : Math.max(insets.bottom, 8);
   const tabBarHeight = 56 + bottomPadding;
+  
+  // Get auth state with fallback
+  let isInitialized = false;
+  let isLoggedIn = false;
+  try {
+    const context = useAppInit();
+    isInitialized = context.isInitialized;
+    isLoggedIn = context.isLoggedIn;
+  } catch (err) {
+    console.warn("[TabLayout] Could not get AppInit context:", err);
+  }
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    console.log("[TabLayout] Checking auth:", { isInitialized, isLoggedIn });
+    if (isInitialized && !isLoggedIn) {
+      console.log("[TabLayout] Not logged in, redirecting to login");
+      router.replace("/login");
+    }
+  }, [isInitialized, isLoggedIn]);
 
   return (
     <Tabs

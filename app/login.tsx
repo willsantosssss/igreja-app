@@ -8,7 +8,7 @@ import { useColors } from "@/hooks/use-colors";
 import { usePersistentStorage } from "@/lib/hooks/use-persistent-storage";
 
 
-export default function LoginScreen() {
+export default function LoginScreen({ onNavigate }: { onNavigate?: (route: string) => void } = {}) {
   console.log("[LoginScreen] Component rendering");
   const colors = useColors();
   const storage = usePersistentStorage();
@@ -18,6 +18,7 @@ export default function LoginScreen() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Initialize mutations lazily to avoid errors if tRPC context is not ready
   const signupMutation = trpc.auth.signup.useMutation();
   const loginMutation = trpc.auth.login.useMutation();
 
@@ -79,7 +80,11 @@ export default function LoginScreen() {
       await storage.setItem("@cadastro_completo", "false");
       await storage.setItem("@user_email", email);
       console.log("[Login] Storage set, redirecting...");
-      router.replace("/completar-cadastro");
+      if (onNavigate) {
+        onNavigate("completar-cadastro");
+      } else {
+        router.replace("/completar-cadastro");
+      }
     } catch (error: any) {
       console.error("[Login] Signup error:", error);
       Alert.alert("Erro", error.message || "Erro ao criar conta");
@@ -163,16 +168,28 @@ export default function LoginScreen() {
         console.log("[Login] Resposta do cadastro:", usuarioResponse ? "Existe" : "Não existe");
         if (usuarioResponse) {
           await storage.setItem("@cadastro_completo", "true");
-          router.replace("/(tabs)");
+          if (onNavigate) {
+            onNavigate("tabs");
+          } else {
+            router.replace("/(tabs)");
+          }
         } else {
           await storage.setItem("@cadastro_completo", "false");
-          router.replace("/completar-cadastro");
+          if (onNavigate) {
+            onNavigate("completar-cadastro");
+          } else {
+            router.replace("/completar-cadastro");
+          }
         }
       } catch (e) {
         // Se houver erro ao verificar, assumir que precisa completar cadastro
         console.warn("[Login] Erro ao verificar cadastro:", e);
         await storage.setItem("@cadastro_completo", "false");
-        router.replace("/completar-cadastro");
+        if (onNavigate) {
+          onNavigate("completar-cadastro");
+        } else {
+          router.replace("/completar-cadastro");
+        }
       }
     } catch (error: any) {
       console.error("[Login] ERRO CAPTURADO NO CATCH EXTERNO:", error);
