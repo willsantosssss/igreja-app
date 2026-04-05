@@ -4,12 +4,12 @@ import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/lib/contexts/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function CompletarCadastroScreen({ onNavigate }: { onNavigate?: (route: string) => void } = {}) {
+export default function CompletarCadastroScreen() {
   const colors = useColors();
   const { user } = useAuth();
   const createUserMutation = trpc.usuarios.create.useMutation();
@@ -30,11 +30,7 @@ export default function CompletarCadastroScreen({ onNavigate }: { onNavigate?: (
   useEffect(() => {
     // Se usuário já tem cadastro, redirecionar para home
     if (usuarioExistente) {
-      if (onNavigate) {
-        onNavigate("tabs");
-      } else {
-        router.replace("/(tabs)");
-      }
+      router.replace("/(tabs)");
     }
   }, [usuarioExistente]);
 
@@ -89,8 +85,6 @@ export default function CompletarCadastroScreen({ onNavigate }: { onNavigate?: (
 
     setLoading(true);
     try {
-      console.log("[CompletarCadastro] Iniciando cadastro com dados:", { nome, dataNascimento, celula, userId: user?.id });
-      
       // Converter data para formato YYYY-MM-DD para o banco (opcional)
       let dataFormatada: string | undefined = undefined;
       if (dataNascimento) {
@@ -98,28 +92,19 @@ export default function CompletarCadastroScreen({ onNavigate }: { onNavigate?: (
         dataFormatada = `${ano}-${mes}-${dia}`;
       }
 
-      console.log("[CompletarCadastro] Dados formatados:", { nome, dataNascimento: dataFormatada, celula });
-      
-      const resultado = await createUserMutation.mutateAsync({
+      await createUserMutation.mutateAsync({
         nome,
         dataNascimento: dataFormatada,
         celula,
       });
-      
-      console.log("[CompletarCadastro] Cadastro bem-sucedido:", resultado);
 
       // Marcar cadastro como completo
       await AsyncStorage.setItem("@cadastro_completo", "true");
 
       Alert.alert("Sucesso!", "Cadastro concluído com sucesso!");
-      if (onNavigate) {
-        onNavigate("tabs");
-      } else {
-        router.replace("/(tabs)");
-      }
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error("[CompletarCadastro] Erro ao criar cadastro:", error);
-      console.error("[CompletarCadastro] Erro detalhado:", JSON.stringify(error, null, 2));
+      console.error("Erro ao criar cadastro:", error);
       Alert.alert("Erro", "Não foi possível concluir o cadastro. Tente novamente.");
     } finally {
       setLoading(false);

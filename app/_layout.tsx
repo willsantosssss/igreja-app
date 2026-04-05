@@ -1,100 +1,200 @@
+import "@/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState, useCallback } from "react";
-import { View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
+import { Platform, View } from "react-native";
 import "@/lib/_core/nativewind-pressable";
 import { ThemeProvider } from "@/lib/theme-provider";
-import { useColors } from "@/hooks/use-colors";
+import {
+  SafeAreaFrameContext,
+  SafeAreaInsetsContext,
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from "react-native-safe-area-context";
+import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
+
 import { trpc, createTRPCClient } from "@/lib/trpc";
-import { AuthProvider } from "@/lib/contexts/auth-context";
+import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { inicializarNotificacoes } from "@/lib/notifications/devocional-notificacao";
 
-// Import all route components
-import LoginScreen from "./login";
-import CompletarCadastroScreen from "./completar-cadastro";
-import TabsLayout from "./(tabs)/_layout";
+const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
+const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 
-type Route = "login" | "completar-cadastro" | "tabs";
+// Removed unstable_settings - using explicit routing instead
 
 function RootLayoutContent() {
-  console.log('[RootLayoutContent] Rendering...');
-  const colors = useColors();
-  
-  // Initialize route based on localStorage
-  const [currentRoute, setCurrentRoute] = useState<Route>(() => {
-    try {
-      const loggedInStr = typeof window !== 'undefined' ? localStorage?.getItem?.("@is_logged_in") : null;
-      const cadastroStr = typeof window !== 'undefined' ? localStorage?.getItem?.("@cadastro_completo") : null;
+  const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
+  const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
 
-      const isLoggedIn = loggedInStr === "true";
-      const isCadastroCompleto = cadastroStr === "true";
+  const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
+  const [frame, setFrame] = useState<Rect>(initialFrame);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [needsCadastro, setNeedsCadastro] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-      console.log("[RootLayout] Initial route determination:", { isLoggedIn, isCadastroCompleto });
-
-      if (isLoggedIn && !isCadastroCompleto) {
-        return "completar-cadastro";
-      } else if (isLoggedIn && isCadastroCompleto) {
-        return "tabs";
-      }
-      return "login";
-    } catch (e) {
-      console.warn("[RootLayout] Error reading auth state:", e);
-      return "login";
-    }
-  });
-
-  const navigateTo = useCallback((route: Route) => {
-    console.log("[RootLayout] Navigating to:", route);
-    setCurrentRoute(route);
+  // Initialize Manus runtime for cookie injection from parent container
+  useEffect(() => {
+    initManusRuntime();
+    checkLoginStatus();
+    inicializarNotificacoes();
   }, []);
 
-  console.log("[RootLayout] Rendering route:", currentRoute);
+  const checkLoginStatus = async () => {
+    try {
+      console.log("[Layout] Checking login status...");
+      const loggedIn = await AsyncStorage.getItem("@is_logged_in");
+      const cadastroCompleto = await AsyncStorage.getItem("@cadastro_completo");
+      console.log("[Layout] Login status:", { loggedIn, cadastroCompleto });
+      setIsLoggedIn(loggedIn === "true");
+      setNeedsCadastro(loggedIn === "true" && cadastroCompleto !== "true");
+    } catch (error) {
+      console.error("Error checking login status:", error);
+      setIsLoggedIn(false);
+      setNeedsCadastro(false);
+    } finally {
+      setIsLoading(false);
+      console.log("[Layout] Login status check completed");
+    }
+  };
 
-  // Render based on current route
-  switch (currentRoute) {
-    case "login":
-      return <LoginScreen onNavigate={navigateTo} />;
-    case "completar-cadastro":
-      return <CompletarCadastroScreen onNavigate={navigateTo} />;
-    case "tabs":
-      return <TabsLayout onNavigate={navigateTo} />;
-    default:
-      return (
-        <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: "center", alignItems: "center" }}>
-          <View style={{ padding: 20 }}>
-            <View style={{ height: 50, width: 50, backgroundColor: colors.primary, borderRadius: 25 }} />
-          </View>
-        </View>
-      );
+  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
+    setInsets(metrics.insets);
+    setFrame(metrics.frame);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
+    return () => unsubscribe();
+  }, [handleSafeAreaUpdate]);
+
+  // Show loading screen while checking login status
+  if (isLoading) {
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+      </Stack>
+    );
   }
+
+  // Explicit routing based on authentication state
+  // Default: Always show login first unless explicitly logged in
+  if (isLoggedIn && needsCadastro) {
+    // User is logged in but needs to complete registration
+    return (
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="completar-cadastro">
+        <Stack.Screen name="completar-cadastro" options={{ animationEnabled: false }} />
+      </Stack>
+    );
+  }
+
+  if (isLoggedIn && !needsCadastro) {
+    // User is fully logged in
+    return (
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
+        <Stack.Screen name="(tabs)" options={{ animationEnabled: false }} />
+        <Stack.Screen name="oauth/callback" />
+        <Stack.Screen name="event/[id]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="contribuicoes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="noticias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="aniversariantes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="notificacoes-preferencias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/index" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aniversariantes" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/lideres" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/relatorios" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/eventos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/inscricoes-eventos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/oracao" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/celulas" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/contribuicao" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aniversariantes-gerenciar" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/aviso-importante" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/noticias" options={{ presentation: "modal" }} />
+        <Stack.Screen name="admin/anexos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/index" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/membros" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/relatorio" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/historico" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="lider/anexos" options={{ presentation: "modal" }} />
+      </Stack>
+    );
+  }
+
+  // Default: User is not logged in - show login screen
+  return (
+    <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
+      <Stack.Screen name="login" options={{ animationEnabled: false }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
-  console.log('[RootLayout] Creating root layout...');
-  const queryClient = useMemo(() => {
-    console.log('[RootLayout] Creating QueryClient');
-    return new QueryClient();
-  }, []);
-  const trpcClient = useMemo(() => {
-    console.log('[RootLayout] Creating tRPC client');
-    return createTRPCClient();
-  }, []);
+  console.log("[RootLayout] Rendering...");
+  const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
+  const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
 
-  console.log('[RootLayout] Rendering with providers, trpcClient:', !!trpcClient, 'queryClient:', !!queryClient);
+  // Ensure minimum 8px padding for top and bottom on mobile
+  const providerInitialMetrics = useMemo(() => {
+    const metrics = initialWindowMetrics ?? { insets: initialInsets, frame: initialFrame };
+    return {
+      ...metrics,
+      insets: {
+        ...metrics.insets,
+        top: Math.max(metrics.insets.top, 16),
+        bottom: Math.max(metrics.insets.bottom, 12),
+      },
+    };
+  }, [initialInsets, initialFrame]);
 
-  return (
+  // Create clients once and reuse them
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Disable automatic refetching on window focus for mobile
+            refetchOnWindowFocus: false,
+            // Retry failed requests once
+            retry: 1,
+          },
+        },
+      }),
+  );
+  const [trpcClient] = useState(() => createTRPCClient());
+
+  const content = (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          <ThemeProvider>
-            <AuthProvider>
-              <RootLayoutContent />
-              <StatusBar barStyle="light-content" />
-            </AuthProvider>
-          </ThemeProvider>
-        </SafeAreaProvider>
+        <RootLayoutContent />
       </QueryClientProvider>
     </trpc.Provider>
+  );
+
+  const shouldOverrideSafeArea = Platform.OS === "web";
+
+  if (shouldOverrideSafeArea) {
+    return (
+      <ThemeProvider>
+        <SafeAreaProvider initialMetrics={providerInitialMetrics}>
+          <SafeAreaFrameContext.Provider value={initialFrame}>
+            <SafeAreaInsetsContext.Provider value={initialInsets}>
+              {content}
+            </SafeAreaInsetsContext.Provider>
+          </SafeAreaFrameContext.Provider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    );
+  }
+
+  return (
+    <ThemeProvider>
+      <SafeAreaProvider initialMetrics={providerInitialMetrics}>{content}</SafeAreaProvider>
+    </ThemeProvider>
   );
 }

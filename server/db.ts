@@ -99,30 +99,22 @@ export async function getUserById(id: number) {
   return result[0] || null;
 }
 
-export async function getUserByEmail(email: string) {
-  const db = await getDb();
-  if (!db) return null;
-  const result = await db.select().from(users).where(eq(users.email, email));
-  return result[0] || null;
-}
-
 // ==================== USUÁRIOS CADASTRADOS ====================
 
 export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Use email as the unique identifier instead of userId
   const existing = await db
     .select()
     .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.email, data.email));
+    .where(eq(usuariosCadastrados.userId, data.userId!));
 
   if (existing.length > 0) {
     await db
       .update(usuariosCadastrados)
       .set(data)
-      .where(eq(usuariosCadastrados.email, data.email));
+      .where(eq(usuariosCadastrados.userId, data.userId!));
   } else {
     await db.insert(usuariosCadastrados).values(data);
   }
@@ -805,7 +797,7 @@ export async function deleteUserCompletely(userId: number) {
   await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
   await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
   await db.delete(lideres).where(eq(lideres.userId, userId));
-  // usuariosCadastrados não tem userId, não precisa deletar
+  await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
   await db.delete(users).where(eq(users.id, userId));
 }
 

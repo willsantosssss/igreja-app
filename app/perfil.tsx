@@ -5,7 +5,7 @@ import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/lib/contexts/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";

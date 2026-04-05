@@ -211,18 +211,6 @@ export async function solicitarPermissao(): Promise<boolean> {
 }
 
 /**
- * Limpar badge de notificações (chamar quando usuário abre a notificação)
- */
-export async function limparBadge(): Promise<void> {
-  try {
-    await Notifications.setBadgeCountAsync(0);
-    console.log("Badge de notificações limpo");
-  } catch (error) {
-    console.error("Erro ao limpar badge:", error);
-  }
-}
-
-/**
  * Inicializar notificações (chamar no app launch)
  */
 export async function inicializarNotificacoes(): Promise<void> {
