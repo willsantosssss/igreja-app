@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, FlatList, TextInput } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, FlatList, TextInput, Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -32,24 +32,42 @@ const exportarParaExcel = async (inscricoes: any[]) => {
 
     const dataAtual = new Date().toISOString().split('T')[0];
     const nomeArquivo = `escola_crescimento_${dataAtual}.csv`;
-    const caminhoArquivo = `${FileSystem.documentDirectory}${nomeArquivo}`;
 
-    // Escrever arquivo no sistema de arquivos
-    await FileSystem.writeAsStringAsync(caminhoArquivo, csv, {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
-
-    // Compartilhar arquivo
-    if (await Sharing.isAvailableAsync()) {
-      await Sharing.shareAsync(caminhoArquivo, {
-        mimeType: 'text/csv',
-        dialogTitle: 'Exportar Inscrições',
-      });
+    if (Platform.OS === 'web') {
+      // Na web: usar Blob e download direto
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', nomeArquivo);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } else {
-      Alert.alert("Atenção", "Compartilhamento não disponível neste dispositivo");
+      // No app nativo: usar FileSystem
+      const caminhoArquivo = `${FileSystem.documentDirectory}${nomeArquivo}`;
+
+      // Escrever arquivo no sistema de arquivos
+      await FileSystem.writeAsStringAsync(caminhoArquivo, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      // Compartilhar arquivo
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(caminhoArquivo, {
+          mimeType: 'text/csv',
+          dialogTitle: 'Exportar Inscrições',
+        });
+      } else {
+        Alert.alert("Atenção", "Compartilhamento não disponível neste dispositivo");
+      }
     }
 
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (Platform.OS !== 'web') {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
   } catch (error) {
     console.error('Erro ao exportar:', error);
     Alert.alert("Erro", "Não foi possível exportar os dados");
