@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput, Platform } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput, Platform, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -27,6 +27,8 @@ export default function AdminOracaoScreen() {
   const [filtro, setFiltro] = useState<'todos' | 'ativos' | 'respondidos'>('todos');
   const [testimonyInput, setTestimonyInput] = useState<Record<string, string>>({});
   const [showTestimony, setShowTestimony] = useState<string | null>(null);
+  const [modalConfirmVisivel, setModalConfirmVisivel] = useState(false);
+  const [pedidoParaRemover, setPedidoParaRemover] = useState<{ id: string; titulo: string } | null>(null);
 
   const { data: pedidosData, isLoading: carregando, refetch } = trpc.oracao.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
@@ -67,28 +69,22 @@ export default function AdminOracaoScreen() {
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleRemover = (id: string, titulo: string) => {
-    Alert.alert(
-      "Remover Pedido",
-      `Deseja remover o pedido "${titulo}"?`,
-      [
-        { text: "Cancelar" },
-        {
-          text: "Remover",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deletarMutation.mutateAsync(parseInt(id));
-              if (Platform.OS !== 'web') {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              }
-              Alert.alert("Sucesso", "Pedido removido e sincronizado!");
-            } catch {
-              Alert.alert("Erro", "Não foi possível remover o pedido");
-            }
-          },
-        },
-      ]
-    );
+    setPedidoParaRemover({ id, titulo });
+    setModalConfirmVisivel(true);
+  };
+
+  const confirmarRemocao = async () => {
+    if (!pedidoParaRemover) return;
+    try {
+      await deletarMutation.mutateAsync(parseInt(pedidoParaRemover.id));
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      setModalConfirmVisivel(false);
+      setPedidoParaRemover(null);
+    } catch {
+      Alert.alert("Erro", "Não foi possível remover o pedido");
+    }
   };
 
   const handleMarcarRespondido = async (id: string) => {
@@ -106,7 +102,6 @@ export default function AdminOracaoScreen() {
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
-      Alert.alert("Sucesso", "Pedido marcado como respondido e sincronizado!");
     } catch {
       Alert.alert("Erro", "Não foi possível marcar como respondido");
     }
@@ -280,6 +275,35 @@ export default function AdminOracaoScreen() {
           ))
         )}
       </ScrollView>
+
+      {/* Modal de Confirmação de Remoção */}
+      <Modal visible={modalConfirmVisivel} transparent animationType="fade">
+        <View className="flex-1 bg-black/50 items-center justify-center p-4">
+          <View className="bg-surface rounded-2xl p-6 w-full max-w-sm">
+            <Text className="text-xl font-bold text-foreground mb-2">Remover Pedido</Text>
+            <Text className="text-sm text-muted mb-6">
+              Deseja remover o pedido "{pedidoParaRemover?.titulo}"?
+            </Text>
+            <View className="flex-row gap-2">
+              <TouchableOpacity
+                onPress={() => {
+                  setModalConfirmVisivel(false);
+                  setPedidoParaRemover(null);
+                }}
+                className="flex-1 bg-surface border border-border rounded-lg py-3 items-center"
+              >
+                <Text className="text-foreground font-semibold">Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={confirmarRemocao}
+                className="flex-1 bg-error rounded-lg py-3 items-center"
+              >
+                <Text className="text-background font-semibold">Remover</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }

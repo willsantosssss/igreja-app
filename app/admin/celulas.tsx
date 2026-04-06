@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -15,6 +15,8 @@ export default function AdminCelulasScreen() {
   const [celulas, setCelulas] = useState<Celula[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; nome: string } | null>(null);
 
   const { data: celulasData, isLoading: carregando, refetch } = trpc.celulas.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
@@ -34,6 +36,8 @@ export default function AdminCelulasScreen() {
   const [bairro, setBairro] = useState('');
   const [cidade, setCidade] = useState('Rondonópolis - MT');
   const [descricao, setDescricao] = useState('');
+  const [latitude, setLatitude] = useState('-15.4942');
+  const [longitude, setLongitude] = useState('-56.1186');
 
   useEffect(() => {
     if (celulasData) {
@@ -53,6 +57,7 @@ export default function AdminCelulasScreen() {
     setDia('Terça-feira'); setHorario('19:30');
     setRua(''); setBairro(''); setCidade('Rondonópolis - MT');
     setDescricao(''); setEditandoId(null);
+    setLatitude('-15.4942'); setLongitude('-56.1186');
   };
 
   const preencherForm = (c: Celula) => {
@@ -60,6 +65,7 @@ export default function AdminCelulasScreen() {
     setDia(c.schedule.day); setHorario(c.schedule.time);
     setRua(c.address.street); setBairro(c.address.neighborhood); setCidade(c.address.city);
     setDescricao(c.description); setEditandoId(c.id);
+    setLatitude('-15.4942'); setLongitude('-56.1186');
     setShowForm(true);
   };
 
@@ -93,8 +99,8 @@ export default function AdminCelulasScreen() {
           endereco,
           diaReuniao: dia,
           horario: horario.trim(),
-          latitude: '',
-          longitude: '',
+          latitude: latitude.trim() || '-15.4942',
+          longitude: longitude.trim() || '-56.1186',
         });
         Alert.alert('Sucesso', 'Nova célula criada e sincronizada!');
       }
@@ -106,24 +112,20 @@ export default function AdminCelulasScreen() {
   };
 
   const handleRemover = (id: string, nomeCelula: string) => {
-    Alert.alert(
-      'Remover Célula',
-      `Deseja remover a célula "${nomeCelula}"? Esta ação não pode ser desfeita.`,
-      [
-        { text: 'Cancelar' },
-        {
-          text: 'Remover', style: 'destructive',
-          onPress: async () => {
-            try {
-              await deletarMutation.mutateAsync(parseInt(id));
-              Alert.alert('Sucesso', 'Célula removida e sincronizada!');
-            } catch {
-              Alert.alert('Erro', 'Não foi possível remover a célula.');
-            }
-          },
-        },
-      ]
-    );
+    setDeleteTarget({ id, nome: nomeCelula });
+    setShowDeleteModal(true);
+  };
+
+  const confirmarDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deletarMutation.mutateAsync(parseInt(deleteTarget.id));
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+      Alert.alert('Sucesso', 'Célula removida e sincronizada!');
+    } catch {
+      Alert.alert('Erro', 'Não foi possível remover a célula.');
+    }
   };
 
   if (carregando) {
@@ -135,6 +137,40 @@ export default function AdminCelulasScreen() {
       </ScreenContainer>
     );
   }
+
+  const DeleteConfirmationModal = () => (
+    <Modal
+      visible={showDeleteModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowDeleteModal(false)}
+    >
+      <View className="flex-1 bg-black/50 items-center justify-center">
+        <View className="bg-surface rounded-2xl p-6 gap-4 mx-4 max-w-sm border border-border">
+          <Text className="text-lg font-bold text-foreground">Remover Célula</Text>
+          <Text className="text-sm text-muted">
+            Deseja remover a célula "{deleteTarget?.nome}"? Esta ação não pode ser desfeita.
+          </Text>
+          <View className="flex-row gap-3 pt-2">
+            <TouchableOpacity
+              className="flex-1 py-3 rounded-lg items-center"
+              style={{ backgroundColor: colors.border }}
+              onPress={() => setShowDeleteModal(false)}
+            >
+              <Text className="text-foreground font-semibold">Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1 py-3 rounded-lg items-center"
+              style={{ backgroundColor: colors.error }}
+              onPress={confirmarDelete}
+            >
+              <Text className="text-white font-semibold">Remover</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   // Formulário
   if (showForm) {
@@ -267,6 +303,35 @@ export default function AdminCelulasScreen() {
             </View>
           </View>
 
+          {/* Localização */}
+          <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
+            <Text className="text-sm font-bold text-foreground">Localização (Opcional)</Text>
+            <View className="gap-2">
+              <Text className="text-xs text-muted">Latitude</Text>
+              <TextInput
+                className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                style={{ borderColor: colors.border }}
+                placeholder="-15.4942"
+                placeholderTextColor={colors.muted}
+                value={latitude}
+                onChangeText={setLatitude}
+                keyboardType="decimal-pad"
+              />
+            </View>
+            <View className="gap-2">
+              <Text className="text-xs text-muted">Longitude</Text>
+              <TextInput
+                className="bg-background rounded-xl px-4 py-3 text-foreground border"
+                style={{ borderColor: colors.border }}
+                placeholder="-56.1186"
+                placeholderTextColor={colors.muted}
+                value={longitude}
+                onChangeText={setLongitude}
+                keyboardType="decimal-pad"
+              />
+            </View>
+          </View>
+
           {/* Descrição */}
           <View className="gap-2">
             <Text className="text-sm font-semibold text-foreground">Descrição</Text>
@@ -385,6 +450,7 @@ export default function AdminCelulasScreen() {
           </View>
         )}
       </ScrollView>
+      <DeleteConfirmationModal />
     </ScreenContainer>
   );
 }

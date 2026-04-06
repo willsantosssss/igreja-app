@@ -164,25 +164,6 @@ export default function AdminScreen() {
           <BackButton />
         </View>
 
-        {/* Estatísticas Gerais */}
-        <View className="gap-3">
-          <Text className="text-sm font-semibold text-foreground">📊 Resumo Geral</Text>
-          <View className="flex-row gap-2">
-            <View className="flex-1 bg-primary/10 rounded-2xl p-4 gap-2 border border-primary/20 items-center">
-              <Text className="text-2xl font-bold text-primary">{usuarios.length}</Text>
-              <Text className="text-xs text-muted text-center">Membros Cadastrados</Text>
-            </View>
-            <View className="flex-1 bg-warning/10 rounded-2xl p-4 gap-2 border border-warning/20 items-center">
-              <Text className="text-2xl font-bold text-warning">{totalEventos}</Text>
-              <Text className="text-xs text-muted text-center">Eventos</Text>
-            </View>
-            <View className="flex-1 bg-success/10 rounded-2xl p-4 gap-2 border border-success/20 items-center">
-              <Text className="text-2xl font-bold text-success">{totalInscricoes}</Text>
-              <Text className="text-xs text-muted text-center">Inscrições</Text>
-            </View>
-          </View>
-        </View>
-
         {/* Aniversariantes do Mês */}
         <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
           <View className="flex-row items-center justify-between">
@@ -215,22 +196,6 @@ export default function AdminScreen() {
           ) : (
             <Text className="text-sm text-muted pt-2">Nenhum aniversariante este mês</Text>
           )}
-        </View>
-
-        {/* Aviso Importante */}
-        <View className="bg-surface rounded-2xl p-4 gap-3 border border-border">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-base font-bold text-foreground">📢 Aviso Importante</Text>
-              <Text className="text-xs text-muted">Editar mensagem da home</Text>
-            </View>
-            <TouchableOpacity
-              className="bg-primary/20 px-4 py-2 rounded-lg border border-primary"
-              onPress={() => router.push("/admin/aviso-importante" as any)}
-            >
-              <Text className="text-xs font-bold text-primary">Editar →</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Notícias */}
