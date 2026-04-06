@@ -1,6 +1,7 @@
 import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
@@ -9,6 +10,7 @@ import { Share } from 'react-native';
 
 export default function DevocionaiScreen() {
   const colors = useColors();
+  const router = useRouter();
   const [versao, setVersao] = useState<'NAA' | 'NVI'>('NAA');
   const [fontSize, setFontSize] = useState(16);
   const [mostrarAnotacoes, setMostrarAnotacoes] = useState(false);
@@ -266,6 +268,13 @@ export default function DevocionaiScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity
+              className="bg-surface py-3 rounded-xl items-center border border-border"
+              onPress={() => router.push('/historico-anotacoes')}
+            >
+              <Text className="text-foreground font-semibold">📚 Ver Histórico de Anotações</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Seção de Anotações — funcional com TextInput */}

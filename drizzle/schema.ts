@@ -90,6 +90,7 @@ export const usuariosCadastrados = mysqlTable("usuariosCadastrados", {
   email: varchar("email", { length: 320 }).unique(),
   telefone: varchar("telefone", { length: 20 }),
   dataRegistro: timestamp("dataRegistro"),
+  userId: int("userId").unique(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -150,6 +151,7 @@ export const noticias = mysqlTable("noticias", {
   titulo: varchar("titulo", { length: 255 }).notNull(),
   conteudo: text("conteudo"),
   data: varchar("data", { length: 50 }),
+  destaque: int("destaque").default(0),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 });

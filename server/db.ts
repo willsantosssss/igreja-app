@@ -105,17 +105,28 @@ export async function upsertUsuarioCadastrado(data: InsertUsuarioCadastrado) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  console.log('[upsertUsuarioCadastrado] Called with data:', JSON.stringify(data));
+  console.log('[upsertUsuarioCadastrado] userId:', data.userId);
+
+  if (!data.userId) {
+    throw new Error("userId is required for upsertUsuarioCadastrado");
+  }
+
   const existing = await db
     .select()
     .from(usuariosCadastrados)
-    .where(eq(usuariosCadastrados.userId, data.userId!));
+    .where(eq(usuariosCadastrados.userId, data.userId));
+
+  console.log('[upsertUsuarioCadastrado] Existing records found:', existing.length);
 
   if (existing.length > 0) {
+    console.log('[upsertUsuarioCadastrado] Updating existing record');
     await db
       .update(usuariosCadastrados)
       .set(data)
-      .where(eq(usuariosCadastrados.userId, data.userId!));
+      .where(eq(usuariosCadastrados.userId, data.userId));
   } else {
+    console.log('[upsertUsuarioCadastrado] Inserting new record');
     await db.insert(usuariosCadastrados).values(data);
   }
 }

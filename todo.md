@@ -396,8 +396,18 @@
 - [x] Documentar cada campo com descrição e formato
 - [x] Adicionar exemplos práticos
 - [x] Converter para PDF
+- [ ] Corrigir botão "Contato da Igreja" na a...
 
-- [ ] Corrigir botão "Contato da Igreja" na aba Mais - tabela não existe ou dados não estão mapeados
+## Histórico de Anotações do Devocional (Local)
+- [x] Criar hook melhorado useHistoricoAnotacoes para gerenciar anotações com timestamps
+- [x] Criar tela de histórico de anotações (app/historico-anotacoes.tsx)
+- [x] Implementar filtros por livro e período de datas
+- [x] Implementar busca por texto nas anotações
+- [x] Adicionar funcionalidade de editar anotações do histórico
+- [x] Adicionar funcionalidade de deletar anotações do histórico
+- [x] Adicionar botão "Ver Histórico" na aba devocional
+- [x] Testar fluxo completo de histórico e filtros
+- [x] Adicionar botão para expandir texto truncado no histórico de anotações Mais - tabela não existe ou dados não estão mapeados
 
 ## Corrigir Exibição de "Próximo Evento" na H...
 - [x] Investigar lógica de busca do próximo evento na home
