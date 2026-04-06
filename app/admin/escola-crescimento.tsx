@@ -2,6 +2,7 @@ import { ScrollView, Text, View, TouchableOpacity, Alert, ActivityIndicator, Fla
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DateConfigModal } from '@/components/date-config-modal';
 import { useColors } from '@/hooks/use-colors';
 import { trpc } from '@/lib/trpc';
 import { useState, useCallback, useMemo } from 'react';
@@ -175,7 +176,7 @@ export default function AdminEscolaCrescimentoScreen() {
           <View className="gap-2">
             <View className="flex-row items-center justify-between">
               <Text className="text-muted">Total de inscrições:</Text>
-              <Text className="text-lg font-bold text-primary">{inscricoes.length}</Text>
+              <Text className="text-lg font-bold text-primary">{displayInscricoes.length}</Text>
             </View>
             {CURSOS.map(curso => (
               <View key={curso} className="flex-row items-center justify-between">
@@ -191,33 +192,31 @@ export default function AdminEscolaCrescimentoScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
               <Text className="text-lg font-bold text-white">Data de Início</Text>
-              <Text className="text-sm text-white opacity-80 mt-1">{config?.dataInicio || "Não configurado"}</Text>
+              <Text className="text-sm text-white opacity-80 mt-1">{displayConfig?.dataInicio || "Não configurado"}</Text>
             </View>
             <TouchableOpacity
-              onPress={() => setEditandoConfig(!editandoConfig)}
-              className="p-2"
+              onPress={() => setEditandoConfig(true)}
+              style={{ padding: 8, cursor: 'pointer' }}
             >
               <IconSymbol name="pencil" size={20} color="white" />
             </TouchableOpacity>
           </View>
-          {editandoConfig && (
-            <View className="gap-2 mt-2">
-              <TextInput
-                placeholder="DD/MM/YYYY"
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={novaData}
-                onChangeText={setNovaData}
-                className="bg-white bg-opacity-20 text-white rounded-lg px-3 py-2"
-              />
-              <TouchableOpacity
-                onPress={handleAtualizarData}
-                className="bg-white rounded-lg py-2 items-center"
-              >
-                <Text className="text-primary font-bold">Salvar</Text>
-              </TouchableOpacity>
-            </View>
-          )}
         </View>
+
+        {/* Modal de Edição de Data */}
+        <DateConfigModal
+          visible={editandoConfig}
+          value={novaData}
+          onChangeText={setNovaData}
+          onClose={() => {
+            setEditandoConfig(false);
+            setNovaData('');
+          }}
+          onSave={() => {
+            handleAtualizarData();
+            setEditandoConfig(false);
+          }}
+        />
 
         {/* Filtros */}
         <View className="gap-3">
