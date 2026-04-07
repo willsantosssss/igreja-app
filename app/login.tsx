@@ -81,7 +81,68 @@ export default function LoginScreen() {
       router.replace("/completar-cadastro");
     } catch (error: any) {
       console.error("[Login] Signup error:", error);
-      Alert.alert("Erro", error.message || "Erro ao criar conta");
+      console.error("[Login] Error message:", error.message);
+      
+      // Se o email já existe, tentar fazer login automático
+      if (error.message && error.message.includes("Email already registered")) {
+        console.log("[Login] Email já existe, tentando login automático...");
+        try {
+          const loginResult = await loginMutation.mutateAsync({ email, password });
+          console.log("[Login] Auto-login success após email duplicado");
+          
+          // Guardar token JWT
+          if (loginResult.sessionToken) {
+            try {
+              await setSessionToken(loginResult.sessionToken);
+              console.log("[Login] Session token saved");
+            } catch (e) {
+              console.warn("[Login] Failed to save token", e);
+            }
+          }
+          
+          // Salvar informações do usuário
+          if (loginResult.openId && loginResult.email) {
+            try {
+              await setUserInfo({
+                id: loginResult.userId,
+                openId: loginResult.openId,
+                email: loginResult.email,
+                name: loginResult.name || null,
+                loginMethod: "manual",
+                lastSignedIn: new Date(),
+              });
+              console.log("[Login] User info cached");
+            } catch (e) {
+              console.warn("[Login] Failed to cache user info", e);
+            }
+          }
+          
+          await AsyncStorage.setItem("@is_logged_in", "true");
+          await AsyncStorage.setItem("@user_email", email);
+          
+          // Verificar se o usuário tem cadastro completo
+          try {
+            console.log("[Login] Verificando cadastro completo...");
+            const usuarioResponse = await trpc.usuarios.getByUserId.query();
+            if (usuarioResponse) {
+              await AsyncStorage.setItem("@cadastro_completo", "true");
+              router.replace("/(tabs)");
+            } else {
+              await AsyncStorage.setItem("@cadastro_completo", "false");
+              router.replace("/completar-cadastro");
+            }
+          } catch (e) {
+            console.warn("[Login] Erro ao verificar cadastro:", e);
+            await AsyncStorage.setItem("@cadastro_completo", "false");
+            router.replace("/completar-cadastro");
+          }
+        } catch (loginError: any) {
+          console.error("[Login] Auto-login failed:", loginError);
+          Alert.alert("Erro", loginError.message || "Email ou senha incorretos");
+        }
+      } else {
+        Alert.alert("Erro", error.message || "Erro ao criar conta");
+      }
     } finally {
       setLoading(false);
     }

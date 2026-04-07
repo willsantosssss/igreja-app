@@ -44,7 +44,6 @@ const config: ExpoConfig = {
   version: "1.0.0",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
-  supportsTablet: true,
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
   newArchEnabled: true,

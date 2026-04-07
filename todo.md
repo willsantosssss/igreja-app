@@ -190,6 +190,17 @@
 ## Gráficos de Relatórios por Data
 - [x] Organizar gráficos de relatórios de células por data (eixo X = datas)
 
+## 🐛 Bugs Encontrados
+
+- [x] Login não funciona no app nativo - tenta criar cadastro com email duplicado em vez de fazer login (CORRIGIDO em login.tsx)
+- [x] Fluxo de autenticação não verifica se email já existe antes de criar novo usuário (CORRIGIDO em login.tsx)
+- [ ] Erro "Already read" no login nativo - tRPC context não inicializado corretamente
+- [ ] Remover lock files duplicados (pnpm-lock.yaml, package-lock.json)
+- [ ] Corrigir app.json/app.config.ts - remover arquivo estático app.json
+- [ ] Corrigir assets - icon.png e android-icon-foreground.png são JPG, não PNG
+- [ ] Remover propriedade 'supportsTablet' do app.config.ts
+- [ ] Atualizar dependências do @react-navigation
+
 ## Correções no Devocional
 - [x] Corrigir visualização do texto do dia para aparecer completamente
 - [x] Corrigir anotações que não estão funcionando
