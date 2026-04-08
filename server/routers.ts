@@ -658,8 +658,8 @@ export const appRouter = router({
 
   // Pagamentos de Eventos
   pagamentosEventos: router({
-    list: publicProcedure.query(() => db.getPagamentosEventos()),
-    getByEventoId: publicProcedure.input(z.number()).query(({ input }) => db.getPagamentoEventoByEventoId(input)),
+    list: publicProcedure.query(() => db.getConfigPagamentosEventos()),
+    getByEventoId: publicProcedure.input(z.number()).query(({ input }) => db.getConfigPagamentoEventoByEventoId(input)),
     create: protectedProcedure
       .input(z.object({
         eventoId: z.number(),
@@ -670,7 +670,7 @@ export const appRouter = router({
         ativo: z.number(),
       }))
       .mutation(({ input, ctx }) => {
-        return db.createPagamentoEvento(input);
+        return db.createConfigPagamentoEvento(input);
       }),
     update: protectedProcedure
       .input(z.object({
@@ -682,10 +682,10 @@ export const appRouter = router({
         ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {
-        return db.updatePagamentoEvento(input.id, input);
+        return db.updateConfigPagamentoEvento(input.id, input);
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input, ctx }) => {
-      return db.deletePagamentoEvento(input);
+      return db.deleteConfigPagamentoEvento(input);
     }),
   }),
 

@@ -5,11 +5,13 @@ import {
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
   contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, pagamentosEventos, configEscolaCrescimento,
+  configPagamentosEventos,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
-  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertPagamentoEvento, InsertConfigEscolaCrescimento
+  InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertPagamentoEvento, InsertConfigEscolaCrescimento,
+  InsertConfigPagamentoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _poolConnection: ReturnType<typeof mysql.createPool> | null = null;
@@ -1103,5 +1105,64 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
   } catch (error) {
     console.error('[updateInscricaoEventoStatus] Error:', error);
     throw error;
+  }
+}
+
+
+// ==================== CONFIGURAÇÕES DE PAGAMENTO DE EVENTOS ====================
+
+export async function getConfigPagamentosEventos() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(configPagamentosEventos).orderBy(desc(configPagamentosEventos.createdAt));
+}
+
+export async function getConfigPagamentoEventoByEventoId(eventoId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(configPagamentosEventos).where(eq(configPagamentosEventos.eventoId, eventoId));
+  return result[0] || null;
+}
+
+export async function getConfigPagamentoEventoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(configPagamentosEventos).where(eq(configPagamentosEventos.id, id));
+  return result[0] || null;
+}
+
+export async function createConfigPagamentoEvento(data: InsertConfigPagamentoEvento) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    const result = await db.insert(configPagamentosEventos).values(data);
+    const config = await getConfigPagamentoEventoByEventoId(data.eventoId);
+    return config || { ...data, id: 0 };
+  } catch (error: any) {
+    console.error("[Database] Error creating config pagamento evento:", error);
+    throw new Error(`Erro ao criar configuração de pagamento: ${error.message}`);
+  }
+}
+
+export async function updateConfigPagamentoEvento(id: number, data: Partial<InsertConfigPagamentoEvento>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.update(configPagamentosEventos).set(data).where(eq(configPagamentosEventos.id, id));
+    return await getConfigPagamentoEventoById(id);
+  } catch (error: any) {
+    console.error("[Database] Error updating config pagamento evento:", error);
+    throw new Error(`Erro ao atualizar configuração de pagamento: ${error.message}`);
+  }
+}
+
+export async function deleteConfigPagamentoEvento(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.delete(configPagamentosEventos).where(eq(configPagamentosEventos.id, id));
+  } catch (error: any) {
+    console.error("[Database] Error deleting config pagamento evento:", error);
+    throw new Error(`Erro ao deletar configuração de pagamento: ${error.message}`);
   }
 }

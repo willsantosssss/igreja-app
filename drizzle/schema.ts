@@ -316,8 +316,8 @@ export const configEscolaCrescimento = mysqlTable("configEscolaCrescimento", {
 export type ConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferSelect;
 export type InsertConfigEscolaCrescimento = typeof configEscolaCrescimento.$inferInsert;
 
-// Pagamentos de Eventos table
-export const pagamentosEventos = mysqlTable("pagamentosEventos", {
+// Pagamentos de Eventos table (para rastrear pagamentos de inscrições)
+export const pagamentosEventos = mysqlTable("pagamentos_eventos", {
   id: int("id").primaryKey().autoincrement(),
   inscricaoId: int("inscricaoId").notNull(),
   valor: varchar("valor", { length: 20 }).notNull(),
@@ -330,6 +330,22 @@ export const pagamentosEventos = mysqlTable("pagamentosEventos", {
 
 export type PagamentoEvento = typeof pagamentosEventos.$inferSelect;
 export type InsertPagamentoEvento = typeof pagamentosEventos.$inferInsert;
+
+// Configurações de Pagamento de Eventos table (para armazenar dados de PIX/QR code)
+export const configPagamentosEventos = mysqlTable("configPagamentosEventos", {
+  id: int("id").primaryKey().autoincrement(),
+  eventoId: int("eventoId").notNull(),
+  valor: varchar("valor", { length: 20 }).notNull(),
+  qrCodeUrl: varchar("qrCodeUrl", { length: 500 }),
+  chavePix: varchar("chavePix", { length: 255 }).notNull(),
+  nomeRecebedor: varchar("nomeRecebedor", { length: 255 }).notNull(),
+  ativo: int("ativo").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConfigPagamentoEvento = typeof configPagamentosEventos.$inferSelect;
+export type InsertConfigPagamentoEvento = typeof configPagamentosEventos.$inferInsert;
 
 // Anexos table
 export const anexos = mysqlTable("anexos", {
