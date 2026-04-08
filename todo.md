@@ -200,6 +200,7 @@
 - [ ] Corrigir assets - icon.png e android-icon-foreground.png são JPG, não PNG
 - [ ] Remover propriedade 'supportsTablet' do app.config.ts
 - [ ] Atualizar dependências do @react-navigation
+- [ ] 🔴 CRÍTICO: Histórico de anotações travando ao deletar (tela fica preta sem resposta)
 
 ## Correções no Devocional
 - [x] Corrigir visualização do texto do dia para aparecer completamente

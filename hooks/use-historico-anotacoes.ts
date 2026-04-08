@@ -65,15 +65,9 @@ export function useHistoricoAnotacoes() {
     }
   }, []);
 
-  // Carregar anotações ao montar e a cada 2 segundos para refletir mudanças
+  // Carregar anotações apenas ao montar o componente
   useEffect(() => {
     carregarAnotacoes();
-
-    const intervalo = setInterval(() => {
-      carregarAnotacoes();
-    }, 2000);
-
-    return () => clearInterval(intervalo);
   }, [carregarAnotacoes]);
 
   /**
