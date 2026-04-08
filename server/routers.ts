@@ -38,6 +38,15 @@ export const appRouter = router({
           const openId = `email_${result.userId}`; // Use email-based openId for manual login
           const sessionToken = await ctx.sdk.createSessionToken(openId, { name: result.name || result.email || "" });
           
+          // IMPORTANTE: Garantir que o usuário existe na tabela users para autenticação posterior
+          await db.upsertUser({
+            openId,
+            email: result.email,
+            name: result.name || null,
+            loginMethod: 'email',
+            lastSignedIn: new Date(),
+          });
+          
           // Set session cookie
           const cookieOptions = getSessionCookieOptions(ctx.req);
           console.log("[Signup] Setting cookie with options:", {
@@ -72,6 +81,15 @@ export const appRouter = router({
           // Create session token using SDK
           const openId = `email_${result.userId}`; // Use email-based openId for manual login
           const sessionToken = await ctx.sdk.createSessionToken(openId, { name: result.name || result.email || "" });
+          
+          // IMPORTANTE: Garantir que o usuário existe na tabela users para autenticação posterior
+          await db.upsertUser({
+            openId,
+            email: result.email,
+            name: result.name || null,
+            loginMethod: 'email',
+            lastSignedIn: new Date(),
+          });
           
           // Set session cookie
           const cookieOptions = getSessionCookieOptions(ctx.req);

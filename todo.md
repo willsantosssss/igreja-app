@@ -1040,3 +1040,4 @@
 
 - [ ] Erro ao excluir membro - tRPC Response not OK (HTTP 500)
 - [ ] Erro ao criar configuração de pagamento - tRPC Response not OK (HTTP 500)
+- [x] 🔴 CRÍTICO: Erro ao configurar pagamento de evento - tRPC Response not OK - CORRIGIDO: adicionar db.upsertUser() após login/signup
