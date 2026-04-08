@@ -1042,3 +1042,4 @@
 - [ ] Erro ao criar configuração de pagamento - tRPC Response not OK (HTTP 500)
 - [x] 🔴 CRÍTICO: Erro ao configurar pagamento de evento - tRPC Response not OK - CORRIGIDO: adicionar db.upsertUser() após login/signup
 - [x] 🔴 CRÍTICO: Erro ao salvar configuração de pagamento de evento - CORRIGIDO: criada tabela configPagamentosEventos com estrutura correta
+- [x] 🔴 CRÍTICO: Erro ao excluir membro - CORRIGIDO: corrigidos nomes das tabelas em deleteUserCompletely
