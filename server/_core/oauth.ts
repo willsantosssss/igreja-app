@@ -89,7 +89,7 @@ export function registerOAuthRoutes(app: Express) {
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
       res.json({
-        app_session_id: sessionToken,
+        sessionToken,
         user: buildUserResponse(user),
       });
     } catch (error) {
@@ -122,7 +122,7 @@ export function registerOAuthRoutes(app: Express) {
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
       res.json({
-        app_session_id: sessionToken,
+        sessionToken,
         user: buildUserResponse(user),
       });
     } catch (error) {

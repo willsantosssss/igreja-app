@@ -29,11 +29,15 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
       console.log("[API] Authorization header added");
     }
   } else {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const token = window.localStorage.getItem('app_session_token');
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-        console.log("[API] Authorization header added from localStorage");
+    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+      try {
+        const token = window.localStorage.getItem('app_session_token');
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+          console.log("[API] Authorization header added from localStorage");
+        }
+      } catch (e) {
+        console.error("[API] localStorage access failed:", e);
       }
     }
     console.log("[API] apiCall:", { endpoint, platform: "web", method: options.method || "GET" });
@@ -107,10 +111,10 @@ export async function exchangeOAuthCode(
   const params = new URLSearchParams({ code, state });
   const endpoint = `/api/oauth/mobile?${params.toString()}`;
   console.log("[API] Calling OAuth mobile endpoint:", endpoint);
-  const result = await apiCall<{ app_session_id: string; user: any }>(endpoint);
+  const result = await apiCall<{ sessionToken: string; user: any }>(endpoint);
 
-  // Convert app_session_id to sessionToken for compatibility
-  const sessionToken = result.app_session_id;
+  // Extract sessionToken from result
+  const sessionToken = result.sessionToken;
   console.log("[API] OAuth exchange result:", {
     hasSessionToken: !!sessionToken,
     hasUser: !!result.user,
