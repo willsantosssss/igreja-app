@@ -8,6 +8,9 @@ import {
   FlatList,
   Alert,
   Modal,
+  Pressable,
+  Keyboard,
+  Share,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
@@ -83,6 +86,17 @@ export default function HistoricoAnotacoesScreen() {
     setModalDeletarVisivel(true);
   };
 
+  const handleCompartilhar = async (anotacao: AnotacaoHistorico) => {
+    try {
+      await Share.share({
+        message: `📝 Minhas anotações sobre ${anotacao.livro} ${anotacao.capitulo}\n\n${anotacao.texto}\n\n— 2ª IEQ Rondonópolis - Devocional`,
+        title: `Anotações - ${anotacao.livro} ${anotacao.capitulo}`,
+      });
+    } catch (err) {
+      console.error('Erro ao compartilhar anotação:', err);
+    }
+  };
+
   const confirmarDelecao = async () => {
     if (anotacaoParaDeletar) {
       await deletarAnotacao(anotacaoParaDeletar.id);
@@ -151,6 +165,13 @@ export default function HistoricoAnotacoesScreen() {
             onPress={() => handleEditar(item)}
           >
             <Text className="text-primary font-semibold text-sm">✏️ Editar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="flex-1 bg-success/10 py-2 rounded-lg items-center"
+            onPress={() => handleCompartilhar(item)}
+          >
+            <Text className="text-success font-semibold text-sm">📤 Compartilhar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -247,8 +268,11 @@ export default function HistoricoAnotacoesScreen() {
 
       {/* Modal de Edição */}
       <Modal visible={modalVisivel} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-background rounded-t-3xl p-6 max-h-[80%]">
+        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => {
+          Keyboard.dismiss();
+          setModalVisivel(false);
+        }}>
+          <Pressable onPress={(e) => e.stopPropagation()} className="bg-background rounded-t-3xl p-6 max-h-[80%]">
             <Text className="text-xl font-bold text-foreground mb-4">Editar Anotação</Text>
             <TextInput
               value={textoEdicao}
@@ -260,7 +284,10 @@ export default function HistoricoAnotacoesScreen() {
             />
             <View className="flex-row gap-2">
               <TouchableOpacity
-                onPress={() => setModalVisivel(false)}
+                onPress={() => {
+                  Keyboard.dismiss();
+                  setModalVisivel(false);
+                }}
                 className="flex-1 bg-surface border border-border rounded-lg py-3 items-center"
               >
                 <Text className="text-foreground font-semibold">Cancelar</Text>
@@ -272,8 +299,8 @@ export default function HistoricoAnotacoesScreen() {
                 <Text className="text-background font-semibold">Salvar</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Modal de Confirmação de Deleção */}
