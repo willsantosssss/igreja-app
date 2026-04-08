@@ -1034,3 +1034,8 @@
 - [x] Verificar console do app para erros de JavaScript
 - [x] Corrigir o problema (adicionados imports: Alert, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator)
 - [x] Testar fluxo completo de signup (servidor rodando normalmente)
+
+## 🐛 Bugs Novos Reportados (Expo Go - 08/04/2026)
+
+- [ ] Erro ao excluir membro - tRPC Response not OK (HTTP 500)
+- [ ] Erro ao criar configuração de pagamento - tRPC Response not OK (HTTP 500)

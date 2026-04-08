@@ -804,12 +804,18 @@ export async function deleteUserCompletely(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.userId, userId));
-  await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
-  await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
-  await db.delete(lideres).where(eq(lideres.userId, userId));
-  await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
-  await db.delete(users).where(eq(users.id, userId));
+  try {
+    await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.userId, userId));
+    await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
+    await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
+    await db.delete(lideres).where(eq(lideres.userId, userId));
+    await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
+    await db.delete(users).where(eq(users.id, userId));
+    return { success: true, message: "Usuário deletado com sucesso" };
+  } catch (error: any) {
+    console.error("[Database] Error deleting user:", error);
+    throw new Error(`Erro ao deletar usuário: ${error.message}`);
+  }
 }
 
 
@@ -976,7 +982,19 @@ export async function createPagamentoEvento(data: InsertPagamentoEvento) {
       'INSERT INTO pagamentos_eventos (eventoId, valor, qrCodeUrl, chavePix, nomeRecebedor, ativo) VALUES (?, ?, ?, ?, ?, ?)',
       [data.eventoId, data.valor, data.qrCodeUrl, data.chavePix, data.nomeRecebedor, data.ativo || 1]
     );
-    return (result as any).insertId;
+    const insertId = (result as any).insertId;
+    return {
+      id: insertId,
+      eventoId: data.eventoId,
+      valor: data.valor,
+      qrCodeUrl: data.qrCodeUrl,
+      chavePix: data.chavePix,
+      nomeRecebedor: data.nomeRecebedor,
+      ativo: data.ativo || 1,
+    };
+  } catch (error: any) {
+    console.error("[Database] Error creating pagamento evento:", error);
+    throw new Error(`Erro ao criar configuração de pagamento: ${error.message}`);
   } finally {
     conn.release();
   }
