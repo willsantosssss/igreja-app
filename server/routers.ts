@@ -11,13 +11,13 @@ import * as crypto from "crypto";
 import { Readable } from "stream";
 import { finished } from "stream/promises";
 import fetch from "node-fetch";
+import { COOKIE_NAME } from "../shared/const";
 
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
 // Garantir que o diretório de uploads existe
 fs.mkdir(UPLOAD_DIR, { recursive: true }).catch(console.error);
 
-const COOKIE_NAME = "session";
 
 export const appRouter = router({
   system: systemRouter,

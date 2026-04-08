@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { getUserByOpenId, upsertUser } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { COOKIE_NAME, ONE_YEAR_MS } from "../../shared/const";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -61,8 +62,7 @@ function buildUserResponse(
   };
 }
 
-const COOKIE_NAME = "session";
-const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
 
 export function registerOAuthRoutes(app: Express) {
   // OAuth callback
