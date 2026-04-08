@@ -118,10 +118,10 @@ export default function AdminInscricoesEventosScreen() {
       let csv = BOM + "Nome;Célula;Evento;Data\n";
       
       inscricoesFiltradas.forEach((inscricao) => {
-        const nome = inscricao.nome.replace(/"/g, '""');
-        const celula = inscricao.celula.replace(/"/g, '""');
-        const evento = inscricao.eventoTitulo.replace(/"/g, '""');
-        const data = inscricao.eventoData;
+        const nome = (inscricao.nome || '').replace(/"/g, '""');
+        const celula = (inscricao.celula || '').replace(/"/g, '""');
+        const evento = (inscricao.eventoTitulo || '').replace(/"/g, '""');
+        const data = (inscricao.eventoData || '');
         csv += `"${nome}";"${celula}";"${evento}";"${data}"\n`;
       });
       
