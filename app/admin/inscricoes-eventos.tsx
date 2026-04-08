@@ -114,14 +114,23 @@ export default function AdminInscricoesEventosScreen() {
 
   const exportarParaExcel = async () => {
     try {
+      if (!inscricoesFiltradas || inscricoesFiltradas.length === 0) {
+        alert('Nenhuma inscrição para exportar');
+        return;
+      }
+
       const BOM = '\uFEFF';
       let csv = BOM + "Nome;Célula;Evento;Data\n";
       
+      // Filtrar e processar apenas inscrições válidas
       inscricoesFiltradas.forEach((inscricao) => {
-        const nome = (inscricao.nome || '').replace(/"/g, '""');
-        const celula = (inscricao.celula || '').replace(/"/g, '""');
-        const evento = (inscricao.eventoTitulo || '').replace(/"/g, '""');
-        const data = (inscricao.eventoData || '');
+        if (!inscricao) return; // Pular se inscricao for null
+        
+        const nome = String(inscricao.nome || '').replace(/"/g, '""');
+        const celula = String(inscricao.celula || '').replace(/"/g, '""');
+        const evento = String(inscricao.eventoTitulo || '').replace(/"/g, '""');
+        const data = String(inscricao.eventoData || '');
+        
         csv += `"${nome}";"${celula}";"${evento}";"${data}"\n`;
       });
       

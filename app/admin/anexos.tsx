@@ -15,6 +15,8 @@ import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system/legacy";
 
 interface Anexo {
   id: number;
@@ -82,7 +84,69 @@ export default function AdminAnexosScreen() {
       };
       input.click();
     } else {
-      Alert.alert("Info", "Upload de arquivo disponível na versão web");
+      // Para nativo, usar DocumentPicker
+      try {
+        const result = await DocumentPicker.getDocumentAsync({
+          type: [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "image/jpeg",
+            "image/png",
+          ],
+        });
+
+        if (result.assets && result.assets.length > 0) {
+          const file = result.assets[0];
+          await uploadFileFromNative(file);
+        }
+      } catch (error) {
+        console.error("Erro ao selecionar arquivo:", error);
+        Alert.alert("Erro", "Erro ao selecionar arquivo");
+      }
+    }
+  };
+
+  const uploadFileFromNative = async (file: any) => {
+    try {
+      setUploading(true);
+
+      // Ler arquivo como base64
+      const base64 = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Enviar para servidor via tRPC
+      const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
+      const response = await fetch(`${apiUrl}/api/upload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileBase64: base64,
+          mimeType: file.mimeType || "application/octet-stream",
+        }),
+      });
+
+      if (!response.ok) throw new Error("Upload falhou");
+
+      const data = await response.json();
+
+      // Atualizar formulário com URL do arquivo
+      setFormData((prev) => ({
+        ...prev,
+        nomeArquivo: file.name,
+        urlArquivo: data.url || "",
+      }));
+
+      Alert.alert("Sucesso", "Arquivo enviado com sucesso");
+      setUploading(false);
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      Alert.alert("Erro", "Erro ao fazer upload do arquivo");
+      setUploading(false);
     }
   };
 
