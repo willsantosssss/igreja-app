@@ -518,10 +518,18 @@ export async function getLiderById(id: number) {
 export async function createLider(data: InsertLider) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(lideres).values(data);
-  // Buscar o líder criado para retornar com ID
-  const lider = await db.select().from(lideres).where(eq(lideres.celula, data.celula)).limit(1);
-  return lider[0];
+  try {
+    const result = await db.insert(lideres).values(data);
+    // Buscar pelo userId para garantir que retorna o líder correto
+    const lider = await db.select().from(lideres)
+      .where(eq(lideres.userId, data.userId))
+      .orderBy(lideres.id)
+      .limit(1);
+    return lider[0] || { ...data, id: 0 };
+  } catch (error: any) {
+    console.error("[Database] Error creating lider:", error);
+    throw new Error(`Erro ao criar líder: ${error.message}`);
+  }
 }
 
 export async function updateLider(id: number, data: Partial<InsertLider>) {
