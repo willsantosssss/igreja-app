@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { getApiBaseUrl } from "@/constants/oauth";
+import { getApiBaseUrl, SESSION_TOKEN_KEY } from "@/constants/oauth";
 import * as Auth from "./auth";
 
 type ApiResponse<T> = {
@@ -31,7 +31,7 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
   } else {
     if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
       try {
-        const token = window.localStorage.getItem('app_session_token');
+        const token = window.localStorage.getItem(SESSION_TOKEN_KEY);
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
           console.log("[API] Authorization header added from localStorage");
