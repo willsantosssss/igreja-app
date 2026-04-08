@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 import FormData from "form-data";
-import fetch from "node-fetch";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -27,7 +26,7 @@ describe("File Upload API", () => {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(testFilePath), "test-document.pdf");
 
-    const response = await fetch(`${API_BASE_URL}/api/upload`, {
+    const response = await globalThis.fetch(`${API_BASE_URL}/api/upload`, {
       method: "POST",
       body: formData as any,
       headers: formData.getHeaders?.() || {},
@@ -44,7 +43,7 @@ describe("File Upload API", () => {
   it("should reject upload without file", async () => {
     const formData = new FormData();
 
-    const response = await fetch(`${API_BASE_URL}/api/upload`, {
+    const response = await globalThis.fetch(`${API_BASE_URL}/api/upload`, {
       method: "POST",
       body: formData as any,
       headers: formData.getHeaders?.() || {},
@@ -70,7 +69,7 @@ describe("File Upload API", () => {
         const formData = new FormData();
         formData.append("file", fs.createReadStream(testPath), fileType.name);
 
-        const response = await fetch(`${API_BASE_URL}/api/upload`, {
+        const response = await globalThis.fetch(`${API_BASE_URL}/api/upload`, {
           method: "POST",
           body: formData as any,
           headers: formData.getHeaders?.() || {},
