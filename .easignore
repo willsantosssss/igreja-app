@@ -1,0 +1,44 @@
+# EAS Build ignore file
+# Files and directories listed here will not be uploaded to EAS Build
+
+# Dependencies - will be installed fresh on the build server
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Build artifacts
+dist/
+build/
+.expo/
+.cache/
+
+# Development files
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Git
+.git/
+.gitignore
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
