@@ -1046,3 +1046,4 @@
 - [x] 🎯 UX: Fechar teclado ao clicar fora do campo de edição no histórico de anotações - CONCLUÍDO
 - [x] 🎯 Feature: Adicionar botão de compartilhar/enviar para cada anotação no histórico - CONCLUÍDO
 - [x] 🔴 BUG: Modal de edição de anotações - CORRIGIDO: ScrollView + mt-auto para botão sempre visível, removido fechamento ao clicar fora
+- [x] 🔴 BUG: Upload de anexos falha - CORRIGIDO: converter base64 para Blob e usar FormData
