@@ -116,18 +116,16 @@ export default function AdminAnexosScreen() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Converter base64 para Blob
+      // Criar FormData com URI (React Native nao suporta Blob a partir de ArrayBuffer)
       const mimeType = file.mimeType || "application/octet-stream";
-      const binaryString = atob(base64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], { type: mimeType });
-
-      // Criar FormData com arquivo
       const formData = new FormData();
-      formData.append("file", blob, file.name);
+      
+      // Anexar arquivo via URI (FormData do React Native entende isso)
+      formData.append("file", {
+        uri: file.uri,
+        type: mimeType,
+        name: file.name,
+      } as any);
 
       // Enviar para servidor
       const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
