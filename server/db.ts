@@ -787,10 +787,10 @@ export async function createInscricaoEvento(data: InsertInscricaoEvento) {
       // Criar registro em pagamentos_eventos
       try {
         await conn.query(
-          'INSERT INTO pagamentos_eventos (inscricaoId, valor, metodo, status) VALUES (?, ?, ?, ?)',
-          [inscricaoId, configPagamento.valor, 'pix', 'pendente']
+          'INSERT INTO pagamentos_eventos (inscricaoId, valor, metodo, status, userId, nome, email, telefone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [inscricaoId, configPagamento.valor, 'pix', 'pendente', data.userId || null, data.nome, data.email || null, data.telefone]
         );
-        console.log(`[createInscricaoEvento] Pagamento criado para inscrição ${inscricaoId}`);
+        console.log(`[createInscricaoEvento] Pagamento criado para inscricao ${inscricaoId}`);
       } catch (error: any) {
         console.error('[createInscricaoEvento] Error creating pagamento registro:', error);
       }
@@ -1124,8 +1124,9 @@ export async function getInscricoesEventosPagas() {
     console.log(`[getInscricoesEventosPagas] Encontradas ${(rows || []).length} inscrições`);
     return (rows || []).map((row: any) => ({
       ...row,
-      statusPagamento: 'nao-pago',
-      dataPagamento: null,
+      // Mapear status do banco para o formato esperado pelo app
+      statusPagamento: row.statusPagamento === 'confirmado' ? 'pago' : 'nao-pago',
+      dataPagamento: row.dataPagamento,
       observacoes: null,
     }));
   } catch (error) {
@@ -1141,7 +1142,16 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
   try {
     const connection = await pool.getConnection();
     
-    // Atualizar apenas o campo updatedAt que sabemos que existe
+    // Atualizar status de pagamento na tabela pagamentos_eventos
+    const statusMapeado = statusPagamento === 'pago' ? 'confirmado' : 'pendente';
+    
+    await connection.query(`
+      UPDATE pagamentos_eventos 
+      SET status = ?, updatedAt = NOW()
+      WHERE inscricaoId = ?
+    `, [statusMapeado, inscricaoId]);
+    
+    // Também atualizar o updatedAt da inscrição
     await connection.query(`
       UPDATE inscricoesEventos 
       SET updatedAt = NOW()
@@ -1149,7 +1159,7 @@ export async function updateInscricaoEventoStatus(inscricaoId: number, statusPag
     `, [inscricaoId]);
     
     connection.release();
-    console.log(`[updateInscricaoEventoStatus] Inscricao ${inscricaoId} marcada como ${statusPagamento}`);
+    console.log(`[updateInscricaoEventoStatus] Inscricao ${inscricaoId} marcada como ${statusPagamento} (status=${statusMapeado})`);
     return { success: true };
   } catch (error) {
     console.error('[updateInscricaoEventoStatus] Error:', error);
