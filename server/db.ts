@@ -755,10 +755,46 @@ export async function getInscricoesEventosByEventoId(eventoId: number) {
 }
 
 export async function createInscricaoEvento(data: InsertInscricaoEvento) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.insert(inscricoesEventos).values(data);
-  return data;
+  const pool = getSqlClient();
+  if (!pool) throw new Error("Database not available");
+  
+  const conn = await pool.getConnection();
+  try {
+    // Inserir inscrição usando SQL direto para obter insertId
+    const [result] = await conn.query(
+      'INSERT INTO inscricoesEventos (eventoId, userId, nomeInscrito, emailInscrito, telefoneinscrito, celulaInscrito, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [data.eventoId, data.userId || null, data.nome, data.email || null, data.telefone, data.celula]
+    );
+    
+    const inscricaoId = (result as any).insertId;
+    console.log(`[createInscricaoEvento] Inscrição criada com ID: ${inscricaoId}`);
+    
+    // Verificar se o evento tem configuração de pagamento
+    const [configResult] = await conn.query(
+      'SELECT * FROM configPagamentosEventos WHERE eventoId = ? LIMIT 1',
+      [data.eventoId]
+    );
+    
+    if (configResult && (configResult as any[]).length > 0) {
+      const configPagamento = (configResult as any[])[0];
+      console.log(`[createInscricaoEvento] Evento ${data.eventoId} tem configuração de pagamento`);
+      
+      // Criar registro em pagamentos_eventos
+      try {
+        await conn.query(
+          'INSERT INTO pagamentos_eventos (inscricaoId, valor, metodo, status) VALUES (?, ?, ?, ?)',
+          [inscricaoId, configPagamento.valor, 'pix', 'pendente']
+        );
+        console.log(`[createInscricaoEvento] Pagamento criado para inscrição ${inscricaoId}`);
+      } catch (error: any) {
+        console.error('[createInscricaoEvento] Error creating pagamento registro:', error);
+      }
+    }
+    
+    return { ...data, id: inscricaoId };
+  } finally {
+    conn.release();
+  }
 }
 
 export async function deleteInscricaoEvento(id: number) {
@@ -1058,17 +1094,23 @@ export async function getInscricoesEventosPagas() {
       SELECT 
         ie.id,
         ie.eventoId,
-        ie.nome,
-        ie.email,
-        ie.telefone,
-        ie.celula,
-        ie.status,
+        ie.nomeInscrito as nome,
+        ie.emailInscrito as email,
+        ie.telefoneinscrito as telefone,
+        ie.celulaInscrito as celula,
         ie.createdAt,
         ie.updatedAt,
         e.titulo as eventoTitulo,
-        e.data as eventoData
+        e.data as eventoData,
+        pe.id as pagamentoId,
+        pe.valor,
+        pe.metodo,
+        pe.status as statusPagamento,
+        pe.comprovante,
+        pe.createdAt as dataPagamento
       FROM inscricoesEventos ie
       LEFT JOIN eventos e ON ie.eventoId = e.id
+      LEFT JOIN pagamentos_eventos pe ON ie.id = pe.inscricaoId
       WHERE e.tipo IN ('evento-especial', 'special')
       ORDER BY ie.createdAt DESC
     `);

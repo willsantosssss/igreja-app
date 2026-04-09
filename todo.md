@@ -1048,3 +1048,4 @@
 - [x] 🔴 BUG: Modal de edição de anotações - CORRIGIDO: ScrollView + mt-auto para botão sempre visível, removido fechamento ao clicar fora
 - [x] 🔴 BUG: Upload de anexos falha - CORRIGIDO: usar URI em FormData em vez de Blob (compatível com React Native)
 - [x] 🔴 BUG: Erro ao baixar anexos - CORRIGIDO: criar endpoint /api/files para servir arquivos locais
+- [x] 🔴 BUG: Inscrições pagas em eventos - mostra 0 inscritos mas deveria mostrar dados - CORRIGIDO: corrigidos nomes de colunas em getInscricoesEventosPagas e adicionada criação automática de registro em pagamentos_eventos ao inscrever em evento pago
