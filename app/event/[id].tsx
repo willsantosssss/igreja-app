@@ -23,6 +23,7 @@ export default function EventDetailScreen() {
   const [telefone, setTelefone] = useState("");
 
   const [mostrarSeletorCelulas, setMostrarSeletorCelulas] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
 
   const { data: celulasList = [], isLoading: carregandoCelulas } = useCelulas();
   const celulas = celulasList.filter((c: any) => c && c.nome && c.lider && c.horario);
@@ -72,6 +73,7 @@ export default function EventDetailScreen() {
           setNome(ultimo.nome || "");
           setCelula(ultimo.celula || "");
           setTelefone(ultimo.telefone || "");
+          setUserId(ultimo.userId || null);
           // Verificar se já está inscrito
           if (typeof id === 'string' && ultimo.nome) {
             const inscrito = await verificarInscricao(id, ultimo.nome);
@@ -135,6 +137,7 @@ export default function EventDetailScreen() {
         nome: nome.trim(),
         telefone: telefone.trim(),
         celula: celula.trim(),
+        userId: userId || undefined,
       });
 
       // Também salvar no AsyncStorage para compatibilidade com relatórios locais

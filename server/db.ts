@@ -770,14 +770,19 @@ export async function createInscricaoEvento(data: InsertInscricaoEvento) {
     console.log(`[createInscricaoEvento] Inscrição criada com ID: ${inscricaoId}`);
     
     // Verificar se o evento tem configuração de pagamento
+    console.log(`[createInscricaoEvento] Buscando configuração de pagamento para evento ${data.eventoId}`);
     const [configResult] = await conn.query(
       'SELECT * FROM configPagamentosEventos WHERE eventoId = ? LIMIT 1',
       [data.eventoId]
     );
     
-    if (configResult && (configResult as any[]).length > 0) {
-      const configPagamento = (configResult as any[])[0];
-      console.log(`[createInscricaoEvento] Evento ${data.eventoId} tem configuração de pagamento`);
+    console.log(`[createInscricaoEvento] configResult: ${JSON.stringify(configResult)}`);
+    console.log(`[createInscricaoEvento] configResult is Array: ${Array.isArray(configResult)}`);
+    console.log(`[createInscricaoEvento] configResult.length: ${configResult?.length}`);
+    
+    if (configResult && Array.isArray(configResult) && configResult.length > 0) {
+      const configPagamento = configResult[0];
+      console.log(`[createInscricaoEvento] Evento ${data.eventoId} tem configuração de pagamento: ${JSON.stringify(configPagamento)}`);
       
       // Criar registro em pagamentos_eventos
       try {

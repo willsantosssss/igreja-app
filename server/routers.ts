@@ -556,14 +556,13 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // Usar userId do contexto se disponível, caso contrário usar o fornecido
-        const userId = ctx.user?.id || input.userId || 0;
+        const userId = ctx.user?.id || input.userId || undefined;
         return db.createInscricaoEvento({
           eventoId: input.eventoId,
           nome: input.nome,
           telefone: input.telefone,
           celula: input.celula,
           userId,
-          status: 'confirmado',
         });
       }),
     delete: protectedProcedure.input(z.number()).mutation(({ input }) => db.deleteInscricaoEvento(input)),
