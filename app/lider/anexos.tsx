@@ -52,8 +52,10 @@ export default function AnexosLiderScreen() {
       // Log removido para produção
 
       // Baixar arquivo
-      const fileName = anexo.nomeArquivo || anexo.arquivoUrl.split("/").pop() || "documento.pdf";
+      const fileName = anexo.nomeArquivo || anexo.urlArquivo.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+      console.log(`[Download] Downloading from: ${fullUrl} to: ${fileUri}`);
 
       const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
 

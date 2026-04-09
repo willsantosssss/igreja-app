@@ -128,16 +128,27 @@ async function startServer() {
 
       console.log(`[Upload] Processing file: ${fileName}`);
 
-      // Use manus-upload-file to upload to S3
-      const { stdout } = await execAsync(`manus-upload-file "${filePath}"`);
-      const url = stdout.trim();
+      // Salvar arquivo localmente em vez de usar CDN
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
 
-      // Clean up temporary file
-      fs.unlinkSync(filePath);
+      // Gerar nome único para o arquivo
+      const fileExt = path.extname(fileName);
+      const fileNameWithoutExt = path.basename(fileName, fileExt);
+      const uniqueFileName = `${fileNameWithoutExt}-${Date.now()}${fileExt}`;
+      const finalPath = path.join(uploadsDir, uniqueFileName);
 
-      console.log(`[Upload] File uploaded successfully: ${url}`);
+      // Mover arquivo para pasta de uploads
+      fs.renameSync(filePath, finalPath);
 
-      res.json({ url, fileName });
+      // Retornar URL local que será servida por /api/files/:filename
+      const url = `/api/files/${uniqueFileName}`;
+
+      console.log(`[Upload] File saved locally: ${finalPath}`);
+
+      res.json({ url, fileName, localPath: finalPath });
     } catch (error: any) {
       console.error("[Upload Error]", error.message);
       // Clean up file on error
@@ -149,6 +160,48 @@ async function startServer() {
         }
       }
       res.status(500).json({ error: error.message || "Upload failed" });
+    }
+  });
+
+  // Serve uploaded files locally
+  app.get("/api/files/:filename", (req, res) => {
+    try {
+      const filename = req.params.filename;
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const filePath = path.join(uploadsDir, filename);
+
+      // Validar que o arquivo está dentro da pasta uploads (evitar path traversal)
+      if (!filePath.startsWith(uploadsDir)) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Verificar se arquivo existe
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: "File not found" });
+      }
+
+      // Servir arquivo com headers apropriados
+      const fileExt = path.extname(filename).toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.txt': 'text/plain',
+      };
+
+      const mimeType = mimeTypes[fileExt] || 'application/octet-stream';
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    } catch (error: any) {
+      console.error("[File Download Error]", error.message);
+      res.status(500).json({ error: error.message || "Download failed" });
     }
   });
 
