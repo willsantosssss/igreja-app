@@ -266,41 +266,41 @@ export default function HistoricoAnotacoesScreen() {
         )}
       </View>
 
-      {/* Modal de Edição */}
+      {/* Modal de Edicao */}
       <Modal visible={modalVisivel} transparent animationType="slide">
-        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => {
-          Keyboard.dismiss();
-          setModalVisivel(false);
-        }}>
-          <Pressable onPress={(e) => e.stopPropagation()} className="bg-background rounded-t-3xl p-6 max-h-[80%]">
-            <Text className="text-xl font-bold text-foreground mb-4">Editar Anotação</Text>
-            <TextInput
-              value={textoEdicao}
-              onChangeText={setTextoEdicao}
-              multiline
-              numberOfLines={6}
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-foreground mb-4"
-              placeholderTextColor={colors.muted}
-            />
-            <View className="flex-row gap-2">
-              <TouchableOpacity
-                onPress={() => {
-                  Keyboard.dismiss();
-                  setModalVisivel(false);
-                }}
-                className="flex-1 bg-surface border border-border rounded-lg py-3 items-center"
-              >
-                <Text className="text-foreground font-semibold">Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSalvarEdicao}
-                className="flex-1 bg-primary rounded-lg py-3 items-center"
-              >
-                <Text className="text-background font-semibold">Salvar</Text>
-              </TouchableOpacity>
-            </View>
-          </Pressable>
-        </Pressable>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-background rounded-t-3xl flex-1 max-h-[90%]">
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="p-6">
+              <Text className="text-xl font-bold text-foreground mb-4">Editar Anotacao</Text>
+              <TextInput
+                value={textoEdicao}
+                onChangeText={setTextoEdicao}
+                multiline
+                numberOfLines={8}
+                className="bg-surface border border-border rounded-lg px-4 py-3 text-foreground mb-4"
+                placeholderTextColor={colors.muted}
+                style={{ minHeight: 200, textAlignVertical: 'top' }}
+              />
+              <View className="flex-row gap-2 mt-auto">
+                <TouchableOpacity
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setModalVisivel(false);
+                  }}
+                  className="flex-1 bg-surface border border-border rounded-lg py-3 items-center"
+                >
+                  <Text className="text-foreground font-semibold">Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSalvarEdicao}
+                  className="flex-1 bg-primary rounded-lg py-3 items-center"
+                >
+                  <Text className="text-background font-semibold">Salvar</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
 
       {/* Modal de Confirmação de Deleção */}
