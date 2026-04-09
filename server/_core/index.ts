@@ -134,9 +134,12 @@ async function startServer() {
         fs.mkdirSync(uploadsDir, { recursive: true });
       }
 
+      // Decodificar nome do arquivo (remover %20, %2F, etc)
+      const decodedFileName = decodeURIComponent(fileName);
+
       // Gerar nome único para o arquivo
-      const fileExt = path.extname(fileName);
-      const fileNameWithoutExt = path.basename(fileName, fileExt);
+      const fileExt = path.extname(decodedFileName);
+      const fileNameWithoutExt = path.basename(decodedFileName, fileExt);
       const uniqueFileName = `${fileNameWithoutExt}-${Date.now()}${fileExt}`;
       const finalPath = path.join(uploadsDir, uniqueFileName);
 
