@@ -13,8 +13,10 @@ export default function CompletarCadastroScreen() {
   const colors = useColors();
   const { user } = useAuth();
   const createUserMutation = trpc.usuarios.create.useMutation();
-  const { data: usuarioExistente } = trpc.usuarios.getByUserId.useQuery(undefined, {
+  const { data: usuarioExistente, isLoading: usuarioLoading } = trpc.usuarios.getByUserId.useQuery(undefined, {
     enabled: !!user,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const [nome, setNome] = useState("");
@@ -30,9 +32,18 @@ export default function CompletarCadastroScreen() {
   useEffect(() => {
     // Se usuário já tem cadastro, redirecionar para home
     if (usuarioExistente) {
+      console.log("[CompletarCadastro] Usuário existente encontrado, redirecionando para home");
       router.replace("/(tabs)");
     }
   }, [usuarioExistente]);
+
+  useEffect(() => {
+    console.log("[CompletarCadastro] State:", {
+      user: user?.email,
+      usuarioExistente: !!usuarioExistente,
+      usuarioLoading,
+    });
+  }, [user, usuarioExistente, usuarioLoading]);
 
   const formatarData = (text: string) => {
     // Remove caracteres não numéricos

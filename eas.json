@@ -12,7 +12,8 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://igreja-app-production-9432.up.railway.app",
-        "CUSTOM_JWT_SECRET": "Essaeumasenhaterrivelmentegrande7"
+        "CUSTOM_JWT_SECRET": "Essaeumasenhaterrivelmentegrande7",
+        "VITE_APP_ID": "igreja-app"
       },
       "ios": {
         "image": "latest"
@@ -31,7 +32,8 @@
       "distribution": "store",
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://igreja-app-production-9432.up.railway.app",
-        "CUSTOM_JWT_SECRET": "Essaeumasenhaterrivelmentegrande7"
+        "CUSTOM_JWT_SECRET": "Essaeumasenhaterrivelmentegrande7",
+        "VITE_APP_ID": "igreja-app"
       },
       "ios": {
         "image": "latest"
