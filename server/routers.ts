@@ -187,7 +187,12 @@ export const appRouter = router({
   // Usuarios Cadastrados
   usuarios: router({
     list: publicProcedure.query(() => db.getAllUsuariosCadastrados()),
-    getByUserId: protectedProcedure.query(({ ctx }) => db.getUsuarioCadastrado(ctx.user.id)),
+    getByUserId: protectedProcedure.query(async ({ ctx }) => {
+      console.log('[getByUserId] Called for userId:', ctx.user.id);
+      const result = await db.getUsuarioCadastrado(ctx.user.id);
+      console.log('[getByUserId] Result:', result ? `Found: ${result.nome}` : 'Not found');
+      return result;
+    }),
     getAniversariantes: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getAniversariantesMes(input)),
