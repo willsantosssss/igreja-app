@@ -1054,3 +1054,29 @@
   * Adicionado userId ao payload de inscrição no app
   * Removido campo status inválido do router tRPC
   * Testado com sucesso: Inscrição de Thais criou pagamento automaticamente
+
+
+## Bug: Botão "Deletar Conta" Retorna Erro de Autenticação - 15/04/2026
+- [x] Investigar por que deleteAccount retorna "Please login" mesmo com usuário logado
+- [x] Adicionar logs detalhados em context.ts, trpc.ts e sdk.ts
+- [x] Descobrir que token é salvo em chave errada ('app_session_token' vs 'session')
+- [x] Corrigir handleLogin em app/login.tsx para usar setSessionToken() padronizado
+- [x] Remover salvamento direto em localStorage com chave incorreta
+- [x] Testar que tRPC client agora envia token correto
+
+**Problema Encontrado:**
+1. Token era salvo em `window.localStorage.setItem('app_session_token', token)`
+2. Mas tRPC client lia de `SESSION_TOKEN_KEY` que é `'session'`
+3. Resultado: ctx.user era null em endpoints protegidos
+
+**Solução Implementada:**
+1. Removido código que salvava em 'app_session_token' diretamente
+2. Alterado handleLogin para usar `await setSessionToken(loginResult.sessionToken)`
+3. Isso padroniza a chave de armazenamento para 'session'
+4. tRPC client agora encontra o token correto e envia no Authorization header
+5. Endpoints protegidos como deleteAccount funcionam corretamente
+
+**Próximos Passos:**
+- Gerar nova build iOS com a correção
+- Testar botão "Deletar Conta" no app
+- Validar que outros endpoints protegidos também funcionam

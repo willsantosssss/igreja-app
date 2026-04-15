@@ -12,8 +12,10 @@ export const publicProcedure = t.procedure;
 
 const requireUser = t.middleware(async (opts) => {
   const { ctx, next } = opts;
+  console.log('[Middleware] requireUser check - ctx.user:', ctx.user ? `${ctx.user.email} (ID: ${ctx.user.id})` : 'null');
 
   if (!ctx.user) {
+    console.log('[Middleware] User not found, throwing UNAUTHORIZED');
     throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
 

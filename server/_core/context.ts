@@ -14,11 +14,21 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
 
   try {
     console.log('[Context] createContext called');
+    console.log('[Context] Request path:', opts.req.path);
+    console.log('[Context] Request method:', opts.req.method);
+    console.log('[Context] About to call authenticateRequest...');
     user = await sdk.authenticateRequest(opts.req);
-    console.log('[Context] User authenticated:', user?.email);
+    console.log('[Context] authenticateRequest returned successfully');
+    console.log('[Context] User authenticated:', user?.email, 'ID:', user?.id);
   } catch (error) {
     // Authentication is optional for public procedures.
-    console.log('[Context] Authentication failed:', error instanceof Error ? error.message : String(error));
+    // Only log if there was an actual authentication attempt (Authorization header or session cookie present)
+    const hasAuthHeader = opts.req.headers.authorization || opts.req.headers.Authorization;
+    const hasCookie = opts.req.headers.cookie;
+    if (hasAuthHeader || hasCookie) {
+      console.log('[Context] Authentication failed:', error instanceof Error ? error.message : String(error));
+      console.log('[Context] Error stack:', error instanceof Error ? error.stack : '');
+    }
     user = null;
   }
 

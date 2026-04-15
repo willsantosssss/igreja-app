@@ -166,32 +166,15 @@ export default function LoginScreen() {
       console.log("[Login] sessionToken existe?", !!loginResult.sessionToken);
       console.log("[Login] sessionToken valor:", loginResult.sessionToken?.substring(0, 50));
       
-      // Guardar token JWT usando setSessionToken (SecureStore no React Native, localStorage na web)
+      // Guardar token JWT usando setSessionToken (padroniza a chave de armazenamento)
       if (loginResult.sessionToken) {
         try {
           console.log("[Login] Saving token:", loginResult.sessionToken.substring(0, 20) + "...");
-          console.log("[Login] typeof window:", typeof window);
-          console.log("[Login] window.localStorage exists:", typeof window !== 'undefined' && typeof window.localStorage !== 'undefined');
-          // Salvar token diretamente em localStorage para web
-          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-            try {
-              console.log("[Login] Attempting to save to localStorage...");
-              window.localStorage.setItem('app_session_token', loginResult.sessionToken);
-              console.log("[Login] Token salvo em localStorage");
-              // Verificar imediatamente
-              const checkToken = window.localStorage.getItem('app_session_token');
-              console.log("[Login] Verificação imediata:", checkToken ? "SIM (" + checkToken.length + " chars)" : "NÃO");
-            } catch (storageError) {
-              console.error("[Login] localStorage error:", storageError);
-              // Fallback para SecureStore no nativo
-              await setSessionToken(loginResult.sessionToken);
-              console.log("[Login] Token salvo via setSessionToken (fallback)");
-            }
-          } else {
-            console.log("[Login] window.localStorage não disponível, usando setSessionToken");
-            await setSessionToken(loginResult.sessionToken);
-            console.log("[Login] Token salvo via setSessionToken");
-          }
+          await setSessionToken(loginResult.sessionToken);
+          console.log("[Login] Token salvo via setSessionToken");
+          // Verificar se foi salvo
+          const savedToken = await getSessionToken();
+          console.log("[Login] Token verificado:", savedToken ? "OK" : "FALHOU");
         } catch (e) {
           console.error("[Login] Failed to save token", e);
         }

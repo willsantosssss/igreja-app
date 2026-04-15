@@ -194,8 +194,11 @@ class SDKServer {
 
     try {
       console.log("[Auth] verifySession: Token provided, length:", cookieValue.length);
+      console.log("[Auth] verifySession: Token (first 50 chars):", cookieValue.substring(0, 50));
       const secretKey = this.getSessionSecret();
-      console.log("[Auth] verifySession: Secret key length:", new TextDecoder().decode(secretKey).length);
+      const secretStr = new TextDecoder().decode(secretKey);
+      console.log("[Auth] verifySession: Secret key length:", secretStr.length);
+      console.log("[Auth] verifySession: Secret key (first 20 chars):", secretStr.substring(0, 20));
       const { payload } = await jwtVerify(cookieValue, secretKey, {
         algorithms: ["HS256"],
       });
@@ -215,6 +218,10 @@ class SDKServer {
       };
     } catch (error) {
       console.error("[Auth] verifySession: Token verification failed", error instanceof Error ? error.message : String(error));
+      if (error instanceof Error) {
+        console.error("[Auth] verifySession: Error name:", error.name);
+        console.error("[Auth] verifySession: Error stack:", error.stack);
+      }
       return null;
     }
   }
@@ -255,7 +262,9 @@ class SDKServer {
     }
 
     const cookies = this.parseCookies(req.headers.cookie);
+    console.log('[Auth] Cookies found:', Array.from(cookies.keys()).join(', '));
     const sessionCookie = token || cookies.get(COOKIE_NAME);
+    console.log('[Auth] Using session cookie:', sessionCookie ? `${sessionCookie.substring(0, 30)}...` : 'none');
     
     const session = await this.verifySession(sessionCookie);
 
