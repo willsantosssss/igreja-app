@@ -187,12 +187,7 @@ export const appRouter = router({
   // Usuarios Cadastrados
   usuarios: router({
     list: publicProcedure.query(() => db.getAllUsuariosCadastrados()),
-    getByUserId: protectedProcedure.query(async ({ ctx }) => {
-      console.log('[getByUserId] Called for userId:', ctx.user.id);
-      const result = await db.getUsuarioCadastrado(ctx.user.id);
-      console.log('[getByUserId] Result:', result ? `Found: ${result.nome}` : 'Not found');
-      return result;
-    }),
+    getByUserId: protectedProcedure.query(({ ctx }) => db.getUsuarioCadastrado(ctx.user.id)),
     getAniversariantes: publicProcedure
       .input(z.number())
       .query(({ input }) => db.getAniversariantesMes(input)),
@@ -244,9 +239,7 @@ export const appRouter = router({
       }),
     deleteAccount: protectedProcedure
       .mutation(async ({ ctx }) => {
-        console.log('[deleteAccount] Mutation called for user:', ctx.user?.id, ctx.user?.email);
         if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
-        console.log('[deleteAccount] Starting deletion for user:', ctx.user.id);
         // Deletar a conta do usuario autenticado
         return db.deleteUserCompletely(ctx.user.id);
       }),
