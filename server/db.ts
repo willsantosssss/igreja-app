@@ -856,17 +856,33 @@ export async function deleteUserCompletely(userId: number) {
   if (!db) throw new Error("Database not available");
 
   try {
-    // Deletar em ordem de dependência (tabelas filhas primeiro)
+    console.log('[deleteUserCompletely] Starting deletion for userId:', userId);
+    
     await db.delete(pedidosOracao).where(eq(pedidosOracao.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from pedidosOracao');
+    
     await db.delete(contribuicao).where(eq(contribuicao.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from contribuicao');
+    
     await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from inscricoesEventos');
+    
     await db.delete(inscricoesEscolaCrescimento).where(eq(inscricoesEscolaCrescimento.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from inscricoesEscolaCrescimento');
+    
     await db.delete(lideres).where(eq(lideres.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from lideres');
+    
     await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
+    console.log('[deleteUserCompletely] Deleted from usuariosCadastrados');
+    
     await db.delete(users).where(eq(users.id, userId));
+    console.log('[deleteUserCompletely] Deleted from users');
+    
+    console.log('[deleteUserCompletely] User deleted successfully');
     return { success: true, message: "Usuário deletado com sucesso" };
   } catch (error: any) {
-    console.error("[Database] Error deleting user:", error);
+    console.error("[deleteUserCompletely] Error deleting user:", error);
     throw new Error(`Erro ao deletar usuário: ${error.message}`);
   }
 }

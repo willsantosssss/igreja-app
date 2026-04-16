@@ -122,6 +122,7 @@ function RootLayoutContent() {
         <Stack.Screen name="lider/lembrete" options={{ presentation: "modal" }} />
         <Stack.Screen name="lider/inscritos-eventos" options={{ presentation: "modal" }} />
         <Stack.Screen name="lider/anexos" options={{ presentation: "modal" }} />
+        <Stack.Screen name="perfil" options={{ presentation: "modal" }} />
       </Stack>
     );
   }

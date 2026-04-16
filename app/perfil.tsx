@@ -47,13 +47,18 @@ export default function PerfilScreen() {
 
   const deleteAccountMutation = trpc.usuarios.deleteAccount.useMutation({
     onSuccess: () => {
+      console.log('[deleteAccountMutation] Success!');
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       Alert.alert("Conta Deletada", "Sua conta foi deletada com sucesso.");
       router.replace("/login");
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('[deleteAccountMutation] Error:', error);
+      console.error('[deleteAccountMutation] Error message:', error?.message);
+      console.error('[deleteAccountMutation] Error code:', error?.code);
+      console.error('[deleteAccountMutation] Full error:', JSON.stringify(error, null, 2));
       Alert.alert("Erro", "Não foi possível deletar a conta. Tente novamente.");
       console.error("Erro ao deletar conta:", error);
     },
@@ -111,10 +116,20 @@ export default function PerfilScreen() {
         {
           text: "Deletar",
           onPress: () => {
-            if (Platform.OS !== "web") {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            try {
+              console.log('[Perfil] Delete account button pressed');
+              console.log('[Perfil] deleteAccountMutation:', deleteAccountMutation);
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+              }
+              console.log('[Perfil] Calling deleteAccountMutation.mutate()');
+              console.log('[Perfil] Mutation state before:', { isPending: deleteAccountMutation.isPending });
+              deleteAccountMutation.mutate();
+              console.log('[Perfil] deleteAccountMutation.mutate() called');
+              console.log('[Perfil] Mutation state after:', { isPending: deleteAccountMutation.isPending });
+            } catch (error) {
+              console.error('[Perfil] Error in onPress:', error);
             }
-            deleteAccountMutation.mutate();
           },
           style: "destructive",
         },

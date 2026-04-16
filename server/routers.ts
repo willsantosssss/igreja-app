@@ -244,7 +244,9 @@ export const appRouter = router({
       }),
     deleteAccount: protectedProcedure
       .mutation(async ({ ctx }) => {
+        console.log('[deleteAccount] Mutation called for user:', ctx.user?.id, ctx.user?.email);
         if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+        console.log('[deleteAccount] Starting deletion for user:', ctx.user.id);
         // Deletar a conta do usuario autenticado
         return db.deleteUserCompletely(ctx.user.id);
       }),
