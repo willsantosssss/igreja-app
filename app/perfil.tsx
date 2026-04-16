@@ -46,16 +46,20 @@ export default function PerfilScreen() {
   });
 
   const deleteAccountMutation = trpc.usuarios.deleteAccount.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('[Perfil] deleteAccount success:', data);
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       Alert.alert("Conta Deletada", "Sua conta foi deletada com sucesso.");
-      router.replace("/login");
+      setTimeout(() => {
+        router.replace("/login");
+      }, 500);
     },
-    onError: (error) => {
-      Alert.alert("Erro", "Não foi possível deletar a conta. Tente novamente.");
-      console.error("Erro ao deletar conta:", error);
+    onError: (error: any) => {
+      console.error('[Perfil] deleteAccount error:', error);
+      const errorMessage = error?.message || "Não foi possível deletar a conta. Tente novamente.";
+      Alert.alert("Erro", errorMessage);
     },
   });
 
@@ -99,21 +103,26 @@ export default function PerfilScreen() {
   };
 
   const handleDeleteAccount = () => {
+    console.log('[Perfil] handleDeleteAccount called');
     Alert.alert(
       "Deletar Conta",
       "Tem certeza que deseja deletar sua conta? Esta acao nao pode ser desfeita e todos os seus dados serao removidos permanentemente.",
       [
         {
           text: "Cancelar",
-          onPress: () => {},
+          onPress: () => {
+            console.log('[Perfil] Delete cancelled');
+          },
           style: "cancel",
         },
         {
           text: "Deletar",
           onPress: () => {
+            console.log('[Perfil] Delete confirmed, calling mutation');
             if (Platform.OS !== "web") {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
             }
+            console.log('[Perfil] About to call deleteAccountMutation.mutate()');
             deleteAccountMutation.mutate();
           },
           style: "destructive",
