@@ -1080,3 +1080,10 @@
 - Gerar nova build iOS com a correção
 - Testar botão "Deletar Conta" no app
 - Validar que outros endpoints protegidos também funcionam
+
+
+## Funcionalidade de Deletar Conta
+- [ ] Implementar botão "Deletar Conta" na tela de perfil
+- [ ] Criar endpoint tRPC deleteAccount que deleta usuário de todas as tabelas
+- [ ] Testar fluxo de deleção de conta no app
+- [ ] Garantir que todos os dados do usuário sejam removidos

@@ -49,20 +49,10 @@ export const appRouter = router({
           
           // Set session cookie
           const cookieOptions = getSessionCookieOptions(ctx.req);
-          console.log("[Signup] Setting cookie with options:", {
-            domain: cookieOptions.domain,
-            path: cookieOptions.path,
-            sameSite: cookieOptions.sameSite,
-            secure: cookieOptions.secure,
-            httpOnly: cookieOptions.httpOnly,
-            hostname: ctx.req.hostname,
-            protocol: ctx.req.protocol,
-          });
           ctx.res.cookie(COOKIE_NAME, sessionToken, {
             ...cookieOptions,
             maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
           });
-          console.log("[Signup] Cookie set successfully");
           
           return { success: true, userId: result.userId, email: result.email, name: result.name, openId, sessionToken };
         } catch (error: any) {
@@ -340,7 +330,6 @@ export const appRouter = router({
 
   // Eventos
   test: publicProcedure.query(() => {
-    console.log('[router test] Called');
     return { success: true, message: 'Test endpoint works' };
   }),
   eventos: router({
