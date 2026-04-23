@@ -858,7 +858,7 @@ export async function deleteUserCompletely(userId: number) {
   try {
     // Deletar em ordem de dependência (tabelas filhas primeiro)
     // Nota: pedidosOracao não tem coluna userId, então não deletamos por userId
-    await db.delete(contribuicao).where(eq(contribuicao.userId, userId));
+    await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
     await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
     await db.delete(inscricoesEscolaCrescimento).where(eq(inscricoesEscolaCrescimento.userId, userId));
     await db.delete(lideres).where(eq(lideres.userId, userId));
