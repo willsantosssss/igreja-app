@@ -17,6 +17,9 @@ interface PagamentoEvento {
   qrCodeUrl: string;
   chavePix: string;
   nomeRecebedor: string;
+  linkCredito1x?: string;
+  linkCredito2x?: string;
+  linkCredito3x?: string;
   ativo: number;
 }
 
@@ -39,6 +42,9 @@ export default function AdminPagamentosEventosScreen() {
   const [chavePix, setChavePix] = useState('');
   const [nomeRecebedor, setNomeRecebedor] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [linkCredito1x, setLinkCredito1x] = useState('');
+  const [linkCredito2x, setLinkCredito2x] = useState('');
+  const [linkCredito3x, setLinkCredito3x] = useState('');
   const [mostrarSeletorEventos, setMostrarSeletorEventos] = useState(false);
 
   // Buscar eventos especiais
@@ -134,6 +140,9 @@ export default function AdminPagamentosEventosScreen() {
           qrCodeUrl: qrCodeUrl.trim(),
           chavePix: chavePix.trim(),
           nomeRecebedor: nomeRecebedor.trim(),
+          linkCredito1x: linkCredito1x.trim() || undefined,
+          linkCredito2x: linkCredito2x.trim() || undefined,
+          linkCredito3x: linkCredito3x.trim() || undefined,
         });
 
         if (Platform.OS !== 'web') {
@@ -155,6 +164,9 @@ export default function AdminPagamentosEventosScreen() {
           qrCodeUrl: qrCodeUrl.trim(),
           chavePix: chavePix.trim(),
           nomeRecebedor: nomeRecebedor.trim(),
+          linkCredito1x: linkCredito1x.trim() || undefined,
+          linkCredito2x: linkCredito2x.trim() || undefined,
+          linkCredito3x: linkCredito3x.trim() || undefined,
           ativo: 1,
         });
 
@@ -171,6 +183,9 @@ export default function AdminPagamentosEventosScreen() {
       setChavePix('');
       setNomeRecebedor('');
       setQrCodeUrl('');
+      setLinkCredito1x('');
+      setLinkCredito2x('');
+      setLinkCredito3x('');
       setMostrarForm(false);
       setEditando(null);
     } catch (error: any) {
@@ -191,6 +206,9 @@ export default function AdminPagamentosEventosScreen() {
     setChavePix(pagamento.chavePix);
     setNomeRecebedor(pagamento.nomeRecebedor);
     setQrCodeUrl(pagamento.qrCodeUrl);
+    setLinkCredito1x(pagamento.linkCredito1x || '');
+    setLinkCredito2x(pagamento.linkCredito2x || '');
+    setLinkCredito3x(pagamento.linkCredito3x || '');
     setMostrarForm(true);
   };
 
@@ -390,6 +408,71 @@ export default function AdminPagamentosEventosScreen() {
                   {qrCodeUrl ? '✓ Imagem Selecionada' : 'Selecionar Imagem'}
                 </Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Seção de Links de Crédito */}
+            <View className="bg-primary/10 rounded-lg p-3 mb-4 border border-primary/20">
+              <Text className="text-primary font-semibold mb-3">Links de Pagamento com Crédito (Opcional)</Text>
+              
+              {/* Link Crédito 1x */}
+              <View className="mb-3">
+                <Text className="text-foreground font-semibold mb-2 text-sm">Link Crédito 1x</Text>
+                <TextInput
+                  value={linkCredito1x}
+                  onChangeText={setLinkCredito1x}
+                  placeholder="https://seu-link-de-pagamento-1x.com"
+                  placeholderTextColor={colors.muted}
+                  style={{
+                    backgroundColor: colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 8,
+                    padding: 10,
+                    fontSize: 12,
+                    color: colors.foreground,
+                  }}
+                />
+              </View>
+
+              {/* Link Crédito 2x */}
+              <View className="mb-3">
+                <Text className="text-foreground font-semibold mb-2 text-sm">Link Crédito 2x</Text>
+                <TextInput
+                  value={linkCredito2x}
+                  onChangeText={setLinkCredito2x}
+                  placeholder="https://seu-link-de-pagamento-2x.com"
+                  placeholderTextColor={colors.muted}
+                  style={{
+                    backgroundColor: colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 8,
+                    padding: 10,
+                    fontSize: 12,
+                    color: colors.foreground,
+                  }}
+                />
+              </View>
+
+              {/* Link Crédito 3x */}
+              <View>
+                <Text className="text-foreground font-semibold mb-2 text-sm">Link Crédito 3x</Text>
+                <TextInput
+                  value={linkCredito3x}
+                  onChangeText={setLinkCredito3x}
+                  placeholder="https://seu-link-de-pagamento-3x.com"
+                  placeholderTextColor={colors.muted}
+                  style={{
+                    backgroundColor: colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 8,
+                    padding: 10,
+                    fontSize: 12,
+                    color: colors.foreground,
+                  }}
+                />
+              </View>
             </View>
 
             {/* Botões */}

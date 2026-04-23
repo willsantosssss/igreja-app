@@ -655,6 +655,9 @@ export const appRouter = router({
         qrCodeUrl: z.string(),
         chavePix: z.string(),
         nomeRecebedor: z.string(),
+        linkCredito1x: z.string().optional(),
+        linkCredito2x: z.string().optional(),
+        linkCredito3x: z.string().optional(),
         ativo: z.number(),
       }))
       .mutation(({ input, ctx }) => {
@@ -667,6 +670,9 @@ export const appRouter = router({
         qrCodeUrl: z.string().optional(),
         chavePix: z.string().optional(),
         nomeRecebedor: z.string().optional(),
+        linkCredito1x: z.string().optional(),
+        linkCredito2x: z.string().optional(),
+        linkCredito3x: z.string().optional(),
         ativo: z.number().optional(),
       }))
       .mutation(({ input, ctx }) => {

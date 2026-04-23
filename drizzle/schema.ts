@@ -322,6 +322,7 @@ export const pagamentosEventos = mysqlTable("pagamentos_eventos", {
   inscricaoId: int("inscricaoId").notNull(),
   valor: varchar("valor", { length: 20 }).notNull(),
   metodo: varchar("metodo", { length: 50 }).notNull(), // pix, dinheiro, cartao
+  opcaoPagamento: varchar("opcaoPagamento", { length: 50 }), // 1x, 2x, 3x para crédito
   status: varchar("status", { length: 50 }).default("pendente").notNull(),
   comprovante: varchar("comprovante", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -339,6 +340,9 @@ export const configPagamentosEventos = mysqlTable("configPagamentosEventos", {
   qrCodeUrl: varchar("qrCodeUrl", { length: 500 }),
   chavePix: varchar("chavePix", { length: 255 }).notNull(),
   nomeRecebedor: varchar("nomeRecebedor", { length: 255 }).notNull(),
+  linkCredito1x: varchar("linkCredito1x", { length: 500 }),
+  linkCredito2x: varchar("linkCredito2x", { length: 500 }),
+  linkCredito3x: varchar("linkCredito3x", { length: 500 }),
   ativo: int("ativo").default(1).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
