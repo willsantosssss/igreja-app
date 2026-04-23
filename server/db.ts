@@ -856,14 +856,9 @@ export async function deleteUserCompletely(userId: number) {
   if (!db) throw new Error("Database not available");
 
   try {
-    // Deletar em ordem de dependência (tabelas filhas primeiro)
-    // Nota: pedidosOracao não tem coluna userId, então não deletamos por userId
-    await db.delete(contribuicoes).where(eq(contribuicoes.userId, userId));
-    await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
-    await db.delete(inscricoesEscolaCrescimento).where(eq(inscricoesEscolaCrescimento.userId, userId));
-    await db.delete(lideres).where(eq(lideres.userId, userId));
+    // Deletar apenas os dados do perfil do usuário
+    // Nota: Mantemos histórico de contribuições, inscrições e líderes para auditoria
     await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
-    await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.userId, userId));
     await db.delete(users).where(eq(users.id, userId));
     return { success: true, userId, message: "Usuário deletado com sucesso" };
   } catch (error: any) {
