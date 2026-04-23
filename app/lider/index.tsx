@@ -643,6 +643,37 @@ export default function LiderScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            onPress={() => router.push('/lider/escola-crescimento-view')}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View className="flex-row items-center gap-3 flex-1">
+              <View
+                style={{
+                  backgroundColor: colors.primary + '20',
+                  width: 44, height: 44, borderRadius: 8,
+                  alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <IconSymbol name="book" size={20} color={colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">Escola de Crescimento</Text>
+                <Text className="text-xs text-muted">Inscritos na célula</Text>
+              </View>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => router.push('/lider/relatorio')}
             style={{
               backgroundColor: colors.primary + '10',
