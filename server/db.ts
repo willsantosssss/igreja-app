@@ -857,12 +857,13 @@ export async function deleteUserCompletely(userId: number) {
 
   try {
     // Deletar em ordem de dependência (tabelas filhas primeiro)
-    await db.delete(pedidosOracao).where(eq(pedidosOracao.userId, userId));
+    // Nota: pedidosOracao não tem coluna userId, então não deletamos por userId
     await db.delete(contribuicao).where(eq(contribuicao.userId, userId));
     await db.delete(inscricoesEventos).where(eq(inscricoesEventos.userId, userId));
     await db.delete(inscricoesEscolaCrescimento).where(eq(inscricoesEscolaCrescimento.userId, userId));
     await db.delete(lideres).where(eq(lideres.userId, userId));
     await db.delete(usuariosCadastrados).where(eq(usuariosCadastrados.userId, userId));
+    await db.delete(anotacoesDevocional).where(eq(anotacoesDevocional.userId, userId));
     await db.delete(users).where(eq(users.id, userId));
     return { success: true, userId, message: "Usuário deletado com sucesso" };
   } catch (error: any) {
