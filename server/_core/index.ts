@@ -171,7 +171,7 @@ async function startServer() {
     try {
       const filename = req.params.filename;
       const uploadsDir = path.join(process.cwd(), 'uploads');
-      const filePath = path.join(uploadsDir, filename);
+      let filePath = path.join(uploadsDir, filename);
 
       console.log(`[File Download] Requested: ${filename}`);
       console.log(`[File Download] Full path: ${filePath}`);
@@ -185,9 +185,19 @@ async function startServer() {
 
       // Verificar se arquivo existe
       if (!fs.existsSync(filePath)) {
-        console.error(`[File Download] File not found: ${filePath}`);
-        console.log(`[File Download] Available files:`, fs.readdirSync(uploadsDir).slice(0, 5));
-        return res.status(404).json({ error: "File not found" });
+        // Se não encontrou com o nome exato, procurar por arquivo que comece com esse nome
+        // Útil quando a URL não tem o timestamp mas o arquivo foi salvo com timestamp
+        const files = fs.readdirSync(uploadsDir);
+        const matchingFile = files.find(f => f.startsWith(filename.replace(/\.[^.]*$/, '')) && f.endsWith(path.extname(filename)));
+        
+        if (matchingFile) {
+          filePath = path.join(uploadsDir, matchingFile);
+          console.log(`[File Download] Found matching file: ${matchingFile}`);
+        } else {
+          console.error(`[File Download] File not found: ${filePath}`);
+          console.log(`[File Download] Available files:`, fs.readdirSync(uploadsDir).slice(0, 5));
+          return res.status(404).json({ error: "File not found" });
+        }
       }
 
       // Servir arquivo com headers apropriados
