@@ -173,13 +173,20 @@ async function startServer() {
       const uploadsDir = path.join(process.cwd(), 'uploads');
       const filePath = path.join(uploadsDir, filename);
 
+      console.log(`[File Download] Requested: ${filename}`);
+      console.log(`[File Download] Full path: ${filePath}`);
+      console.log(`[File Download] Uploads dir: ${uploadsDir}`);
+
       // Validar que o arquivo está dentro da pasta uploads (evitar path traversal)
       if (!filePath.startsWith(uploadsDir)) {
+        console.error(`[File Download] Path traversal attempt: ${filePath}`);
         return res.status(403).json({ error: "Access denied" });
       }
 
       // Verificar se arquivo existe
       if (!fs.existsSync(filePath)) {
+        console.error(`[File Download] File not found: ${filePath}`);
+        console.log(`[File Download] Available files:`, fs.readdirSync(uploadsDir).slice(0, 5));
         return res.status(404).json({ error: "File not found" });
       }
 
@@ -200,10 +207,17 @@ async function startServer() {
       res.setHeader('Content-Type', mimeType);
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
+      console.log(`[File Download] Serving file: ${filename} with MIME type: ${mimeType}`);
       const fileStream = fs.createReadStream(filePath);
+      fileStream.on('error', (err) => {
+        console.error(`[File Download Stream Error] ${filename}: ${err.message}`);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Stream error: " + err.message });
+        }
+      });
       fileStream.pipe(res);
     } catch (error: any) {
-      console.error("[File Download Error]", error.message);
+      console.error("[File Download Error]", error.message, error.stack);
       res.status(500).json({ error: error.message || "Download failed" });
     }
   });

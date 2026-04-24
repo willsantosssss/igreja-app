@@ -1087,3 +1087,8 @@
 - [ ] Criar endpoint tRPC deleteAccount que deleta usuário de todas as tabelas
 - [ ] Testar fluxo de deleção de conta no app
 - [ ] Garantir que todos os dados do usuário sejam removidos
+
+
+## 🐛 Bugs Críticos em Produção
+
+- [ ] Erro 500 ao baixar anexos (PDFs) no painel do líder - "Não foi possível baixar o arquivo (Status: 500)"
