@@ -69,6 +69,7 @@ const config: ExpoConfig = {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    resizeableActivity: true,
     package: env.androidPackage,
     permissions: [
       "POST_NOTIFICATIONS",
@@ -96,8 +97,15 @@ const config: ExpoConfig = {
     output: "static",
     favicon: "./assets/images/favicon.png",
   },
-  plugins: [
+    plugins: [
     "expo-router",
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/images/icon.png",
+        sounds: [],
+      },
+    ],
     [
       "expo-splash-screen",
       {
@@ -121,11 +129,12 @@ const config: ExpoConfig = {
           kotlinVersion: "2.2.20",
           gradleVersion: "8.10.2",
           ndkVersion: "27.0.12077973",
-          extraProguardRules: "-dontwarn com.facebook.**\n-dontwarn com.google.errorprone.**\n-dontwarn org.bouncycastle.**",
+          extraProguardRules: "-dontwarn com.facebook.**\n-dontwarn com.google.errorprone.**\n-dontwarn org.bouncycastle.**\n-dontwarn com.google.android.gms.**",
           newArchEnabled: true,
+          usesCleartextTraffic: false,
         },
       },
-    ],
+    ]
   ],
   experiments: {
     typedRoutes: true,
