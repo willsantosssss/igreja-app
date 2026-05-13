@@ -1,0 +1,2 @@
+json_key_file("fastlane/google-play-credentials.json")
+package_name("ieqrondonopolis.com")

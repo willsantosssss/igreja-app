@@ -1,0 +1,72 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build and upload APK to Google Play Console"
+  lane :build_and_upload do
+    # Build the APK using EAS Build
+    build_android_app(
+      project_dir: "android/",
+      task: "assembleRelease",
+      properties: {
+        "android.injected.signing.store.file" => ENV["KEYSTORE_PATH"],
+        "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["KEY_PASSWORD"]
+      }
+    )
+
+    # Upload to Google Play Console
+    upload_to_play_store(
+      package_name: "ieqrondonopolis.com",
+      json_key: "fastlane/google-play-credentials.json",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("✅ APK uploaded successfully to Google Play Console!")
+  end
+
+  desc "Upload to internal testing track"
+  lane :upload_internal do
+    upload_to_play_store(
+      package_name: "ieqrondonopolis.com",
+      json_key: "fastlane/google-play-credentials.json",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("✅ Uploaded to internal testing track!")
+  end
+
+  desc "Upload to closed testing track"
+  lane :upload_beta do
+    upload_to_play_store(
+      package_name: "ieqrondonopolis.com",
+      json_key: "fastlane/google-play-credentials.json",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      track: "beta",
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("✅ Uploaded to closed testing (beta) track!")
+  end
+
+  desc "Upload to production"
+  lane :upload_production do
+    upload_to_play_store(
+      package_name: "ieqrondonopolis.com",
+      json_key: "fastlane/google-play-credentials.json",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      track: "production",
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("✅ Uploaded to production!")
+  end
+end
