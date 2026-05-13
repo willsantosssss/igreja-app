@@ -8,7 +8,7 @@ describe("Contatos da Igreja - Segurança", () => {
     const contatos = await db.getContatosIgreja();
     
     console.log(`✅ Contatos retornados:`, contatos);
-    expect(contatos).toBeDefined();
+    expect(Array.isArray(contatos)).toBe(true);
   });
 
   it("deve ter campos opcionais tratados", async () => {
@@ -16,17 +16,18 @@ describe("Contatos da Igreja - Segurança", () => {
     
     const contatos = await db.getContatosIgreja();
     
-    // Verificar se campos podem ser undefined/null
-    if (contatos) {
-      console.log(`✅ WhatsApp: ${contatos.whatsapp || "não definido"}`);
-      console.log(`✅ Email: ${contatos.email || "não definido"}`);
+    // Verificar se array tem elementos
+    if (contatos && contatos.length > 0) {
+      const primeiroContato = contatos[0];
+      console.log(`✅ WhatsApp: ${primeiroContato.whatsapp || "não definido"}`);
+      console.log(`✅ Email: ${primeiroContato.email || "não definido"}`);
       
       // Campos podem ser undefined, mas se existem, devem ser strings
-      if (contatos.whatsapp) {
-        expect(typeof contatos.whatsapp).toBe("string");
+      if (primeiroContato.whatsapp) {
+        expect(typeof primeiroContato.whatsapp).toBe("string");
       }
-      if (contatos.email) {
-        expect(typeof contatos.email).toBe("string");
+      if (primeiroContato.email) {
+        expect(typeof primeiroContato.email).toBe("string");
       }
     }
   });
@@ -39,15 +40,19 @@ describe("Contatos da Igreja - Segurança", () => {
     // Simular o que o código faz
     const buttons = [];
     
-    if (contatos?.whatsapp) {
-      const whatsappLimpo = contatos.whatsapp.replace(/\D/g, "");
-      buttons.push("WhatsApp");
-      console.log(`✅ WhatsApp limpo: ${whatsappLimpo}`);
-    }
-    
-    if (contatos?.email) {
-      buttons.push("Email");
-      console.log(`✅ Email: ${contatos.email}`);
+    if (contatos && contatos.length > 0) {
+      const primeiroContato = contatos[0];
+      
+      if (primeiroContato?.whatsapp) {
+        const whatsappLimpo = primeiroContato.whatsapp.replace(/\D/g, "");
+        buttons.push("WhatsApp");
+        console.log(`✅ WhatsApp limpo: ${whatsappLimpo}`);
+      }
+      
+      if (primeiroContato?.email) {
+        buttons.push("Email");
+        console.log(`✅ Email: ${primeiroContato.email}`);
+      }
     }
     
     console.log(`✅ Botões disponíveis: ${buttons.length}`);
