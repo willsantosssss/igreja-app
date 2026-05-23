@@ -35,7 +35,7 @@ const env = {
   logoUrl: "",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
-  androidPackage: bundleId,
+  androidPackage: "iegrondonopolis.com",
 };
 
 const config: ExpoConfig = {

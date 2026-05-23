@@ -41,6 +41,7 @@
       "android": {
         "buildType": "app-bundle",
         "gradleCommand": ":app:bundleRelease",
+        "credentialsSource": "local",
         "env": {
           "GRADLE_OPTS": "-Dorg.gradle.jvmargs=-Xmx4096m -Dorg.gradle.workers.max=4",
           "ORG_GRADLE_PROJECT_android_useAndroidX": "true",
