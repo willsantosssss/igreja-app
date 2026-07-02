@@ -1,0 +1,50 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://jbEC6vu1kEZPhSm.root:emM9r8Q1CVCH5N5vUoZ8@gateway04.us-east-1.prod.aws.tidbcloud.com:4000/cLUkBFbsZfcYG9rNRXMeP2?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663363952090/cLUkBFbsZfcYG9rNRXMeP2",
+    "access_key_id": "ASIAZV3A2ECZCUI6I7AH",
+    "secret_access_key": "ixrSwXAjzw4T0X2xamVyNfMOntRqgg945TncMGtx",
+    "session_token": "IQoJb3JpZ2luX2VjEC4aCXVzLWVhc3QtMSJGMEQCIAfcZWRVqHQN6TCEEZ50xcox80iv/zV2VaZV5lM7om8pAiAkExxGdsZtqPZ3ezn6+kZJDmDEy/9n464rdnezk43gxCr/Awj3//////////8BEAQaDDY2NTM4NjA5ODg2NiIMPExnJ3AFCrjP/Y/hKtMD8Xo6B2+7Hy5CrtdUbc6aICCH/s8KTezHJTRIpmI7OdNNyLSSGD8L6ea5TgthlU++dzkNAYWXZAceL5UCfkljt8KQtYFBqe95MCOrzqnTysXCZ2CSjq21ZvIPYPqdIi3930BKFbiwb+2wBEoUwXnH4Devp81xLnj2bDgSSXRpmBFzxgFGEoQ2E67jwjwOSbzCJaMWAvbN7IaB8XybG+domOwAF6JkQzS82siWcbX8sEZjRBv3tr5+WxII4ec+6f8mYrJwa/j5SrrB2NnD9Ywc/jdpcyM6Vk6IIrwXdnnhT+RFWXCi7OfY+jEu3AqMJ5ZLwgTQOJVrXqPImH5JJ42o5KwNi9Lg719tbEvzF99aG2Oclv5UuUfV/1PnYAGXmzP+jhSw35+OXGMWVIB9oVWcGpUIbJ9+FVioD39tSx6qdtVDtmcugAIdxvASZ2dBZCLDRbLBK/E7H5nZH+MkJFMzzMby3n4KsCXjLDrlvSVWby7rtKoHWJyEpx58oe5Re/g8QRTvbh6fdIrXrru5Tgaqkux/QuGDv35BP1tdLXJfs4EbKdgjEVA41f62P9ouimDG9Xm3Rfsd9XFeWV6y6jwxGgyLxj8CmyLtIugB7PokBDr54eQw2M6Z0gY6ngH3JMo7vOh4fjl55nh/WG+x5jC1kxyw4bS2GBa/T/NKzCvI8ww6/23a/CCCE7NbCqUVYqMgjfA9tZZLlvFkkvm2l3Z4eHIYAqOY0Z4s5XcBE1t+vNwZVwBGdo4eBlSRJM+TOkqw8v1K8ZEkbNCa/GSS1BGp+2lCh9Us3afv6e+xuX6l5QLBH6XpcvAvVcL3ggCF7Tb8X3sIxeYtgexO7A==",
+    "expiration": "2026-07-03T01:27:52.000Z",
+    "backend": "GIT_BACKEND_S3"
+  },
+  "name": "igreja-app",
+  "path": "/home/ubuntu/igreja-app",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "o6UApLsJmo3FweW5rWFXTH",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "CUSTOM_JWT_SECRET": "Essaeumasenhaterrivelmentegrande7",
+    "DATABASE_URL": "mysql://root:dzADEIqMtSkFfNoDFDTIFKTVXkRIwZIH@ballast.proxy.rlwy.net:44986/railway",
+    "EXPO_APP_QR_URL": "exps://8081-iacjrcso9ktni8zxjnzf0-d3cbff3a.us2.manus.computer",
+    "EXPO_PACKAGER_PROXY_URL": "https://8081-iacjrcso9ktni8zxjnzf0-d3cbff3a.us2.manus.computer",
+    "EXPO_PUBLIC_API_BASE_URL": "https://3000-iacjrcso9ktni8zxjnzf0-d3cbff3a.us2.manus.computer",
+    "EXPO_TOKEN": "OViUW6d4auWk-1kehOJBeeTPeUfZGfC1hfpyJJqt",
+    "JWT_SECRET": "kyKdcg8BbHPyYP2LqpV5mD",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Will Santos",
+    "OWNER_OPEN_ID": "KLksXyoV3f6Rd24GNwVZZH",
+    "RAILWAY_API_TOKEN": "99a67d95-04bb-441b-a6c3-1ae8ff2e1669",
+    "REACT_NATIVE_PACKAGER_HOSTNAME": "8081-iacjrcso9ktni8zxjnzf0-d3cbff3a.us2.manus.computer",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "23443cd3-3339-4a7e-acff-5f3caeb4ccce",
+    "VITE_APP_ID": "cLUkBFbsZfcYG9rNRXMeP2",
+    "VITE_APP_LOGO": "./assets/images/logo-2ieq.png",
+    "VITE_APP_TITLE": "2ª Igreja Quadrangular de Rondonópolis",
+    "VITE_FRONTEND_FORGE_API_KEY": "g5uzzfLKWEnP2gtREd8Q5r",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "app",
+  "test_command": "pnpm test"
+}
