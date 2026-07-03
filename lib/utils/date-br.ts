@@ -138,10 +138,18 @@ export function formatarDiaMesBR(date: Date | string): string {
  */
 export function formatarDataCurtaBR(date: Date | string): string {
   try {
+    // Se já for string em formato DD/MM/YYYY, extrai dia e mês diretamente
+    if (typeof date === 'string' && date.includes('/') && date.length === 10) {
+      const [dia, mes, ano] = date.split('/');
+      const mesNum = parseInt(mes) - 1;
+      const diaSemana = DIAS_SEMANA[new Date(parseInt(ano), mesNum, parseInt(dia)).getDay()];
+      return `${diaSemana}, ${dia} ${MESES[mesNum]}`;
+    }
+    
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
     return `${diaSemana}, ${dia} ${mes}`;
   } catch {
     return '';
