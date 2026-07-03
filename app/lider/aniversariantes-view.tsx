@@ -5,6 +5,7 @@ import { BackButton } from '@/components/back-button';
 import { trpc } from '@/lib/trpc';
 import { obterSessaoLider } from '@/lib/data/lideres';
 import { useState, useEffect } from 'react';
+import { parseDataBR, obterMesAtual } from '@/lib/utils/date-br';
 
 export default function AniversariantesViewScreen() {
   const colors = useColors();
@@ -24,13 +25,12 @@ export default function AniversariantesViewScreen() {
 
   useEffect(() => {
     if (lider && membrosDB.length > 0) {
-      const mesAtual = new Date().getMonth() + 1;
+      const mesAtual = obterMesAtual();
       const membrosDaCelula = membrosDB.filter((m: any) => m.celula === lider.celula);
       const aniversariantesDoCelula = membrosDaCelula.filter((m: any) => {
         if (!m.dataNascimento) return false;
-        // Parsear data no formato YYYY-MM-DD para evitar problema de timezone
-        const [ano, mes, dia] = m.dataNascimento.split('-').map(Number);
-        return mes === mesAtual;
+        const dataParsed = parseDataBR(m.dataNascimento);
+        return dataParsed.month === mesAtual;
       });
       setAniversariantes(aniversariantesDoCelula);
     }
@@ -48,7 +48,8 @@ export default function AniversariantesViewScreen() {
     '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ];
-  const mesAtual = meses[new Date().getMonth() + 1];
+  const mesAtualNum = obterMesAtual();
+  const mesAtual = meses[mesAtualNum];
 
   if (carregando) {
     return (
@@ -61,13 +62,13 @@ export default function AniversariantesViewScreen() {
   }
 
   const renderAniversariante = ({ item }: { item: any }) => {
-    // Parsear data no formato YYYY-MM-DD para evitar problema de timezone
-    const [ano, mesNum, dia] = item.dataNascimento.split('-').map(Number);
+    const dataParsed = parseDataBR(item.dataNascimento);
     const meses = [
       '', 'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
       'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
     ];
-    const mes = meses[mesNum];
+    const mes = meses[dataParsed.month];
+    const dia = dataParsed.day;
 
     return (
       <View

@@ -100,11 +100,11 @@ export default function LiderScreen() {
     }
 
     const membrosDaCelula = membrosDB.filter((m: any) => m.celula === lider.celula);
-    const mesAtual = new Date().getMonth() + 1;
+    const mesAtual = obterMesAtual();
     const aniversariantes = membrosDaCelula.filter((m: any) => {
       if (!m.dataNascimento) return false;
-      const dataNasc = new Date(m.dataNascimento);
-      return dataNasc.getMonth() + 1 === mesAtual;
+      const dataParsed = parseDataBR(m.dataNascimento);
+      return dataParsed.month === mesAtual;
     });
 
     const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === lider.celula);
@@ -1041,17 +1041,7 @@ function RecadosSection({ lider }: { lider: LiderCelula }) {
   const recadoMaisRecente = recados[0];
 
   const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateString;
-    }
+    return formatarDataBR(dateString);
   };
 
   return (
