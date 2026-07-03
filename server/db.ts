@@ -6,13 +6,13 @@ import {
   InsertUser, users, celulas, inscricoesBatismo, usuariosCadastrados, pedidosOracao, anotacoesDevocional,
   eventos, noticias, avisoImportante, contatosIgreja, lideres, relatorios, dadosContribuicao,
   contribuicoes, inscricoesEventos, inscricoesEscolaCrescimento, anexos, pagamentosEventos, configEscolaCrescimento,
-  configPagamentosEventos,
+  configPagamentosEventos, recados,
   InsertCelula, InsertInscricaoBatismo, InsertUsuarioCadastrado, InsertPedidoOracao, InsertAnotacaoDevocional,
   InsertEvento, InsertNoticia, InsertAvisoImportante, InsertContatoIgreja, InsertLider, InsertRelatorio, InsertDadosContribuicao, InsertInscricaoEvento, InsertInscricaoEscolaCrescimento, InsertAnexo, InsertPagamentoEvento, InsertConfigEscolaCrescimento,
   InsertConfigPagamentoEvento
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, update } from "drizzle-orm";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let _poolConnection: ReturnType<typeof mysql.createPool> | null = null;
@@ -1230,12 +1230,7 @@ export async function getRecados() {
   const db = await getDb();
   if (!db) return [];
   try {
-    const result = await db.query.raw<any>(`
-      SELECT id, titulo, conteudo, criado_em, atualizado_em, ativo 
-      FROM recados 
-      WHERE ativo = 1 
-      ORDER BY criado_em DESC
-    `);
+    const result = await db.select().from(recados).where(eq(recados.ativo, 1)).orderBy(desc(recados.criado_em));
     return result || [];
   } catch (error: any) {
     console.error("[Database] Error fetching recados:", error);
@@ -1247,11 +1242,7 @@ export async function getRecadoById(id: number) {
   const db = await getDb();
   if (!db) return null;
   try {
-    const result = await db.query.raw<any>(`
-      SELECT id, titulo, conteudo, criado_em, atualizado_em, ativo 
-      FROM recados 
-      WHERE id = ? AND ativo = 1
-    `, [id]);
+    const result = await db.select().from(recados).where(and(eq(recados.id, id), eq(recados.ativo, 1)));
     return result?.[0] || null;
   } catch (error: any) {
     console.error("[Database] Error fetching recado:", error);
@@ -1263,10 +1254,7 @@ export async function createRecado(titulo: string, conteudo: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   try {
-    const result = await db.query.raw<any>(`
-      INSERT INTO recados (titulo, conteudo, ativo) 
-      VALUES (?, ?, 1)
-    `, [titulo, conteudo]);
+    const result = await db.insert(recados).values({ titulo, conteudo, ativo: 1 });
     return result;
   } catch (error: any) {
     console.error("[Database] Error creating recado:", error);
@@ -1278,11 +1266,7 @@ export async function updateRecado(id: number, titulo: string, conteudo: string)
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   try {
-    await db.query.raw(`
-      UPDATE recados 
-      SET titulo = ?, conteudo = ?, atualizado_em = CURRENT_TIMESTAMP 
-      WHERE id = ?
-    `, [titulo, conteudo, id]);
+    await db.update(recados).set({ titulo, conteudo, atualizado_em: new Date() }).where(eq(recados.id, id));
   } catch (error: any) {
     console.error("[Database] Error updating recado:", error);
     throw new Error(`Erro ao atualizar recado: ${error.message}`);
@@ -1293,11 +1277,7 @@ export async function deleteRecado(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   try {
-    await db.query.raw(`
-      UPDATE recados 
-      SET ativo = 0 
-      WHERE id = ?
-    `, [id]);
+    await db.update(recados).set({ ativo: 0 }).where(eq(recados.id, id));
   } catch (error: any) {
     console.error("[Database] Error deleting recado:", error);
     throw new Error(`Erro ao deletar recado: ${error.message}`);
