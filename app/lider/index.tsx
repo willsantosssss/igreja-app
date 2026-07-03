@@ -20,7 +20,7 @@ import {
   formatarHorario,
 } from '@/lib/services/lembrete-lider';
 import { useRecados } from '@/hooks/use-recados';
-import { formatarDataBR, formatarDiaSemanaBR } from '@/lib/utils/date-br';
+import { formatarDataBR, formatarDiaSemanaBR, parseDataBR, obterMesAtual } from '@/lib/utils/date-br';
 
 
 export default function LiderScreen() {
