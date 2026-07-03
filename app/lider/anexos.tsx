@@ -32,14 +32,32 @@ export default function AnexosLiderScreen() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
 
-  const { data: anexosData, isLoading } = trpc.anexos.list.useQuery();
+  const { data: anexosData, isLoading, error } = trpc.anexos.list.useQuery(undefined, {
+    retry: 1,
+    retryDelay: 1000,
+  });
 
   useEffect(() => {
-    if (anexosData) {
-      setAnexos(anexosData as Anexo[]);
+    try {
+      if (anexosData && Array.isArray(anexosData)) {
+        setAnexos(anexosData as Anexo[]);
+      } else if (anexosData) {
+        setAnexos([]);
+      }
+      setLoading(false);
+    } catch (e) {
+      console.error('[Anexos] Erro ao processar dados:', e);
+      setAnexos([]);
       setLoading(false);
     }
   }, [anexosData]);
+
+  useEffect(() => {
+    if (error) {
+      console.error('[Anexos] Erro na query:', error);
+      setLoading(false);
+    }
+  }, [error]);
 
   const handleDownloadPDF = async (anexo: Anexo) => {
     try {

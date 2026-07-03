@@ -34,6 +34,7 @@ const MESES = [
 /**
  * Converte uma string de data para objeto Date com timezone correto
  * Aceita formatos: YYYY-MM-DD, DD/MM/YYYY, ISO 8601
+ * Usa UTC para evitar problemas de timezone
  */
 export function parseDataBR(dateStr: string): Date {
   if (!dateStr) return new Date();
@@ -46,13 +47,13 @@ export function parseDataBR(dateStr: string): Date {
   // Se for YYYY-MM-DD
   if (dateStr.includes('-') && dateStr.length === 10) {
     const [ano, mes, dia] = dateStr.split('-');
-    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    return new Date(Date.UTC(parseInt(ano), parseInt(mes) - 1, parseInt(dia)));
   }
 
   // Se for DD/MM/YYYY
   if (dateStr.includes('/')) {
     const [dia, mes, ano] = dateStr.split('/');
-    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    return new Date(Date.UTC(parseInt(ano), parseInt(mes) - 1, parseInt(dia)));
   }
 
   return new Date(dateStr);
