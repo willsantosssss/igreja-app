@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { BackButton } from "@/components/back-button";
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { parseDataBR } from "@/lib/utils/date-br";
 
 // Helper para parsear datas em ambos formatos (YYYY-MM-DD ou DD/MM/YYYY)
 const parseDateString = (dateStr: string) => {
@@ -56,10 +57,13 @@ export default function AniversariantesScreen() {
   };
 
   const getDayOfWeek = (birthDate: string) => {
-    const { day, month, year } = parseDateString(birthDate);
-    const date = new Date(year, month - 1, day);
-    const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    return days[date.getDay()];
+    try {
+      const date = parseDataBR(birthDate);
+      const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+      return days[date.getDay()];
+    } catch (e) {
+      return "Dia desconhecido";
+    }
   };
 
   const formatDate = (birthDate: string) => {
