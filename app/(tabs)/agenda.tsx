@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, RefreshControl, Alert, TextInput, Modal, Platform } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, RefreshControl } from "react-native";put, Modal, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { categoryLabels, categoryColors, type EventCategory, type Event } from "@/lib/data/events";
 import { router } from "expo-router";
 import { trpc } from "@/lib/trpc";
-
+import { formatarDataCurtaBR, formatarDataBR } from "@/lib/utils/date-br";
 import { useCelulas } from "@/lib/data/celulas";
 import * as Haptics from "expo-haptics";
 
@@ -31,7 +31,7 @@ function EscolaCrescimentoSection() {
       <View className="gap-2">
         <Text className="text-2xl font-bold text-foreground">Escola de Crescimento</Text>
         <Text className="text-base text-muted">
-          {config?.dataInicio ? `Próxima turma: ${config.dataInicio}` : "Inscreva-se nos cursos de desenvolvimento espiritual"}
+          {config?.dataInicio ? `Próxima turma: ${formatarDataBR(config.dataInicio)}` : "Inscreva-se nos cursos de desenvolvimento espiritual"}
         </Text>
       </View>
       <TouchableOpacity
@@ -90,12 +90,7 @@ export default function AgendaScreen() {
   );
 
   const formatDate = (dateStr: string) => {
-    // Parse date string as local time (YYYY-MM-DD format)
-    // Add T00:00:00 to ensure it's interpreted as midnight in local timezone, not UTC
-    const date = new Date(dateStr + "T00:00:00");
-    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
+    return formatarDataCurtaBR(dateStr);
   };
 
   return (

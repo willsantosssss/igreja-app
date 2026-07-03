@@ -17,6 +17,7 @@ import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
+import { formatarDataBR } from "@/lib/utils/date-br";
 
 interface Anexo {
   id: number;
@@ -246,7 +247,7 @@ export default function AdminAnexosScreen() {
         </Text>
         {item.createdAt && (
           <Text className="text-xs text-muted">
-            Criado em: {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+            Criado em: {formatarDataBR(item.createdAt || new Date().toISOString())}
           </Text>
         )}
       </View>

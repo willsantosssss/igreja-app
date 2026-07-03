@@ -13,6 +13,8 @@ import {
   type Event, type EventCategory,
 } from '@/lib/data/events';
 import { trpc } from '@/lib/trpc';
+import { formatarDataCompletaBR, formatarDataBR } from '@/lib/utils/date-br';
+
 
 type FormData = {
   title: string;

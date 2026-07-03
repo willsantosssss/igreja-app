@@ -696,5 +696,27 @@ export const appRouter = router({
         return db.updateInscricaoEventoStatus(input.inscricaoId, input.statusPagamento, input.observacoes);
       }),
   }),
+
+  // Recados Importantes
+  recados: router({
+    list: publicProcedure.query(() => db.getRecados()),
+    getById: publicProcedure.input(z.number()).query(({ input }) => db.getRecadoById(input)),
+    create: protectedProcedure
+      .input(z.object({
+        titulo: z.string().min(1, "Título é obrigatório"),
+        conteudo: z.string().min(1, "Conteúdo é obrigatório"),
+      }))
+      .mutation(({ input }) => db.createRecado(input.titulo, input.conteudo)),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        titulo: z.string().min(1, "Título é obrigatório"),
+        conteudo: z.string().min(1, "Conteúdo é obrigatório"),
+      }))
+      .mutation(({ input }) => db.updateRecado(input.id, input.titulo, input.conteudo)),
+    delete: protectedProcedure
+      .input(z.number())
+      .mutation(({ input }) => db.deleteRecado(input)),
+  }),
 });
 export type AppRouter = typeof appRouter;

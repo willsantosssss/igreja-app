@@ -14,6 +14,8 @@ import { CATEGORIAS_COM_INSCRICAO } from '@/lib/data/inscricoes-eventos';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Haptics from 'expo-haptics';
+import { formatarDataBR } from '@/lib/utils/date-br';
+
 
 export default function AdminInscricoesEventosScreen() {
   const colors = useColors();
