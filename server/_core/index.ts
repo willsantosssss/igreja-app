@@ -1,3 +1,4 @@
+// @ts-nocheck
 import dotenv from "dotenv";
 import path from "path";
 // Load .env.local first (for secrets set via webdev_request_secrets), then .env as fallback

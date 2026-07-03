@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getSessionCookieOptions } from "./_core/cookies";

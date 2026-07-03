@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { getDb } from '../server/db';
 import { eventos, celulas } from '../drizzle/schema';

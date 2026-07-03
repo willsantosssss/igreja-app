@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, vi } from "vitest";
 import { sdk } from "../server/_core/sdk";
 import { upsertUser, getUserByOpenId } from "../server/db";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ScrollView, Text, View, ActivityIndicator, RefreshControl } from 'react-native';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';

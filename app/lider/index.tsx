@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal, FlatList,

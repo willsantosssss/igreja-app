@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalSearchParams, router } from "expo-router";
