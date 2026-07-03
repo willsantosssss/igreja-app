@@ -17,7 +17,7 @@ import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { formatarDataBR } from "@/lib/utils/date-br";
 
 interface Anexo {

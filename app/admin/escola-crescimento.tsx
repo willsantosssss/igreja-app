@@ -7,7 +7,7 @@ import { DateConfigModal } from '@/components/date-config-modal';
 import { useColors } from '@/hooks/use-colors';
 import { trpc } from '@/lib/trpc';
 import { useState, useCallback, useMemo } from 'react';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Haptics from 'expo-haptics';
 import { formatarDataBR } from '@/lib/utils/date-br';
