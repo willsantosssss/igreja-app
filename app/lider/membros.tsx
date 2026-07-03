@@ -7,6 +7,8 @@ import { useColors } from '@/hooks/use-colors';
 import { BackButton } from '@/components/back-button';
 import { trpc } from '@/lib/trpc';
 import { obterSessaoLider, getAniversariantesDaCelula, type MembroCelula } from '@/lib/data/lideres';
+import { formatarDataBR, parseDataBR, obterMesAtual } from '@/lib/utils/date-br';
+
 
 export default function MembrosScreen() {
   const colors = useColors();
@@ -65,11 +67,7 @@ export default function MembrosScreen() {
 
   const formatarData = (data: string) => {
     if (!data) return 'Não informado';
-    const parts = data.split(/[\/\-]/);
-    if (parts.length >= 3) {
-      return `${parts[0]}/${parts[1]}/${parts[2]}`;
-    }
-    return data;
+    return formatarDataBR(data);
   };
 
   const meses = [
