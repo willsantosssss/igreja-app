@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Alert, RefreshControl } from "react-native";put, Modal, Platform } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert, RefreshControl, Modal, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
