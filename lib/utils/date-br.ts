@@ -63,13 +63,21 @@ export function parseDataBR(dateStr: string): Date {
 
 /**
  * Formata uma data para DD/MM/YYYY
+ * Se for string, retorna como está (já em DD/MM/YYYY)
+ * Se for Date, converte para DD/MM/YYYY
  */
 export function formatarDataBR(date: Date | string): string {
   try {
+    // Se já for string em formato DD/MM/YYYY, retorna como está
+    if (typeof date === 'string' && date.includes('/') && date.length === 10) {
+      return date;
+    }
+    
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const dia = String(d.getDate()).padStart(2, '0');
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    const ano = d.getFullYear();
+    // Usar getUTCDate, getUTCMonth, getUTCFullYear para evitar offset de timezone
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const ano = d.getUTCFullYear();
     return `${dia}/${mes}/${ano}`;
   } catch {
     return '';
@@ -83,10 +91,10 @@ export function formatarDataBR(date: Date | string): string {
 export function formatarDataCompletaBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
-    const ano = d.getFullYear();
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
+    const ano = d.getUTCFullYear();
     return `${diaSemana}, ${dia} de ${mes} de ${ano}`;
   } catch {
     return '';
