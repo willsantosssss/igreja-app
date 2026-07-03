@@ -12,14 +12,7 @@ export interface Recado {
 }
 
 export function useRecados() {
-  return useQuery({
-    queryKey: ["recados"],
-    queryFn: async () => {
-      const recados = await trpc.recados.list.query();
-      return (recados || []) as Recado[];
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
+  return trpc.recados.list.useQuery();
 }
 
 export function useRecadoById(id: number | null) {

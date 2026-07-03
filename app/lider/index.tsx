@@ -105,7 +105,7 @@ export default function LiderScreen() {
     const aniversariantes = membrosDaCelula.filter((m: any) => {
       if (!m.dataNascimento) return false;
       const dataParsed = parseDataBR(m.dataNascimento);
-      return dataParsed.month === mesAtual;
+      return (dataParsed.getMonth() + 1) === mesAtual;
     });
 
     const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === lider.celula);
