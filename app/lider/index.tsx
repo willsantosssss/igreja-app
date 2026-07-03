@@ -89,7 +89,57 @@ export default function LiderScreen() {
 
   // Usar useMemo para evitar recalcular stats desnecessariamente
   const statsCalculadas = useMemo(() => {
-    if (!lider || membrosDB.length === 0) {
+    try {
+      if (!lider || !membrosDB || membrosDB.length === 0) {
+        return {
+          totalMembros: 0,
+          aniversariantesMes: 0,
+          inscritosEventos: 0,
+          totalRelatorios: 0,
+          mediaPresenca: 0,
+          mediaVisitantes: 0,
+        };
+      }
+
+      const membrosDaCelula = membrosDB.filter((m: any) => m && m.celula === lider.celula);
+      const mesAtual = obterMesAtual();
+      const aniversariantes = membrosDaCelula.filter((m: any) => {
+        try {
+          if (!m || !m.dataNascimento) return false;
+          const dataParsed = parseDataBR(m.dataNascimento);
+          return (dataParsed.getMonth() + 1) === mesAtual;
+        } catch (e) {
+          return false;
+        }
+      });
+
+      const inscricoesEventosDaCelula = (inscricoesEventosDB || []).filter((i: any) => i && i.celula === lider.celula);
+
+      let mediaPresenca = 0;
+      let mediaVisitantes = 0;
+      if (relatoriosDB && relatoriosDB.length > 0) {
+        try {
+          mediaPresenca = Math.round(
+            relatoriosDB.reduce((acc: number, r: any) => acc + (r?.presentes || 0), 0) / relatoriosDB.length
+          );
+          mediaVisitantes = Math.round(
+            relatoriosDB.reduce((acc: number, r: any) => acc + (r?.novosVisitantes || 0), 0) / relatoriosDB.length
+          );
+        } catch (e) {
+          console.error('[Stats] Erro ao calcular média:', e);
+        }
+      }
+
+      return {
+        totalMembros: membrosDaCelula.length,
+        aniversariantesMes: aniversariantes.length,
+        inscritosEventos: inscricoesEventosDaCelula.length,
+        totalRelatorios: relatoriosDB ? relatoriosDB.length : 0,
+        mediaPresenca,
+        mediaVisitantes,
+      };
+    } catch (error) {
+      console.error('[Stats] Erro ao calcular estatísticas:', error);
       return {
         totalMembros: 0,
         aniversariantesMes: 0,
@@ -99,36 +149,6 @@ export default function LiderScreen() {
         mediaVisitantes: 0,
       };
     }
-
-    const membrosDaCelula = membrosDB.filter((m: any) => m.celula === lider.celula);
-    const mesAtual = obterMesAtual();
-    const aniversariantes = membrosDaCelula.filter((m: any) => {
-      if (!m.dataNascimento) return false;
-      const dataParsed = parseDataBR(m.dataNascimento);
-      return (dataParsed.getMonth() + 1) === mesAtual;
-    });
-
-    const inscricoesEventosDaCelula = inscricoesEventosDB.filter((i: any) => i.celula === lider.celula);
-
-    let mediaPresenca = 0;
-    let mediaVisitantes = 0;
-    if (relatoriosDB.length > 0) {
-      mediaPresenca = Math.round(
-        relatoriosDB.reduce((acc: number, r: any) => acc + (r.presentes || 0), 0) / relatoriosDB.length
-      );
-      mediaVisitantes = Math.round(
-        relatoriosDB.reduce((acc: number, r: any) => acc + (r.novosVisitantes || 0), 0) / relatoriosDB.length
-      );
-    }
-
-    return {
-      totalMembros: membrosDaCelula.length,
-      aniversariantesMes: aniversariantes.length,
-      inscritosEventos: inscricoesEventosDaCelula.length,
-      totalRelatorios: relatoriosDB.length,
-      mediaPresenca,
-      mediaVisitantes,
-    };
   }, [lider, membrosDB, inscricoesEventosDB, relatoriosDB]);
 
   const verificarSessao = async () => {
