@@ -114,13 +114,13 @@ export default function AdminEventosScreen() {
       return false;
     }
     if (!form.date.trim()) {
-      Alert.alert('Atenção', 'Informe a data do evento (formato: AAAA-MM-DD).');
+      Alert.alert('Atenção', 'Informe a data do evento (formato: DD/MM/YYYY).');
       return false;
     }
-    // Validar formato da data
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    // Validar formato da data (DD/MM/YYYY)
+    const dateRegex = /^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[012])\/\d{4}$/;
     if (!dateRegex.test(form.date.trim())) {
-      Alert.alert('Atenção', 'A data deve estar no formato AAAA-MM-DD (ex: 2026-03-15).');
+      Alert.alert('Atenção', 'A data deve estar no formato DD/MM/YYYY (ex: 15/03/2026).');
       return false;
     }
     if (!form.time.trim()) {
@@ -139,8 +139,10 @@ export default function AdminEventosScreen() {
 
     setSalvando(true);
     try {
-      // Adicionar hora à data para evitar problema de timezone
-      const dataComHora = form.date.trim() + 'T00:00:00';
+      // Converter DD/MM/YYYY para YYYY-MM-DD para armazenar no banco
+      const [dia, mes, ano] = form.date.trim().split('/');
+      const dataFormatada = `${ano}-${mes}-${dia}`;
+      const dataComHora = dataFormatada + 'T00:00:00';
       
       if (editandoId) {
         await atualizarMutation.mutateAsync({
@@ -437,7 +439,7 @@ export default function AdminEventosScreen() {
               <TextInput
                 value={form.date}
                 onChangeText={(v) => setForm(prev => ({ ...prev, date: v }))}
-                placeholder="AAAA-MM-DD (ex: 2026-03-15)"
+                placeholder="DD/MM/YYYY (ex: 15/03/2026)"
                 placeholderTextColor={colors.muted}
                 keyboardType="numbers-and-punctuation"
                 style={{
