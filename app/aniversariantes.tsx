@@ -60,7 +60,7 @@ export default function AniversariantesScreen() {
     try {
       const date = parseDataBR(birthDate);
       const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-      return days[date.getDay()];
+      return days[date.getUTCDay()];
     } catch (e) {
       return "Dia desconhecido";
     }
