@@ -1,4 +1,5 @@
 // @ts-nocheck
+import React from 'react';
 import {
   View,
   Text,
@@ -26,7 +27,34 @@ interface Anexo {
   createdAt?: string;
 }
 
-export default function AnexosLiderScreen() {
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error('[ErrorBoundary] Erro capturado:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <ScreenContainer className="items-center justify-center">
+          <Text className="text-foreground text-center">Erro ao carregar anexos</Text>
+        </ScreenContainer>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function AnexosLiderScreenContent() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
@@ -148,7 +176,8 @@ export default function AnexosLiderScreen() {
   }
 
   return (
-    <ScreenContainer className="p-4" edges={["top", "left", "right"]}>
+    <ErrorBoundary>
+      <ScreenContainer className="p-4" edges={["top", "left", "right"]}>
       <View className="mb-4 flex-row items-center justify-between">
         <View className="flex-1">
           <Text className="text-2xl font-bold text-foreground">Anexos</Text>
@@ -174,5 +203,14 @@ export default function AnexosLiderScreen() {
         />
       )}
     </ScreenContainer>
+    </ErrorBoundary>
+  );
+}
+
+export default function AnexosLiderScreen() {
+  return (
+    <ErrorBoundary>
+      <AnexosLiderScreenContent />
+    </ErrorBoundary>
   );
 }
