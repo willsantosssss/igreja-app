@@ -1022,56 +1022,69 @@ function RecadosSection({ lider }: { lider: LiderCelula }) {
   const colors = useColors();
   const { data: recados = [], isLoading } = useRecados();
 
-  if (isLoading) {
+  try {
+    if (isLoading) {
+      return (
+        <View className="bg-warning/10 rounded-lg p-4 border border-warning/30">
+          <ActivityIndicator color={colors.warning} />
+        </View>
+      );
+    }
+
+    if (!recados || recados.length === 0) {
+      return null;
+    }
+
+    // Mostrar apenas o recado mais recente
+    const recadoMaisRecente = recados[0];
+    
+    if (!recadoMaisRecente) {
+      return null;
+    }
+
+    const formatDate = (dateString: string) => {
+      try {
+        return formatarDataBR(dateString);
+      } catch (e) {
+        return '';
+      }
+    };
+
     return (
-      <View className="bg-warning/10 rounded-lg p-4 border border-warning/30">
-        <ActivityIndicator color={colors.warning} />
+      <View
+        style={{
+          backgroundColor: colors.warning + '15',
+          borderWidth: 1,
+          borderColor: colors.warning + '40',
+          borderRadius: 12,
+          padding: 16,
+        }}
+      >
+        <View className="flex-row items-center gap-3 mb-3">
+          <View
+            style={{
+              backgroundColor: colors.warning + '30',
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text className="text-xl">📝</Text>
+          </View>
+          <View className="flex-1">
+            <Text className="text-base font-bold text-foreground">Recado Importante</Text>
+            <Text className="text-xs text-muted">{formatDate(recadoMaisRecente.criado_em || '')}</Text>
+          </View>
+        </View>
+
+        <Text className="text-sm font-semibold text-foreground mb-2">{recadoMaisRecente.titulo || ''}</Text>
+        <Text className="text-sm text-foreground leading-relaxed">{recadoMaisRecente.conteudo || ''}</Text>
       </View>
     );
-  }
-
-  if (recados.length === 0) {
+  } catch (error) {
+    console.error('[RecadosSection] Erro:', error);
     return null;
   }
-
-  // Mostrar apenas o recado mais recente
-  const recadoMaisRecente = recados[0];
-
-  const formatDate = (dateString: string) => {
-    return formatarDataBR(dateString);
-  };
-
-  return (
-    <View
-      style={{
-        backgroundColor: colors.warning + '15',
-        borderWidth: 1,
-        borderColor: colors.warning + '40',
-        borderRadius: 12,
-        padding: 16,
-      }}
-    >
-      <View className="flex-row items-center gap-3 mb-3">
-        <View
-          style={{
-            backgroundColor: colors.warning + '30',
-            width: 40,
-            height: 40,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Text className="text-xl">📝</Text>
-        </View>
-        <View className="flex-1">
-          <Text className="text-base font-bold text-foreground">Recado Importante</Text>
-          <Text className="text-xs text-muted">{formatDate(recadoMaisRecente.criado_em)}</Text>
-        </View>
-      </View>
-
-      <Text className="text-sm font-semibold text-foreground mb-2">{recadoMaisRecente.titulo}</Text>
-      <Text className="text-sm text-foreground leading-relaxed">{recadoMaisRecente.conteudo}</Text>
-    </View>
-  );
 }
