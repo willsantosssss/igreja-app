@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCelulas, type Celula } from "@/lib/data/celulas";
 import { trpc } from "@/lib/trpc";
+import { formatarDataCompletaBR } from "@/lib/utils/date-br";
 
 export default function EventDetailScreen() {
   const colors = useColors();
@@ -115,10 +116,11 @@ export default function EventDetailScreen() {
   const permiteInscricao = eventoPermiteInscricao(event.category);
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    return `${days[date.getDay()]}, ${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
+    try {
+      return formatarDataCompletaBR(dateStr);
+    } catch (e) {
+      return "Data inválida";
+    }
   };
 
   const handleSubscribe = async () => {
