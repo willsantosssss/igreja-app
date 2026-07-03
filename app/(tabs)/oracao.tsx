@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { formatarDataBR } from "@/lib/utils/date-br";
 
 
 export default function OracaoScreen() {
@@ -168,14 +169,7 @@ export default function OracaoScreen() {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Hoje";
-    if (diffDays === 1) return "Ontem";
-    if (diffDays < 7) return `${diffDays} dias atrás`;
-    return date.toLocaleDateString("pt-BR");
+    return formatarDataBR(dateStr);
   };
 
   if (showAddForm) {

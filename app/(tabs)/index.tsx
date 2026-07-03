@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
 import { Image } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-
+import { formatarDataBR, formatarDiaSemanaBR, obterMesAtual } from '@/lib/utils/date-br';
 import { trpc } from '@/lib/trpc';
 
 

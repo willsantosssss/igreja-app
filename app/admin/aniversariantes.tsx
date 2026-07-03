@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { trpc } from "@/lib/trpc";
+import { calcularIdade, diasAteProximoAniversario, formatarDataBR, parseDataBR, obterMesAtual } from "@/lib/utils/date-br";
 
 interface Usuario {
   id: number;

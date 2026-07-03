@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal,
+  ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator, Modal, FlatList,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
@@ -18,6 +18,9 @@ import {
   DIAS_SEMANA,
   formatarHorario,
 } from '@/lib/services/lembrete-lider';
+import { useRecados } from '@/hooks/use-recados';
+import { formatarDataBR, formatarDiaSemanaBR } from '@/lib/utils/date-br';
+
 
 export default function LiderScreen() {
   const colors = useColors();
@@ -547,6 +550,9 @@ export default function LiderScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Recados Importantes */}
+        <RecadosSection lider={lider} />
+
         {/* Menu de Ações */}
         <View className="gap-3 mt-4">
           <TouchableOpacity
@@ -1007,5 +1013,78 @@ export default function LiderScreen() {
         </View>
       </Modal>
     </ScreenContainer>
+  );
+}
+      </Modal>
+    </ScreenContainer>
+  );
+}
+
+// Componente para exibir Recados Importantes
+function RecadosSection({ lider }: { lider: LiderCelula }) {
+  const colors = useColors();
+  const { data: recados = [], isLoading } = useRecados();
+
+  if (isLoading) {
+    return (
+      <View className="bg-warning/10 rounded-lg p-4 border border-warning/30">
+        <ActivityIndicator color={colors.warning} />
+      </View>
+    );
+  }
+
+  if (recados.length === 0) {
+    return null;
+  }
+
+  // Mostrar apenas o recado mais recente
+  const recadoMaisRecente = recados[0];
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  return (
+    <View
+      style={{
+        backgroundColor: colors.warning + '15',
+        borderWidth: 1,
+        borderColor: colors.warning + '40',
+        borderRadius: 12,
+        padding: 16,
+      }}
+    >
+      <View className="flex-row items-center gap-3 mb-3">
+        <View
+          style={{
+            backgroundColor: colors.warning + '30',
+            width: 40,
+            height: 40,
+            borderRadius: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text className="text-xl">📝</Text>
+        </View>
+        <View className="flex-1">
+          <Text className="text-base font-bold text-foreground">Recado Importante</Text>
+          <Text className="text-xs text-muted">{formatDate(recadoMaisRecente.criado_em)}</Text>
+        </View>
+      </View>
+
+      <Text className="text-sm font-semibold text-foreground mb-2">{recadoMaisRecente.titulo}</Text>
+      <Text className="text-sm text-foreground leading-relaxed">{recadoMaisRecente.conteudo}</Text>
+    </View>
   );
 }

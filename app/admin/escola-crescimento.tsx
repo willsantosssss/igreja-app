@@ -9,6 +9,7 @@ import { useState, useCallback, useMemo } from 'react';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Haptics from 'expo-haptics';
+import { formatarDataBR } from '@/lib/utils/date-br';
 
 const CURSOS = ["Conecte", "Lidere 1", "Lidere 2", "Avance"] as const;
 
@@ -26,7 +27,7 @@ const exportarParaExcel = async (inscricoes: any[]) => {
       const nome = (inscricao.nome || '').replace(/"/g, '""');
       const curso = (inscricao.curso || '').replace(/"/g, '""');
       const celula = (inscricao.celula || '').replace(/"/g, '""');
-      const data = new Date(inscricao.createdAt).toLocaleDateString('pt-BR');
+      const data = formatarDataBR(inscricao.createdAt);
       csv += `"${nome}";"${curso}";"${celula}";"${data}"\n`;
     });
 

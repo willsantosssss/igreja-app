@@ -301,6 +301,13 @@ export default function AdminScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             className="rounded-full py-3 items-center"
+            style={{ backgroundColor: colors.warning }}
+            onPress={() => router.push("/admin/recados-importantes" as any)}
+          >
+            <Text className="text-white font-bold">📝 Recados Importantes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="rounded-full py-3 items-center"
             style={{ backgroundColor: '#EC4899' }}
             onPress={() => router.push("/admin/inscricoes-eventos" as any)}
           >

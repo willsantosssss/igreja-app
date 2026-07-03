@@ -1221,3 +1221,84 @@ export async function deleteConfigPagamentoEvento(id: number) {
     throw new Error(`Erro ao deletar configuração de pagamento: ${error.message}`);
   }
 }
+
+
+// ===== RECADOS IMPORTANTES =====
+
+export async function getRecados() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const result = await db.query.raw<any>(`
+      SELECT id, titulo, conteudo, criado_em, atualizado_em, ativo 
+      FROM recados 
+      WHERE ativo = 1 
+      ORDER BY criado_em DESC
+    `);
+    return result || [];
+  } catch (error: any) {
+    console.error("[Database] Error fetching recados:", error);
+    return [];
+  }
+}
+
+export async function getRecadoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const result = await db.query.raw<any>(`
+      SELECT id, titulo, conteudo, criado_em, atualizado_em, ativo 
+      FROM recados 
+      WHERE id = ? AND ativo = 1
+    `, [id]);
+    return result?.[0] || null;
+  } catch (error: any) {
+    console.error("[Database] Error fetching recado:", error);
+    return null;
+  }
+}
+
+export async function createRecado(titulo: string, conteudo: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    const result = await db.query.raw<any>(`
+      INSERT INTO recados (titulo, conteudo, ativo) 
+      VALUES (?, ?, 1)
+    `, [titulo, conteudo]);
+    return result;
+  } catch (error: any) {
+    console.error("[Database] Error creating recado:", error);
+    throw new Error(`Erro ao criar recado: ${error.message}`);
+  }
+}
+
+export async function updateRecado(id: number, titulo: string, conteudo: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.query.raw(`
+      UPDATE recados 
+      SET titulo = ?, conteudo = ?, atualizado_em = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `, [titulo, conteudo, id]);
+  } catch (error: any) {
+    console.error("[Database] Error updating recado:", error);
+    throw new Error(`Erro ao atualizar recado: ${error.message}`);
+  }
+}
+
+export async function deleteRecado(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.query.raw(`
+      UPDATE recados 
+      SET ativo = 0 
+      WHERE id = ?
+    `, [id]);
+  } catch (error: any) {
+    console.error("[Database] Error deleting recado:", error);
+    throw new Error(`Erro ao deletar recado: ${error.message}`);
+  }
+}
