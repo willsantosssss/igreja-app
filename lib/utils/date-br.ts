@@ -108,9 +108,9 @@ export function formatarDataCompletaBR(date: Date | string): string {
 export function formatarDiaSemanaBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = String(d.getDate()).padStart(2, '0');
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
     return `${diaSemana}, ${dia}/${mes}`;
   } catch {
     return '';
@@ -124,8 +124,8 @@ export function formatarDiaSemanaBR(date: Date | string): string {
 export function formatarDiaMesBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
     return `${dia} de ${mes}`;
   } catch {
     return '';
