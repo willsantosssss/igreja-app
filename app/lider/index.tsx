@@ -1015,10 +1015,6 @@ export default function LiderScreen() {
     </ScreenContainer>
   );
 }
-      </Modal>
-    </ScreenContainer>
-  );
-}
 
 // Componente para exibir Recados Importantes
 function RecadosSection({ lider }: { lider: LiderCelula }) {
