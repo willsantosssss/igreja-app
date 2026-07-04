@@ -58,8 +58,10 @@ export default function AniversariantesScreen() {
 
   const getDayOfWeek = (birthDate: string) => {
     try {
-      const { day, month, year } = parseDateString(birthDate);
-      const date = new Date(Date.UTC(year, month - 1, day));
+      const { day, month } = parseDateString(birthDate);
+      // Usar o ano atual (2026) para calcular o dia da semana do mês corrente
+      const currentYear = new Date().getFullYear();
+      const date = new Date(Date.UTC(currentYear, month - 1, day));
       const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
       return days[date.getUTCDay()];
     } catch (e) {

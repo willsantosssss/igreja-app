@@ -16,18 +16,8 @@ import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
 import { BackButton } from "@/components/back-button";
-// Imports condicionais para módulos nativos
-let DocumentPicker: any = null;
-let FileSystem: any = null;
-
-if (Platform.OS !== "web") {
-  try {
-    DocumentPicker = require("expo-document-picker");
-    FileSystem = require("expo-file-system");
-  } catch (e) {
-    console.warn("Módulos nativos não disponíveis", e);
-  }
-}
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
 import { formatarDataBR } from "@/lib/utils/date-br";
 
 interface Anexo {
@@ -95,8 +85,6 @@ export default function AdminAnexosScreen() {
         }
       };
       input.click();
-    } else if (!DocumentPicker) {
-      Alert.alert("Erro", "Módulo de seleção de arquivo não disponível neste dispositivo");
     } else {
       // Para nativo, usar DocumentPicker
       try {
@@ -123,10 +111,7 @@ export default function AdminAnexosScreen() {
 
   const uploadFileFromNative = async (file: any) => {
     try {
-      if (!FileSystem) {
-        Alert.alert("Erro", "Módulo de sistema de arquivos não disponível");
-        return;
-      }
+
       setUploading(true);
 
       // Ler arquivo como base64
