@@ -58,7 +58,8 @@ export default function AniversariantesScreen() {
 
   const getDayOfWeek = (birthDate: string) => {
     try {
-      const date = parseDataBR(birthDate);
+      const { day, month, year } = parseDateString(birthDate);
+      const date = new Date(Date.UTC(year, month - 1, day));
       const days = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
       return days[date.getUTCDay()];
     } catch (e) {
