@@ -41,7 +41,7 @@ export default function AdminAnexosScreen() {
     tipo: "pdf",
   });
 
-  const { data: anexosData, isLoading, refetch } = trpc.anexos.list.useQuery();
+  const { data: anexosData, isLoading, refetch, error: queryError } = trpc.anexos.list.useQuery();
   const createMutation = trpc.anexos.create.useMutation();
   const updateMutation = trpc.anexos.update.useMutation();
   const deleteMutation = trpc.anexos.delete.useMutation();
@@ -75,16 +75,20 @@ export default function AdminAnexosScreen() {
   const handleUploadFile = async () => {
     if (Platform.OS === "web") {
       // Para web, usar input file nativo
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
-      input.onchange = async (e: any) => {
-        const file = e.target.files[0];
-        if (file) {
-          await uploadToS3(file);
-        }
-      };
-      input.click();
+      try {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
+        input.onchange = async (e: any) => {
+          const file = e.target.files[0];
+          if (file) {
+            await uploadToS3(file);
+          }
+        };
+        input.click();
+      } catch (error) {
+        Alert.alert("Erro", "Não é possível fazer upload nesta plataforma");
+      }
     } else {
       // Para nativo, usar DocumentPicker
       try {
@@ -307,17 +311,14 @@ export default function AdminAnexosScreen() {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={anexos}
-          renderItem={renderAnexo}
-          keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
-        />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {anexos.map((item) => renderAnexo({ item }))}
+        </ScrollView>
       )}
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={() => setModalVisible(false)}>
         <View className="flex-1 bg-black/50 items-center justify-center">
-          <View className="bg-background w-11/12 rounded-2xl p-6 max-h-5/6">
+          <View className="bg-background w-11/12 rounded-2xl p-6">
             <ScrollView>
               <Text className="text-2xl font-bold text-foreground mb-4">
                 {editingId ? "Editar Anexo" : "Novo Anexo"}
@@ -380,29 +381,22 @@ export default function AdminAnexosScreen() {
                   Tipo de Arquivo
                 </Text>
                 <View className="flex-row gap-2 flex-wrap">
-                  {["pdf", "doc", "img", "outro"].map((tipo) => (
-                    <TouchableOpacity
-                      key={tipo}
-                      onPress={() =>
-                        setFormData({ ...formData, tipo })
-                      }
-                      className={`flex-1 min-w-24 rounded-lg p-2 items-center ${
-                        formData.tipo === tipo
-                          ? "bg-primary"
-                          : "bg-surface border border-border"
-                      }`}
-                    >
-                      <Text
-                        className={`font-semibold text-sm ${
-                          formData.tipo === tipo
-                            ? "text-white"
-                            : "text-foreground"
-                        }`}
+                  {["pdf", "doc", "img", "outro"].map((tipo) => {
+                    const isSelected = formData.tipo === tipo;
+                    const bgClass = isSelected ? "bg-primary" : "bg-surface border border-border";
+                    const textClass = isSelected ? "text-white" : "text-foreground";
+                    return (
+                      <TouchableOpacity
+                        key={tipo}
+                        onPress={() => setFormData({ ...formData, tipo })}
+                        className={"flex-1 min-w-24 rounded-lg p-2 items-center " + bgClass}
                       >
-                        {tipo.toUpperCase()}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                        <Text className={"font-semibold text-sm " + textClass}>
+                          {tipo.toUpperCase()}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
 
