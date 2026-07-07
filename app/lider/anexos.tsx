@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Platform,
-  Linking,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
@@ -101,18 +99,11 @@ function AnexosLiderScreenContent() {
       setDownloading(anexo.id);
 
       // Construir URL completa
-      const apiBaseUrl = getApiBaseUrl();
       const fullUrl = anexo.urlArquivo.startsWith("http")
         ? anexo.urlArquivo
-        : `${apiBaseUrl}${anexo.urlArquivo}`;
+        : `${getApiBaseUrl()}${anexo.urlArquivo}`;
 
-      if (!fullUrl || fullUrl.startsWith("undefined")) {
-        Alert.alert("Erro", "URL do arquivo inválida");
-        setDownloading(null);
-        return;
-      }
-
-      // Tentar baixar e compartilhar
+      // Baixar arquivo
       const fileName = anexo.nomeArquivo || anexo.urlArquivo.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
@@ -135,22 +126,7 @@ function AnexosLiderScreenContent() {
       }
     } catch (error: any) {
       console.error("Erro ao baixar PDF:", error);
-      
-      // Fallback: tentar abrir URL diretamente no navegador
-      try {
-        const fullUrl = anexo.urlArquivo.startsWith("http")
-          ? anexo.urlArquivo
-          : `${getApiBaseUrl()}${anexo.urlArquivo}`;
-        
-        if (fullUrl && !fullUrl.startsWith("undefined")) {
-          await Linking.openURL(fullUrl);
-          Alert.alert("Sucesso", "Arquivo aberto no navegador");
-        } else {
-          Alert.alert("Erro", error.message || "Não foi possível acessar o arquivo");
-        }
-      } catch (fallbackError) {
-        Alert.alert("Erro", "Não foi possível acessar o arquivo");
-      }
+      Alert.alert("Erro", error.message || "Não foi possível baixar o arquivo");
     } finally {
       setDownloading(null);
     }
