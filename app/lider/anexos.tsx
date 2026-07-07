@@ -8,32 +8,17 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  Linking,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { BackButton } from "@/components/back-button";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/use-colors";
 import { getApiBaseUrl } from "@/constants/oauth";
-
-// Imports condicionais para módulos nativos
-let FileSystem: any = null;
-let Sharing: any = null;
-
-if (Platform.OS !== 'web') {
-  try {
-    FileSystem = require('expo-file-system');
-  } catch (e) {
-    console.warn('[Anexos] FileSystem não disponível:', e);
-  }
-  
-  try {
-    Sharing = require('expo-sharing');
-  } catch (e) {
-    console.warn('[Anexos] Sharing não disponível:', e);
-  }
-}
 
 interface Anexo {
   id: number;
@@ -113,19 +98,21 @@ function AnexosLiderScreenContent() {
 
   const handleDownloadPDF = async (anexo: Anexo) => {
     try {
-      if (!FileSystem || !Sharing) {
-        Alert.alert('Aviso', 'Download não disponível neste dispositivo');
-        return;
-      }
-
       setDownloading(anexo.id);
 
       // Construir URL completa
+      const apiBaseUrl = getApiBaseUrl();
       const fullUrl = anexo.urlArquivo.startsWith("http")
         ? anexo.urlArquivo
-        : `${getApiBaseUrl()}${anexo.urlArquivo}`;
+        : `${apiBaseUrl}${anexo.urlArquivo}`;
 
-      // Baixar arquivo
+      if (!fullUrl || fullUrl.startsWith("undefined")) {
+        Alert.alert("Erro", "URL do arquivo inválida");
+        setDownloading(null);
+        return;
+      }
+
+      // Tentar baixar e compartilhar
       const fileName = anexo.nomeArquivo || anexo.urlArquivo.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
@@ -148,7 +135,22 @@ function AnexosLiderScreenContent() {
       }
     } catch (error: any) {
       console.error("Erro ao baixar PDF:", error);
-      Alert.alert("Erro", error.message || "Não foi possível baixar o arquivo");
+      
+      // Fallback: tentar abrir URL diretamente no navegador
+      try {
+        const fullUrl = anexo.urlArquivo.startsWith("http")
+          ? anexo.urlArquivo
+          : `${getApiBaseUrl()}${anexo.urlArquivo}`;
+        
+        if (fullUrl && !fullUrl.startsWith("undefined")) {
+          await Linking.openURL(fullUrl);
+          Alert.alert("Sucesso", "Arquivo aberto no navegador");
+        } else {
+          Alert.alert("Erro", error.message || "Não foi possível acessar o arquivo");
+        }
+      } catch (fallbackError) {
+        Alert.alert("Erro", "Não foi possível acessar o arquivo");
+      }
     } finally {
       setDownloading(null);
     }

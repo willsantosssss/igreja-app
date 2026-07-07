@@ -115,13 +115,7 @@ export default function AdminAnexosScreen() {
 
   const uploadFileFromNative = async (file: any) => {
     try {
-
       setUploading(true);
-
-      // Ler arquivo como base64
-      const base64 = await FileSystem.readAsStringAsync(file.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
 
       // Criar FormData com URI (React Native nao suporta Blob a partir de ArrayBuffer)
       const mimeType = file.mimeType || "application/octet-stream";
