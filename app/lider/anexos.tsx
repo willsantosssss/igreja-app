@@ -1,5 +1,3 @@
-// @ts-nocheck
-import React from 'react';
 import {
   View,
   Text,
@@ -12,9 +10,8 @@ import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
 import { trpc } from "@/lib/trpc";
 import { BackButton } from "@/components/back-button";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
-import * as DocumentPicker from "expo-document-picker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/use-colors";
 import { getApiBaseUrl } from "@/constants/oauth";
@@ -27,73 +24,21 @@ interface Anexo {
   createdAt?: string;
 }
 
-class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean; error?: Error}> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: any) {
-    console.error('[ErrorBoundary] Erro capturado:', error);
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: any, errorInfo: any) {
-    console.error('[ErrorBoundary] Stack:', errorInfo.componentStack);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <ScreenContainer className="items-center justify-center p-4">
-          <Text className="text-foreground text-center text-lg font-bold mb-2">
-            ⚠️ Erro ao carregar anexos
-          </Text>
-          <Text className="text-muted text-center text-sm">
-            {this.state.error?.message || 'Tente novamente mais tarde'}
-          </Text>
-        </ScreenContainer>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-function AnexosLiderScreenContent() {
+export default function AnexosLiderScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [anexos, setAnexos] = useState<Anexo[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const { data: anexosData, isLoading, error: queryError } = trpc.anexos.list.useQuery(undefined, {
-    retry: 1,
-    retryDelay: 1000,
-  });
+  const { data: anexosData, isLoading } = trpc.anexos.list.useQuery();
 
   useEffect(() => {
-    try {
-      if (queryError) {
-        console.error('[Anexos] Query error:', queryError);
-        setError('Erro ao carregar anexos');
-        setAnexos([]);
-      } else if (anexosData && Array.isArray(anexosData)) {
-        setAnexos(anexosData as Anexo[]);
-        setError(null);
-      } else if (anexosData) {
-        setAnexos([]);
-        setError(null);
-      }
-      setLoading(false);
-    } catch (e) {
-      console.error('[Anexos] Erro ao processar dados:', e);
-      setAnexos([]);
-      setError('Erro ao processar dados');
+    if (anexosData) {
+      setAnexos(anexosData as Anexo[]);
       setLoading(false);
     }
-  }, [anexosData, queryError]);
+  }, [anexosData]);
 
   const handleDownloadPDF = async (anexo: Anexo) => {
     try {
@@ -104,13 +49,17 @@ function AnexosLiderScreenContent() {
         ? anexo.urlArquivo
         : `${getApiBaseUrl()}${anexo.urlArquivo}`;
 
+      // Log removido para produção
+
       // Baixar arquivo
       const fileName = anexo.nomeArquivo || anexo.urlArquivo.split("/").pop() || "documento.pdf";
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-      console.log(`[Download] Downloading from: ${fullUrl}`);
+      console.log(`[Download] Downloading from: ${fullUrl} to: ${fileUri}`);
 
       const downloadResult = await FileSystem.downloadAsync(fullUrl, fileUri);
+
+      // Log removido para produção
 
       if (downloadResult.status === 200) {
         // Compartilhar arquivo para abrir/salvar
@@ -133,62 +82,47 @@ function AnexosLiderScreenContent() {
     }
   };
 
-  const renderAnexo = ({ item }: { item: Anexo }) => {
-    try {
-      return (
-        <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
-          <View className="mb-3">
-            <Text className="text-lg font-bold text-foreground">{item.nomeArquivo}</Text>
-            <Text className="text-xs text-muted mt-2">
-              📄 {item.nomeArquivo}
-            </Text>
-            {item.tipo && (
-              <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
-            )}
-            {item.createdAt && (
-              <Text className="text-xs text-muted">
-                Criado em: {new Date(item.createdAt).toLocaleDateString('pt-BR')}
-              </Text>
-            )}
-          </View>
-
-          <TouchableOpacity
-            onPress={() => handleDownloadPDF(item)}
-            disabled={downloading === item.id}
-            className="bg-primary rounded-lg p-3 items-center active:opacity-80"
-          >
-            {downloading === item.id ? (
-              <ActivityIndicator color={colors.background} />
-            ) : (
-              <Text className="text-white font-semibold">⬇️ Baixar PDF</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      );
-    } catch (e) {
-      console.error('[Anexos] Erro ao renderizar item:', e);
-      return null;
-    }
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
+
+  const renderAnexo = ({ item }: { item: Anexo }) => (
+    <View className="bg-surface rounded-lg p-4 mb-3 border border-border">
+      <View className="mb-3">
+        <Text className="text-lg font-bold text-foreground">{item.nomeArquivo}</Text>
+        <Text className="text-xs text-muted mt-2">
+          📄 {item.nomeArquivo}
+        </Text>
+        {item.tipo && (
+          <Text className="text-xs text-muted">Tipo: {item.tipo}</Text>
+        )}
+        {item.createdAt && (
+          <Text className="text-xs text-muted">Criado em: {new Date(item.createdAt).toLocaleDateString('pt-BR')}</Text>
+        )}
+      </View>
+
+      <TouchableOpacity
+        onPress={() => handleDownloadPDF(item)}
+        disabled={downloading === item.id}
+        className="bg-primary rounded-lg p-3 items-center active:opacity-80"
+      >
+        {downloading === item.id ? (
+          <ActivityIndicator color={colors.background} />
+        ) : (
+          <Text className="text-white font-semibold">⬇️ Baixar PDF</Text>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
 
   if (loading || isLoading) {
     return (
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text className="text-muted mt-4">Carregando anexos...</Text>
-      </ScreenContainer>
-    );
-  }
-
-  if (error) {
-    return (
-      <ScreenContainer className="items-center justify-center p-4">
-        <Text className="text-foreground text-center text-lg font-bold mb-2">
-          ⚠️ {error}
-        </Text>
-        <Text className="text-muted text-center text-sm">
-          Tente novamente mais tarde
-        </Text>
       </ScreenContainer>
     );
   }
@@ -217,19 +151,8 @@ function AnexosLiderScreenContent() {
           renderItem={renderAnexo}
           keyExtractor={(item) => item.id.toString()}
           scrollEnabled={false}
-          onError={(error) => {
-            console.error('[Anexos] FlatList error:', error);
-          }}
         />
       )}
     </ScreenContainer>
-  );
-}
-
-export default function AnexosLiderScreen() {
-  return (
-    <ErrorBoundary>
-      <AnexosLiderScreenContent />
-    </ErrorBoundary>
   );
 }
