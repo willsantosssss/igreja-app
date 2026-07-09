@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import * as Haptics from "expo-haptics";
 import { trpc } from "@/lib/trpc";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
 

@@ -7,7 +7,7 @@ import { useColors } from '@/hooks/use-colors';
 import { useState, useEffect } from 'react';
 import { obterSessaoLider } from '@/lib/data/lideres';
 import { getInscricoesPorCelula } from '@/lib/data/inscricoes-eventos';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Haptics from 'expo-haptics';
 
