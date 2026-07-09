@@ -104,7 +104,7 @@ export default function InscricoesPagasScreen() {
       
       // Salvar arquivo
       const fileName = `inscricoes_${new Date().toISOString().split('T')[0]}.csv`;
-      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      const filePath = `${FileSystem.cacheDirectory}${fileName}`;
       
       await FileSystem.writeAsStringAsync(filePath, csv, {
         encoding: FileSystem.EncodingType.UTF8,

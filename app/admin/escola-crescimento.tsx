@@ -49,7 +49,7 @@ const exportarParaExcel = async (inscricoes: any[]) => {
       URL.revokeObjectURL(url);
     } else {
       // No app nativo: usar FileSystem
-      const caminhoArquivo = `${FileSystem.documentDirectory}${nomeArquivo}`;
+      const caminhoArquivo = `${FileSystem.cacheDirectory}${nomeArquivo}`;
 
       // Escrever arquivo no sistema de arquivos
       await FileSystem.writeAsStringAsync(caminhoArquivo, csv, {
