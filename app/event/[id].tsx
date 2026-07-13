@@ -6,7 +6,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { categoryLabels, categoryColors, type Event } from "@/lib/data/events";
 import { eventoPermiteInscricao, criarInscricao, verificarInscricao } from "@/lib/data/inscricoes-eventos";
 import * as Haptics from "expo-haptics";
-import { Platform, FlatList, ScrollView, View, Text, TouchableOpacity, TextInput, Alert, Linking } from "react-native";
+import { Platform, FlatList, ScrollView, View, Text, TouchableOpacity, TextInput, Alert, Linking, Modal } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCelulas, type Celula } from "@/lib/data/celulas";
@@ -347,36 +347,13 @@ export default function EventDetailScreen() {
                 <TouchableOpacity
                   className="bg-background rounded-xl px-4 py-3 border flex-row items-center justify-between"
                   style={{ borderColor: colors.border }}
-                  onPress={() => setMostrarSeletorCelulas(!mostrarSeletorCelulas)}
+                  onPress={() => setMostrarSeletorCelulas(true)}
                 >
                   <Text className={celula ? "text-foreground" : "text-muted"}>
                     {celula || "Selecione sua célula"}
                   </Text>
-                  <Text className="text-lg">{mostrarSeletorCelulas ? "▲" : "▼"}</Text>
+                  <IconSymbol name="chevron.right" size={20} color={colors.muted} />
                 </TouchableOpacity>
-                {mostrarSeletorCelulas && (
-                  <ScrollView className="bg-surface rounded-xl border border-border mt-2" style={{ maxHeight: 300 }}>
-                    {celulas && celulas.length > 0 ? (
-                      celulas.map((cel, index) => (
-                        <TouchableOpacity
-                          key={cel.id?.toString() || cel.name || index}
-                          className="px-4 py-3 border-b border-border"
-                          style={{ borderBottomColor: colors.border }}
-                          onPress={() => {
-                            setCelula(cel.nome || cel.name || "");
-                            setMostrarSeletorCelulas(false);
-                          }}
-                        >
-                          <Text className="text-foreground">{cel.nome || cel.name}</Text>
-                        </TouchableOpacity>
-                      ))
-                    ) : (
-                      <View className="px-4 py-3">
-                        <Text className="text-muted text-center">Nenhuma célula disponível</Text>
-                      </View>
-                    )}
-                  </ScrollView>
-                )}
               </View>
 
               <View className="gap-2">
@@ -432,6 +409,56 @@ export default function EventDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Modal Seletor de Células */}
+      <Modal
+        visible={mostrarSeletorCelulas}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMostrarSeletorCelulas(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <View
+            style={{
+              flex: 1,
+              marginTop: "auto",
+              backgroundColor: colors.background,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingTop: 20,
+            }}
+          >
+            <View className="px-6 pb-4 border-b border-border flex-row items-center justify-between">
+              <Text className="text-lg font-bold text-foreground">Selecione sua Célula</Text>
+              <TouchableOpacity onPress={() => setMostrarSeletorCelulas(false)}>
+                <IconSymbol name="chevron.right" size={24} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView className="flex-1 px-6 py-4">
+              {celulas && celulas.length > 0 ? (
+                celulas.map((cel, index) => (
+                  <TouchableOpacity
+                    key={cel.id?.toString() || cel.name || index}
+                    onPress={() => {
+                      setCelula(cel.nome || cel.name || "");
+                      setMostrarSeletorCelulas(false);
+                    }}
+                    className="py-4 border-b border-border"
+                  >
+                    <Text className="text-base text-foreground font-medium">{cel.nome || cel.name}</Text>
+                    <Text className="text-sm text-muted mt-1">Líder: {cel.lider || "N/A"}</Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View className="px-4 py-3">
+                  <Text className="text-muted text-center">Nenhuma célula disponível</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
