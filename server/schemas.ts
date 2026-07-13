@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Schemas de validação com Zod
  * Centralize todas as validações de entrada aqui

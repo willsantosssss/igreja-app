@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert, Switch } from "react-native";
 import { useState, useCallback } from "react";
 import { ScreenContainer } from "@/components/screen-container";

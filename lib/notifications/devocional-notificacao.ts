@@ -20,6 +20,7 @@ interface PreferencesNotificacao {
 }
 
 const STORAGE_KEY = "@notificacao_preferencias";
+const LAST_SCHEDULED_KEY = "@notificacao_last_scheduled";
 
 // Preferências padrão: 7:00 AM, todos os dias
 const PREFERENCIAS_PADRAO: PreferencesNotificacao = {
@@ -62,24 +63,45 @@ export async function salvarPreferencias(
 }
 
 /**
- * Calcular segundos até o próximo horário especificado
+ * Calcular próxima data que deve receber notificação
+ * Retorna a data do próximo dia que está habilitado
  */
-function calcularSegundosAteHorario(hora: number, minuto: number): number {
+function calcularProximaDataNotificacao(
+  hora: number,
+  minuto: number,
+  diasSemana: boolean[]
+): Date {
   const agora = new Date();
-  const proximoHorario = new Date();
-  proximoHorario.setHours(hora, minuto, 0, 0);
+  const proximaData = new Date(agora);
+  proximaData.setHours(hora, minuto, 0, 0);
 
-  if (proximoHorario <= agora) {
-    // Se já passou, agendar para amanhã
-    proximoHorario.setDate(proximoHorario.getDate() + 1);
+  // Se o horário de hoje já passou, começar a procurar a partir de amanhã
+  if (proximaData <= agora) {
+    proximaData.setDate(proximaData.getDate() + 1);
   }
 
-  const diferenca = proximoHorario.getTime() - agora.getTime();
-  return Math.ceil(diferenca / 1000); // Converter para segundos
+  // Procurar o próximo dia habilitado (máximo 7 dias)
+  for (let i = 0; i < 7; i++) {
+    const diaSemana = proximaData.getDay(); // 0 = domingo, 1 = segunda, etc
+    // Converter para índice do array (0 = segunda, 6 = domingo)
+    const indiceArray = diaSemana === 0 ? 6 : diaSemana - 1;
+
+    if (diasSemana[indiceArray]) {
+      return proximaData;
+    }
+
+    // Tentar próximo dia
+    proximaData.setDate(proximaData.getDate() + 1);
+    proximaData.setHours(hora, minuto, 0, 0);
+  }
+
+  // Fallback (nunca deve chegar aqui se houver pelo menos um dia habilitado)
+  return proximaData;
 }
 
 /**
- * Agendar notificação diária para o devocional
+ * Agendar notificações para todos os dias habilitados da semana
+ * Usa CALENDAR trigger para respeitar dias específicos
  */
 export async function agendarNotificacaoDiaria(
   preferencias?: PreferencesNotificacao
@@ -91,34 +113,57 @@ export async function agendarNotificacaoDiaria(
     const prefs = preferencias || (await obterPreferencias());
 
     if (!prefs.habilitado) {
+      console.log("Notificações desabilitadas");
       return;
     }
 
-    // Agendar notificação diária (a cada 24 horas)
-    const segundosAteProximo = calcularSegundosAteHorario(prefs.hora, prefs.minuto);
+    // Agendar notificação para cada dia habilitado
+    const diasHabilitados = prefs.diasSemana
+      .map((habilitado, index) => habilitado ? index : -1)
+      .filter(index => index !== -1);
 
-    // Agendar notificação recorrente a cada 24 horas
-    const trigger: Notifications.TimeIntervalTriggerInput = {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: Math.max(segundosAteProximo, 1), // Mínimo 1 segundo
-      repeats: true,
-    };
+    if (diasHabilitados.length === 0) {
+      console.warn("Nenhum dia habilitado para notificações");
+      return;
+    }
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "📖 Devocional do Dia",
-        body: "Leia o capítulo de hoje do Novo Testamento",
-        data: {
-          tipo: "devocional",
-          timestamp: new Date().toISOString(),
+    console.log(`Agendando notificações para ${diasHabilitados.length} dia(s) da semana`);
+
+    // Agendar para cada dia habilitado
+    for (const diaIndex of diasHabilitados) {
+      // Converter índice do array para dia da semana (0 = segunda, 6 = domingo)
+      // getDay() retorna 0 = domingo, 1 = segunda, etc
+      const diaGetDay = diaIndex === 6 ? 0 : diaIndex + 1;
+
+      const trigger: Notifications.CalendarTriggerInput = {
+        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+        hour: prefs.hora,
+        minute: prefs.minuto,
+        weekday: diaGetDay, // 0 = domingo, 1 = segunda, etc
+        repeats: true,
+      };
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "📖 Devocional do Dia",
+          body: "Leia o capítulo de hoje do Novo Testamento",
+          data: {
+            tipo: "devocional",
+            timestamp: new Date().toISOString(),
+          },
+          sound: "default",
+          badge: 1,
         },
-        sound: "default",
-        badge: 1,
-      },
-      trigger,
-    });
+        trigger,
+      });
 
-    console.log("Notificação diária agendada com sucesso");
+      console.log(`Notificação agendada para dia ${diaIndex} (getDay: ${diaGetDay}) às ${prefs.hora.toString().padStart(2, "0")}:${prefs.minuto.toString().padStart(2, "0")}`);
+    }
+
+    // Salvar timestamp de quando foi agendado para evitar duplicatas
+    await AsyncStorage.setItem(LAST_SCHEDULED_KEY, new Date().toISOString());
+
+    console.log("Notificações diárias agendadas com sucesso");
   } catch (error) {
     console.error("Erro ao agendar notificação:", error);
     throw error;
@@ -149,6 +194,8 @@ export async function enviarNotificacaoTeste(): Promise<void> {
       },
       trigger,
     });
+
+    console.log("Notificação de teste agendada");
   } catch (error) {
     console.error("Erro ao enviar notificação de teste:", error);
     throw error;
@@ -164,9 +211,9 @@ export async function desabilitarNotificacoes(): Promise<void> {
     const prefs = await obterPreferencias();
     prefs.habilitado = false;
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    console.log("Notificações desabilitadas");
   } catch (error) {
     console.error("Erro ao desabilitar notificações:", error);
-    throw error;
   }
 }
 
@@ -178,9 +225,9 @@ export async function habilitarNotificacoes(): Promise<void> {
     const prefs = await obterPreferencias();
     prefs.habilitado = true;
     await salvarPreferencias(prefs);
+    console.log("Notificações habilitadas");
   } catch (error) {
     console.error("Erro ao habilitar notificações:", error);
-    throw error;
   }
 }
 

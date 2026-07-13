@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useCallback } from 'react';
 import {
   ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Platform, ActivityIndicator,

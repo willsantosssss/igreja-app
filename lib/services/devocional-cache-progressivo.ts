@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getCapituloByIndex, sequenciaNovoTestamento } from '@/lib/data/sequencia-nt';
+import { getCapituloByIndex, sequenciaBibliaCompleta } from '@/lib/data/sequencia-biblia-completa';
 
 /**
  * Serviço de Cache Progressivo para Devocional
@@ -27,6 +27,7 @@ export interface VersoDevocional {
  * Mapeamento de nomes de livros para IDs da API bolls.life
  */
 const LIVRO_PARA_ID: Record<string, number> = {
+  // Novo Testamento
   'Mateus': 40,
   'Marcos': 41,
   'Lucas': 42,
@@ -54,6 +55,46 @@ const LIVRO_PARA_ID: Record<string, number> = {
   '3 João': 64,
   'Judas': 65,
   'Apocalipse': 66,
+  // Antigo Testamento
+  'Gênesis': 1,
+  'Êxodo': 2,
+  'Levítico': 3,
+  'Números': 4,
+  'Deuteronômio': 5,
+  'Josué': 6,
+  'Juízes': 7,
+  'Rute': 8,
+  '1 Samuel': 9,
+  '2 Samuel': 10,
+  '1 Reis': 11,
+  '2 Reis': 12,
+  '1 Crônicas': 13,
+  '2 Crônicas': 14,
+  'Esdras': 15,
+  'Neemias': 16,
+  'Ester': 17,
+  'Jó': 18,
+  'Salmos': 19,
+  'Provérbios': 20,
+  'Eclesiastes': 21,
+  'Cântico dos Cânticos': 22,
+  'Isaías': 23,
+  'Jeremias': 24,
+  'Lamentações': 25,
+  'Ezequiel': 26,
+  'Daniel': 27,
+  'Oséias': 28,
+  'Joel': 29,
+  'Amós': 30,
+  'Obadias': 31,
+  'Jonas': 32,
+  'Miqueias': 33,
+  'Naum': 34,
+  'Habacuque': 35,
+  'Sofonias': 36,
+  'Ageu': 37,
+  'Zacarias': 38,
+  'Malaquias': 39,
 };
 
 /**
@@ -66,6 +107,7 @@ const VERSAO_PARA_SLUG: Record<string, string> = {
 
 /**
  * Obter capítulo do dia (hoje)
+ * Sequência contínua: 260 capítulos NT + 929 capítulos AT = 1189 capítulos totais
  */
 export function getCapituloDoDia(): { livro: string; numero: number } {
   const hoje = new Date();
@@ -74,7 +116,7 @@ export function getCapituloDoDia(): { livro: string; numero: number } {
   const umDia = 24 * 60 * 60 * 1000;
   const indiceHoje = Math.floor((hoje.getTime() - primeiroDeJaneiro.getTime()) / umDia);
 
-  const indexeCorreto = Math.min(indiceHoje, sequenciaNovoTestamento.length - 1);
+  const indexeCorreto = Math.min(indiceHoje, sequenciaBibliaCompleta.length - 1);
   const cap = getCapituloByIndex(indexeCorreto);
   return {
     livro: cap.livro,

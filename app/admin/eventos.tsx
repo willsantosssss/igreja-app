@@ -44,26 +44,22 @@ export default function AdminEventosScreen() {
   const [form, setForm] = useState<FormData>(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
 
-  // @ts-expect-error - Endpoint eventos existe mas tipos não foram regenerados ainda
   const { data: eventosData, isLoading, refetch } = trpc.eventos.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
 
-  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
   const criarMutation = trpc.eventos.create.useMutation({
     onSuccess: () => {
       refetch();
     },
   });
 
-  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
   const atualizarMutation = trpc.eventos.update.useMutation({
     onSuccess: () => {
       refetch();
     },
   });
 
-  // @ts-expect-error - Tipos serão regenerados após reiniciar servidor
   const deletarMutation = trpc.eventos.delete.useMutation({
     onSuccess: () => {
       refetch();

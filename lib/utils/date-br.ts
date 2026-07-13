@@ -32,8 +32,9 @@ const MESES = [
 ];
 
 /**
- * Converte uma string de data para objeto Date com timezone correto
+ * Converte uma string de data para objeto Date
  * Aceita formatos: YYYY-MM-DD, DD/MM/YYYY, ISO 8601
+ * Usa ISO format com Z para garantir que a data nao sofra offset de timezone
  */
 export function parseDataBR(dateStr: string): Date {
   if (!dateStr) return new Date();
@@ -46,13 +47,15 @@ export function parseDataBR(dateStr: string): Date {
   // Se for YYYY-MM-DD
   if (dateStr.includes('-') && dateStr.length === 10) {
     const [ano, mes, dia] = dateStr.split('-');
-    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    const isoStr = `${ano}-${String(parseInt(mes)).padStart(2, '0')}-${String(parseInt(dia)).padStart(2, '0')}`;
+    return new Date(isoStr + 'T00:00:00Z');
   }
 
   // Se for DD/MM/YYYY
   if (dateStr.includes('/')) {
     const [dia, mes, ano] = dateStr.split('/');
-    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    const isoStr = `${ano}-${String(parseInt(mes)).padStart(2, '0')}-${String(parseInt(dia)).padStart(2, '0')}`;
+    return new Date(isoStr + 'T00:00:00Z');
   }
 
   return new Date(dateStr);
@@ -60,13 +63,21 @@ export function parseDataBR(dateStr: string): Date {
 
 /**
  * Formata uma data para DD/MM/YYYY
+ * Se for string, retorna como está (já em DD/MM/YYYY)
+ * Se for Date, converte para DD/MM/YYYY
  */
 export function formatarDataBR(date: Date | string): string {
   try {
+    // Se já for string em formato DD/MM/YYYY, retorna como está
+    if (typeof date === 'string' && date.includes('/') && date.length === 10) {
+      return date;
+    }
+    
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const dia = String(d.getDate()).padStart(2, '0');
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
-    const ano = d.getFullYear();
+    // Usar getUTCDate, getUTCMonth, getUTCFullYear para evitar offset de timezone
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const ano = d.getUTCFullYear();
     return `${dia}/${mes}/${ano}`;
   } catch {
     return '';
@@ -80,10 +91,10 @@ export function formatarDataBR(date: Date | string): string {
 export function formatarDataCompletaBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
-    const ano = d.getFullYear();
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
+    const ano = d.getUTCFullYear();
     return `${diaSemana}, ${dia} de ${mes} de ${ano}`;
   } catch {
     return '';
@@ -97,9 +108,9 @@ export function formatarDataCompletaBR(date: Date | string): string {
 export function formatarDiaSemanaBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = String(d.getDate()).padStart(2, '0');
-    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = String(d.getUTCDate()).padStart(2, '0');
+    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
     return `${diaSemana}, ${dia}/${mes}`;
   } catch {
     return '';
@@ -113,8 +124,8 @@ export function formatarDiaSemanaBR(date: Date | string): string {
 export function formatarDiaMesBR(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
     return `${dia} de ${mes}`;
   } catch {
     return '';
@@ -127,10 +138,18 @@ export function formatarDiaMesBR(date: Date | string): string {
  */
 export function formatarDataCurtaBR(date: Date | string): string {
   try {
+    // Se já for string em formato DD/MM/YYYY, extrai dia e mês diretamente
+    if (typeof date === 'string' && date.includes('/') && date.length === 10) {
+      const [dia, mes, ano] = date.split('/');
+      const mesNum = parseInt(mes) - 1;
+      const diaSemana = DIAS_SEMANA[new Date(parseInt(ano), mesNum, parseInt(dia)).getDay()];
+      return `${diaSemana}, ${dia} ${MESES[mesNum]}`;
+    }
+    
     const d = typeof date === 'string' ? parseDataBR(date) : date;
-    const diaSemana = DIAS_SEMANA[d.getDay()];
-    const dia = d.getDate();
-    const mes = MESES[d.getMonth()];
+    const diaSemana = DIAS_SEMANA[d.getUTCDay()];
+    const dia = d.getUTCDate();
+    const mes = MESES[d.getUTCMonth()];
     return `${diaSemana}, ${dia} ${mes}`;
   } catch {
     return '';

@@ -364,4 +364,17 @@ export const anexos = mysqlTable("anexos", {
 export type Anexo = typeof anexos.$inferSelect;
 export type InsertAnexo = typeof anexos.$inferInsert;
 
+// Recados Importantes table
+export const recados = mysqlTable("recados", {
+  id: int("id").primaryKey().autoincrement(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  conteudo: text("conteudo").notNull(),
+  ativo: int("ativo").default(1).notNull(),
+  criado_em: timestamp("criado_em").defaultNow().notNull(),
+  atualizado_em: timestamp("atualizado_em").defaultNow().notNull(),
+});
+
+export type Recado = typeof recados.$inferSelect;
+export type InsertRecado = typeof recados.$inferInsert;
+
 

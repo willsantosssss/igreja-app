@@ -1,4 +1,3 @@
-import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -8,7 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/use-auth";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
+import { Platform, Modal, ScrollView, Text, View, TouchableOpacity, TextInput, Alert, ActivityIndicator } from "react-native";
 
 export default function PerfilScreen() {
   const colors = useColors();
@@ -216,7 +215,7 @@ export default function PerfilScreen() {
             <View className="gap-2">
               <Text className="text-sm font-semibold text-foreground">Célula</Text>
               <TouchableOpacity
-                onPress={() => setMostrarCelulas(!mostrarCelulas)}
+                onPress={() => setMostrarCelulas(true)}
                 className="bg-surface border border-border rounded-xl px-4 py-3 flex-row justify-between items-center"
               >
                 <Text className={celula ? "text-foreground" : "text-muted"}>
@@ -224,24 +223,6 @@ export default function PerfilScreen() {
                 </Text>
                 <IconSymbol name="chevron.right" size={20} color={colors.muted} />
               </TouchableOpacity>
-              {mostrarCelulas && celulas && (
-                <View className="bg-surface border border-border rounded-xl overflow-hidden">
-                  <ScrollView style={{ maxHeight: 200 }}>
-                    {celulas.map((c) => (
-                      <TouchableOpacity
-                        key={c.id}
-                        onPress={() => {
-                          setCelula(c.nome);
-                          setMostrarCelulas(false);
-                        }}
-                        className="px-4 py-3 border-b border-border"
-                      >
-                        <Text className="text-foreground font-semibold">{c.nome}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-              )}
             </View>
           </View>
           <TouchableOpacity
@@ -313,7 +294,7 @@ export default function PerfilScreen() {
           <View className="gap-2">
             <Text className="text-sm font-semibold text-foreground">Célula</Text>
             <TouchableOpacity
-              onPress={() => setMostrarCelulas(!mostrarCelulas)}
+              onPress={() => setMostrarCelulas(true)}
               className="bg-surface border border-border rounded-xl px-4 py-3 flex-row justify-between items-center"
             >
               <Text className={celula ? "text-foreground" : "text-muted"}>
@@ -321,35 +302,6 @@ export default function PerfilScreen() {
               </Text>
               <IconSymbol name="chevron.right" size={20} color={colors.muted} />
             </TouchableOpacity>
-            
-            {mostrarCelulas && celulas && (
-              <View className="bg-surface border border-border rounded-xl overflow-hidden">
-                <ScrollView style={{ maxHeight: 200 }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setCelula("");
-                      setMostrarCelulas(false);
-                    }}
-                    className="px-4 py-3 border-b border-border"
-                  >
-                    <Text className="text-muted">Nenhuma</Text>
-                  </TouchableOpacity>
-                  {celulas.map((c) => (
-                    <TouchableOpacity
-                      key={c.id}
-                      onPress={() => {
-                        setCelula(c.nome);
-                        setMostrarCelulas(false);
-                      }}
-                      className="px-4 py-3 border-b border-border"
-                    >
-                      <Text className="text-foreground font-semibold">{c.nome}</Text>
-                      <Text className="text-xs text-muted">Líder: {c.lider}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
           </View>
 
           {/* Botão Salvar */}
@@ -390,6 +342,65 @@ export default function PerfilScreen() {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Modal Seletor de Células */}
+      <Modal
+        visible={mostrarCelulas}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMostrarCelulas(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <View
+            style={{
+              flex: 1,
+              marginTop: "auto",
+              backgroundColor: colors.background,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingTop: 20,
+            }}
+          >
+            <View className="px-6 pb-4 border-b border-border flex-row items-center justify-between">
+              <Text className="text-lg font-bold text-foreground">Selecione sua Célula</Text>
+              <TouchableOpacity onPress={() => setMostrarCelulas(false)}>
+                <IconSymbol name="chevron.right" size={24} color={colors.muted} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView className="flex-1 px-6 py-4">
+              <TouchableOpacity
+                onPress={() => {
+                  setCelula("");
+                  setMostrarCelulas(false);
+                }}
+                className="py-4 border-b border-border"
+              >
+                <Text className="text-base text-muted font-medium">Nenhuma</Text>
+              </TouchableOpacity>
+              {celulas && celulas.length > 0 ? (
+                celulas.map((cel) => (
+                  <TouchableOpacity
+                    key={cel.id}
+                    onPress={() => {
+                      setCelula(cel.nome);
+                      setMostrarCelulas(false);
+                    }}
+                    className="py-4 border-b border-border"
+                  >
+                    <Text className="text-base text-foreground font-medium">{cel.nome}</Text>
+                    <Text className="text-sm text-muted mt-1">Líder: {cel.lider || "N/A"}</Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View className="px-4 py-3">
+                  <Text className="text-muted text-center">Nenhuma célula disponível</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }

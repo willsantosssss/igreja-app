@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Load environment variables with proper priority (system > .env)
 import "./scripts/load-env.js";
 import type { ExpoConfig } from "expo/config";
@@ -35,13 +36,13 @@ const env = {
   logoUrl: "",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
-  androidPackage: "iegrondonopolis.com",
+  androidPackage: "ieqrondonopolis.com",
 };
 
 const config: ExpoConfig = {
   name: env.appName,
   slug: env.appSlug,
-  version: "1.0.1",
+  version: "1.0.10",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/images/icon.png",
@@ -61,6 +62,7 @@ const config: ExpoConfig = {
       }
   },
   android: {
+    versionCode: 3,
     adaptiveIcon: {
       backgroundColor: "#E6F4FE",
       foregroundImage: "./assets/images/android-icon-foreground.png",

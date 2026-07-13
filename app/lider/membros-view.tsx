@@ -6,6 +6,7 @@ import { BackButton } from '@/components/back-button';
 import { trpc } from '@/lib/trpc';
 import { obterSessaoLider } from '@/lib/data/lideres';
 import { useState, useEffect } from 'react';
+import { formatarDataBR } from '@/lib/utils/date-br';
 
 export default function MembrosViewScreen() {
   const colors = useColors();
@@ -79,7 +80,7 @@ export default function MembrosViewScreen() {
       <View className="flex-1">
         <Text className="text-foreground font-semibold">{item.nome}</Text>
         <Text className="text-xs text-muted">
-          {item.dataNascimento ? new Date(item.dataNascimento).toLocaleDateString('pt-BR') : 'Data não informada'}
+          {item.dataNascimento ? formatarDataBR(item.dataNascimento) : 'Data não informada'}
         </Text>
       </View>
     </View>

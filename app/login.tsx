@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import { Alert, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";

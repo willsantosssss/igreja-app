@@ -52,10 +52,10 @@ export function getApiBaseUrl(): string {
     return `${protocol}//${apiHostname}`;
   }
 
-  // On native, derive from current hostname by replacing port 8081 with 3000
+  // On native, use Railway production URL as fallback
   if (typeof window === "undefined" && typeof location === "undefined") {
-    // This is a native platform, but we don't have location info
-    return "";
+    // This is a native platform, use Railway URL
+    return "https://igreja-app-production-9432.up.railway.app";
   }
 
   // Fallback to empty (will use relative URL)

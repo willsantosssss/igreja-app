@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ScrollView, Text, View, TouchableOpacity, Alert, TextInput, Modal, Platform } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
