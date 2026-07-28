@@ -62,7 +62,7 @@ const config: ExpoConfig = {
       }
   },
   android: {
-    versionCode: 3,
+    versionCode: 4,
     adaptiveIcon: {
       backgroundColor: "#E6F4FE",
       foregroundImage: "./assets/images/android-icon-foreground.png",
@@ -126,8 +126,8 @@ const config: ExpoConfig = {
         android: {
           buildArchs: ["armeabi-v7a", "arm64-v8a"],
           minSdkVersion: 24,
-          targetSdkVersion: 35,
-          compileSdkVersion: 35,
+          targetSdkVersion: 36,
+          compileSdkVersion: 36,
           kotlinVersion: "2.2.20",
           gradleVersion: "8.10.2",
           ndkVersion: "27.0.12077973",
