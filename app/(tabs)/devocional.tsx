@@ -219,6 +219,21 @@ export default function DevocionaiScreen() {
                 <Text className="text-background font-semibold">Tentar Novamente</Text>
               </TouchableOpacity>
             </View>
+          ) : capitulo?.indisponivel ? (
+            <View className="bg-warning/10 p-4 rounded-xl mb-4 border border-warning/30">
+              <Text className="text-base font-bold text-warning mb-2">
+                A versão {versao} está indisponível no momento
+              </Text>
+              <Text className="text-foreground leading-relaxed">
+                {capitulo.versos[0]?.texto}
+              </Text>
+              <TouchableOpacity
+                className="mt-4 bg-primary py-2 rounded-lg items-center"
+                onPress={carregarCapituloDoDia}
+              >
+                <Text className="text-background font-semibold">Tentar novamente</Text>
+              </TouchableOpacity>
+            </View>
           ) : capitulo ? (
             <View className="bg-surface p-4 rounded-xl mb-4" style={{ minHeight: 200 }}>
               <Text className="text-lg font-bold text-foreground mb-3">

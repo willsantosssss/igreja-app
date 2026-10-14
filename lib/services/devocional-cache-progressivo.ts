@@ -15,6 +15,7 @@ export interface CapituloDevocional {
   numero: number;
   versos: VersoDevocional[];
   versao: 'NAA' | 'NVI';
+  indisponivel?: boolean;
   dataCarregamento?: string;
 }
 
@@ -143,6 +144,30 @@ function limparHTML(html: string): string {
 }
 
 /**
+ * A API bolls.life pode devolver um aviso de licenciamento como se fosse
+ * um capítulo quando uma tradução não está disponível. Esse texto nunca
+ * deve ser exibido ou salvo como se fosse a Bíblia.
+ */
+const MARCADORES_CONTEUDO_NAO_BIBLICO = [
+  'biblica, inc',
+  'tradução niv/nvi',
+  'bolls.life',
+  'escolheram os lucros financeiros',
+  'versões impressas de suas traduções',
+];
+
+function textoNaoBiblico(texto: string): boolean {
+  const normalizado = texto.toLocaleLowerCase('pt-BR');
+  return MARCADORES_CONTEUDO_NAO_BIBLICO.some((marcador) =>
+    normalizado.includes(marcador)
+  );
+}
+
+function versosValidos(versos: VersoDevocional[]): boolean {
+  return versos.length > 0 && !versos.some((verso) => textoNaoBiblico(verso.texto));
+}
+
+/**
  * Buscar capítulo com cache progressivo
  * Tenta: Cache → API bolls.life → Fallback
  */
@@ -158,13 +183,14 @@ export async function buscarCapituloComCache(
     const cached = await AsyncStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached) as CapituloDevocional;
-      // Verificar se o cache tem mais de 2 versículos (cache antigo incompleto)
-      if (parsed.versos && parsed.versos.length > 3) {
+      if (parsed.versos && versosValidos(parsed.versos)) {
         console.log(`[Cache Progressivo] Capítulo ${livro} ${numero} carregado do cache (${parsed.versos.length} versículos)`);
         return parsed;
       }
-      // Cache antigo com poucos versículos — buscar novamente
-      console.log(`[Cache Progressivo] Cache antigo com apenas ${parsed.versos?.length} versículos, buscando novamente...`);
+      // Remove também caches antigos que continham o aviso indevido da NVI.
+      console.log(`[Cache Progressivo] Cache inválido ou incompleto para ${livro} ${numero}, buscando novamente...`);
+      await AsyncStorage.removeItem(cacheKey);
+      await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY + cacheKey);
     }
 
     // 2. Tentar buscar da API bolls.life
@@ -200,6 +226,7 @@ export async function buscarCapituloComCache(
         },
       ],
       versao,
+      indisponivel: true,
       dataCarregamento: new Date().toISOString(),
     };
   } catch (error) {
@@ -214,6 +241,7 @@ export async function buscarCapituloComCache(
         },
       ],
       versao,
+      indisponivel: true,
       dataCarregamento: new Date().toISOString(),
     };
   }
@@ -263,7 +291,7 @@ async function buscarDaAPIBolls(
         texto: limparHTML(v.text || ''),
       })).filter((v: VersoDevocional) => v.texto.length > 0);
 
-      if (versos.length > 0) {
+      if (versosValidos(versos)) {
         return {
           livro,
           numero,
@@ -329,9 +357,9 @@ async function buscarDaAPIAlternativa(
       const versos: VersoDevocional[] = data.verses.map((v: any) => ({
         numero: v.number || v.verse || 0,
         texto: limparHTML(v.text || v.content || ''),
-      }));
+      })).filter((v: VersoDevocional) => v.texto.length > 0);
 
-      if (versos.length > 0) {
+      if (versosValidos(versos)) {
         return {
           livro,
           numero,
