@@ -6,7 +6,7 @@ import {
   CapituloDevocional,
 } from '@/lib/services/devocional-cache-progressivo';
 
-export function useDevocionaiProgressivo(versao: 'NAA' | 'NVI' = 'NAA') {
+export function useDevocionaiProgressivo(versao: 'NAA' = 'NAA') {
   const [capitulo, setCapitulo] = useState<CapituloDevocional | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

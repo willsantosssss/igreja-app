@@ -20,7 +20,7 @@ export interface Capitulo {
   livro: string;
   numero: number;
   versos: Verso[];
-  versao: 'NAA' | 'NVI';
+  versao: 'NAA';
 }
 
 export interface Verso {
@@ -94,7 +94,7 @@ export const SEQUENCIA_NT = [
 export async function buscarCapitulo(
   livro: string,
   numero: number,
-  versao: 'NAA' | 'NVI' = 'NAA'
+  versao: 'NAA' = 'NAA'
 ): Promise<Capitulo | null> {
   const cacheKey = `${CACHE_KEY_PREFIX}${livro}_${numero}_${versao}`;
 
@@ -133,12 +133,12 @@ export async function buscarCapitulo(
 async function buscarDaAPI(
   livro: string,
   numero: number,
-  versao: 'NAA' | 'NVI'
+  versao: 'NAA'
 ): Promise<Capitulo | null> {
   try {
     // Mapear nome do livro para versão da API
     const livroMapeado = mapearNomeLivro(livro);
-    const versaoAbrev = versao === 'NAA' ? 'naa' : 'nvi';
+    const versaoAbrev = 'naa';
 
     // Construir URL da API - formato correto para A Bíblia Digital
     // Endpoint: GET /verses/{version}/{book}/{chapter}
@@ -240,7 +240,7 @@ function mapearNomeLivro(livro: string): string {
  * Sincronizar todos os 260 capítulos do Novo Testamento com backoff exponencial
  */
 export async function sincronizarTodoNT(
-  versao: 'NAA' | 'NVI' = 'NAA',
+  versao: 'NAA' = 'NAA',
   onProgress?: (total: number, processados: number, sincronizados: number) => void
 ): Promise<number> {
   let sincronizados = 0;

@@ -114,9 +114,8 @@ describe('A Bíblia Digital API Service', () => {
   });
 
   it('deve validar versões suportadas', () => {
-    const versoesValidas = ['NAA', 'NVI'];
+    const versoesValidas = ['NAA'];
     expect(versoesValidas).toContain('NAA');
-    expect(versoesValidas).toContain('NVI');
   });
 
   it('deve ter primeiro livro como Mateus', () => {

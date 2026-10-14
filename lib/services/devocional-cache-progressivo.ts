@@ -14,7 +14,7 @@ export interface CapituloDevocional {
   livro: string;
   numero: number;
   versos: VersoDevocional[];
-  versao: 'NAA' | 'NVI';
+  versao: 'NAA';
   indisponivel?: boolean;
   dataCarregamento?: string;
 }
@@ -99,14 +99,6 @@ const LIVRO_PARA_ID: Record<string, number> = {
 };
 
 /**
- * Mapeamento de versão para slug da API bolls.life
- */
-const VERSAO_PARA_SLUG: Record<string, string> = {
-  'NAA': 'NAA',
-  'NVI': 'NVIPT',
-};
-
-/**
  * Obter capítulo do dia (hoje)
  * Sequência contínua: 260 capítulos NT + 929 capítulos AT = 1189 capítulos totais
  */
@@ -174,7 +166,7 @@ function versosValidos(versos: VersoDevocional[]): boolean {
 export async function buscarCapituloComCache(
   livro: string,
   numero: number,
-  versao: 'NAA' | 'NVI' = 'NAA'
+  versao: 'NAA' = 'NAA'
 ): Promise<CapituloDevocional | null> {
   const cacheKey = `${CACHE_KEY_PREFIX}${livro}_${numero}_${versao}`;
 
@@ -187,7 +179,7 @@ export async function buscarCapituloComCache(
         console.log(`[Cache Progressivo] Capítulo ${livro} ${numero} carregado do cache (${parsed.versos.length} versículos)`);
         return parsed;
       }
-      // Remove também caches antigos que continham o aviso indevido da NVI.
+      // Remove caches antigos que contenham conteúdo inválido.
       console.log(`[Cache Progressivo] Cache inválido ou incompleto para ${livro} ${numero}, buscando novamente...`);
       await AsyncStorage.removeItem(cacheKey);
       await AsyncStorage.removeItem(CACHE_TIMESTAMP_KEY + cacheKey);
@@ -253,7 +245,7 @@ export async function buscarCapituloComCache(
 async function buscarDaAPIBolls(
   livro: string,
   numero: number,
-  versao: 'NAA' | 'NVI'
+  versao: 'NAA'
 ): Promise<CapituloDevocional | null> {
   try {
     const bookId = LIVRO_PARA_ID[livro];
@@ -262,7 +254,7 @@ async function buscarDaAPIBolls(
       return null;
     }
 
-    const slug = VERSAO_PARA_SLUG[versao] || 'NAA';
+    const slug = 'NAA';
     const url = `https://bolls.life/get-text/${slug}/${bookId}/${numero}/`;
 
     const controller = new AbortController();
@@ -319,7 +311,7 @@ async function buscarDaAPIBolls(
 async function buscarDaAPIAlternativa(
   livro: string,
   numero: number,
-  versao: 'NAA' | 'NVI'
+  versao: 'NAA'
 ): Promise<CapituloDevocional | null> {
   try {
     const mapaAbrev: Record<string, string> = {
@@ -335,7 +327,7 @@ async function buscarDaAPIAlternativa(
     const livroAbrev = mapaAbrev[livro];
     if (!livroAbrev) return null;
 
-    const versaoAbrev = versao === 'NAA' ? 'naa' : 'nvi';
+    const versaoAbrev = 'naa';
     const url = `https://www.abibliadigital.com.br/api/verses/${versaoAbrev}/${livroAbrev}/${numero}`;
 
     const controller = new AbortController();

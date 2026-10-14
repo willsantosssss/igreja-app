@@ -11,7 +11,7 @@ import { Share } from 'react-native';
 export default function DevocionaiScreen() {
   const colors = useColors();
   const router = useRouter();
-  const [versao, setVersao] = useState<'NAA' | 'NVI'>('NAA');
+  const versao = 'NAA' as const;
   const [fontSize, setFontSize] = useState(16);
   const [mostrarAnotacoes, setMostrarAnotacoes] = useState(false);
   const [anotacao, setAnotacao] = useState('');
@@ -175,22 +175,12 @@ export default function DevocionaiScreen() {
             </Text>
           </View>
 
-          {/* Versão e Tamanho de Fonte */}
+          {/* Versão única e tamanho de fonte */}
           <View className="flex-row gap-2 mb-4">
             <View className="flex-1 flex-row gap-2">
-              {(['NAA', 'NVI'] as const).map((v) => (
-                <TouchableOpacity
-                  key={v}
-                  className={`flex-1 py-2 rounded-lg items-center ${
-                    versao === v ? 'bg-primary' : 'bg-surface'
-                  }`}
-                  onPress={() => setVersao(v)}
-                >
-                  <Text className={versao === v ? 'text-background font-semibold' : 'text-foreground'}>
-                    {v}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              <View className="flex-1 py-2 rounded-lg items-center bg-primary">
+                <Text className="text-background font-semibold">NAA</Text>
+              </View>
             </View>
 
             <TouchableOpacity

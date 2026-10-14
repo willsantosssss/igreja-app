@@ -1,18 +1,12 @@
 /**
  * Serviço de integração com Bible API
  * Fornece acesso a 260 capítulos do Novo Testamento
- * Versões suportadas: NAA, NVI
+ * Versão suportada: NAA (Nova Almeida Atualizada)
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BIBLE_API_BASE = "https://www.bible-api.com";
-
-// Mapeamento de versões para IDs da API
-const VERSAO_MAP: Record<string, string> = {
-  NAA: "naa", // Nova Almeida Atualizada
-  NVI: "nvi", // Nova Versão Internacional
-};
 
 // Sequência de 260 capítulos do Novo Testamento
 const NOVO_TESTAMENTO = [
@@ -129,7 +123,7 @@ export interface CapituloTexto {
 export async function buscarCapituloAPI(
   livro: string,
   capitulo: number,
-  versao: "NAA" | "NVI" = "NAA"
+  versao: "NAA" = "NAA"
 ): Promise<CapituloTexto | null> {
   try {
     const cacheKey = `@biblia_${livro}_${capitulo}_${versao}`;
@@ -184,7 +178,7 @@ export async function buscarCapituloAPI(
  */
 export async function precarregarCapitulos(
   capitulos: string[],
-  versao: "NAA" | "NVI" = "NAA"
+  versao: "NAA" = "NAA"
 ): Promise<void> {
   console.log(`[Bible API] Pré-carregando ${capitulos.length} capítulos...`);
   

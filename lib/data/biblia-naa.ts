@@ -5,7 +5,7 @@ export interface BibliaCapitulo {
   id: string;
   livro: string;
   capitulo: number;
-  versao: "NAA" | "NVI";
+  versao: "NAA";
   texto: string;
   resumo: string;
 }

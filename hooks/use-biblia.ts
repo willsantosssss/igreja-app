@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { buscarCapituloAPI, CapituloTexto, getEstatisticasCache } from "@/lib/services/bible-api";
 
-export function useCapituloBiblia(livro: string, capitulo: number, versao: "NAA" | "NVI" = "NAA") {
+export function useCapituloBiblia(livro: string, capitulo: number, versao: "NAA" = "NAA") {
   const [texto, setTexto] = useState<CapituloTexto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -7,7 +7,7 @@ import {
 } from '@/lib/services/abibliadigital-api';
 
 export interface UseABibliaDigitalOptions {
-  versao?: 'NAA' | 'NVI';
+  versao?: 'NAA';
   autoSincronizar?: boolean;
 }
 

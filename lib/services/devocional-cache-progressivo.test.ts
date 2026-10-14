@@ -71,12 +71,11 @@ describe('Devocional Cache Progressivo', () => {
     const resultado = await buscarCapituloComCache('João', 1, 'NAA');
 
     expect(resultado).toBeDefined();
-    // Deve retornar texto local ou mensagem de indisponibilidade
     expect(resultado?.versos.length).toBeGreaterThan(0);
     expect(resultado?.versos[0].texto).toBeDefined();
   });
 
-  it('não deve aceitar aviso de licenciamento como texto da NVI', async () => {
+  it('não deve aceitar aviso de licenciamento como texto bíblico', async () => {
     const { buscarCapituloComCache } = await import('./devocional-cache-progressivo');
 
     vi.clearAllMocks();
@@ -87,20 +86,20 @@ describe('Devocional Cache Progressivo', () => {
         json: async () => [
           {
             verse: 1,
-            text: 'A Biblica, Inc. me proibiu de usar a tradução NIV/NVI; o Bolls.life não possui autorização para distribuir esta tradução.',
+            text: 'A Biblica, Inc. me proibiu de usar esta tradução; o Bolls.life não possui autorização para distribuí-la.',
           },
         ],
       })
       .mockResolvedValueOnce({ ok: false, status: 401 });
 
-    const resultado = await buscarCapituloComCache('Gênesis', 27, 'NVI');
+    const resultado = await buscarCapituloComCache('Gênesis', 27, 'NAA');
 
     expect(resultado?.indisponivel).toBe(true);
     expect(resultado?.versos[0].texto).not.toContain('Biblica, Inc.');
     expect(AsyncStorage.setItem).not.toHaveBeenCalled();
   });
 
-  it('deve remover do cache um capítulo NVI contaminado', async () => {
+  it('deve remover do cache um capítulo contaminado', async () => {
     const { buscarCapituloComCache } = await import('./devocional-cache-progressivo');
 
     vi.clearAllMocks();
@@ -108,12 +107,12 @@ describe('Devocional Cache Progressivo', () => {
       JSON.stringify({
         livro: 'Gênesis',
         numero: 27,
-        versao: 'NVI',
+        versao: 'NAA',
         versos: [
-          { numero: 1, texto: 'A Biblica, Inc. me proibiu de usar a tradução NIV/NVI.' },
-          { numero: 2, texto: 'A Biblica, Inc. me proibiu de usar a tradução NIV/NVI.' },
-          { numero: 3, texto: 'A Biblica, Inc. me proibiu de usar a tradução NIV/NVI.' },
-          { numero: 4, texto: 'A Biblica, Inc. me proibiu de usar a tradução NIV/NVI.' },
+          { numero: 1, texto: 'A Biblica, Inc. me proibiu de usar esta tradução.' },
+          { numero: 2, texto: 'A Biblica, Inc. me proibiu de usar esta tradução.' },
+          { numero: 3, texto: 'A Biblica, Inc. me proibiu de usar esta tradução.' },
+          { numero: 4, texto: 'A Biblica, Inc. me proibiu de usar esta tradução.' },
         ],
       })
     );
@@ -121,12 +120,11 @@ describe('Devocional Cache Progressivo', () => {
       .mockRejectedValueOnce(new Error('Network error'))
       .mockRejectedValueOnce(new Error('Network error'));
 
-    const resultado = await buscarCapituloComCache('Gênesis', 27, 'NVI');
+    const resultado = await buscarCapituloComCache('Gênesis', 27, 'NAA');
 
     expect(resultado?.indisponivel).toBe(true);
-    expect(AsyncStorage.removeItem).toHaveBeenCalledWith('@devocional_cache_Gênesis_27_NVI');
+    expect(AsyncStorage.removeItem).toHaveBeenCalledWith('@devocional_cache_Gênesis_27_NAA');
   });
-
 
   it.skip('deve retornar estatísticas do cache', async () => {
     const { obterEstatisticasCache } = await import('./devocional-cache-progressivo');

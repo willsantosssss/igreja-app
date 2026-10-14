@@ -6,7 +6,7 @@ export interface CapituloDevocional {
   livro: string;
   capitulo: number;
   texto: string;
-  versao: 'NAA' | 'NVI';
+  versao: 'NAA';
   data: string;
 }
 
@@ -17,7 +17,7 @@ export function useDevocionalOffline() {
   const [capitulo, setCapitulo] = useState<CapituloDevocional | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [versao, setVersao] = useState<'NAA' | 'NVI'>('NAA');
+  const [versao] = useState<'NAA'>('NAA');
 
   useEffect(() => {
     carregarDevocionalDia();
@@ -129,7 +129,6 @@ export function useDevocionalOffline() {
     isLoading,
     error,
     versao,
-    setVersao,
     irParaCapitulo,
     irParaProximo,
     irParaAnterior,
