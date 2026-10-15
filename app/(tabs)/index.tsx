@@ -1,20 +1,15 @@
-import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useEffect, useMemo, useState } from "react";
-import { router } from "expo-router";
-import { Linking } from "react-native";
-import { trpc } from "@/lib/trpc";
-import { ScreenContainer } from "@/components/screen-container";
-import { useColors } from "@/hooks/use-colors";
-import { useDevocionaiProgressivo } from "@/hooks/use-devocional-progressivo";
+import { ScrollView, Text, View, TouchableOpacity, ActivityIndicator, TextInput, Alert, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScreenContainer } from '@/components/screen-container';
+import { useColors } from '@/hooks/use-colors';
+import { router } from 'expo-router';
+import { useDevocionaiProgressivo } from '@/hooks/use-devocional-progressivo';
+import { Image } from 'react-native';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { formatarDataBR, formatarDiaSemanaBR, obterMesAtual } from '@/lib/utils/date-br';
+import { trpc } from '@/lib/trpc';
+
 
 interface Usuario {
   nome: string;
@@ -29,76 +24,23 @@ interface ProximoEvento {
   local: string;
 }
 
-type CardProps = {
-  title: string;
-  description: string;
-  icon: string;
-  image: number;
-  onPress: () => void;
-};
 
-const logo2IEQ = require("@/assets/images/logo-2ieq.png");
-const imageDevocional = require("@/assets/images/home-card-devocional.jpg");
-const imageEventos = require("@/assets/images/home-card-eventos.jpg");
-const imageCelulas = require("@/assets/images/home-card-celulas.jpg");
-const imageOracao = require("@/assets/images/home-card-oracao.jpg");
-const imageNoticias = require("@/assets/images/home-card-noticias.jpg");
-const imageAniversariantes = require("@/assets/images/home-card-aniversariantes.jpg");
-
-function VisualCard({ title, description, icon, image, onPress }: CardProps) {
-  return (
-    <TouchableOpacity activeOpacity={0.82} onPress={onPress} style={styles.card}>
-      <Image source={image} style={styles.cardBackground} resizeMode="cover" />
-      <View style={styles.cardOverlay} />
-      <View style={styles.cardContent}>
-          <View style={styles.cardIcon}>
-            <Text style={styles.cardIconText}>{icon}</Text>
-          </View>
-          <View style={styles.cardTextBlock}>
-            <Text style={styles.cardTitle}>{title}</Text>
-            <Text style={styles.cardDescription} numberOfLines={2}>
-              {description}
-            </Text>
-          </View>
-          <Text style={styles.cardArrow}>›</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
 
 export default function HomeScreen() {
   const colors = useColors();
   const [refreshing, setRefreshing] = useState(false);
   const [aniversariantesHoje, setAniversariantesHoje] = useState<Usuario[]>([]);
   const [proximoEvento, setProximoEvento] = useState<ProximoEvento | null>(null);
-  const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo("NAA");
+
+
+
+  const { capitulo, loading, carregarCapituloDoDia } = useDevocionaiProgressivo('NAA');
 
   const mesAtual = new Date().getMonth() + 1;
   const { data: aniversariantesData } = trpc.usuarios.getAniversariantes.useQuery(mesAtual as any, {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
-  const { data: eventosData } = trpc.eventos.list.useQuery(undefined, {
-    refetchOnWindowFocus: true,
-    refetchInterval: 30000,
-  });
-
-  const carregarAniversariantes = () => {
-    if (!aniversariantesData) return;
-    const hoje = new Date();
-    const diaHoje = hoje.getDate();
-    const mesHoje = hoje.getMonth() + 1;
-    const aniversariantes = (aniversariantesData as any[]).filter((user) => {
-      const data = user.dataNascimento as string;
-      if (data.includes("-")) {
-        const [, mes, dia] = data.split("-");
-        return Number(dia) === diaHoje && Number(mes) === mesHoje;
-      }
-      const [dia, mes] = data.split("/");
-      return Number(dia) === diaHoje && Number(mes) === mesHoje;
-    });
-    setAniversariantesHoje(aniversariantes as Usuario[]);
-  };
 
   useEffect(() => {
     carregarCapituloDoDia();
@@ -108,35 +50,75 @@ export default function HomeScreen() {
     carregarAniversariantes();
   }, [aniversariantesData]);
 
-  useEffect(() => {
-    if (!eventosData?.length) {
-      setProximoEvento(null);
-      return;
-    }
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const eventosFuturos = (eventosData as any[])
-      .filter((evento) => {
-        const data = new Date((evento.data as string).includes("T") ? evento.data : `${evento.data}T00:00:00`);
-        data.setHours(0, 0, 0, 0);
-        return data >= hoje;
-      })
-      .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+  const carregarAniversariantes = () => {
+    if (aniversariantesData) {
+      const hoje = new Date();
+      const diaHoje = hoje.getDate();
+      const mesHoje = hoje.getMonth() + 1;
 
-    const evento = eventosFuturos[0];
-    if (!evento) {
-      setProximoEvento(null);
-      return;
+      const aniversariantes = (aniversariantesData as any[]).filter((user) => {
+        // Suportar ambos formatos: YYYY-MM-DD e DD/MM/YYYY
+        let dia, mes;
+        if ((user.dataNascimento as string).includes("-")) {
+          const [ano, m, d] = (user.dataNascimento as string).split("-");
+          dia = parseInt(d);
+          mes = parseInt(m);
+        } else {
+          const [d, m] = (user.dataNascimento as string).split("/");
+          dia = parseInt(d);
+          mes = parseInt(m);
+        }
+        return dia === diaHoje && mes === mesHoje;
+      });
+      setAniversariantesHoje(aniversariantes as Usuario[]);
     }
-    const data = new Date((evento.data as string).includes("T") ? evento.data : `${evento.data}T00:00:00`);
-    const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    setProximoEvento({
-      nome: evento.titulo as string,
-      data: `${diasSemana[data.getDay()]}, ${data.getDate()}/${data.getMonth() + 1}`,
-      hora: evento.horario as string,
-      local: evento.local as string,
-    });
+  };
+
+  const { data: eventosData } = trpc.eventos.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  });
+
+  useEffect(() => {
+    if (eventosData && eventosData.length > 0) {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      // Filtrar eventos futuros e ordenar por data
+      const eventosFuturos = (eventosData as any[])
+        .filter((e: any) => {
+          const dataStr = (e.data as string).includes('T') ? e.data : `${e.data}T00:00:00`;
+          const dataEvento = new Date(dataStr);
+          dataEvento.setHours(0, 0, 0, 0);
+          return dataEvento >= hoje;
+        })
+        .sort((a: any, b: any) => {
+          const dataAStr = (a.data as string).includes('T') ? a.data : `${a.data}T00:00:00`;
+          const dataBStr = (b.data as string).includes('T') ? b.data : `${b.data}T00:00:00`;
+          return new Date(dataAStr).getTime() - new Date(dataBStr).getTime();
+        });
+
+      if (eventosFuturos.length > 0) {
+        const evento = eventosFuturos[0];
+        // Adicionar "T00:00:00" para interpretar como meia-noite no fuso horário local
+        const dataStr = (evento.data as string).includes('T') ? evento.data : `${evento.data}T00:00:00`;
+        const data = new Date(dataStr);
+        const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        const diaSemana = diasSemana[data.getDay()];
+
+        setProximoEvento({
+          nome: evento.titulo as string,
+          data: `${diaSemana}, ${data.getDate()}/${data.getMonth() + 1}`,
+          hora: evento.horario as string,
+          local: evento.local as string
+        });
+      } else {
+        setProximoEvento(null);
+      }
+    }
   }, [eventosData]);
+
+
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -145,247 +127,191 @@ export default function HomeScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  const devotionalDescription = useMemo(() => {
-    if (loading) return "Carregando o capítulo do dia...";
-    if (!capitulo) return "Separe um tempo para sua leitura e reflexão.";
-    return `${capitulo.livro} ${capitulo.numero} · ${capitulo.versos[0]?.texto ?? "Leia o capítulo do dia."}`;
-  }, [capitulo, loading]);
-
-  const eventDescription = proximoEvento
-    ? `${proximoEvento.data}, ${proximoEvento.hora} · ${proximoEvento.local}`
-    : "Confira a agenda para ver os próximos eventos.";
-
-  const birthdayDescription = aniversariantesHoje.length
-    ? aniversariantesHoje.map((user) => `${user.nome}${user.celula ? ` · ${user.celula}` : ""}`).join("\n")
-    : "Nenhum aniversariante hoje. Confira os próximos na aba Mais.";
-
   return (
-    <ScreenContainer containerClassName="bg-black" safeAreaClassName="bg-black">
+    <ScreenContainer>
       <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        contentContainerStyle={{ padding: 20, gap: 20 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+        }
       >
-        <View style={styles.header}>
-          <Image source={logo2IEQ} style={styles.logo} resizeMode="contain" />
-          <View style={styles.headerActions}>
-            <Text style={styles.headerIcon}>⌕</Text>
-            <Text style={styles.headerIcon}>◉</Text>
+        {/* Header com saudação */}
+        <View className="gap-2">
+          <Text className="text-4xl font-bold text-foreground">Bem-vindo!</Text>
+          <Text className="text-base text-muted leading-relaxed">
+            Uma igreja em células, que vive o amor de Cristo e cumpre a grande comissão com paixão e persistência.
+          </Text>
+        </View>
+
+        {/* Card de Devocional do Dia */}
+        <View className="bg-primary rounded-2xl p-6 gap-3">
+          <View className="flex-row items-center gap-2">
+            <IconSymbol name="book.fill" size={24} color="#FFFFFF" />
+            <Text className="text-lg font-semibold text-white">Devocional do Dia</Text>
+          </View>
+          {loading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : capitulo ? (
+            <>
+              <Text className="text-sm text-white opacity-90" numberOfLines={2}>
+                "{capitulo.versos[0]?.texto}"
+              </Text>
+              <Text className="text-xs text-white opacity-75">{capitulo.livro} {capitulo.numero}:{capitulo.versos[0]?.numero}</Text>
+            </>
+          ) : (
+            <Text className="text-sm text-white opacity-90">Carregando devocional...</Text>
+          )}
+          <TouchableOpacity
+            className="bg-white rounded-full px-4 py-2 self-start mt-2"
+            onPress={() => router.push("/devocional")}
+            style={{ opacity: 0.95 }}
+          >
+            <Text className="text-primary font-semibold text-sm">Ler capítulo</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Card de Próximo Evento */}
+        <View className="bg-surface rounded-2xl p-6 gap-3 border border-border">
+          <View className="flex-row items-center gap-2">
+            <IconSymbol name="calendar" size={24} color={colors.primary} />
+            <Text className="text-lg font-semibold text-foreground">Próximo Evento</Text>
+          </View>
+          {proximoEvento ? (
+            <View className="gap-1">
+              <Text className="text-base font-semibold text-foreground">{proximoEvento.nome}</Text>
+              <Text className="text-sm text-muted">{proximoEvento.data}, {proximoEvento.hora}</Text>
+              <Text className="text-sm text-muted">📍 {proximoEvento.local}</Text>
+            </View>
+          ) : (
+            <View className="gap-1">
+              <Text className="text-base font-semibold text-foreground">Nenhum evento próximo</Text>
+              <Text className="text-sm text-muted">Confira a agenda para mais detalhes</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            className="border-2 rounded-full px-4 py-2 self-start mt-2"
+            style={{ borderColor: colors.primary }}
+            onPress={() => router.push("/agenda")}
+          >
+            <Text className="font-semibold text-sm" style={{ color: colors.primary }}>Ver agenda</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Grid de Acesso Rápido — 4 itens */}
+        <View className="gap-3">
+          <Text className="text-xl font-bold text-foreground">Acesso Rápido</Text>
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/celulas")}
+            >
+              <IconSymbol name="map.fill" size={32} color={colors.primary} />
+              <Text className="text-sm font-semibold text-foreground text-center">Células</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/oracao")}
+            >
+              <IconSymbol name="hands.sparkles.fill" size={32} color={colors.primary} />
+              <Text className="text-sm font-semibold text-foreground text-center">Oração</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/contribuicoes" as any)}
+            >
+              <IconSymbol name="heart.fill" size={32} color={colors.secondary} />
+              <Text className="text-sm font-semibold text-foreground text-center">Contribuir</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 bg-surface rounded-2xl p-5 items-center gap-3 border border-border"
+              onPress={() => router.push("/noticias" as any)}
+            >
+              <IconSymbol name="newspaper.fill" size={32} color={colors.primary} />
+              <Text className="text-sm font-semibold text-foreground text-center">Notícias</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={styles.greeting}>Olá,</Text>
-        <Text style={styles.heading}>Bem-vindo!</Text>
-        <Text style={styles.subtitle}>Juntos na fé, conectados em Cristo.</Text>
 
-        <VisualCard
-          title="Devocional do Dia"
-          description={devotionalDescription}
-          icon="▤"
-          image={imageDevocional}
-          onPress={() => router.push("/devocional")}
-        />
-        <VisualCard
-          title="Próximo Evento"
-          description={eventDescription}
-          icon="◷"
-          image={imageEventos}
-          onPress={() => router.push("/agenda")}
-        />
-        <VisualCard
-          title="Notícias"
-          description="Fique por dentro do que está acontecendo na igreja."
-          icon="▤"
-          image={imageNoticias}
-          onPress={() => router.push("/noticias" as any)}
-        />
-        <VisualCard
-          title="Células"
-          description="Encontre sua célula e viva a comunhão."
-          icon="⌖"
-          image={imageCelulas}
-          onPress={() => router.push("/celulas")}
-        />
-        <VisualCard
-          title="Aniversariantes"
-          description={birthdayDescription}
-          icon="♧"
-          image={imageAniversariantes}
-          onPress={() => router.push("/aniversariantes" as any)}
-        />
-        <VisualCard
-          title="Oração"
-          description="Compartilhe, ore e seja parte dessa corrente."
-          icon="♧"
-          image={imageOracao}
-          onPress={() => router.push("/oracao")}
-        />
-        <VisualCard
-          title="Contribuir"
-          description="Apoie a missão e os projetos da igreja."
-          icon="♡"
-          image={imageDevocional}
-          onPress={() => router.push("/contribuicoes" as any)}
-        />
 
-        <Text style={styles.socialTitle}>Redes sociais</Text>
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialButton} onPress={() => Linking.openURL("https://www.instagram.com/2ieqroo/")}>
-            <Image source={require("@/assets/images/instagram-icon.png")} style={styles.socialIcon} resizeMode="contain" />
-            <Text style={styles.socialLabel}>Instagram</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton} onPress={() => Linking.openURL("https://www.youtube.com/@2ieqroo")}>
-            <Image source={require("@/assets/images/youtube-icon.png")} style={styles.socialIcon} resizeMode="contain" />
-            <Text style={styles.socialLabel}>YouTube</Text>
-          </TouchableOpacity>
+        {/* Aniversariantes do Dia */}
+        <View className="bg-surface rounded-2xl p-5 gap-3 border border-border">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-2xl">🎂</Text>
+            <Text className="text-base font-bold text-foreground">Aniversariantes do Dia</Text>
+          </View>
+
+          {aniversariantesHoje.length > 0 ? (
+            <View className="gap-2">
+              {aniversariantesHoje.map((user, index) => (
+                <View
+                  key={index}
+                  className="flex-row items-center gap-3 bg-background rounded-xl p-3 border border-border"
+                >
+                  <View
+                    className="w-10 h-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: colors.primary + '15' }}
+                  >
+                    <Text className="text-lg">🎉</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-foreground">{user.nome}</Text>
+                    <Text className="text-xs text-muted">{user.celula || 'Sem célula'}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text className="text-sm text-muted">
+              Nenhum aniversariante hoje. Confira os próximos na aba Mais.
+            </Text>
+          )}
+        </View>
+
+        {/* Redes Sociais */}
+        <View className="bg-surface rounded-2xl p-5 gap-4 border border-border">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-2xl">📱</Text>
+            <Text className="text-base font-bold text-foreground">Acesse nossas redes sociais</Text>
+          </View>
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity
+              className="flex-1 rounded-xl py-4 items-center justify-center bg-white"
+              onPress={() => {
+                const { Linking } = require('react-native');
+                Linking.openURL('https://www.instagram.com/2ieqroo/');
+              }}
+            >
+              <Image
+                source={require('@/assets/images/instagram-icon.png')}
+                style={{ width: 48, height: 48 }}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 rounded-xl py-4 items-center justify-center bg-white"
+              onPress={() => {
+                const { Linking } = require('react-native');
+                Linking.openURL('https://www.youtube.com/@2ieqroo');
+              }}
+            >
+              <Image
+                source={require('@/assets/images/youtube-icon.png')}
+                style={{ width: 48, height: 48 }}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 34,
-    backgroundColor: "#000000",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 28,
-  },
-  logo: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-  },
-  headerActions: {
-    flexDirection: "row",
-    gap: 16,
-  },
-  headerIcon: {
-    color: "#27E2B4",
-    fontSize: 22,
-  },
-  greeting: {
-    color: "#9AAA A6".replace(" ", ""),
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  heading: {
-    color: "#F2F8F6",
-    fontSize: 30,
-    fontWeight: "800",
-    letterSpacing: -0.6,
-  },
-  subtitle: {
-    color: "#A6B9B5",
-    fontSize: 14,
-    marginTop: 4,
-    marginBottom: 22,
-  },
-  card: {
-    height: 124,
-    borderRadius: 18,
-    overflow: "hidden",
-    position: "relative",
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "rgba(90, 180, 160, 0.18)",
-  },
-  cardBackground: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: "100%",
-    height: "100%",
-  },
-  cardOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(3, 26, 25, 0.12)",
-    zIndex: 1,
-  },
-  cardContent: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 16,
-    zIndex: 2,
-  },
-  cardIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(28, 207, 166, 0.24)",
-    borderWidth: 1,
-    borderColor: "rgba(52, 233, 190, 0.42)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  cardIconText: {
-    color: "#27E2B4",
-    fontSize: 21,
-  },
-  cardTextBlock: {
-    flex: 1,
-    paddingRight: 22,
-  },
-  cardTitle: {
-    color: "#F1F7F5",
-    fontSize: 20,
-    fontWeight: "800",
-    marginTop: 1,
-    marginBottom: 5,
-  },
-  cardDescription: {
-    color: "#BDCECA",
-    fontSize: 12,
-    lineHeight: 17,
-  },
-  cardArrow: {
-    position: "absolute",
-    right: 15,
-    top: 43,
-    color: "#27E2B4",
-    fontSize: 31,
-    fontWeight: "300",
-  },
-  socialTitle: {
-    color: "#9FC0BB",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginTop: 7,
-    marginBottom: 10,
-  },
-  socialRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  socialButton: {
-    flex: 1,
-    height: 54,
-    borderRadius: 13,
-    backgroundColor: "#EFF6F3",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 7,
-  },
-  socialIcon: {
-    width: 24,
-    height: 24,
-  },
-  socialLabel: {
-    color: "#152526",
-    fontSize: 12,
-    fontWeight: "800",
-  },
-});
