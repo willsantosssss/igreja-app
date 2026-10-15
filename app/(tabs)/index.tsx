@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Image,
-  ImageBackground,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -49,9 +48,9 @@ const imageAniversariantes = require("@/assets/images/home-card-aniversariantes.
 function VisualCard({ title, description, icon, image, onPress }: CardProps) {
   return (
     <TouchableOpacity activeOpacity={0.82} onPress={onPress} style={styles.card}>
-      <ImageBackground source={image} style={styles.cardImage} imageStyle={styles.cardImageRadius}>
-        <View style={styles.cardOverlay} />
-        <View style={styles.cardContent}>
+      <Image source={image} style={styles.cardBackground} resizeMode="cover" />
+      <View style={styles.cardOverlay} />
+      <View style={styles.cardContent}>
           <View style={styles.cardIcon}>
             <Text style={styles.cardIconText}>{icon}</Text>
           </View>
@@ -62,8 +61,7 @@ function VisualCard({ title, description, icon, image, onPress }: CardProps) {
             </Text>
           </View>
           <Text style={styles.cardArrow}>›</Text>
-        </View>
-      </ImageBackground>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -293,25 +291,31 @@ const styles = StyleSheet.create({
     height: 124,
     borderRadius: 18,
     overflow: "hidden",
+    position: "relative",
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "rgba(90, 180, 160, 0.18)",
   },
-  cardImage: {
-    flex: 1,
-  },
-  cardImageRadius: {
-    borderRadius: 18,
+  cardBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
   },
   cardOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(3, 26, 25, 0.58)",
+    backgroundColor: "rgba(3, 26, 25, 0.12)",
+    zIndex: 1,
   },
   cardContent: {
     flex: 1,
     flexDirection: "row",
     alignItems: "flex-start",
     padding: 16,
+    zIndex: 2,
   },
   cardIcon: {
     width: 42,
