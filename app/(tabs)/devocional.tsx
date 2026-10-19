@@ -178,7 +178,7 @@ export default function DevocionaiScreen() {
           {/* Versão e Tamanho de Fonte */}
           <View className="flex-row gap-2 mb-4">
             <View className="flex-1 flex-row gap-2">
-              {(['NAA', 'NVI'] as const).map((v) => (
+              {(['NAA'] as const).map((v) => (
                 <TouchableOpacity
                   key={v}
                   className={`flex-1 py-2 rounded-lg items-center ${
